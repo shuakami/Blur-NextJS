@@ -1,8 +1,12 @@
-import PricingPage from "@/components/pricing-page";
+import Input from "@/components/ui/input";
+import Header from "@/components/ui/header";
 
 
 export default function Home() {
   return (
-   <PricingPage/>
+      <>
+        <Input/>
+        <Header/>
+      </>
   );
 }
