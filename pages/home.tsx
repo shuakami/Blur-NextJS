@@ -32,6 +32,6 @@ export default function Home() {
     ];
 
     return (
-        <DropdownMenu items={menuItems} columns={3} />
+        <DropdownMenu items={menuItems}/>
     );
 }
