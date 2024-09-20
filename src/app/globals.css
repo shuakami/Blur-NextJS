@@ -1,3 +1,27 @@
+/* Markdown */
+
+@import '../../styles/markdown/table.css';
+@import '../../styles/markdown/headings.css';
+@import '../../styles/markdown/text.css';
+@import '../../styles/markdown/lists.css';
+@import '../../styles/markdown/link.css';
+@import '../../styles/markdown/image.css';
+@import '../../styles/markdown/code.css';
+@import '../../styles/markdown/blockquote.css';
+@import '../../styles/markdown/horizontalRule.css';
+@import '../../styles/markdown/taskList.css';
+@import '../../styles/markdown/strikethrough.css';
+@import '../../styles/markdown/footnote.css';
+@import '../../styles/markdown/emoji.css';
+
+.markdown-body {
+  color: #0d0d0d;
+  line-height: 1.6;
+}
+
+
+/* Design System */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -278,3 +302,5 @@ body {
 .custom-scrollbar::-webkit-scrollbar-corner {
   background: transparent; /* 在两个滚动条交汇处保持透明 */
 }
+
+

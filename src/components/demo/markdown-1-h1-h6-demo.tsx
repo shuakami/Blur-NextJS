@@ -1,5 +1,5 @@
 import React from 'react';
-import { MarkdownRenderer, Style } from '@/components/ui/MarkdownRenderer'; // 引入你定义的组件
+import { MarkdownRenderer } from '@/components/ui/markdwon/MarkdownRenderer'; // 引入你定义的组件
 
 // 示例 Markdown 内容
 const markdownContent = `
@@ -30,6 +30,14 @@ Markdown 还支持有序列表：
 2. 第二项
 3. 第三项
 
+你还可以嵌套他们。
+
+1. 就比如这样：
+- 有许多活动可以帮助我们保持健康，比如：
+- 良好睡眠
+- 每晚保持7-9小时的睡眠
+- 设定规律的作息时间
+
 ###### Heading 6
 这是最小的标题级别，通常用于细微的说明文本。
 
@@ -41,9 +49,9 @@ Markdown 还支持有序列表：
 
 ![图片](/background.png)
 
-> 很帅呢。哼哼~
-
 ~哈哈其实这是我特意选的~
+
+> 很帅呢。哼哼~
 
 这个图片的链接是
 [图片](/background.png)
@@ -63,6 +71,12 @@ Markdown 还支持有序列表：
 | 图片 | 使用方括号将文本括起来，以创建图片。 |
 | 分割线 | 使用三个破折号或下划线创建分割线。 |
 
+学完后，给自己定几个任务吧？
+
+- [ ] 完成作业
+- [ ] 学习新知识
+- [ ] 提交作业
+
 `;
 
 // 演示组件
@@ -70,7 +84,6 @@ const MarkdownDemo: React.FC = () => {
     return (
         <div className="container mx-auto p-6 bg-white">
             {/* 插入样式 */}
-            <Style />
 
             {/* 渲染 Markdown 内容 */}
             <MarkdownRenderer content={markdownContent} />

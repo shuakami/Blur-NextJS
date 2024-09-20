@@ -1,0 +1,62 @@
+:root {
+    --primary-color: #1a73e8;
+    --primary-hover: #1558c5;
+    --primary-active: #0d47a1;
+    --table-header-bg: #f0f4f8;
+    --table-border-color: #e0e4e8;
+    --table-hover-bg: #f8fafc;
+}
+/* 链接样式 */
+.text-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.text-link:hover {
+    color: var(--primary-hover);
+}
+
+.text-link:active {
+    color: var(--primary-active);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .inline-image {
+        max-width: 100%;
+        margin: 1.5rem auto;
+    }
+
+    .table-header,
+    .table-cell {
+        padding: 0.75rem;
+    }
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #4285f4;
+        --primary-hover: #5c9eff;
+        --primary-active: #76adff;
+    }
+
+    .inline-image {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .table-header {
+        color: #e0e0e0;
+    }
+
+    .table-cell {
+        color: #d0d0d0;
+    }
+
+    .markdown-table {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+}

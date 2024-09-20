@@ -1,0 +1,60 @@
+.text-body {
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.8;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    max-width: 70ch; /* 控制行宽，提高可读性 */
+    text-align: justify; /* 两端对齐，适合中文阅读习惯 */
+    text-justify: inter-word; /* 确保英文单词间距合理 */
+    font-weight: 400;
+    letter-spacing: 0.01em; /* 轻微增加字间距，提高可读性 */
+    word-spacing: 0.05em; /* 增加词间距，改善英文阅读体验 */
+    text-rendering: optimizeLegibility; /* 优化字体渲染 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.text-bold {
+    font-weight: 700;
+    color: var(--emphasis-color);
+}
+
+.text-italic {
+    font-style: italic;
+    color: var(--emphasis-color);
+}
+
+/* 添加暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: #e0e0e0;
+        --emphasis-color: #a8c9ff;
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .text-body {
+        font-size: 1rem; /* 16px */
+        line-height: 1.7;
+        letter-spacing: 0;
+        word-spacing: 0.03em;
+    }
+}
+
+/* 针对高分辨率屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .text-body {
+        -webkit-font-smoothing: subpixel-antialiased;
+    }
+}
+
+/* 添加打印样式 */
+@media print {
+    .text-body {
+        font-size: 12pt;
+        line-height: 1.6;
+        color: #000;
+    }
+}

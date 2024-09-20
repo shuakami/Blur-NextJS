@@ -1,0 +1,18 @@
+.inline-code {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+}
+
+.code-block {
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
