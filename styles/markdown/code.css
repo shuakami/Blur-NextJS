@@ -1,18 +1,68 @@
-.inline-code {
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    padding: 0.2rem 0.4rem;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.95rem;
+/* 引入 Prism.js 的主题 */
+@import './code_prism.css';
+
+/* 代码块容器 */
+.code-block-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+    max-width: 100%;
 }
 
+/* 代码块样式 */
 .code-block {
-    background-color: #f5f5f5;
-    border-radius: 6px;
-    padding: 1rem;
+    background-color: rgba(248, 248, 248, 0.29); /* 柔和的灰色背景 */
+    border-radius: 8px;
+    padding: 1.25rem 1rem;
     overflow-x: auto;
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.95rem;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1); /* 微妙的边框 */
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.02); /* 柔和的阴影 */
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+/* 鼠标悬停时背景颜色变化 */
+.code-block:hover {
+    background-color: rgba(240, 240, 240, 0.34); /* 悬停时颜色变化 */
+}
+
+/* 语言标签与复制按钮共用样式 */
+.label-button-container {
+    position: absolute;
+    top: -1.5rem;
+    right: 1rem;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    background-color: rgba(51, 51, 51, 0.06);
+    color: #000000;
+    transition: background-color 0.3s ease;
+}
+
+/* 鼠标悬停时标签/按钮背景颜色变化 */
+.label-button-container:hover {
+    background-color: rgba(85, 85, 85, 0.14);
+}
+
+/* 复制按钮的图标与文字的间距 */
+.copy-icon {
+    margin-left: 0.25rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .label-button-container {
+        top: -1.2rem;
+        right: 0.75rem;
+        font-size: 0.7rem;
+    }
+
+    .code-block {
+        padding: 1rem;
+    }
 }

@@ -13,9 +13,22 @@ const markdownContent = `
 以下是一个代码块的示例：
 
 \`\`\`js
-function helloWorld() {
-  console.log('Hello, World!');
+// 定义一个函数来计算斐波那契数列
+function fibonacci(n) {
+    if (n <= 0) return [];
+    if (n === 1) return [0];
+    if (n === 2) return [0, 1];
+
+    const sequence = [0, 1];
+    for (let i = 2; i < n; i++) {
+        sequence.push(sequence[i - 1] + sequence[i - 2]);
+    }
+    return sequence;
 }
+
+// 使用示例
+const num = 10;
+console.log(\`斐波那契数列前 num 项:\`, fibonacci(num));
 \`\`\`
 
 #### Heading 4
@@ -32,11 +45,13 @@ Markdown 还支持有序列表：
 
 你还可以嵌套他们。
 
-1. 就比如这样：
-- 有许多活动可以帮助我们保持健康，比如：
-- 良好睡眠
-- 每晚保持7-9小时的睡眠
-- 设定规律的作息时间
+1. 有许多活动可以帮助我们保持健康，比如：
+   - 良好睡眠
+     - 每晚保持7-9小时的睡眠
+     - 设定规律的作息时间
+2. 健康饮食
+   - 水果
+   - 蔬菜
 
 ###### Heading 6
 这是最小的标题级别，通常用于细微的说明文本。
@@ -53,12 +68,14 @@ Markdown 还支持有序列表：
 
 > 很帅呢。哼哼~
 
+> BLBLBLLBLBL。。。。
+
 这个图片的链接是
 [图片](/background.png)
 
 ---
 
-洛小黑老师开课咯~ 在markdown中，我们可以使用这些：
+在markdown中，我们可以使用这些：
 
 | Markdown | 语法 |
 | :--- | :--- |

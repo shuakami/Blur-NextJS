@@ -8,7 +8,7 @@ import MarkdownDemo from "@/components/demo/markdown-1-h1-h6-demo";
 export default function Home() {
   return (
       <>
-          <div className="w-full h-screen bg-black">
+          <div className="w-full h-screen bg-white">
          <MarkdownDemo/>
         <ErrorModal/>
         <ChatList/>

@@ -1,40 +1,87 @@
 :root {
-    --table-header-bg: rgba(216, 216, 216, 0.17);
-    --table-border-color: #eaeaea;
-    --table-hover-bg: #ffffff;
+    --table-border-color: rgba(0, 0, 0, 0.11);  /* 边框颜色为黑灰色 */
+    --table-border-color2: rgba(0, 0, 0, 0.11);  /* 边框颜色为黑灰色 */
+    --table-header-bg: rgba(0, 0, 0, 0.05);    /* 表头背景为浅灰 */
+    --table-text-color: #1a1a1a;               /* 深灰色文本 */
+    --table-cell-padding: 0.5rem;              /* 单元格内边距 */
+    --table-border-width: 1px;                 /* 边框宽度 */
+    --table-border-width2: 1px;                 /* 边框宽度 */
+    --table-font-size: 0.875rem;               /* 字体大小 */
+    --table-line-height: 1.4;                  /* 行高 */
+    --table-max-width: 900px;                  /* 表格最大宽度 */
+    --table-border-radius: 0.3rem;             /* 微圆角设计 */
 }
 
-/* 表格样式 */
+
+/* 表格基础样式 */
 .markdown-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 2rem 0;
-    border-radius: 0.5rem;
-    overflow: hidden;
+    max-width: var(--table-max-width); /* 控制表格最大宽度 */
+    border-collapse: collapse; /* 单一边框线 */
+    margin: 1.5rem auto; /* 垂直居中，并设置上下间距 */
+    font-size: var(--table-font-size); /* 设置字体大小 */
+    line-height: var(--table-line-height); /* 设置行高 */
+    border: var(--table-border-width) solid var(--table-border-color); /* 表格外边框 */
+    border-radius: var(--table-border-radius); /* 添加微圆角 */
+    overflow: hidden; /* 确保圆角效果在表格边缘生效 */
+    /* 添加整个表格的外边框 */
+    box-shadow: 0 0 0 var(--table-border-width2) var(--table-border-color2);
 }
 
+/* 表头样式 */
 .table-header {
     background-color: var(--table-header-bg);
     font-weight: 600;
     text-align: left;
-    padding: 1rem;
-    border-bottom: 2px solid var(--table-border-color);
-    color: #333;
+    padding: var(--table-cell-padding);
+    border: var(--table-border-width) solid var(--table-border-color); /* 表头单元格的边框 */
+    color: var(--table-text-color);
 }
 
+/* 单元格样式 */
 .table-cell {
     text-align: left;
-    padding: 1rem;
-    border-bottom: 1px solid var(--table-border-color);
+    padding: var(--table-cell-padding);
+    border: var(--table-border-width) solid var(--table-border-color); /* 单元格的边框 */
+    color: var(--table-text-color);
     transition: background-color 0.2s ease;
+    border-radius: var(--table-border-radius); /* 微圆角单元格 */
 }
 
-.markdown-table tr:last-child .table-cell {
-    border-bottom: none;
-}
-
+/* 去除 hover 背景颜色变化 */
 .markdown-table tr:hover .table-cell {
-    background-color: var(--table-hover-bg);
+    background-color: transparent;
 }
 
+/* 响应式设计：小屏幕时表格适配 */
+@media (max-width: 768px) {
+    .markdown-table {
+        width: 100%;
+        font-size: 0.8rem; /* 小屏幕下字体缩小 */
+        overflow-x: auto;  /* 确保表格内容不会超出屏幕 */
+    }
+
+    .table-cell, .table-header {
+        padding: 0.4rem; /* 小屏幕时减少内边距 */
+    }
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --table-border-color: rgba(255, 255, 255, 0.1); /* 暗色模式下的边框颜色 */
+        --table-header-bg: rgba(255, 255, 255, 0.05);   /* 表头背景为浅色 */
+        --table-text-color: #e0e0e0;                    /* 浅灰色文本 */
+    }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    .markdown-table {
+        border-color: #000; /* 高对比度下使用纯黑色边框 */
+    }
+
+    .table-header, .table-cell {
+        border-color: #000; /* 表头和单元格的边框颜色为黑色 */
+    }
+}

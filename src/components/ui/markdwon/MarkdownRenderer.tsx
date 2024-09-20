@@ -17,39 +17,43 @@ import { Strikethrough } from './strikethrough';
 
 // 定义扩展的 Props，包含 inline 属性
 interface CodeProps extends React.HTMLAttributes<HTMLElement> {
-        inline?: boolean;
+    inline?: boolean;
 }
 
 export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => (
     <div className="markdown-body">
-            <ReactMarkdown
-                children={content}
-                remarkPlugins={[remarkGfm]}
-                components={{
-                        h1: Heading1 as any,
-                        h2: Heading2 as any,
-                        h3: Heading3 as any,
-                        h4: Heading4 as any,
-                        h5: Heading5 as any,
-                        h6: Heading6 as any,
-                        p: Paragraph as any,
-                        strong: Strong as any,
-                        em: Emphasis as any,
-                        ul: UnorderedList as any,
-                        ol: OrderedList as any,
-                        li: ListItem as any,
-                        a: Link as any,
-                        img: Image as any,
-                        code: ({ inline, ...props }: CodeProps) =>
-                            inline ? <InlineCode {...props} /> : <CodeBlock {...props} />,
-                        blockquote: Blockquote as any,
-                        hr: HorizontalRule as any,
-                        del: Strikethrough as any,
-                        input: TaskListItem as any,
-                        table: Table as any,
-                        th: TableHeader as any,
-                        td: TableCell as any,
-                }}
-            />
+        <ReactMarkdown
+            children={content}
+            remarkPlugins={[remarkGfm]}
+            components={{
+                h1: Heading1 as any,
+                h2: Heading2 as any,
+                h3: Heading3 as any,
+                h4: Heading4 as any,
+                h5: Heading5 as any,
+                h6: Heading6 as any,
+                p: Paragraph as any,
+                strong: Strong as any,
+                em: Emphasis as any,
+                ul: UnorderedList as any,
+                ol: OrderedList as any,
+                li: ListItem as any,
+                a: Link as any,
+                img: Image as any,
+                code: ({ inline, className, children, ...props }: CodeProps) => {
+                    const match = /language-(\w+)/.exec(className || '');
+                    return inline
+                        ? <InlineCode {...props}>{children}</InlineCode>
+                        : <CodeBlock code={String(children).trim()} language={match ? match[1] : undefined} />;
+                },
+                blockquote: Blockquote as any,
+                hr: HorizontalRule as any,
+                del: Strikethrough as any,
+                input: TaskListItem as any,
+                table: Table as any,
+                th: TableHeader as any,
+                td: TableCell as any,
+            }}
+        />
     </div>
 );

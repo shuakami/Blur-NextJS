@@ -1,0 +1,138 @@
+/**
+ * LuoxiaoheiNetWork.LTD | Code_Prism.css
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+    color: #333; /* 略微加深的文本颜色，提升对比度 */
+    background: none;
+    text-shadow: none; /* 去除文本阴影，提升清晰度 */
+    font-family: "JetBrains Mono", "Fira Code", "Source Code Pro", Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace; /* 优选字体 */
+    font-size: 0.9em;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5; /* 略微增加行高，提升阅读舒适度 */
+
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+    text-shadow: none;
+    background: #e0e0e0; /* 柔和的选中背景色 */
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+    text-shadow: none;
+    background: #e0e0e0; /* 柔和的选中背景色 */
+}
+
+@media print {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        text-shadow: none;
+    }
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+    padding: 1.2em; /* 略微增加内边距 */
+    margin: .8em 0; /* 略微增加外边距 */
+    overflow: auto;
+    border-radius: 0.4em; /* 添加圆角，提升美观度 */
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+    background: #f9f9f9; /* 柔和的背景色，接近白色但更柔和 */
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+    padding: .15em;
+    border-radius: .35em;
+    white-space: normal;
+    background: #f2f2f2; /* 与代码块背景色略微区分 */
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #888; /* 柔和的注释颜色，降低存在感 */
+}
+
+.token.punctuation {
+    color: #999; /* 略微降低标点符号颜色亮度，避免干扰 */
+}
+
+.token.namespace {
+    opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #c51e4a; /*  更深的红宝石色，提升辨识度 */
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #26a69a; /* 略微加深的青绿色，提升对比度 */
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #b58900; /* 保持金色 */
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #2980b9; /*  略微加深的蓝色，提升重要性 */
+}
+
+.token.function,
+.token.class-name {
+    color: #d35400; /* 略微加深的橙色，提升辨识度 */
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #c0392b; /*  略微调整的紫色，提升辨识度 */
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
