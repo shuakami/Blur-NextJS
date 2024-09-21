@@ -1,5 +1,5 @@
 import React from 'react';
-import { MarkdownRenderer } from '@/components/ui/markdwon/MarkdownRenderer'; // 引入你定义的组件
+import { MarkdownRenderer } from '@/components/ui/markdown/MarkdownRenderer';
 
 // 示例 Markdown 内容
 const markdownContent = `

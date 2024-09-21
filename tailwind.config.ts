@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		maxWidth: {
+			'golden-sm': '61.8%',
+			'golden-md': '38.2%',
+		},
 		fontSize: {
 			'xs-sm': '14px',
 			'sm-md': '15px',
@@ -68,7 +72,8 @@ const config: Config = {
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+  			sm: 'calc(var(--radius) - 4px)',
+			golden: '0.618rem',
   		}
   	}
   },

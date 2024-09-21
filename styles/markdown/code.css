@@ -4,7 +4,8 @@
 /* 代码块容器 */
 .code-block-wrapper {
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-top: 1.8rem;
+    margin-bottom: 2rem;
     max-width: 100%;
 }
 
@@ -26,6 +27,20 @@
 /* 鼠标悬停时背景颜色变化 */
 .code-block:hover {
     background-color: rgba(240, 240, 240, 0.34); /* 悬停时颜色变化 */
+}
+
+/* 内联代码样式 */
+.inline-code .code-block {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: rgba(248, 248, 248, 0.8); /* 更浅的背景颜色 */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: none; /* 无阴影 */
+    overflow: initial; /* 无需滚动 */
+    white-space: nowrap; /* 不换行 */
+    vertical-align: middle; /* 与文本中间对齐 */
 }
 
 /* 语言标签与复制按钮共用样式 */
