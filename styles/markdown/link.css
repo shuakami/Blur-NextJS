@@ -1,8 +1,10 @@
+
 :root {
-    --primary-color: #1a73e8;
-    --primary-hover: #1558c5;
-    --primary-active: #0d47a1;
+    --primary-color: #1a73e8; /* 原始链接颜色 */
+    --primary-hover: #1558c5; /* 悬停时颜色 */
+    --primary-active: #0d47a1; /* 激活时颜色 */
 }
+
 /* 链接样式 */
 .text-link {
     color: var(--primary-color);
@@ -36,9 +38,9 @@
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --primary-color: #4285f4;
-        --primary-hover: #5c9eff;
-        --primary-active: #76adff;
+        --primary-color: var(--link-color); /* 使用全局变量替代 */
+        --primary-hover: #5c9eff; /* 浅蓝色悬停效果 */
+        --primary-active: #76adff; /* 激活时颜色 */
     }
 
     .inline-image {
@@ -46,11 +48,11 @@
     }
 
     .table-header {
-        color: #e0e0e0;
+        color: var(--text-color); /* 表头文字颜色 */
     }
 
     .table-cell {
-        color: #d0d0d0;
+        color: #d0d0d0; /* 单元格文字颜色 */
     }
 
     .markdown-table {

@@ -1,4 +1,13 @@
+
 .emoji {
     font-size: 1.2rem;
     margin-right: 0.25rem;
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    .emoji {
+        font-size: 1.3rem; /* 略微增大字体大小 */
+        margin-right: 0.3rem; /* 增加右边距 */
+    }
 }

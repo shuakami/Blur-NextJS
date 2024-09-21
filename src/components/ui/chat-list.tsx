@@ -17,7 +17,7 @@ interface ChatListProps {
 // ChatList 组件
 export const ChatList: React.FC<ChatListProps> = ({ messages }) => {
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white mt-20 space-y-5">
+        <div className="max-w-4xl mx-auto p-6 mt-20 space-y-5">
             {messages.map((message, index) => {
                 // 判断消息类型
                 const isBot = message.type === 'bot';
@@ -35,14 +35,14 @@ export const ChatList: React.FC<ChatListProps> = ({ messages }) => {
                                         src={message.avatarUrl || "https://api.dicebear.com/6.x/bottts/svg?seed=Felix"}/>
                                 </Avatar>
                                 {/* 机器人消息使用 MarkdownRenderer 渲染 */}
-                                <div className="text-black p-4 -p -mt-3 rounded-lg max-w-[85%]">
+                                <div className="p-4 -p -mt-3 rounded-lg max-w-[85%]">
                                     <MarkdownRenderer content={message.content}/>
                                 </div>
                             </>
                         ) : (
                             <>
                                 {/* 人类消息 */}
-                                <div className="bg-[#F4F4F4] text-black rounded-3xl px-5 py-3.5 pt-[0.6em] -mt-2 max-w-[70%]">
+                                <div className="message-user rounded-3xl px-5 py-3.5 pt-[0.6em] -mt-2 max-w-[70%]">
                                     <p className="text-sm-md">{message.content}</p>
                                 </div>
                                 {/* 人类头像 */}

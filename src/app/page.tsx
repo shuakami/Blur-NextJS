@@ -50,15 +50,15 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
         }
     ];
 
-  return (
-      <>
-          <div className="w-full h-screen bg-white">
-        <MarkdownDemo/>
-        <ErrorModal/>
-        <ChatList messages={messages} />
-        <Input/>
-        <Header/>
-          </div>
-      </>
-  );
+    return (
+        <>
+            <div className="w-full h-screen">
+                <MarkdownDemo/>
+                <ErrorModal/>
+                <ChatList messages={messages} />
+                <Input/>
+                <Header/>
+            </div>
+        </>
+    );
 }

@@ -2,6 +2,7 @@
  * LuoxiaoheiNetWork.LTD | Code_Prism.css
  */
 
+/* 白色主题 */
 code[class*="language-"],
 pre[class*="language-"] {
     color: #333; /* 略微加深的文本颜色，提升对比度 */
@@ -26,16 +27,20 @@ pre[class*="language-"] {
     hyphens: none;
 }
 
-pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
-code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+pre[class*="language-"]::-moz-selection,
+pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection,
+code[class*="language-"] ::-moz-selection {
     text-shadow: none;
-    background: #e0e0e0; /* 柔和的选中背景色 */
+    background: rgba(224, 224, 224, 0.35); /* 白色主题下柔和的选中背景色 */
 }
 
-pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
-code[class*="language-"]::selection, code[class*="language-"] ::selection {
+pre[class*="language-"]::selection,
+pre[class*="language-"] ::selection,
+code[class*="language-"]::selection,
+code[class*="language-"] ::selection {
     text-shadow: none;
-    background: #e0e0e0; /* 柔和的选中背景色 */
+    background: rgba(224, 224, 224, 0.35); /* 白色主题下柔和的选中背景色 */
 }
 
 @media print {
@@ -88,7 +93,7 @@ pre[class*="language-"] {
 .token.constant,
 .token.symbol,
 .token.deleted {
-    color: #c51e4a; /*  更深的红宝石色，提升辨识度 */
+    color: #c51e4a; /* 更深的红宝石色，提升辨识度 */
 }
 
 .token.selector,
@@ -111,7 +116,7 @@ pre[class*="language-"] {
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-    color: #2e95cf; /*  略微加深的蓝色，提升重要性 */
+    color: #2e95cf; /* 略微加深的蓝色，提升重要性 */
 }
 
 .token.function,
@@ -122,7 +127,7 @@ pre[class*="language-"] {
 .token.regex,
 .token.important,
 .token.variable {
-    color: #c0392b; /*  略微调整的紫色，提升辨识度 */
+    color: #c0392b; /* 略微调整的紫色，提升辨识度 */
 }
 
 .token.important,
@@ -135,4 +140,116 @@ pre[class*="language-"] {
 
 .token.entity {
     cursor: help;
+}
+
+/* 暗黑模式支持 */
+@media (prefers-color-scheme: dark) {
+    code[class*="language-"],
+    pre[class*="language-"] {
+        color: #e0e0e0; /* 浅色文本 */
+        background: none;
+    }
+
+    pre[class*="language-"] {
+        background: #2d2d2d; /* 深色背景 */
+        border-radius: 0.4em;
+        padding: 1.2em;
+        margin: .8em 0;
+        overflow: auto;
+    }
+
+    :not(pre) > code[class*="language-"] {
+        background: #3a3a3a; /* 更浅的灰色背景 */
+        border-radius: .35em;
+        padding: .15em;
+        white-space: normal;
+    }
+
+    pre[class*="language-"]::-moz-selection,
+    pre[class*="language-"] ::-moz-selection,
+    code[class*="language-"]::-moz-selection,
+    code[class*="language-"] ::-moz-selection {
+        text-shadow: none;
+        background: rgba(68, 68, 68, 0.38); /* 暗黑模式下选中背景色 */
+    }
+
+    pre[class*="language-"]::selection,
+    pre[class*="language-"] ::selection,
+    code[class*="language-"]::selection,
+    code[class*="language-"] ::selection {
+        text-shadow: none;
+        background: rgba(68, 68, 68, 0.38); /* 暗黑模式下选中背景色 */
+    }
+
+    .token.comment,
+    .token.prolog,
+    .token.doctype,
+    .token.cdata {
+        color: #6a737d; /* 柔和的注释颜色 */
+    }
+
+    .token.punctuation {
+        color: #9aa5b1; /* 调整标点符号颜色 */
+    }
+
+    .token.namespace {
+        opacity: .7;
+    }
+
+    .token.property,
+    .token.tag,
+    .token.boolean,
+    .token.number,
+    .token.constant,
+    .token.symbol,
+    .token.deleted {
+        color: #ff7383; /* 略浅的红色 */
+    }
+
+    .token.selector,
+    .token.attr-name,
+    .token.string,
+    .token.char,
+    .token.builtin,
+    .token.inserted {
+        color: #a8ff60; /* 青绿色 */
+    }
+
+    .token.operator,
+    .token.entity,
+    .token.url,
+    .language-css .token.string,
+    .style .token.string {
+        color: #f08d49; /* 调整的金色 */
+    }
+
+    .token.atrule,
+    .token.attr-value,
+    .token.keyword {
+        color: #66d9ef; /* 浅蓝色 */
+    }
+
+    .token.function,
+    .token.class-name {
+        color: #f4ad39; /* 浅橙色 */
+    }
+
+    .token.regex,
+    .token.important,
+    .token.variable {
+        color: #e9c062; /* 紫色 */
+    }
+
+    .token.important,
+    .token.bold {
+        font-weight: bold;
+    }
+
+    .token.italic {
+        font-style: italic;
+    }
+
+    .token.entity {
+        cursor: help;
+    }
 }

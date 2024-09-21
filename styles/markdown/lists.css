@@ -1,3 +1,4 @@
+
 :root {
     --text-color: #333333;
     --list-marker-color: #555555;
@@ -26,6 +27,7 @@
     margin-bottom: var(--item-spacing);
     line-height: 1.6;
     padding-left: var(--marker-text-gap);
+    color: var(--text-color); /* 列表项文字颜色 */
 }
 
 /* 嵌套列表样式 */
@@ -70,8 +72,12 @@
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-color: #e0e0e0;
-        --list-marker-color: #b0b0b0;
+        --text-color: #e0e0e0; /* 列表文字颜色 */
+        --list-marker-color: #b0b0b0; /* 列表符号颜色 */
+    }
+
+    .list-item {
+        color: var(--text-color); /* 列表项文字颜色 */
     }
 }
 

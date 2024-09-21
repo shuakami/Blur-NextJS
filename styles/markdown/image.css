@@ -1,3 +1,4 @@
+
 /* 图片样式 */
 .inline-image {
     max-width: 100%;
@@ -11,4 +12,15 @@
 
 .inline-image:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.09);
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    .inline-image {
+        box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1); /* 使用浅色阴影 */
+    }
+
+    .inline-image:hover {
+        box-shadow: 0 6px 12px rgba(255, 255, 255, 0.15); /* 悬停时的阴影效果 */
+    }
 }

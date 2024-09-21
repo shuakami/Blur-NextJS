@@ -1,3 +1,4 @@
+
 /* 引入 Prism.js 的主题 */
 @import './code_prism.css';
 
@@ -80,4 +81,33 @@
     .code-block {
         padding: 1rem;
     }
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    .code-block {
+        background-color: rgba(30, 30, 30, 0.85); /* 暗黑模式下深灰色背景 */
+        border: 1px solid rgba(255, 255, 255, 0.04); /* 微妙的白色边框 */
+        color: #e0e0e0; /* 浅色文字 */
+    }
+
+    .inline-code .code-block {
+        background-color: rgba(45, 45, 45, 0.85); /* 更浅的灰色背景 */
+        border: 1px solid rgba(255, 255, 255, 0.1); /* 微妙的白色边框 */
+        color: #e0e0e0; /* 浅色文字 */
+    }
+
+    .label-button-container {
+        background-color: rgba(92, 92, 92, 0.28); /* 按钮背景颜色 */
+        color: #ffffff; /* 按钮文字颜色 */
+    }
+
+    .label-button-container:hover {
+        background-color: rgba(85, 85, 85, 0.25); /* 悬停时的背景颜色变化（按钮） */
+    }
+
+    .code-block:hover {
+        background-color: rgba(53, 53, 53, 0.48); /* 悬停时的背景颜色变化 */
+    }
+
 }

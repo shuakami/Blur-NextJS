@@ -1,5 +1,5 @@
 import { DropdownMenu } from '@/components/ui/dropdown-menu-home';
-import '@/app/globals.css'
+import '../styles/globals.css'
 import {AccessIcon, ManagerIcon} from "hugeicons-react";
 
 export default function Home() {

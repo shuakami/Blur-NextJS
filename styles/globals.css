@@ -1,24 +1,35 @@
 /* Markdown */
 
-@import '../../styles/markdown/table.css';
-@import '../../styles/markdown/headings.css';
-@import '../../styles/markdown/text.css';
-@import '../../styles/markdown/lists.css';
-@import '../../styles/markdown/link.css';
-@import '../../styles/markdown/image.css';
-@import '../../styles/markdown/code.css';
-@import '../../styles/markdown/blockquote.css';
-@import '../../styles/markdown/horizontalRule.css';
-@import '../../styles/markdown/taskList.css';
-@import '../../styles/markdown/strikethrough.css';
-@import '../../styles/markdown/footnote.css';
-@import '../../styles/markdown/emoji.css';
+@import 'markdown/table.css';
+@import 'markdown/headings.css';
+@import 'markdown/text.css';
+@import 'markdown/lists.css';
+@import 'markdown/link.css';
+@import 'markdown/image.css';
+@import 'markdown/code.css';
+@import 'markdown/blockquote.css';
+@import 'markdown/horizontalRule.css';
+@import 'markdown/taskList.css';
+@import 'markdown/strikethrough.css';
+@import 'markdown/footnote.css';
+@import 'markdown/emoji.css';
 
 .markdown-body {
-  color: #0d0d0d;
+  color: var(--text-color);
   line-height: 1.6;
 }
 
+.message-user {
+  background-color: #F4F4F4;
+  color: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+  .message-user {
+    background-color: #2F2F2F;
+    color: #fff;
+  }
+}
 
 /* Design System */
 
@@ -115,13 +126,12 @@ body {
 }
 
 
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    /* font-feature-settings: "rlig" 1, "calt" 1; */
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
   }

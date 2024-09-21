@@ -1,5 +1,14 @@
+
 .text-footnote {
     font-size: 0.8rem;
-    color: #6a737d;
+    color: #6a737d; /* 默认灰色 */
     line-height: 1.5;
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    .text-footnote {
+        color: var(--text-color); /* 使用全局文字颜色 */
+        opacity: 0.8; /* 降低透明度以弱化存在感 */
+    }
 }

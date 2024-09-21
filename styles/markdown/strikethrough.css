@@ -1,4 +1,13 @@
+
 .text-strikethrough {
     text-decoration: line-through;
-    color: #6a737d;
+    color: #6a737d; /* 默认灰色 */
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    .text-strikethrough {
+        color: var(--text-color); /* 使用全局文字颜色 */
+        opacity: 0.7; /* 降低透明度以弱化存在感 */
+    }
 }

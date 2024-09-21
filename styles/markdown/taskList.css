@@ -1,3 +1,4 @@
+
 /* 任务列表容器 */
 .task-list-item-container {
     display: inline-flex;
@@ -37,7 +38,7 @@
     transform: translate(-50%, -50%);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
     background-size: cover;
-}a
+}
 
 /* 任务列表文本 */
 .task-list-item-text {
@@ -70,11 +71,11 @@
     }
 
     .task-list-item-checkbox:checked {
-        background-color: #1a73e8; /* 深蓝色背景 */
-        border-color: #1a73e8; /* 深蓝色边框 */
+        background-color: var(--link-color); /* 使用全局链接颜色 */
+        border-color: var(--link-color); /* 使用全局链接颜色 */
     }
 
     .task-list-item-text {
-        color: #e0e0e0; /* 浅灰色文本 */
+        color: var(--text-color); /* 使用全局文字颜色 */
     }
 }

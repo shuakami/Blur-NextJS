@@ -1,3 +1,4 @@
+
 .text-body {
     font-size: 1.0625rem; /* 17px */
     line-height: 1.8;
@@ -28,8 +29,16 @@
 /* 添加暗色模式支持 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-color: #e0e0e0;
-        --emphasis-color: #a8c9ff;
+        --text-color: #e0e0e0; /* 主文字色 */
+        --emphasis-color: #fff9f9; /* 强调色 */
+        --background-color: #121212; /* 背景色 */
+        --link-color: #4A90E2; /* 链接颜色 */
+        --border-color: #333333; /* 边框颜色 */
+        --dark-border-color: #4c4c4c;
+    }
+
+    .text-body {
+        background-color: var(--background-color);
     }
 }
 

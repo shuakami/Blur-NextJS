@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
+import React, { useState, useEffect } from 'react';
+// @ts-ignore
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
+// @ts-ignore
 import Prism from 'prismjs';
 import { motion } from 'framer-motion';
 
-// 内联代码和代码块组件
 export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code, language = 'javascript' }) => {
     const [copied, setCopied] = useState(false);
     const [hovered, setHovered] = useState(false);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true); // 仅在客户端渲染时执行高亮
+    }, []);
 
     const handleCopy = () => {
         setCopied(true);
@@ -23,7 +25,7 @@ export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code,
     const isInlineCode = !code.includes('\n');
 
     // 如果是内联代码，将容器从 div 改为 span
-    const ContainerElement = isInlineCode ? 'code' : 'div';
+    const ContainerElement = isInlineCode ? 'span' : 'div';
 
     return (
         <ContainerElement
@@ -44,6 +46,7 @@ export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code,
                     >
                         {hovered ? (
                             <motion.div
+                                role="button"
                                 key="copy"
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -52,6 +55,7 @@ export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code,
                             >
                                 {copied ? (
                                     <motion.span
+                                        role="button"
                                         initial={{ scale: 0.95 }}
                                         animate={{ scale: 1 }}
                                         transition={{ duration: 0.3, ease: "easeOut" }}
@@ -78,14 +82,23 @@ export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code,
             )}
 
             {/* 代码块或者内联代码 */}
-            <pre className={`code-block ${isInlineCode ? 'inline' : ''}`}>
+            {isInlineCode ? (
                 <code
                     className={`language-${validLanguage}`}
                     dangerouslySetInnerHTML={{
-                        __html: Prism.highlight(code, Prism.languages[validLanguage], validLanguage),
+                        __html: isClient ? Prism.highlight(code, Prism.languages[validLanguage], validLanguage) : '', // 仅在客户端高亮
                     }}
                 />
-            </pre>
+            ) : (
+                <pre className={`code-block language-${validLanguage}`}> {/* 确保 className 在服务端和客户端一致 */}
+                    <code
+                        className={`language-${validLanguage}`}
+                        dangerouslySetInnerHTML={{
+                            __html: isClient ? Prism.highlight(code, Prism.languages[validLanguage], validLanguage) : '', // 仅在客户端高亮
+                        }}
+                    />
+                </pre>
+            )}
         </ContainerElement>
     );
 };
