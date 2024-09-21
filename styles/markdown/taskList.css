@@ -1,4 +1,80 @@
-.task-list-item {
-    margin-right: 0.5rem;
-    vertical-align: middle;
+/* 任务列表容器 */
+.task-list-item-container {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 0.4rem; /* 任务项之间的间距 */
+    cursor: pointer;
+    line-height: 1.4; /* 适合长时间阅读的行高 */
+}
+
+/* 复选框样式 */
+.task-list-item-checkbox {
+    appearance: none; /* 移除默认的复选框样式 */
+    width: 0.8rem; /* 复选框大小 */
+    height: 0.8rem;
+    border: 1px solid rgba(0, 0, 0, 0.4); /* 使用透明的黑色边框 */
+    border-radius: 0.15rem; /* 微小圆角，增强视觉效果 */
+    margin-right: 0.4rem; /* 与文本的距离 */
+    background-color: transparent; /* 初始状态无背景 */
+    position: relative;
+    cursor: pointer;
+}
+
+/* 在选中状态下显示蓝色背景，并使用图标库中的白色勾 */
+.task-list-item-checkbox:checked {
+    background-color: #007BFF; /* 蓝色背景 */
+    border-color: #007BFF; /* 选中时的蓝色边框 */
+}
+
+.task-list-item-checkbox:checked::before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.5rem; /* 勾的大小 */
+    height: 0.5rem;
+    transform: translate(-50%, -50%);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-size: cover;
+}a
+
+/* 任务列表文本 */
+.task-list-item-text {
+    color: #333; /* 深灰色文本 */
+    font-size: 0.45rem; /* 较小的字体，适合长时间阅读 */
+    user-select: none; /* 禁止选择文本 */
+    margin-top: 0;
+}
+
+/* 响应式设计：小屏幕时 */
+@media (max-width: 768px) {
+    .task-list-item-container {
+        margin-bottom: 0.3rem; /* 小屏幕下缩小间距 */
+    }
+
+    .task-list-item-checkbox {
+        width: 0.7rem;
+        height: 0.7rem; /* 小屏幕下略微缩小复选框 */
+    }
+
+    .task-list-item-text {
+        font-size: 0.7rem; /* 小屏幕下缩小文本字体 */
+    }
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    .task-list-item-checkbox {
+        border-color: rgba(255, 255, 255, 0.3); /* 边框颜色为浅灰 */
+    }
+
+    .task-list-item-checkbox:checked {
+        background-color: #1a73e8; /* 深蓝色背景 */
+        border-color: #1a73e8; /* 深蓝色边框 */
+    }
+
+    .task-list-item-text {
+        color: #e0e0e0; /* 浅灰色文本 */
+    }
 }

@@ -2,58 +2,68 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { Components } from 'react-markdown';
 
 import { Heading1, Heading2, Heading3, Heading4, Heading5, Heading6 } from './headings';
 import { Paragraph, Strong, Emphasis } from './text';
 import { UnorderedList, OrderedList, ListItem } from './lists';
 import { Link } from './link';
 import { Image } from './image';
-import { InlineCode, CodeBlock } from './code';
+import { CodeBlock } from './code';
 import { Blockquote } from './blockquote';
 import { HorizontalRule } from './horizontalRule';
 import { Table, TableHeader, TableCell } from './table';
 import { TaskListItem } from './taskList';
 import { Strikethrough } from './strikethrough';
 
-// 定义扩展的 Props，包含 inline 属性
-interface CodeProps extends React.HTMLAttributes<HTMLElement> {
-    inline?: boolean;
-}
-
-export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => (
-    <div className="markdown-body">
-        <ReactMarkdown
-            children={content}
-            remarkPlugins={[remarkGfm]}
-            components={{
-                h1: Heading1 as any,
-                h2: Heading2 as any,
-                h3: Heading3 as any,
-                h4: Heading4 as any,
-                h5: Heading5 as any,
-                h6: Heading6 as any,
-                p: Paragraph as any,
-                strong: Strong as any,
-                em: Emphasis as any,
-                ul: UnorderedList as any,
-                ol: OrderedList as any,
-                li: ListItem as any,
-                a: Link as any,
-                img: Image as any,
-                code: ({ inline, className, children, ...props }: CodeProps) => {
-                    const match = /language-(\w+)/.exec(className || '');
-                    return inline
-                        ? <InlineCode {...props}>{children}</InlineCode>
-                        : <CodeBlock code={String(children).trim()} language={match ? match[1] : undefined} />;
-                },
-                blockquote: Blockquote as any,
-                hr: HorizontalRule as any,
-                del: Strikethrough as any,
-                input: TaskListItem as any,
-                table: Table as any,
-                th: TableHeader as any,
-                td: TableCell as any,
-            }}
-        />
-    </div>
+// 定义 InlineCode 组件
+const InlineCode: React.FC<React.PropsWithChildren<Record<string, unknown>>> = ({ children }) => (
+    <code>{children}</code>
 );
+
+export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+        const components: Components = {
+                h1: ({ ...props }) => <Heading1 {...props} />,
+                h2: ({ ...props }) => <Heading2 {...props} />,
+                h3: ({ ...props }) => <Heading3 {...props} />,
+                h4: ({ ...props }) => <Heading4 {...props} />,
+                h5: ({ ...props }) => <Heading5 {...props} />,
+                h6: ({ ...props }) => <Heading6 {...props} />,
+                p: ({ ...props }) => <Paragraph {...props} />,
+                strong: ({ ...props }) => <Strong {...props} />,
+                em: ({ ...props }) => <Emphasis {...props} />,
+                ul: ({ ...props }) => <UnorderedList {...props} />,
+                ol: ({ ...props }) => <OrderedList {...props} />,
+                li: ({ ...props }) => <ListItem {...props} />,
+                a: ({ ...props }) => <Link {...props} />,
+                img: ({ ...props }) => <Image {...props} />,
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
+                code: ({ inline, className, children, ...props }) => {
+                        const match = /language-(\w+)/.exec(className || '');
+                        return inline ? (
+                            <InlineCode {...props}>{children}</InlineCode>
+                        ) : (
+                            <CodeBlock
+                                code={String(children).replace(/\n$/, '')}
+                                language={match ? match[1] : undefined}
+                            />
+                        );
+                },
+                blockquote: ({ ...props }) => <Blockquote {...props} />,
+                hr: ({ ...props }) => <HorizontalRule {...props} />,
+                del: ({ ...props }) => <Strikethrough {...props} />,
+                input: ({ ...props }) => <TaskListItem {...props} />,
+                table: ({ ...props }) => <Table {...props} />,
+                th: ({ ...props }) => <TableHeader {...props} />,
+                td: ({ ...props }) => <TableCell {...props} />,
+        };
+
+        return (
+            <div className="markdown-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+                            {content}
+                    </ReactMarkdown>
+            </div>
+        );
+};

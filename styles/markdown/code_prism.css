@@ -111,12 +111,12 @@ pre[class*="language-"] {
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-    color: #2980b9; /*  略微加深的蓝色，提升重要性 */
+    color: #2e95cf; /*  略微加深的蓝色，提升重要性 */
 }
 
 .token.function,
 .token.class-name {
-    color: #d35400; /* 略微加深的橙色，提升辨识度 */
+    color: #d33f00; /* 略微加深的橙色，提升辨识度 */
 }
 
 .token.regex,
