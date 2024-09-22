@@ -88,43 +88,42 @@ body {
     --popover-foreground: 0 0% 0%; /* 纯黑色 */
     --primary: 0 0% 0%; /* 纯黑色 */
     --primary-foreground: 0 0% 100%; /* 白色 */
-    --secondary: 0 0% 90%; /* 浅灰色 */
+    --secondary: 0 0% 95%; /* 浅灰色 */
     --secondary-foreground: 0 0% 0%; /* 纯黑色 */
-    --muted: 0 0% 90%; /* 浅灰色 */
-    --muted-foreground: 0 0% 40%; /* 深灰色 */
-    --accent: 0 0% 90%; /* 浅灰色 */
+    --muted: 0 0% 95%; /* 浅灰色 */
+    --muted-foreground: 0 0% 45%; /* 深灰色 */
+    --accent: 0 0% 95%; /* 浅灰色 */
     --accent-foreground: 0 0% 0%; /* 纯黑色 */
-    --destructive: 0 72.22% 50.59%; /* 红色 */
+    --destructive: 0 85% 60%; /* 红色 */
     --destructive-foreground: 0 0% 100%; /* 白色 */
     --border: 0 0% 90%; /* 浅灰色 */
     --input: 0 0% 90%; /* 浅灰色 */
-    --ring: 0 0% 60%; /* 中灰色 */
+    --ring: 0 0% 70%; /* 中灰色 */
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 0 0% 10%; /* 深灰色 */
-    --foreground: 0 0% 98%; /* 白色 */
-    --card: 0 0% 10%; /* 深灰色 */
-    --card-foreground: 0 0% 98%; /* 白色 */
-    --popover: 0 0% 10%; /* 深灰色 */
-    --popover-foreground: 0 0% 98%; /* 白色 */
-    --primary: 0 0% 98%; /* 白色 */
-    --primary-foreground: 0 0% 10%; /* 黑色 */
-    --secondary: 0 0% 20%; /* 深灰色 */
-    --secondary-foreground: 0 0% 98%; /* 白色 */
-    --muted: 0 0% 20%; /* 深灰色 */
-    --muted-foreground: 0 0% 60%; /* 中灰色 */
-    --accent: 0 0% 20%; /* 深灰色 */
-    --accent-foreground: 0 0% 98%; /* 白色 */
-    --destructive: 0 62.8% 30.6%; /* 红色 */
-    --destructive-foreground: 0 85.7% 97.3%; /* 白色 */
+    --background: 0 0% 7%; /* 深黑色 */
+    --foreground: 0 0% 100%; /* 纯白色 */
+    --card: 0 0% 7%; /* 深黑色 */
+    --card-foreground: 0 0% 100%; /* 纯白色 */
+    --popover: 0 0% 7%; /* 深黑色 */
+    --popover-foreground: 0 0% 100%; /* 纯白色 */
+    --primary: 0 0% 100%; /* 纯白色 */
+    --primary-foreground: 0 0% 7%; /* 深黑色 */
+    --secondary: 0 0% 15%; /* 深灰色 */
+    --secondary-foreground: 0 0% 100%; /* 纯白色 */
+    --muted: 0 0% 15%; /* 深灰色 */
+    --muted-foreground: 0 0% 65%; /* 中灰色 */
+    --accent: 0 0% 15%; /* 深灰色 */
+    --accent-foreground: 0 0% 100%; /* 纯白色 */
+    --destructive: 0 70% 35%; /* 深红色 */
+    --destructive-foreground: 0 0% 100%; /* 纯白色 */
     --border: 0 0% 20%; /* 深灰色 */
     --input: 0 0% 20%; /* 深灰色 */
     --ring: 0 0% 80%; /* 浅灰色 */
   }
 }
-
 
 
 @layer base {

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import Prism from 'prismjs';
 import { motion } from 'framer-motion';
 
@@ -90,7 +92,7 @@ export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code,
                     }}
                 />
             ) : (
-                <pre className={`code-block language-${validLanguage}`}> {/* 确保 className 在服务端和客户端一致 */}
+                <pre className={`code-block language-${validLanguage}`}>
                     <code
                         className={`language-${validLanguage}`}
                         dangerouslySetInnerHTML={{
