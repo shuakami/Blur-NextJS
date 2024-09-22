@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import ChatInput from './input';
+import ChatInput from './chat_input';
 
 
 const ChatInputWrapper: React.FC = () => {

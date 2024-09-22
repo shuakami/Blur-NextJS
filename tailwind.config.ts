@@ -14,6 +14,7 @@ const config: Config = {
 			'golden-md': '38.2%',
 		},
 		fontSize: {
+			'ss': '9px',
 			'xs-sm': '14px',
 			'sm-md': '15px',
 			'md-lg': '16px',

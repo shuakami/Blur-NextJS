@@ -3,6 +3,7 @@ import {ChatList} from "@/components/ui/chat-list";
 import ErrorModal from "@/components/ui/error-modal";
 import MarkdownDemo from "@/components/demo/markdown-1-h1-h6-demo";
 import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
+import LanguageDropdown from "@/app/[语言选择器]/language-dropdown";
 
 
 export default function Home() {

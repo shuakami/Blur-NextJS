@@ -120,7 +120,7 @@ body {
     --destructive: 0 70% 35%; /* 深红色 */
     --destructive-foreground: 0 0% 100%; /* 纯白色 */
     --border: 0 0% 20%; /* 深灰色 */
-    --input: 0 0% 20%; /* 深灰色 */
+    --input: 0 0% 32%; /* 深灰色 */
     --ring: 0 0% 80%; /* 浅灰色 */
   }
 }
@@ -151,63 +151,6 @@ body {
 @media (max-width: 640px) {
   .container {
     @apply px-4;
-  }
-}
-
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 44%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --chart-1: 221.2 83.2% 53.3%;
-    --chart-2: 212 95% 68%;
-    --chart-3: 216 92% 60%;
-    --chart-4: 210 98% 78%;
-    --chart-5: 212 97% 87%;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 221.2 83.2% 53.3%;
-    --chart-1: 221.2 83.2% 53.3%;
-    --chart-2: 212 95% 68%;
-    --chart-3: 216 92% 60%;
-    --chart-4: 210 98% 78%;
-    --chart-5: 212 97% 87%;
   }
 }
 
@@ -312,4 +255,69 @@ body {
   background: transparent; /* 在两个滚动条交汇处保持透明 */
 }
 
+/* 强制全局滚动条覆盖 */
+::-webkit-scrollbar {
+  width: 6px; /* 滚动条宽度 */
+  height: 6px;
+}
 
+::-webkit-scrollbar-thumb {
+  background-color: rgba(136, 136, 136, 0.18); /* 滚动条颜色 */
+  border-radius: 10px; /* 圆角滚动条 */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 仅在需要时显示滚动条 */
+body,
+html {
+  overflow-y: auto; /* 垂直滚动条始终可用 */
+  scrollbar-width: thin; /* Firefox滚动条宽度 */
+  scrollbar-color: rgba(136, 136, 136, 0.18) transparent; /* Firefox滚动条颜色 */
+}
+
+/* 隐藏滚动条，但保留滚动功能 */
+body,
+html {
+  &::-webkit-scrollbar {
+    display: none; /* 隐藏滚动条 */
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 6px;
+    pointer-events: none;
+  }
+}
+
+/* 当鼠标悬停时显示滚动条 */
+body:hover,
+html:hover {
+  &::-webkit-scrollbar {
+    display: none /* 显示滚动条 */
+  }
+}
+
+/* 防止滚动条变宽 */
+body:hover::-webkit-scrollbar,
+html:hover::-webkit-scrollbar {
+  width: 6px; /* 保持滚动条宽度一致 */
+  height: 6px;
+}
+
+/* 保持滚动条样式一致 */
+body:hover::-webkit-scrollbar-thumb,
+html:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(136, 136, 136, 0.18); /* 保持滚动条颜色一致 */
+  border-radius: 10px; /* 保持圆角滚动条一致 */
+}
+
+body:hover::-webkit-scrollbar-track,
+html:hover::-webkit-scrollbar-track {
+  background: transparent; /* 保持滚动条轨道一致 */
+}
