@@ -1,11 +1,13 @@
-import Input from "@/components/ui/input";
 import Header from "@/components/ui/header";
 import {ChatList} from "@/components/ui/chat-list";
 import ErrorModal from "@/components/ui/error-modal";
 import MarkdownDemo from "@/components/demo/markdown-1-h1-h6-demo";
+import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
 
 
 export default function Home() {
+
+
 
     const messages = [
         {
@@ -55,8 +57,10 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
             <div className="w-full h-screen">
                 <MarkdownDemo/>
                 <ErrorModal/>
-                <ChatList messages={messages} />
-                <Input/>
+                <ChatList messages={messages}/>
+                <div className="flex justify-center items-center min-h-screen">
+                    <ChatInputWrapper/>
+                </div>
                 <Header/>
             </div>
         </>
