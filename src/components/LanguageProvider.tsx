@@ -75,7 +75,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, de
                 initial={{ opacity: 0 }} // 动画初始状态
                 animate={{ opacity: 1 }}  // 动画结束状态
                 exit={{ opacity: 0 }}     // 动画结束状态
-                transition={{ duration: 0.5 }} // 过渡时间
+                transition={{ duration: 0.8 }} // 过渡时间
             >
                 {children}
             </motion.div>

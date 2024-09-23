@@ -1,0 +1,29 @@
+// components/login/BetaUserLoginButton.tsx
+"use client";
+
+import { Button } from "@/components/ui/button";
+import useTranslation from "@/hooks/useTranslation";
+
+interface BetaUserLoginButtonProps {
+    isEmailLogin: boolean;
+    toggleLoginMethod: () => void;
+}
+
+export default function BetaUserLoginButton({ isEmailLogin, toggleLoginMethod }: BetaUserLoginButtonProps) {
+    const { t } = useTranslation();
+
+    return (
+        <Button
+            variant="outline"
+            className="w-full mb-8 justify-center text-sm font-normal h-10 bg-transparent dark:bg-[#333333]/45 dark:border-[#666666]/50"
+            onClick={toggleLoginMethod}
+        >
+            <svg role="graphics-symbol" viewBox="0 0 24 24" className="w-4 h-4 mr-2">
+                <path
+                    d="M14.757 4A5.724 5.724 0 009 9.748c0 2.364 1.389 4.456 3.586 5.335V23.6c0 .255.079.483.272.676l1.53 1.477a.578.578 0 00.808-.009l2.769-2.768a.598.598 0 000-.87l-1.591-1.574 2.232-2.232a.602.602 0 00-.017-.861l-2.171-2.18c2.628-1.116 4.087-3.13 4.087-5.511A5.733 5.733 0 0014.757 4zm0 5.344a1.55 1.55 0 01-1.547-1.547c0-.861.685-1.547 1.547-1.547a1.55 1.55 0 011.547 1.547 1.55 1.55 0 01-1.547 1.547z"
+                ></path>
+            </svg>
+            {isEmailLogin ? t("内测用户登录 (BUL)") : t("使用邮箱登录")}
+        </Button>
+    );
+}

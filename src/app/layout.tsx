@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import "../../styles/globals.css";
 import {ThemeProvider} from "@/components/ui/theme-provider";
 import {LanguageProvider} from "@/components/LanguageProvider";
+import {ClerkProvider} from "@clerk/nextjs";
+import {Toaster} from "@/components/ui/toaster";
 
 
 const geistSans = localFont({
@@ -28,6 +30,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
+        <ClerkProvider>
         <html lang="en">
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -38,11 +41,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
+            <Toaster />
             <LanguageProvider>
                 {children}
             </LanguageProvider>
         </ThemeProvider>
         </body>
         </html>
+        </ClerkProvider>
     );
 }

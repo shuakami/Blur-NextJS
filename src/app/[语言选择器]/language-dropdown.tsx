@@ -5,7 +5,8 @@
 import React, { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import useTranslation from "@/hooks/useTranslation"; // 引入 useTranslation hook
-import { defaultLanguages, Language } from "@/lib/languages"; // 导入语言列表
+import { defaultLanguages, Language } from "@/lib/languages";
+import {toast} from "@/hooks/use-toast"; // 导入语言列表
 
 interface LanguageDropdownProps {
     direction?: "up" | "down";
@@ -39,6 +40,9 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
     const handleLanguageSelect = (language: Language) => {
         setLanguage(language.code); // 更新语言状态
         setIsOpen(false); // 关闭菜单
+        toast({
+            title: t("已切换语言至 "+language.name)
+        });
     };
 
     return (
@@ -53,7 +57,7 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
             <div
                 className={`absolute ${
                     direction === "up" ? "bottom-full mb-2" : "top-full mt-2"
-                } left-0 w-[183px] rounded-md shadow-lg bg-white dark:bg-[#1f1f1f] ring-1 ring-black ring-opacity-5 z-50`}
+                } left-0 w-auto max-w-[330px] rounded-md shadow-lg bg-white dark:bg-[#1f1f1f] ring-1 ring-black ring-opacity-5 z-50`}
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="language-menu"

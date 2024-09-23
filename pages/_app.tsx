@@ -9,8 +9,22 @@ import '../styles/globals.css';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import {LanguageProvider} from "@/components/LanguageProvider";
+import localFont from "next/font/local";
+import {ClerkProvider} from "@clerk/nextjs";
+import {Toaster} from "@/components/ui/toaster";
 
 NProgress.configure({ showSpinner: true, speed: 500, minimum: 0.2 }); // 设置进度条速度和最小进度
+
+const geistSans = localFont({
+    src: "../src/app/fonts/GeistVF.woff",
+    variable: "--font-geist-sans",
+    weight: "100 900",
+});
+const geistMono = localFont({
+    src: "../src/app/fonts/GeistMonoVF.woff",
+    variable: "--font-geist-mono",
+    weight: "100 900",
+});
 
 function MyApp({ Component, pageProps }: AppProps) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -42,14 +56,19 @@ function MyApp({ Component, pageProps }: AppProps) {
     }, [router]);
 
     return (
+        <ClerkProvider {...pageProps}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <LanguageProvider>
+                <Toaster />
+           <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
             <div className="transition duration-700 ease-in-out min-h-screen">
                 {/* 加载动画 */}
                  <Component {...pageProps} />
             </div>
+           </div>
             </LanguageProvider>
         </ThemeProvider>
+        </ClerkProvider>
     );
 }
 
