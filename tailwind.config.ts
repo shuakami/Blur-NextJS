@@ -9,6 +9,18 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		gray: {
+			50: '#f8f8f8',
+			100: '#e0e0e0',
+			200: '#c0c0c0',
+			300: '#a0a0a0',
+			400: '#808080',
+			500: '#606060',
+			600: '#404040',
+			700: '#303030',
+			800: '#212121',
+			900: '#121212',
+		},
 		fontFamily: {
 			sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
 			mono: ['var(--font-mono)', 'monospace'],

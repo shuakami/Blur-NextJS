@@ -18,6 +18,12 @@ const geistMono = localFont({
     weight: "100 900",
 });
 
+const Inter = localFont({
+    src: "./fonts/InterDisplay-Medium.woff2",
+    variable: "--font-inter",
+    weight: "100 900",
+});
+
 // TODO：之后记得补上
 export const metadata: Metadata = {
     title: "Create Next App",
@@ -33,7 +39,7 @@ export default function RootLayout({
         <ClerkProvider>
         <html lang="en">
         <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
         >
         <ThemeProvider
             attribute="class"

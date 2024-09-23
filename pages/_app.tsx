@@ -26,6 +26,12 @@ const geistMono = localFont({
     weight: "100 900",
 });
 
+const Inter = localFont({
+    src: "../src/app/fonts/InterDisplay-Medium.woff2",
+    variable: "--font-inter",
+    weight: "100 900",
+});
+
 function MyApp({ Component, pageProps }: AppProps) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +66,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <LanguageProvider>
                 <Toaster />
-           <div className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+           <div className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}>
             <div className="transition duration-700 ease-in-out min-h-screen">
                 {/* 加载动画 */}
                  <Component {...pageProps} />

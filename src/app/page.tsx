@@ -4,11 +4,41 @@ import ErrorModal from "@/components/ui/error-modal";
 import MarkdownDemo from "@/components/demo/markdown-1-h1-h6-demo";
 import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
 import LanguageDropdown from "@/app/[语言选择器]/language-dropdown";
+import ChatSidebar from "@/components/chat/chat_sidebar";
+import {FolderOpen} from "lucide-react";
 
 
 export default function Home() {
 
-
+    const sidebarItems = [
+        {
+            date: '今天',
+            children: [
+                {
+                    icon: <FolderOpen size={20} />,
+                    label: 'Dev',
+                    children: [
+                        { label: 'Create Next App', href: '#' },
+                        { label: 'localhost:3000/login', href: '#' },
+                    ],
+                },
+            ],
+        },
+        {
+            date: '昨天',
+            children: [
+                { label: 'Design System', href: '#' },
+                { label: 'API Documentation', href: '#' },
+            ],
+        },
+        {
+            date: '前天',
+            children: [
+                { label: 'Project Planning', href: '#' },
+                { label: 'Team Meeting Notes', href: '#' },
+            ],
+        },
+    ]
 
     const messages = [
         {
@@ -56,13 +86,11 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
     return (
         <>
             <div className="w-full h-screen">
-                <MarkdownDemo/>
-                <ErrorModal/>
+                <ChatSidebar items={sidebarItems} />
                 <ChatList messages={messages}/>
                 <div className="flex justify-center items-center min-h-screen">
                     <ChatInputWrapper/>
                 </div>
-                <Header/>
             </div>
         </>
     );
