@@ -9,10 +9,11 @@ import {FolderOpen} from "lucide-react";
 
 
 export default function Home() {
+    const now = Date.now();
 
     const sidebarItems = [
         {
-            date: '今天',
+            date: now, // 今天
             children: [
                 {
                     icon: <FolderOpen size={20} />,
@@ -25,20 +26,20 @@ export default function Home() {
             ],
         },
         {
-            date: '昨天',
+            date: now - 86400000, // 昨天
             children: [
                 { label: 'Design System', href: '#' },
                 { label: 'API Documentation', href: '#' },
             ],
         },
         {
-            date: '前天',
+            date: now - 2 * 86400000, // 前天
             children: [
                 { label: 'Project Planning', href: '#' },
                 { label: 'Team Meeting Notes', href: '#' },
             ],
         },
-    ]
+    ];
 
     const messages = [
         {
@@ -83,10 +84,16 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
         }
     ];
 
+    const user = {
+        avatarUrl: 'https://github.com/shuakami.png',
+        name: 'Admin',
+        status: 'Test#AL1_0001',
+    };
+
     return (
         <>
             <div className="w-full h-screen">
-                <ChatSidebar items={sidebarItems} />
+                <ChatSidebar items={sidebarItems} user={user} />
                 <ChatList messages={messages}/>
                 <div className="flex justify-center items-center min-h-screen">
                     <ChatInputWrapper/>
