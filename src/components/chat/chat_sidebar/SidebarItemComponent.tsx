@@ -20,7 +20,6 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
 
     const toggleOpen = () => setIsOpen(!isOpen);
 
-    // @ts-ignore
     const isSelected = selectedItem === item.label;
 
     if ('date' in item) {
@@ -30,9 +29,9 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
                     <DateLabel timestamp={item.date} />
                 </div>
                 <AnimatePresence initial={false}>
-                    {item.children?.map((child, index) => (
+                    {item.children?.map(child => (
                         <SidebarItemComponent
-                            key={`${child.label}-${index}`} // 确保唯一性
+                            key={child.id}
                             item={child}
                             level={level}
                             selectedItem={selectedItem}
@@ -51,7 +50,6 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
         >
-            {/* 文件夹类型的对话 */}
             <button
                 onClick={item.children ? toggleOpen : () => onSelect(item.label)}
                 className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
@@ -69,14 +67,13 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
                 <span className="text-sm flex-grow">{item.label}</span>
             </button>
 
-            {/* 如果有子对话，则显示 */}
             {item.children && isOpen && (
                 <div className="ml-1">
                     <AnimatePresence initial={false}>
-                        {item.children.map((child, index) => (
+                        {item.children.map(child => (
                             child.children ? (
                                 <SidebarItemComponent
-                                    key={`${child.label}-${index}`}
+                                    key={child.id}
                                     item={child}
                                     level={level + 1}
                                     selectedItem={selectedItem}
@@ -84,7 +81,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
                                 />
                             ) : (
                                 <CustomButton
-                                    key={`${child.label}-${index}`}
+                                    key={child.id}
                                     label={child.label}
                                     href={child.href}
                                     selected={selectedItem === child.label}

@@ -1,3 +1,4 @@
+// src/components/chat/ChatSidebar.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -10,8 +11,7 @@ import { SidebarItemType } from './chat_sidebar/types';
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
 import UserInfo from './chat_sidebar/UserInfo';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import { v4 as uuidv4 } from 'uuid'; // 引入 uuid
-
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatSidebarProps {
     items: SidebarItemType[];
@@ -22,60 +22,67 @@ interface ChatSidebarProps {
     };
 }
 
+const assignIds = (items: SidebarItemType[]): SidebarItemType[] => {
+    return items.map(item => {
+        const newItem = { ...item, id: item.id || uuidv4() };
+        if (newItem.children && newItem.children.length > 0) {
+            newItem.children = assignIds(newItem.children);
+        }
+        return newItem;
+    });
+};
+
 const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
-    const [folderItems, setFolderItems] = useState<SidebarItemType[]>(items); // 本地状态，用于管理文件夹项
-    const [isCreatingFolder, setIsCreatingFolder] = useState<boolean>(false); // 是否在创建新文件夹
-    const [newFolderName, setNewFolderName] = useState<string>(''); // 新文件夹的名称
+    const [folderItems, setFolderItems] = useState<SidebarItemType[]>(assignIds(items)); // Ensure unique ids
+    const [isCreatingFolder, setIsCreatingFolder] = useState<boolean>(false);
+    const [newFolderName, setNewFolderName] = useState<string>('');
 
-    const router = useRouter(); // 用于新建对话的路由跳转
+    const router = useRouter();
 
     const handleSelectItem = (label: string) => {
         setSelectedItem(label);
     };
 
-    // 用于处理动画的控制器
     const controls = useAnimation();
 
     useEffect(() => {
+        console.log('folderItems 更新:', folderItems);
         controls.start({
             opacity: 1,
             transition: { duration: 0.5 },
         });
     }, [folderItems, controls]);
 
-    // 新建对话的函数
     const handleNewChat = () => {
         router.push('/new-chat');
     };
 
-    // 新建文件夹的函数
     const handleNewFolder = () => {
         setIsCreatingFolder(true);
-        setNewFolderName(''); // 清空输入框
+        setNewFolderName('');
     };
 
-    // 保存新文件夹
     const saveNewFolder = () => {
         if (newFolderName.trim() === '') {
-            setIsCreatingFolder(false); // 名称为空时取消创建
+            setIsCreatingFolder(false);
             return;
         }
         const newFolder: SidebarItemType = {
+            id: uuidv4(),
             label: newFolderName,
-            children: [], // 新建文件夹没有子项
+            children: [],
         };
-        setFolderItems([newFolder, ...folderItems]); // 新文件夹加到文件夹项列表顶部
-        setIsCreatingFolder(false); // 结束创建状态
+        console.log('添加新文件夹:', newFolder);
+        setFolderItems(prevFolders => [newFolder, ...prevFolders]);
+        setIsCreatingFolder(false);
     };
 
-    // 按下回车保存新文件夹
     const handleFolderNameChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             saveNewFolder();
         }
     };
-
 
     return (
         <motion.div
@@ -83,27 +90,24 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
             animate={controls}
             className="flex flex-col h-screen w-[210px] bg-[#F9F9F9]/65 dark:bg-[#171717] text-black dark:text-white"
         >
-            {/* 滚动区域 */}
             <ScrollArea className="flex-grow">
-                {/* 顶部按钮 */}
                 <div className="flex space-x-3 mt-5 w-44 justify-center items-center mx-4">
                     <Button
                         variant="ghost"
                         className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg-[#f0f0f0] dark:hover:bg-[#212121] flex items-center justify-center"
-                        onClick={handleNewChat} // 点击新建对话按钮，跳转到 /new-chat
+                        onClick={handleNewChat}
                     >
                         <LucideAppWindow size={20} className="text-black dark:text-white" />
                     </Button>
                     <Button
                         variant="ghost"
                         className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg-[#f0f0f0] dark:hover:bg-[#212121] flex items-center justify-center"
-                        onClick={handleNewFolder} // 点击新建文件夹按钮
+                        onClick={handleNewFolder}
                     >
                         <FolderAddIcon size={20} className="text-black dark:text-white" />
                     </Button>
                 </div>
 
-                {/* 侧边栏内容 */}
                 <div className="py-4 mt-2">
                     <AnimatePresence>
                         {isCreatingFolder && (
@@ -126,10 +130,9 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
                         )}
 
                         {folderItems.length > 0 ? (
-                            folderItems.map((item, index) => (
+                            folderItems.map(item => (
                                 <SidebarItemComponent
-                                    // @ts-ignore
-                                    key={item.label + index} // 确保唯一性
+                                    key={item.id}
                                     item={item}
                                     level={0}
                                     selectedItem={selectedItem}
@@ -151,7 +154,6 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
                 </div>
             </ScrollArea>
 
-            {/* 底部用户信息 */}
             <UserInfo avatarUrl={user.avatarUrl} name={user.name} status={user.status} />
         </motion.div>
     );

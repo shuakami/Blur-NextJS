@@ -5,12 +5,11 @@ export interface DateGroup {
 }
 
 export interface SidebarItem {
-    id: string; // 新增唯一标识符
+    icon?: React.ReactNode;
+    id?: string;
     label: string;
     href?: string;
-    icon?: React.ReactNode;
-    children?: SidebarItemType[];
-    date?: number;
+    children?: SidebarItem[];
 }
 
 export type SidebarItemType = DateGroup | SidebarItem;
