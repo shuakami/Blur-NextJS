@@ -11,7 +11,6 @@ import { SidebarItemType } from './chat_sidebar/types';
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
 import UserInfo from './chat_sidebar/UserInfo';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-// @ts-ignore
 import { v4 as uuidv4 } from 'uuid';
 
 interface ChatSidebarProps {
@@ -21,31 +20,26 @@ interface ChatSidebarProps {
         name: string;
         status: string;
     };
+    onSelectConversation: (conversation_id: string) => void; // 添加回调
 }
 
 const assignIds = (items: SidebarItemType[]): SidebarItemType[] => {
     return items.map(item => {
-        // @ts-ignore
         const newItem = { ...item, id: item.id || uuidv4() };
         if (newItem.children && newItem.children.length > 0) {
-            // @ts-ignore
             newItem.children = assignIds(newItem.children);
         }
         return newItem;
     });
 };
 
-const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
+const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onSelectConversation}) => {
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const [folderItems, setFolderItems] = useState<SidebarItemType[]>(assignIds(items)); // Ensure unique ids
     const [isCreatingFolder, setIsCreatingFolder] = useState<boolean>(false);
     const [newFolderName, setNewFolderName] = useState<string>('');
 
     const router = useRouter();
-
-    const handleSelectItem = (label: string) => {
-        setSelectedItem(label);
-    };
 
     const controls = useAnimation();
 
@@ -87,6 +81,9 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
         }
     };
 
+    const handleSelectItem = (label: string) => {
+        setSelectedItem(label);
+    };
 
     return (
         <motion.div
@@ -136,7 +133,6 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
                         {folderItems.length > 0 ? (
                             folderItems.map(item => (
                                 <SidebarItemComponent
-                                    // @ts-ignore
                                     key={item.id}
                                     item={item}
                                     level={0}
@@ -162,6 +158,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ items, user }) => {
             <UserInfo avatarUrl={user.avatarUrl} name={user.name} status={user.status} />
         </motion.div>
     );
+
 };
 
 export default ChatSidebar;

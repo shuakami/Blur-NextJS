@@ -1,0 +1,23 @@
+/* src/app/components/ui/chat_list.css */
+
+.message-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.message-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 500ms, transform 500ms;
+}
+
+.message-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.message-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 500ms, transform 500ms;
+}
