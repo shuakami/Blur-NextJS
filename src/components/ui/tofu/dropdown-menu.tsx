@@ -92,7 +92,6 @@ const DropDownMenu: FC<DropDownMenuProps> = ({ isOpen, menuItems, onClose, posit
                     style={{
                         minWidth: '300px',
                         padding: '0.5rem 0',
-                        zIndex: 10,
                         ...positionStyles
                     }}
                     onClick={(e) => e.stopPropagation()}

@@ -14,7 +14,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                                  onSend,
                                                  onNetworkToggle,
                                                  placeholder = '今天想聊点什么...',
-                                                 maxHeight = 170,
+                                                 maxHeight = 100,
                                                  springConfig = { type: "spring", stiffness: 700, damping: 30 }
                                              }) => {
     const [isNetworkEnabled, setIsNetworkEnabled] = useState(false)
@@ -62,12 +62,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }
 
     return (
-        <div className="w-full max-w-4xl bg-white dark:bg-[#1E1E1E] rounded-xl hover:shadow-xl hover:shadow-[#CDCDCD]/15 dark:hover:shadow-[#000000]/30 duration-500 ease-in-out transform-gpu border border-black/10 dark:border-white/10">
-            <div className="relative p-4 pb-16">
+        <div
+            className="w-full bg-white rounded-lg shadow-sm hover:shadow-md hover:shadow-gray-100/75 transition-shadow duration-300 border border-gray-200">
+            <div className="relative flex items-center p-2">
                 <motion.div
                     ref={editorRef}
                     contentEditable
-                    className="min-h-[100px] max-h-[170px] p-4 pr-24 text-sm-md focus:outline-none overflow-y-auto custom-scrollbar dark:text-white"
+                    className="flex-grow min-h-[32px] max-h-[100px] py-1 px-2 pr-24 text-sm focus:outline-none overflow-y-auto custom-scrollbar"
                     onInput={handleInputChange}
                     onKeyDown={handleKeyDown}
                     animate={controls}
@@ -75,58 +76,39 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 />
                 {!inputContent && (
                     <motion.div
-                        className="absolute top-8 left-8 text-gray-400 dark:text-gray-500 pointer-events-none text-sm-md"
-                        initial={{ opacity: 0, y: 10 }}
+                        className="absolute left-4 text-gray-400 text-sm"
+                        initial={{opacity: 0, y: 5}}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, ...springConfig }}
                     >
                         {placeholder}
                     </motion.div>
                 )}
-                <motion.div className="absolute bottom-4 flex items-center space-x-4"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3, ...springConfig }}
-                >
-                    <button
-                        className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-sm transition-colors duration-300 ${
-                            isNetworkEnabled ? 'bg-blue-100 text-blue-600 dark:bg-blue-800/60 dark:text-blue-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
-                        }`}
-                        onClick={toggleNetwork}
-                    >
-                        <motion.div
-                            className={`w-3 h-3 rounded-full ${isNetworkEnabled ? 'bg-blue-400 dark:bg-blue-300' : 'bg-gray-400 dark:bg-gray-600/70'}`}
-                            layout
-                            transition={springConfig}
-                        />
-                        <span>联网搜索</span>
-                    </button>
-                </motion.div>
                 <motion.div
-                    className="absolute right-4 bottom-4 flex items-center space-x-4"
-                    initial={{opacity: 0, y: 10}}
-                    animate={{opacity: 1, y: 0}}
-                    transition={{delay: 0.4, ...springConfig}}
+                    className="flex items-center space-x-2 ml-2"
+                    initial={{opacity: 0, x: 5}}
+                    animate={{opacity: 1, x: 0}}
+                    transition={{delay: 0.3, ...springConfig}}
                 >
-                    <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-300">
-                        <Box className="w-5 h-5"/>
+                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <Box className="w-4 h-4"/>
                     </button>
-                    <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-300">
-                        <FileText className="w-5 h-5"/>
+                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <FileText className="w-4 h-4"/>
                     </button>
                     <motion.button
-                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm transition-colors duration-300 ${
+                        className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 ${
                             inputContent
-                                ? 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200'
-                                : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
+                                ? 'bg-black text-white hover:bg-black/90'
+                                : 'bg-gray-200 text-gray-400'
                         }`}
                         disabled={!inputContent.trim()}
-                        whileHover={{scale: 1.03}}
-                        whileTap={{scale: 0.98}}
+                        whileHover={{scale: 1.05}}
+                        whileTap={{scale: 0.95}}
                         onClick={handleSend}
                     >
-                        <Send className="w-4 h-4 mr-1.5"/>
-                        <span className="font-medium">发送</span>
+                        <Send className="w-3 h-3 mr-1"/>
+                        <span>发送</span>
                     </motion.button>
                 </motion.div>
             </div>

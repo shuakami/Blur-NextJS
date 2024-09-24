@@ -92,11 +92,31 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
 
     return (
         <>
-            <div className="w-full h-screen">
-                <ChatSidebar items={sidebarItems} user={user} />
-                <ChatList messages={messages}/>
-                <div className="flex justify-center items-center min-h-screen">
-                    <ChatInputWrapper/>
+            <div className="w-full h-screen flex overflow-hidden">
+                {/* 左侧的侧边栏 */}
+                <div className="h-full">
+                    <ChatSidebar items={sidebarItems} user={user}/>
+                </div>
+
+                {/* 右侧的聊天列表和输入框 <在这里加-z-10就可以了，但是下面的元素都动不了了>*/}
+                <div
+                    className="h-full flex-1 flex flex-col overflow-hidden"
+                >
+                    {/* 聊天列表 */}
+                    <div className="overflow-y-auto">
+                        <div
+                            className="justify-center items-center xs:px-1 sm:px-6 md:px-10 lg:px-20 xl:px-32 2xl:px-48 3xl:px-64">
+                            <ChatList messages={messages}/>
+                        </div>
+                    </div>
+
+                    {/* 悬浮的输入框 */}
+                    <div className="fixed bottom-0 left-28 w-full p-4 flex justify-center bg-transparent">
+                        <div className="sm:w-2/3 lg:w-1/2 xl:w-1/2 2xl:w-2/4 3xl:w-2/5 px-4">
+                            <ChatInputWrapper/>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </>

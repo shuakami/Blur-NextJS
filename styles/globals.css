@@ -328,3 +328,34 @@ body:hover::-webkit-scrollbar-track,
 html:hover::-webkit-scrollbar-track {
   background: transparent; /* 保持滚动条轨道一致 */
 }
+
+
+.chat-input-transparent {
+  position: relative;
+}
+
+.chat-input-transparent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: transparent !important;
+  pointer-events: none; /* 确保伪元素不会拦截输入事件 */
+
+}
+
+/* 确保输入框本身也设置为透明 */
+.chat-input-transparent input, .chat-input-transparent textarea {
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 如果有任何边框或阴影的默认样式，也要移除 */
+.chat-input-transparent * {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}

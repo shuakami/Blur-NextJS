@@ -20,6 +20,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
 
     const toggleOpen = () => setIsOpen(!isOpen);
 
+    // @ts-ignore
     const isSelected = selectedItem === item.label;
 
     if ('date' in item) {

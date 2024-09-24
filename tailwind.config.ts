@@ -9,6 +9,11 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		screens: {
+			'3xl': '1920px',
+			'4xl': '2560px',
+			'5xl': '3200px',
+		},
 		gray: {
 			50: '#f8f8f8',
 			100: '#e0e0e0',
