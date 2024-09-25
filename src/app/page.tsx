@@ -1,37 +1,79 @@
-// src/app/pages/Home.tsx
+// app/page.tsx
 "use client";
 
-import React from 'react';
+import React, {useState} from 'react';
 import ChatList from '@/app/[消息显示]/chat_list';
 import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
 import {ChatProvider} from '@/app/[上下文]/ChatContext';
-import {useRouter} from 'next/navigation';
 import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
+import HomepageContent from "@/app/[首页占位]/home-content";
+import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
+import {motion, AnimatePresence} from 'framer-motion';
+
+const SIDEBAR_WIDTH = 200; // 固定侧边栏宽度
 
 export default function Home() {
-    const router = useRouter();
+    const [hasConversation, setHasConversation] = useState<boolean>(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
-    const user_id = 'anonymous_user';
+    const toggleSidebar = () => {
+        setIsSidebarOpen(prev => !prev);
+    };
 
     return (
         <ChatProvider>
-            <div className="w-full h-screen flex flex-row">
-                {/* 左侧的侧边栏 */}
-                <div className="w-1/4 min-w-[200px] md:w-1/5 lg:w-1/4 h-full">
-                    <MessagesSidebar user_id={user_id}/>
-                </div>
+            <div className="w-full h-screen flex overflow-hidden">
+                {/* 侧边栏 */}
+                <motion.div
+                    className="fixed top-0 left-0 h-full shadow-lg z-30"
+                    style={{width: SIDEBAR_WIDTH}}
+                    initial={{x: -SIDEBAR_WIDTH}}
+                    animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
+                    transition={{duration: 0.3, ease: "easeInOut"}}
+                >
+                    <MessagesSidebar onClose={toggleSidebar}/>
+                </motion.div>
 
-                {/* 右侧的聊天列表和输入框 */}
-                <div className="h-full flex flex-col flex-1">
-                    <div className="flex-1 overflow-auto p-4">
-                        <ChatList user_id={user_id}/>
+                {/* 主内容区域 */}
+                <motion.div
+                    className="flex flex-col h-full w-full"
+                    initial={{paddingLeft: SIDEBAR_WIDTH}}
+                    animate={{paddingLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
+                    transition={{duration: 0.3, ease: "easeInOut"}}
+                >
+                    {/* Header 中的 SidebarOpenIcon */}
+                    <AnimatePresence>
+                        {!isSidebarOpen && (
+                            <motion.div
+                                className="absolute top-4 left-4 z-40"
+                                initial={{opacity: 0}}
+                                animate={{opacity: 1}}
+                                exit={{opacity: 0}}
+                                transition={{duration: 0.2}}
+                            >
+                                <HomeHeaderIcon isSidebarOpen={isSidebarOpen} onOpen={toggleSidebar}/>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* 聊天内容区域 */}
+                    <div className="flex-1 overflow-auto w-full p-4">
+                        {hasConversation ? (
+                            <ChatList/>
+                        ) : (
+                            <div className="flex justify-center items-center h-full">
+                                <HomepageContent/>
+                            </div>
+                        )}
                     </div>
-                    <div className="w-full flex justify-center p-4">
-                        <div className="w-full max-w-2xl">
-                            <ChatInputWrapper/>
+
+                    {/* 输入框容器 */}
+                    <div className="p-4 flex justify-center w-full">
+                        <div className="w-full sm:max-w-2xl lg:max-w-xl">
+                            <ChatInputWrapper onFirstMessage={() => setHasConversation(true)}/>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </ChatProvider>
     );
