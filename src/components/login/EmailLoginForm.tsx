@@ -1,40 +1,24 @@
 // components/login/EmailLoginForm.tsx
 "use client";
 
-import { useState } from "react";
+import React, {useState} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useTranslation from "@/hooks/useTranslation";
 
-interface EmailLoginFormProps {
-    onSubmit: (email: string, password: string) => void;
-}
 
-export default function EmailLoginForm({ onSubmit }: EmailLoginFormProps) {
+export default function EmailLoginForm() {
     const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [error] = useState<string | null>(null);
+    const [loading] = useState(false);
 
     const handleEmailSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // 可以在这里添加邮箱验证逻辑
+        // TODO:邮箱验证
         setShowPassword(true);
-    };
-
-    const handlePasswordSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
-            await onSubmit(email, password);
-        } catch (err: any) {
-            setError(err.message || "登录失败");
-        } finally {
-            setLoading(false);
-        }
     };
 
     return (

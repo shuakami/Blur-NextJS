@@ -4,6 +4,7 @@ export interface DateGroup {
 }
 
 export interface SidebarItem {
+    children?: SidebarItem[];
     icon?: React.ReactNode;
     id?: string;
     label: string;

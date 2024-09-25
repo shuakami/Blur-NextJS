@@ -36,7 +36,11 @@ const groupConversationsByDate = (conversations: Conversation[]) => {
     }));
 };
 
-const MessagesSidebar: React.FC = () => {
+interface MessagesSidebarProps {
+    onClose?: () => void
+}
+
+const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
     const {isSignedIn, user, isLoaded} = useUser(); // 获取用户登录状态和用户信息
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -85,7 +89,8 @@ const MessagesSidebar: React.FC = () => {
         status: 'Test#AL1_0001', // 可以根据需要调整用户状态
     };
 
-    return <ChatSidebar items={sidebarItems} user={userInfo}/>;
+    return <ChatSidebar items={sidebarItems} user={userInfo} onClose={onClose || (() => {
+    })}/>;
 };
 
 export default MessagesSidebar;

@@ -5,12 +5,9 @@ import {
     Activity, BookIcon,
     ChevronDown,
     ChevronUp,
-    CircleUser,
     HelpCircle,
     Home,
     LanguagesIcon,
-    LogOut,
-    SettingsIcon
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -18,9 +15,9 @@ import LanguageDropdown from "@/app/[语言选择器]/language-dropdown";
 import useTranslation from "@/hooks/useTranslation";
 import { defaultLanguages } from "@/lib/languages";
 import { motion } from "framer-motion";
-import LoginMethods from "@/components/login/LoginMethods";
 import AuthGuard from "@/components/auth/AuthGuard";
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
+import LoginMethodsWrapper from "@/app/[登录]/LoginMethodsWrapper";
 
 export default function LoginPage() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -104,7 +101,7 @@ export default function LoginPage() {
                         {t("登录你的 Blur 帐号")}
                     </p>
 
-                    <LoginMethods />
+                    <LoginMethodsWrapper/>
 
                     <div className="text-xs text-[#787874] dark:text-[#a1a1a1] text-center mt-2">
                         {t("你的姓名和照片会显示给通过你的邮件邀请你加入Blur的用户。继续操作即表示，你已确认理解并同意")}

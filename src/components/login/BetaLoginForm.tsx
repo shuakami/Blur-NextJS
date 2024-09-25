@@ -2,35 +2,34 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import React, {useState} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useTranslation from "@/hooks/useTranslation";
 import { useRouter } from "next/router";
 import LoginHandler from "@/components/login/[安全工具]/LoginHandler";
+import Link from "next/link";  // 引入 Link 组件
 
-interface BetaLoginFormProps {
-    onBack: () => void;
-}
 
-export default function BetaLoginForm({ onBack }: BetaLoginFormProps) {
+export default function BetaLoginForm() {
     const { t } = useTranslation();
     const [stage, setStage] = useState<"email" | "password">("email");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
 
-    const { handleLogin, loading, error } = LoginHandler({
+    const {handleLogin, loading} = LoginHandler({
         email,
         password,
         onSuccess: () => {
-            router.push("/");
+            router.push("/").catch((err) => {
+                console.error("路由跳转失败：", err);
+            }); // 处理 router.push 的 Promise
         },
     });
 
     const handleEmailSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO:进一步的邮箱格式验证
         setStage("password");
     };
 
@@ -61,9 +60,9 @@ export default function BetaLoginForm({ onBack }: BetaLoginFormProps) {
                         />
                         <p className="text-[#acaba9] dark:text-[#8c8c8c] text-xs mt-2">
                             {t("拥有内测资格和账号的用户可抢先体验最新功能。")} &nbsp;
-                            <a href="/forgot-account" className="text-blue-500/80">
+                            <Link href="/forgot-account" className="text-blue-500/80">
                                 {t("忘记了你的账号？")}
-                            </a>
+                            </Link>
                         </p>
                     </div>
 
@@ -97,9 +96,9 @@ export default function BetaLoginForm({ onBack }: BetaLoginFormProps) {
                         />
                         <p className="text-[#acaba9] dark:text-[#8c8c8c] text-xs mt-2">
                             {t("继续输入密码以登录。")} &nbsp;
-                            <a href="/forgot-password" className="text-blue-500/80">
+                            <Link href="/forgot-password" className="text-blue-500/80">
                                 {t("忘记了你的密码？")}
-                            </a>
+                            </Link>
                         </p>
                     </div>
 
