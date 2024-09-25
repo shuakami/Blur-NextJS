@@ -9,6 +9,7 @@ import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
 import {motion, AnimatePresence} from 'framer-motion';
+import CText from '@/app/copyright/ctext';
 
 const SIDEBAR_WIDTH = 200; // 固定侧边栏宽度
 
@@ -28,7 +29,7 @@ export default function Home() {
                     className="fixed top-0 left-0 h-full shadow-lg z-30"
                     style={{width: SIDEBAR_WIDTH}}
                     initial={{x: -SIDEBAR_WIDTH}}
-                    animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
+                    animate={{x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH}}
                     transition={{duration: 0.3, ease: "easeInOut"}}
                 >
                     <MessagesSidebar onClose={toggleSidebar}/>
@@ -37,8 +38,9 @@ export default function Home() {
                 {/* 主内容区域 */}
                 <motion.div
                     className="flex flex-col h-full w-full"
-                    initial={{paddingLeft: SIDEBAR_WIDTH}}
-                    animate={{paddingLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
+                    style={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
+                    initial={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
+                    animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
                     transition={{duration: 0.3, ease: "easeInOut"}}
                 >
                     {/* Header 中的 SidebarOpenIcon */}
@@ -68,10 +70,11 @@ export default function Home() {
                     </div>
 
                     {/* 输入框容器 */}
-                    <div className="p-4 flex justify-center w-full">
+                    <div className="p-4 flex flex-col items-center w-full">
                         <div className="w-full sm:max-w-2xl lg:max-w-xl">
                             <ChatInputWrapper onFirstMessage={() => setHasConversation(true)}/>
                         </div>
+                        <CText/>
                     </div>
                 </motion.div>
             </div>
