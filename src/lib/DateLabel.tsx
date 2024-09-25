@@ -1,4 +1,4 @@
-// DateLabel.tsx
+// src/lib/DateLabel.tsx
 "use client";
 
 import React from 'react';

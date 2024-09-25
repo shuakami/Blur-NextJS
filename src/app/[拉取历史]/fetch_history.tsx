@@ -1,51 +1,32 @@
-// src/app/[拉取历史]/fetch_history.tsx
+// src/app/拉取历史/fetch_history.ts
+
 import apiClient from '@/api/config';
+import {FetchHistoryParams, FetchHistoryResponse} from '@/types/stream';
 
-// 定义请求参数的类型
-interface FetchHistoryParams {
-    user_id: string;
-    conversation_id?: string;
-    limit?: number;
-    offset?: number;
-}
-
-// 定义消息的类型
-interface Message {
-    message_id: string;
-    content: string;
-    role: 'user' | 'assistant';
-    timestamp: number;
-    branch: string | null;
-    keys_used_count: number;
-}
-
-// 定义拉取历史记录的响应类型
-interface FetchHistoryResponse {
-    user_id: string;
-    conversation_id: string;
-    messages: Message[];
-}
-
-// 拉取历史记录的函数
+/**
+ * 拉取历史记录的函数
+ * @param params - 请求参数，包括 user_id 和 conversation_id
+ * @returns 返回拉取的历史记录
+ * @throws 如果请求失败，则抛出错误
+ */
 export const fetchHistory = async (params: FetchHistoryParams): Promise<FetchHistoryResponse> => {
+    const requestBody: Record<string, any> = {
+        user_id: params.user_id,
+        limit: params.limit || 20,
+        offset: params.offset || 0,
+    };
+
+    // 如果传入了 conversation_id，则添加到请求体中
+    if (params.conversation_id) {
+        requestBody.conversation_id = params.conversation_id;
+    }
+
     try {
-        const requestBody: any = {
-            user_id: params.user_id,
-            limit: params.limit || 20,
-            offset: params.offset || 0,
-        };
-
-        // 如果传入了 conversation_id，则添加到请求体中
-        if (params.conversation_id) {
-            requestBody.conversation_id = params.conversation_id;
-        }
-
         // 发送 POST 请求
         const response = await apiClient.post<FetchHistoryResponse>('/history', requestBody);
-
         return response.data;
     } catch (error) {
-        console.error('拉取历史记录失败:', error);
-        throw error;
+        // 可以在此处集成日志记录服务，例如 Sentry
+        throw new Error('拉取历史记录失败');
     }
 };

@@ -1,40 +1,46 @@
+// pages/chat/[conversation_id].tsx
 "use client";
+
 import React, {useEffect, useState} from 'react';
-import {useRouter} from 'next/router';
+import {useRouter} from 'next/router';  // 使用 next/router
 import ChatList from '@/app/[消息显示]/chat_list';
 import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
-import ChatSidebar from "@/components/chat/chat_sidebar";
+import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
 import {ChatProvider} from '@/app/[上下文]/ChatContext';
 import {fetchHistory} from '@/app/[拉取历史]/fetch_history';
-import {useSearchParams} from "next/navigation";
 
 export default function ChatPage() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    // @ts-ignore
-    const conversation_id = searchParams.get('conversation_id'); // 获取 URL 中的 conversation_id
+    const router = useRouter();  // 使用 useRouter 获取 router
+    const {conversation_id} = router.query;  // 从 router.query 中获取 conversation_id
+
     const [exists, setExists] = useState<boolean | null>(null);
     const user_id = 'anonymous_user';
 
     useEffect(() => {
-        if (!conversation_id) return;
+        // Debug 信息
+        console.log('exists:', exists);
+        console.log('conversation_id:', conversation_id);
 
-        const checkConversation = async () => {
+        // 等待 conversation_id 可用
+        if (!conversation_id || typeof conversation_id !== 'string') {
+            return;
+        }
+
+        const checkConversationExists = async () => {
             try {
                 const history = await fetchHistory({user_id, conversation_id});
-                if (history.messages.length > 0) {
+                if (history && history.messages.length > 0) {
                     setExists(true);
                 } else {
                     setExists(false);
                 }
             } catch (error) {
-                console.error('检查对话失败:', error);
                 setExists(false);
             }
         };
 
-        checkConversation();
-    }, [conversation_id]);
+        checkConversationExists();
+    }, [conversation_id, user_id]);
 
     useEffect(() => {
         if (exists === false) {
@@ -43,28 +49,16 @@ export default function ChatPage() {
         }
     }, [exists, router]);
 
-    if (exists === null) {
+    if (exists === null || !conversation_id || typeof conversation_id !== 'string') {
         return <div>加载中...</div>;
     }
 
-    if (!conversation_id) {
-        return <div>没有提供 conversation_id。</div>;
-    }
-
     return (
-        <ChatProvider>
+        <ChatProvider initialConversationId={conversation_id}>
             <div className="w-full h-screen flex flex-row">
                 {/* 左侧的侧边栏 */}
                 <div className="w-1/4 min-w-[200px] md:w-1/5 lg:w-1/4 h-full">
-                    <ChatSidebar
-                        items={[]} // 传递空数组或适当的 folderItems
-                        user={{
-                            avatarUrl: 'https://github.com/shuakami.png',
-                            name: 'Admin',
-                            status: 'Test#AL1_0001',
-                        }}
-                        onSelectConversation={(id: string) => router.push(`/chat/${id}`)}
-                    />
+                    <MessagesSidebar user_id={user_id}/>
                 </div>
 
                 {/* 右侧的聊天列表和输入框 */}

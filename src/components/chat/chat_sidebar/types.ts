@@ -1,6 +1,5 @@
-// types.ts
 export interface DateGroup {
-    date: number; // 时间戳
+    date: number; // 时间戳，表示日期
     children: SidebarItem[];
 }
 
@@ -9,7 +8,7 @@ export interface SidebarItem {
     id?: string;
     label: string;
     href?: string;
-    children?: SidebarItem[];
+    onClick?: () => void; // 用于点击事件
 }
 
 export type SidebarItemType = DateGroup | SidebarItem;
