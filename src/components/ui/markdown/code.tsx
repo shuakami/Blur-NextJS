@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Prism from 'prismjs';
-import { motion } from 'framer-motion';
+import {motion, AnimatePresence} from 'framer-motion';
 
-export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code, language = 'javascript' }) => {
+interface CodeBlockProps {
+    code: string;
+    language?: string;
+}
+
+export const CodeBlock: React.FC<CodeBlockProps> = ({code, language = 'javascript'}) => {
     const [copied, setCopied] = useState(false);
     const [hovered, setHovered] = useState(false);
-    const [isClient, setIsClient] = useState(false);
+    const codeRef = useRef<HTMLElement>(null);
 
-    useEffect(() => {
-        setIsClient(true); // 仅在客户端渲染时执行高亮
-    }, []);
+    // 确认语言是否被 Prism 支持
+    const validLanguage = useMemo(() => (Prism.languages[language] ? language : 'javascript'), [language]);
+
+    // 使用 useMemo 缓存高亮后的代码，避免重复计算
+    const highlightedCode = useMemo(() => {
+        return Prism.highlight(code, Prism.languages[validLanguage], validLanguage);
+    }, [code, validLanguage]);
 
     const handleCopy = () => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000); // 复制提示2秒后消失
     };
-
-    const validLanguage = Prism.languages[language] ? language : 'javascript';
 
     // 检查是否为内联代码（无换行符）还是多行代码块
     const isInlineCode = !code.includes('\n');
@@ -30,6 +37,7 @@ export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code,
             className={`code-block-wrapper ${isInlineCode ? 'inline-code' : ''}`}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
+            style={{position: 'relative'}} // 为复制按钮定位做准备
         >
             {/* 只有多行代码块才显示复制按钮 */}
             {!isInlineCode && (
@@ -83,17 +91,13 @@ export const CodeBlock: React.FC<{ code: string, language?: string }> = ({ code,
             {isInlineCode ? (
                 <code
                     className={`language-${validLanguage}`}
-                    dangerouslySetInnerHTML={{
-                        __html: isClient ? Prism.highlight(code, Prism.languages[validLanguage], validLanguage) : '', // 仅在客户端高亮
-                    }}
+                    dangerouslySetInnerHTML={{__html: highlightedCode}}
                 />
             ) : (
                 <pre className={`code-block language-${validLanguage}`}>
                     <code
                         className={`language-${validLanguage}`}
-                        dangerouslySetInnerHTML={{
-                            __html: isClient ? Prism.highlight(code, Prism.languages[validLanguage], validLanguage) : '', // 仅在客户端高亮
-                        }}
+                        dangerouslySetInnerHTML={{__html: highlightedCode}}
                     />
                 </pre>
             )}

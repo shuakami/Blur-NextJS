@@ -63,12 +63,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div
-            className="w-full bg-white rounded-lg shadow-sm hover:shadow-md hover:shadow-gray-100/75 transition-shadow duration-300 border border-gray-200">
+            className="w-full bg-white dark:bg-[#222222] rounded-lg shadow-sm hover:shadow-md hover:shadow-gray-100/75 dark:hover:shadow-black/30 transition-shadow duration-300 border border-gray-200 dark:border-[#333333]">
             <div className="relative flex items-center p-2">
                 <motion.div
                     ref={editorRef}
                     contentEditable
-                    className="flex-grow min-h-[32px] max-h-[100px] py-1 px-2 pr-24 text-sm focus:outline-none overflow-y-auto custom-scrollbar"
+                    className="flex-grow min-h-[32px] max-h-[100px] py-1 px-2 pr-24 text-sm focus:outline-none overflow-y-auto custom-scrollbar dark:text-gray-300"
                     onInput={handleInputChange}
                     onKeyDown={handleKeyDown}
                     animate={controls}
@@ -76,10 +76,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 />
                 {!inputContent && (
                     <motion.div
-                        className="absolute left-4 text-gray-400 text-sm"
+                        className="absolute left-4 text-gray-400 dark:text-[#777777] text-sm"
                         initial={{opacity: 0, y: 5}}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, ...springConfig }}
+                        animate={{opacity: 1, y: 0}}
+                        transition={{delay: 0.2, ...springConfig}}
                     >
                         {placeholder}
                     </motion.div>
@@ -90,17 +90,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     animate={{opacity: 1, x: 0}}
                     transition={{delay: 0.3, ...springConfig}}
                 >
-                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                    <button
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:text-[#777777] dark:hover:text-[#999999] transition-colors duration-200">
                         <Box className="w-4 h-4"/>
                     </button>
-                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                    <button
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:text-[#777777] dark:hover:text-[#999999] transition-colors duration-200">
                         <FileText className="w-4 h-4"/>
                     </button>
                     <motion.button
                         className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 ${
                             inputContent
-                                ? 'bg-black text-white hover:bg-black/90'
-                                : 'bg-gray-200 text-gray-400'
+                                ? 'bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-200'
+                                : 'bg-gray-200 text-gray-400 dark:bg-[#333333] dark:text-[#777777]'
                         }`}
                         disabled={!inputContent.trim()}
                         whileHover={{scale: 1.05}}

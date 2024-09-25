@@ -8,7 +8,8 @@ import { SidebarItemType } from './chat_sidebar/types';
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
 import UserInfo from './chat_sidebar/UserInfo';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import DateLabel from '@/lib/DateLabel';  // 引入 DateLabel
+import DateLabel from '@/lib/DateLabel';
+import {MessageCirclePlus, SidebarCloseIcon} from "lucide-react";
 
 interface ChatSidebarProps {
     items: SidebarItemType[];
@@ -40,7 +41,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user}) => {
     }, [items, controls]);
 
     const handleNewChat = () => {
-        router.push('/new-chat');
+        router.push('/');
     };
 
     return (
@@ -53,10 +54,17 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user}) => {
                 <div className="flex space-x-3 mt-5 w-44 justify-center items-center mx-4">
                     <Button
                         variant="ghost"
-                        className="w-full text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg-[#f0f0f0] dark:hover:bg-[#212121] flex items-center justify-center"
+                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg-[#f0f0f0] dark:hover:bg-[#212121] flex items-center justify-center"
+
+                    >
+                        <SidebarCloseIcon size={20} className="text-black dark:text-white"/>
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg-[#f0f0f0] dark:hover:bg-[#212121] flex items-center justify-center"
                         onClick={handleNewChat}
                     >
-                        新建对话
+                        <MessageCirclePlus size={20} className="text-black dark:text-white"/>
                     </Button>
                 </div>
 
@@ -66,7 +74,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user}) => {
                             items.map(item =>
                                 'children' in item ? (
                                     <div key={item.date}>
-                                        <div className="text-gray-500 text-xs mx-4 my-2">
+                                        <div className="text-black/60 dark:text-[#999999] text-xs mx-6 my-2">
                                             <DateLabel timestamp={item.date}/>
                                         </div>
                                         {item.children.map(subItem => (

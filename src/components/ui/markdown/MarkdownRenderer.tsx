@@ -21,7 +21,31 @@ const InlineCode: React.FC<React.PropsWithChildren<Record<string, unknown>>> = (
     <code>{children}</code>
 );
 
+// 预处理 Markdown 内容，确保所有代码块都已闭合，并正确区分代码块和内联代码
+const preprocessMarkdown = (content: string): string => {
+    const lines = content.split('\n');
+    let insideCodeBlock = false;
+    const processedLines: string[] = [];
+
+    lines.forEach((line) => {
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('```')) {
+            insideCodeBlock = !insideCodeBlock;
+        }
+        processedLines.push(line);
+    });
+
+    // 如果文件以未闭合的代码块结尾，自动添加闭合 ```
+    if (insideCodeBlock) {
+        processedLines.push('```');
+    }
+
+    return processedLines.join('\n');
+};
+
 export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+    const preprocessedContent = preprocessMarkdown(content);
+
         const components: Components = {
                 h1: ({ ...props }) => <Heading1 {...props} />,
                 h2: ({ ...props }) => <Heading2 {...props} />,
@@ -62,7 +86,7 @@ export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => 
         return (
             <div className="markdown-body">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
-                            {content}
+                        {preprocessedContent}
                     </ReactMarkdown>
             </div>
         );

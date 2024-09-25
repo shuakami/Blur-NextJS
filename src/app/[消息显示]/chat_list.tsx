@@ -1,4 +1,4 @@
-// src/app/消息显示/chat_list.tsx
+// src/app/[消息显示]/chat_list.tsx
 
 "use client";
 
@@ -8,6 +8,7 @@ import {ChatList as UIChatList} from '@/components/ui/chat-list';
 
 const ChatList: React.FC = () => {
     const {messages} = useChatContext(); // 从上下文中获取 messages
+
 
     return (
         <>

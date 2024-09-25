@@ -1,8 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-    // 关闭严格模式
-    strictMode: false,
-
-};
+const nextConfig = {};
 
 export default nextConfig;

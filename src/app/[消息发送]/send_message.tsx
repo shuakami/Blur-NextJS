@@ -4,10 +4,11 @@ import {handleStream} from '@/app/[流式处理]/stream';
 import {SendMessageParams, FinalInfo, StreamChunk, SendMessageResponse} from '@/types/stream';
 
 // 设置 API 基础 URL 和端口
-const API_BASE_URL = 'http://localhost:33413';  // 确保使用正确的端口
+const API_BASE_URL = 'http://localhost:33413';
 
 export const sendMessage = async (
     params: SendMessageParams,
+    jwtToken: string,  // 将 JWT 作为参数传递
     onInitialResponse: (response: SendMessageResponse) => void,
     onChunkReceived: (chunk: StreamChunk) => void,
     onFinalInfo?: (finalInfo: FinalInfo) => void,
@@ -18,7 +19,7 @@ export const sendMessage = async (
         const requestBody: Record<string, any> = {
             user_input: params.user_input,
             topic: 'luoxiaohei',
-            user_id: params.user_id || 'anonymous_user',
+            user_id: params.user_id,
         };
 
         // 如果传入了 conversation_id，则添加到请求体中
@@ -31,6 +32,7 @@ export const sendMessage = async (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${jwtToken}`, // 使用传入的 JWT 进行身份验证
             },
             body: JSON.stringify(requestBody),
         });
