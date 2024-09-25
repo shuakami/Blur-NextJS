@@ -32,9 +32,11 @@ export interface SendMessageResponse {
 }
 
 export interface Message {
-    type: 'user' | 'bot';
+    id?: string;
+    type: string;
     content: string;
     avatarUrl: string;
+    isStreaming?: boolean;
 }
 
 ////////////////////////////////////////

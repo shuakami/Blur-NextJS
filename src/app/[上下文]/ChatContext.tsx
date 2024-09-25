@@ -1,5 +1,3 @@
-// src/app/上下文/ChatContext.tsx
-
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import {sendMessage as sendMessageAPI} from '@/app/[消息发送]/send_message';
 import {fetchHistory} from '@/app/[拉取历史]/fetch_history';
@@ -17,7 +15,7 @@ const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversationId?: string }> = ({
                                                                                                           children,
-                                                                                                          initialConversationId
+                                                                                                          initialConversationId,
                                                                                                       }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [conversationId, setConversationId] = useState<string | null>(initialConversationId || null);
@@ -26,12 +24,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
 
     // 添加消息
     const addMessage = (message: Message) => {
-        setMessages(prev => [...prev, message]);
+        setMessages((prev) => [...prev, message]);
     };
 
     // 更新最后一条机器人消息的内容
     const updateLastBotMessage = (chunkContent: string) => {
-        setMessages(prevMessages => {
+        setMessages((prevMessages) => {
             const updatedMessages = [...prevMessages];
             for (let i = updatedMessages.length - 1; i >= 0; i--) {
                 if (updatedMessages[i].type === 'bot') {
@@ -45,8 +43,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
 
     // 触发侧边栏重新加载
     const triggerConversationsReload = () => {
-        setReloadConversationsCounter(prev => prev + 1);
+        setReloadConversationsCounter((prev) => prev + 1);
     };
+
+    // 当初始对话 ID 改变时，重新加载历史记录
+    useEffect(() => {
+        if (initialConversationId !== conversationId) {
+            setConversationId(initialConversationId || null);
+            setMessages([]); // 清空当前消息，加载新对话
+        }
+    }, [initialConversationId]);
 
     // 拉取历史记录并设置消息
     useEffect(() => {
@@ -63,12 +69,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                         ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix'
                         : 'https://github.com/shuakami.png',
                     timestamp: msg.timestamp * 1000,
+                    isStreaming: false, // 历史消息不需要流式
                 })).sort((a, b) => a.timestamp - b.timestamp); // 按时间升序排序
 
                 setMessages(formattedMessages);
             } catch (error) {
                 console.error('无法加载历史记录', error);
-                // 可选：设置错误状态或通知用户
             }
         };
 
@@ -133,7 +139,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
 
     return (
         <ChatContext.Provider
-            value={{messages, sendMessage, addMessage, triggerConversationsReload, reloadConversationsCounter}}>
+            value={{messages, sendMessage, addMessage, triggerConversationsReload, reloadConversationsCounter}}
+        >
             {children}
         </ChatContext.Provider>
     );

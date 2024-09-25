@@ -1,8 +1,7 @@
 "use client";
 
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {fetchConversations} from '@/app/[侧边栏管理]/fetch_conversations';
-import {useRouter} from 'next/navigation';
 import ChatSidebar from '@/components/chat/chat_sidebar';
 
 interface Conversation {
@@ -13,6 +12,9 @@ interface Conversation {
 
 // 对话按日期分组
 const groupConversationsByDate = (conversations: Conversation[]) => {
+    // 按照时间戳降序排列对话
+    conversations.sort((a, b) => b.timestamp - a.timestamp);
+
     const grouped: Record<string, Conversation[]> = {};
 
     conversations.forEach((convo) => {
@@ -33,13 +35,14 @@ const groupConversationsByDate = (conversations: Conversation[]) => {
     }));
 };
 
+
 const MessagesSidebar: React.FC<{ user_id: string }> = ({user_id}) => {
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
 
-    const loadConversations = async () => {
+    // 使用 useCallback 确保 loadConversations 稳定
+    const loadConversations = useCallback(async () => {
         setLoading(true);
         try {
             const data = await fetchConversations(user_id);
@@ -49,15 +52,11 @@ const MessagesSidebar: React.FC<{ user_id: string }> = ({user_id}) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user_id]);
 
     useEffect(() => {
         loadConversations();
-    }, [user_id]);
-
-    const handleSelectConversation = (conversation_id: string) => {
-        router.push(`/chat/${conversation_id}`);
-    };
+    }, [user_id, loadConversations]);
 
     if (loading) return <div>加载中...</div>;
     if (error) return <div>{error}</div>;

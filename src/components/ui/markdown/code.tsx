@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import Prism from 'prismjs';
 import { motion } from 'framer-motion';
 

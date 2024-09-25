@@ -24,12 +24,13 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user}) => {
     const router = useRouter();
     const controls = useAnimation();
 
-    const handleSelectItem = (id: string, href?: string) => {
+    const handleSelectItem = (id: any, href?: string) => {
         setSelectedItem(id);
         if (href) {
-            router.push(href);
+            router.push(href);  // 确保 href 是一个 string
         }
     };
+
 
     useEffect(() => {
         controls.start({

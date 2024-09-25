@@ -1,23 +1,14 @@
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
   "rules": {
-    // 禁用严格模式要求
     "strict": "off",
-
-    // 允许使用 any 类型，放松 TypeScript 类型检查的严格性
     "@typescript-eslint/no-explicit-any": "off",
-
-    // 禁用要求返回类型注释
     "@typescript-eslint/explicit-module-boundary-types": "off",
-
-    // 禁用 props 传递的校验
     "react/prop-types": "off",
-
-    // 对未使用变量仅给出警告，而不是报错
     "@typescript-eslint/no-unused-vars": ["warn", { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" }],
-
-    // 允许开发时 console 和 debugger
     "no-console": "warn",
-    "no-debugger": "warn"
+    "no-debugger": "warn",
+    "@typescript-eslint/ban-ts-comment": "off"
+    // 关闭类型检查注释的警告
   }
 }
