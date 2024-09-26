@@ -3,7 +3,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {fetchConversations} from '@/app/[侧边栏管理]/fetch_conversations';
 import ChatSidebar from '@/components/chat/chat_sidebar';
-import {useUser} from '@clerk/nextjs'; // 从 Clerk 获取用户信息
+import {useUser} from '@clerk/nextjs';
+import ChatSidebarLoading from "@/components/Loading/loading_chat_sidebar";
+import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
+import {useConversations} from "../../../contexts/ConversationsContext";
+
 
 interface Conversation {
     conversation_id: string;
@@ -42,7 +46,7 @@ interface MessagesSidebarProps {
 
 const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
     const {isSignedIn, user, isLoaded} = useUser(); // 获取用户登录状态和用户信息
-    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const {conversations, setConversations} = useConversations(); // 使用 ConversationsContext
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -56,13 +60,13 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
         setLoading(true);
         try {
             const data = await fetchConversations(user.id); // 使用真实的用户 ID
-            setConversations(data);
+            setConversations(data); // 将对话列表存储到 Context 中
         } catch (err) {
             setError('无法加载对话列表');
         } finally {
             setLoading(false);
         }
-    }, [user?.id]);
+    }, [user?.id, setConversations]);
 
     useEffect(() => {
         if (isSignedIn && user?.id) {
@@ -71,15 +75,15 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
     }, [isSignedIn, user?.id, loadConversations]);
 
     if (!isLoaded) {
-        return <div>加载中...</div>; // 等待 Clerk 加载完成
+        return <ChatSidebarLoading/>; // 等待 Clerk 加载完成
     }
 
     if (!isSignedIn) {
-        return <div>请先登录以查看对话。</div>; // 用户未登录时显示提示
+        return <UnauthenticatedSidebar onClose={onClose || (() => {
+        })}/>; // 用户未登录时显示提示
     }
 
-    if (loading) return <div>加载中...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <ChatSidebarLoading/>;
 
     const sidebarItems = groupConversationsByDate(conversations);
 

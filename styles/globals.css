@@ -14,6 +14,7 @@
 @import 'markdown/footnote.css';
 @import 'markdown/emoji.css';
 
+
 .markdown-body {
   color: var(--text-color);
   line-height: 1.6;
@@ -353,9 +354,29 @@ html:hover::-webkit-scrollbar-track {
   outline: none !important;
   box-shadow: none !important;
 }
-
-/* 如果有任何边框或阴影的默认样式，也要移除 */
 .chat-input-transparent * {
   border-color: transparent !important;
   box-shadow: none !important;
+}
+
+
+/* 扫光动画 */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-150%);
+    }
+    100% {
+        transform: translateX(150%);
+    }
+}
+
+.shimmer-effect {
+    background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 2s ease-in-out infinite;
+    background-size: 200% 100%;
 }

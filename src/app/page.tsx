@@ -12,6 +12,9 @@ import {motion, AnimatePresence} from 'framer-motion';
 import CText from '@/app/copyright/ctext';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import Cookies from 'js-cookie';
+import Meta from "@/components/ui/Meta";
+import useTranslation from "@/hooks/useTranslation";
+import {ConversationsProvider} from "../../contexts/ConversationsContext";
 
 const SIDEBAR_WIDTH = 220;
 
@@ -24,6 +27,7 @@ const HomeContent = () => {
         const storedState = Cookies.get('isSidebarOpen');
         return storedState ? storedState === 'true' : true;
     });
+
 
     useEffect(() => {
         console.log("Page loaded with newConversationId:", newConversationId);
@@ -107,8 +111,10 @@ const HomeContent = () => {
 
 export default function Home() {
     return (
+        <ConversationsProvider>
         <ChatProvider>
             <HomeContent/>
         </ChatProvider>
+        </ConversationsProvider>
     );
 }

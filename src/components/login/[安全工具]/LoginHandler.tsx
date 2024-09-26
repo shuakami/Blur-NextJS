@@ -5,11 +5,6 @@ import { useSignIn } from "@clerk/nextjs";
 import { useToast } from "@/hooks/use-toast";
 import useTranslation from "@/hooks/useTranslation";
 
-interface LoginHandlerProps {
-    email: string;
-    password: string;
-    onSuccess: () => void;
-}
 
 const LoginHandler: ({email, password, onSuccess}: { email: any; password: any; onSuccess: any }) => {
     handleLogin: () => Promise<void>;

@@ -71,7 +71,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                     id: msg.message_id,
                     type: msg.role === 'assistant' ? 'bot' : 'user',
                     content: msg.content,
-                    avatarUrl: msg.role === 'assistant' ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' : 'https://github.com/shuakami.png',
+                    avatarUrl: msg.role === 'assistant' ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' : user?.imageUrl,
                     timestamp: msg.timestamp * 1000,
                     isStreaming: false,
                 })).sort((a, b) => a.timestamp - b.timestamp);
@@ -100,7 +100,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         addMessage({
             type: 'user',
             content: message,
-            avatarUrl: 'https://github.com/shuakami.png',
+            avatarUrl: user?.imageUrl || 'https://github.com/shuakami.png',
         });
 
         const botMessage: Message = {

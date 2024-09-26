@@ -14,6 +14,11 @@ import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
 import CText from '@/app/copyright/ctext';
 import Cookies from "js-cookie";
 import ScrollToBottom from "@/components/ui/ScrollToBottom";
+import HomePageLoading from "@/components/Loading/loading_converdation_page";
+import SimplifiedUnauthenticatedHomePage from "@/components/NoLogin/nologin_home";
+import Meta from "@/components/ui/Meta";
+import useTranslation from "@/hooks/useTranslation";
+import {useConversations} from "../../contexts/ConversationsContext";
 
 const SIDEBAR_WIDTH = 220; // 固定侧边栏宽度
 const MAX_RETRY_COUNT = 3;  // 最大重试次数
@@ -25,6 +30,12 @@ export default function ChatPage() {
     const {isSignedIn, isLoaded, user} = useUser();
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
     const [retryCount, setRetryCount] = useState(0);  // 追踪重试次数
+    const {t} = useTranslation()
+    const {conversations} = useConversations(); // 获取 conversations
+
+    // 根据 conversation_id 获取当前对话的 chat_title
+    const currentConversation = conversations.find(c => c.conversation_id === conversation_id);
+    const chat_title = currentConversation?.chat_title || '未命名对话';
 
     useEffect(() => {
         // 从 cookies 恢复侧边栏状态
@@ -81,27 +92,28 @@ export default function ChatPage() {
     }, [conversation_id, isSignedIn, isLoaded, user?.id, retryCount]);
 
     useEffect(() => {
-        if (exists === false) {
-            // 对话不存在，重定向到首页
+        // 对话不存在并且已经登录的情况下（没有登录不跳转），重定向到首页
+        if (exists === false && isSignedIn) {
             router.replace('/');
         }
     }, [exists, router]);
 
     if (!isLoaded) {
-        return <div>加载中...</div>; // 等待 Clerk 加载完成
+        return <HomePageLoading/>; // 等待 Clerk 加载完成
     }
 
     if (!isSignedIn) {
-        return <div>您未登录，请登录后查看对话。</div>; // 未登录时显示
+        return <SimplifiedUnauthenticatedHomePage/>; // 未登录时显示
     }
 
     if (exists === null || !conversation_id || typeof conversation_id !== 'string') {
-        return <div>加载中...</div>;
+        return <HomePageLoading/>;
     }
 
 
     return (
         <ChatProvider initialConversationId={conversation_id}>
+            <Meta pageName={chat_title}/>
             <div className="w-full h-screen flex overflow-hidden">
                 {/* 侧边栏 */}
                 <motion.div

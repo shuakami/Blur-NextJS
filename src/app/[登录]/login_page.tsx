@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import AuthGuard from "@/components/auth/AuthGuard";
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
 import LoginMethodsWrapper from "@/app/[登录]/LoginMethodsWrapper";
+import Meta from "@/components/ui/Meta";
 
 export default function LoginPage() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function LoginPage() {
 
     return (
         <AuthGuard>
+            <Meta pageName={t('登录')}/>
         <div className="flex flex-col lg:flex-row min-h-screen bg-[#fffefb] dark:bg-[#181818] text-[#040404] dark:text-[#f5f5f5] font-sans overflow-auto">
             {/* 左侧展示图片部分 */}
             <div className="hidden lg:block w-1/2 relative">
