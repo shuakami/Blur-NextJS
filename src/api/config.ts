@@ -10,42 +10,62 @@ const apiClient = axios.create({
     },
 });
 
-apiClient.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        const apiError: ApiError = {
-            code: ErrorCode.NetworkError, // 默认错误码
-            message: error.message || "发生了一个错误",
-        };
+export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
+    apiClient.interceptors.request.use(
+        async (config) => {
+            try {
+                const token = await getToken();
+                console.log('JWT:', token);
 
-        if (error.response) {
-            if (error.response.status === 404) {
-                apiError.code = ErrorCode.NotFound;
-            } else if (error.response.status === 401) {
-                apiError.code = ErrorCode.LoginError;
-            } else if (error.response.status === 403) {
-                apiError.code = ErrorCode.Forbidden;
-            } else if (error.response.status === 500) {
-                apiError.code = ErrorCode.InternalServerError;
-            } else if (error.response.status === 422) {
-                apiError.code = ErrorCode.UnprocessableEntity;
-            } else if (error.response.status === 408) {
-                apiError.code = ErrorCode.Timeout;
-            } else if (error.response.status === 429) {
-                apiError.code = ErrorCode.TooManyRequests;
-            } else if (error.response.status === 400) {
-                apiError.code = ErrorCode.BadRequest;
+                if (token) {
+                    config.headers['Authorization'] = `Bearer ${token}`;
+                } else {
+                    return Promise.reject({
+                        code: ErrorCode.LoginError,
+                        message: "You are not logged in.",
+                    });
+                }
+
+                return config;
+            } catch (error) {
+                return Promise.reject({
+                    code: ErrorCode.NetworkError,
+                    message: "Error getting authentication token",
+                });
             }
+        },
+        (error) => {
+            return Promise.reject(error);
         }
+    );
 
-        // 触发自定义事件，将错误传递到全局错误处理组件
-        const event = new CustomEvent("apiError", {detail: apiError});
-        window.dispatchEvent(event);
+    apiClient.interceptors.response.use(
+        (response) => {
+            return response;
+        },
+        (error) => {
+            const apiError: ApiError = {
+                code: ErrorCode.NetworkError,
+                message: (error as Error).message || "发生了一个错误",
+            };
 
-        return Promise.reject(apiError);
-    }
-);
+            if (error.response) {
+                apiError.code = error.response.status === 404 ? ErrorCode.NotFound :
+                    error.response.status === 401 ? ErrorCode.LoginError :
+                        error.response.status === 403 ? ErrorCode.Forbidden :
+                            error.response.status === 500 ? ErrorCode.InternalServerError :
+                                error.response.status === 422 ? ErrorCode.UnprocessableEntity :
+                                    error.response.status === 408 ? ErrorCode.Timeout :
+                                        error.response.status === 429 ? ErrorCode.TooManyRequests :
+                                            error.response.status === 400 ? ErrorCode.BadRequest : ErrorCode.NetworkError;
+            }
+
+            const event = new CustomEvent("apiError", {detail: apiError});
+            window.dispatchEvent(event);
+
+            return Promise.reject(apiError);
+        }
+    );
+};
 
 export default apiClient;

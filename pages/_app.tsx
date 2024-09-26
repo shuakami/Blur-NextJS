@@ -12,7 +12,8 @@ import {ClerkProvider} from "@clerk/nextjs";
 import {Toaster} from "@/components/ui/toaster";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
 
-import 'nprogress/nprogress.css'; // 导入 nprogress 样式
+import 'nprogress/nprogress.css';
+import {ApiClientProvider} from "@/api/ApiClientProvider"; // 导入 nprogress 样式
 
 NProgress.configure({ showSpinner: true, speed: 500, minimum: 0.2 }); // 设置进度条速度和最小进度
 
@@ -64,6 +65,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     return (
         <ClerkProvider {...pageProps}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <ApiClientProvider>
                 <LanguageProvider>
                     <Toaster/>
                     <GlobalErrorHandler/>
@@ -74,6 +76,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                         </div>
                     </div>
                 </LanguageProvider>
+                </ApiClientProvider>
             </ThemeProvider>
         </ClerkProvider>
     );
