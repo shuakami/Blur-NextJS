@@ -15,7 +15,6 @@ export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
         async (config) => {
             try {
                 const token = await getToken();
-                console.log('JWT:', token);
 
                 if (token) {
                     config.headers['Authorization'] = `Bearer ${token}`;

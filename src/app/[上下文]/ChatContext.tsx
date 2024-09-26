@@ -71,7 +71,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                     id: msg.message_id,
                     type: msg.role === 'assistant' ? 'bot' : 'user',
                     content: msg.content,
-                    avatarUrl: msg.role === 'assistant' ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' : 'https://github.com/shuakami.png',
+                    avatarUrl: msg.role === 'assistant' ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' : user?.imageUrl,
                     timestamp: msg.timestamp * 1000,
                     isStreaming: false,
                 })).sort((a, b) => a.timestamp - b.timestamp);
@@ -100,7 +100,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         addMessage({
             type: 'user',
             content: message,
-            avatarUrl: 'https://github.com/shuakami.png',
+            avatarUrl: user?.imageUrl || 'https://github.com/shuakami.png',
         });
 
         const botMessage: Message = {
@@ -128,7 +128,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                 (initialResponse: SendMessageResponse) => {
                     // 初始响应处理，但不设置 newConversationId，先记录对话ID
                     currentConversationId = initialResponse.conversation_id;
-                    console.log('初始响应，记录 currentConversationId:', currentConversationId);
+                    // console.log('初始响应，记录 currentConversationId:', currentConversationId);
                 },
                 (chunk: StreamChunk) => {
                     if (chunk.content) {
@@ -137,7 +137,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
 
                     // 只在流式输出结束时（即 is_final_chunk 为 true 时）设置对话 ID
                     if (chunk.is_final_chunk) {
-                        console.log('流式输出完成，设置 newConversationId:', currentConversationId);
+                        // console.log('流式输出完成，设置 newConversationId:', currentConversationId);
                         setNewConversationId(currentConversationId);
                     }
                 },

@@ -3,7 +3,6 @@
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
-  ToastClose,
   ToastDescription,
   ToastProvider,
   ToastTitle,
@@ -18,7 +17,7 @@ export function Toaster() {
         {toasts.map(function ({ id, title, description, action, ...props }) {
           return (
               <Toast key={id} {...props}>
-                <div className="flex items-center justify-center text-center flex-grow"> {/* 确保文本区域占满空间 */}
+                  <div className="flex items-center justify-center text-center flex-grow">
                   {title && <ToastTitle>{title}</ToastTitle>}
                   {description && (
                       <ToastDescription>{description}</ToastDescription>

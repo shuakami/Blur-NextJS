@@ -13,7 +13,12 @@ import {Toaster} from "@/components/ui/toaster";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
 
 import 'nprogress/nprogress.css';
-import {ApiClientProvider} from "@/api/ApiClientProvider"; // 导入 nprogress 样式
+import {ApiClientProvider} from "@/api/ApiClientProvider";
+import ClientVersionCheck from "@/components/ClientVersionCheck";
+import type {Metadata} from "next";
+import {ConversationsProvider} from "../contexts/ConversationsContext";
+import seoDescription from "@/seo/seo_description";
+import seoKeywords from "@/seo/seo_keywords"; // 导入 nprogress 样式
 
 NProgress.configure({ showSpinner: true, speed: 500, minimum: 0.2 }); // 设置进度条速度和最小进度
 
@@ -33,6 +38,15 @@ const Inter = localFont({
     variable: "--font-inter",
     weight: "100 900",
 });
+
+const description = seoDescription;
+const keywords = seoKeywords.join(',');
+
+export const metadata: Metadata = {
+    title: `Blur - Meet your mirror, your muse.`,
+    description: description,
+    keywords: keywords
+};
 
 function MyApp({ Component, pageProps }: AppProps) {
     const [isLoading, setIsLoading] = useState(false);
@@ -62,9 +76,12 @@ function MyApp({ Component, pageProps }: AppProps) {
         };
     }, [router]);
 
+
     return (
         <ClerkProvider {...pageProps}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <ConversationsProvider>
+                    <ClientVersionCheck/>
                 <ApiClientProvider>
                 <LanguageProvider>
                     <Toaster/>
@@ -77,6 +94,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     </div>
                 </LanguageProvider>
                 </ApiClientProvider>
+                </ConversationsProvider>
             </ThemeProvider>
         </ClerkProvider>
     );
