@@ -2,8 +2,6 @@
 
 import { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import NProgress from 'nprogress';
 import '../styles/globals.css';
 import { useRouter } from 'next/router';
@@ -13,6 +11,8 @@ import localFont from "next/font/local";
 import {ClerkProvider} from "@clerk/nextjs";
 import {Toaster} from "@/components/ui/toaster";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
+
+import 'nprogress/nprogress.css'; // 导入 nprogress 样式
 
 NProgress.configure({ showSpinner: true, speed: 500, minimum: 0.2 }); // 设置进度条速度和最小进度
 
@@ -34,7 +34,6 @@ const Inter = localFont({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
@@ -64,18 +63,18 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     return (
         <ClerkProvider {...pageProps}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <LanguageProvider>
-                <Toaster />
-                <GlobalErrorHandler/>
-                <div className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}>
-            <div className="transition duration-700 ease-in-out min-h-screen">
-                {/* 加载动画 */}
-                 <Component {...pageProps} />
-            </div>
-           </div>
-            </LanguageProvider>
-        </ThemeProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <LanguageProvider>
+                    <Toaster/>
+                    <GlobalErrorHandler/>
+                    <div className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}>
+                        <div className="transition duration-700 ease-in-out min-h-screen">
+                            {/* 加载动画 */}
+                            <Component {...pageProps} />
+                        </div>
+                    </div>
+                </LanguageProvider>
+            </ThemeProvider>
         </ClerkProvider>
     );
 }

@@ -1,3 +1,5 @@
+// src/app/layout.tsx
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../../styles/globals.css";
@@ -6,7 +8,6 @@ import {LanguageProvider} from "@/components/LanguageProvider";
 import {ClerkProvider} from "@clerk/nextjs";
 import {Toaster} from "@/components/ui/toaster";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
-
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -38,24 +39,24 @@ export default function RootLayout({
 }>) {
     return (
         <ClerkProvider>
-        <html lang="en">
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
-        >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-        >
-            <LanguageProvider>
-                <Toaster/>
-                <GlobalErrorHandler/>
-                {children}
-            </LanguageProvider>
-        </ThemeProvider>
-        </body>
-        </html>
+            <html lang="en">
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
+            >
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+            >
+                <LanguageProvider>
+                    <Toaster/>
+                    <GlobalErrorHandler/>
+                    {children}
+                </LanguageProvider>
+            </ThemeProvider>
+            </body>
+            </html>
         </ClerkProvider>
     );
 }
