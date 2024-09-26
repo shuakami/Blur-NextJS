@@ -1,9 +1,9 @@
 import { useTranslationContext } from '@/components/LanguageProvider';
 
-const useTranslation = () => {
+const useTranslation = (additionalTranslationKey?: string) => {
     const { t, language, setLanguage } = useTranslationContext();
 
-    return { t, language, setLanguage };
+    return {t, language, setLanguage, additionalTranslationKey};
 };
 
 export default useTranslation;

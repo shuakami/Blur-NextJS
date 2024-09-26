@@ -5,6 +5,7 @@ import {ThemeProvider} from "@/components/ui/theme-provider";
 import {LanguageProvider} from "@/components/LanguageProvider";
 import {ClerkProvider} from "@clerk/nextjs";
 import {Toaster} from "@/components/ui/toaster";
+import GlobalErrorHandler from "@/api/GlobalErrorHandler";
 
 
 const geistSans = localFont({
@@ -47,8 +48,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-            <Toaster />
             <LanguageProvider>
+                <Toaster/>
+                <GlobalErrorHandler/>
                 {children}
             </LanguageProvider>
         </ThemeProvider>

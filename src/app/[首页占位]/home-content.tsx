@@ -25,7 +25,7 @@ export default function HomepageContent() {
     }, [fullText])
 
     return (
-        <div className="flex h-screen w-full items-center justify-center bg-transparent">
+        <div className="flex h-[500px] w-full items-center justify-center bg-transparent">
             <div className="w-full max-w-4xl px-4">
                 <div className="relative w-full flex justify-center">
                     <div className="relative w-[61.8%]">

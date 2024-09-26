@@ -7,11 +7,12 @@ import { ThemeProvider } from 'next-themes';
 import NProgress from 'nprogress';
 import '../styles/globals.css';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {LanguageProvider} from "@/components/LanguageProvider";
 import localFont from "next/font/local";
 import {ClerkProvider} from "@clerk/nextjs";
 import {Toaster} from "@/components/ui/toaster";
+import GlobalErrorHandler from "@/api/GlobalErrorHandler";
 
 NProgress.configure({ showSpinner: true, speed: 500, minimum: 0.2 }); // 设置进度条速度和最小进度
 
@@ -66,7 +67,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <LanguageProvider>
                 <Toaster />
-           <div className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}>
+                <GlobalErrorHandler/>
+                <div className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}>
             <div className="transition duration-700 ease-in-out min-h-screen">
                 {/* 加载动画 */}
                  <Component {...pageProps} />

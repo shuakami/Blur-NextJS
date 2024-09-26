@@ -8,7 +8,6 @@ interface AutoScrollToBottomProps {
 const AutoScrollToBottom: React.FC<AutoScrollToBottomProps> = ({children, trigger}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
-    const scrollThreshold = 190; // 定义滚动阈值，越小越灵敏，越大越滞后
 
     // 自动滚动到底部
     const scrollToBottom = () => {
@@ -24,8 +23,8 @@ const AutoScrollToBottom: React.FC<AutoScrollToBottomProps> = ({children, trigge
     const handleScroll = () => {
         if (containerRef.current) {
             const {scrollTop, scrollHeight, clientHeight} = containerRef.current;
-            // 判断距离底部的距离，超过阈值时不再自动滚动
-            if (scrollHeight - scrollTop > clientHeight + scrollThreshold) {
+            // 如果滚动条没有接近底部，禁用自动滚动
+            if (scrollHeight - scrollTop > clientHeight + 50) {
                 setAutoScrollEnabled(false);
             } else {
                 setAutoScrollEnabled(true);
@@ -49,4 +48,3 @@ const AutoScrollToBottom: React.FC<AutoScrollToBottomProps> = ({children, trigge
 };
 
 export default AutoScrollToBottom;
-

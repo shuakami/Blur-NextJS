@@ -1,11 +1,10 @@
+// LanguageProvider.jsx
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {createContext, useContext, useState, useEffect, ReactNode, useCallback} from 'react';
 import { useRouter } from 'next/navigation';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import Cookies from 'js-cookie';
-import { motion } from 'framer-motion'; // 引入 Framer Motion
+import {motion} from 'framer-motion';
 
 interface Language {
     [key: string]: string;
@@ -22,60 +21,90 @@ const TranslationContext = createContext<TranslationContextProps | undefined>(un
 interface LanguageProviderProps {
     children: ReactNode;
     defaultLanguage?: string;
+    additionalTranslationKey?: string; // 新增的可选参数
 }
 
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, defaultLanguage = 'en' }) => {
+const translationCache: { [key: string]: Language } = {}; // 缓存翻译文件
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({
+                                                                      children,
+                                                                      defaultLanguage = 'en',
+                                                                      additionalTranslationKey
+                                                                  }) => {
     const [language, setLanguageState] = useState<string>(defaultLanguage);
     const [translations, setTranslations] = useState<Language>({});
-    const [isLoading, setIsLoading] = useState<boolean>(false); // 增加加载状态
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const router = useRouter();
 
-    // Load language preference from cookies on initial load
+    // 初始化语言
     useEffect(() => {
         const storedLang = Cookies.get('NEXT_LOCALE');
-        if (storedLang) {
+        if (storedLang && storedLang !== language) {
             setLanguageState(storedLang);
         }
     }, []);
 
-    // Load translations whenever language changes
+    // 加载翻译文件
     useEffect(() => {
         const loadTranslations = async (lang: string) => {
-            setIsLoading(true); // 设置为加载中
+            setIsLoading(true);
             try {
-                const response = await fetch(`/locales/${lang}/common.json`);
-                if (!response.ok) {
-                    throw new Error('Failed to load translations');
+                // 如果翻译文件已缓存，直接使用
+                if (translationCache[lang]) {
+                    setTranslations(translationCache[lang]);
+                } else {
+                    const commonResponse = await fetch(`/locales/${lang}/common.json`);
+                    if (!commonResponse.ok) {
+                        throw new Error('Failed to load common translations');
+                    }
+                    const commonData = await commonResponse.json();
+
+                    // 处理额外翻译文件
+                    let additionalData: Language = {};
+                    if (additionalTranslationKey) {
+                        const additionalResponse = await fetch(`/locales/${lang}/${additionalTranslationKey}.json`);
+                        if (additionalResponse.ok) {
+                            additionalData = await additionalResponse.json();
+                        } else {
+                            console.warn(`Failed to load additional translations for ${additionalTranslationKey}`);
+                        }
+                    }
+
+                    // 合并翻译内容并缓存
+                    const mergedTranslations = {...commonData, ...additionalData};
+                    translationCache[lang] = mergedTranslations;
+                    setTranslations(mergedTranslations);
                 }
-                const data = await response.json();
-                setTranslations(data);
             } catch (error) {
                 console.error(error);
             } finally {
-                setIsLoading(false); // 加载完成
+                setIsLoading(false);
             }
         };
 
         loadTranslations(language);
-    }, [language]);
+    }, [language, additionalTranslationKey]);
 
-    const t = (key: string) => {
+    const t = useCallback((key: string) => {
         return translations[key] || key;
-    };
+    }, [translations]);
 
-    const setLanguage = (lang: string) => {
+    const setLanguage = useCallback((lang: string) => {
+        if (lang === language) return; // 避免重复设置
         setLanguageState(lang);
-        Cookies.set('NEXT_LOCALE', lang, { expires: 365 }); // 保存语言偏好到 cookie，有效期为 1 年
-    };
+        Cookies.set('NEXT_LOCALE', lang, {expires: 365});
+
+        // 使用 window.location.pathname 代替 asPath
+        router.replace(window.location.pathname); // 使用 replace 以避免添加历史记录
+    }, [language, router]);
 
     return (
         <TranslationContext.Provider value={{ language, setLanguage, t }}>
-            {/* 包裹动画效果 */}
             <motion.div
-                initial={{ opacity: 0 }} // 动画初始状态
-                animate={{ opacity: 1 }}  // 动画结束状态
-                exit={{ opacity: 0 }}     // 动画结束状态
-                transition={{ duration: 0.8 }} // 过渡时间
+                initial={{opacity: 0}}
+                animate={{opacity: 1}}
+                exit={{opacity: 0}}
+                transition={{duration: 0.8}}
             >
                 {children}
             </motion.div>

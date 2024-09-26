@@ -9,7 +9,6 @@ import {ChatList as UIChatList} from '@/components/ui/chat-list';
 const ChatList: React.FC = () => {
     const {messages} = useChatContext(); // 从上下文中获取 messages
 
-
     return (
         <>
             <UIChatList messages={messages}/>

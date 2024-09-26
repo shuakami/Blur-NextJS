@@ -52,7 +52,7 @@ const LoginHandler: ({email, password, onSuccess}: { email: any; password: any; 
             toast({
                 variant: "destructive",
                 title: t("LoginError"),
-                description: error,
+                description: t(error),
             });
         }
     }, [error, toast, t]);

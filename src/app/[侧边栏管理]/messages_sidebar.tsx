@@ -86,7 +86,7 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
     const userInfo = {
         avatarUrl: user?.imageUrl || 'https://github.com/shuakami.png', // 使用 Clerk 提供的头像
         name: user?.fullName || 'User',
-        status: 'Test#AL1_0001', // 可以根据需要调整用户状态
+        status: 'Test#AL1_0001',
     };
 
     return <ChatSidebar items={sidebarItems} user={userInfo} onClose={onClose || (() => {

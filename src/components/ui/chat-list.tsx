@@ -4,7 +4,8 @@ import React from "react";
 import {CSSTransition, TransitionGroup} from 'react-transition-group';
 import AutoScrollToBottom from "@/components/ui/AutoScrollToBottom"; // 导入自动滚动组件
 import './chat_list.css';
-import {CircleSlash} from "lucide-react"; // 导入动画的CSS
+import {CircleSlash} from "lucide-react";
+import Encode from "@/app/copyright/encode"; // 导入动画的CSS
 
 // 定义消息的类型
 export interface Message {
@@ -23,9 +24,10 @@ interface ChatListProps {
 
 // ChatList 组件
 export const ChatList: React.FC<ChatListProps> = ({messages}) => {
+
     return (
-        <AutoScrollToBottom trigger={messages}> {/* 包装 AutoScrollToBottom */}
-            <div className="p-4 space-y-8 h-full">
+        <AutoScrollToBottom trigger={messages}>
+            <div className="p-4 space-y-8 h-full overflow-hidden">
                 <div className="md:max-w-3xl xl:max-w-[970px] space-y-8">
                     <TransitionGroup>
                         {messages.map((message, index) => {
@@ -49,12 +51,14 @@ export const ChatList: React.FC<ChatListProps> = ({messages}) => {
                             return (
                                 <CSSTransition key={index} timeout={500} classNames="message">
                                     <div
-                                        className={`flex ${isBot ? 'items-start space-x-3' : 'justify-end items-start space-x-4'}`}
+                                        className={`flex ${isBot ? 'items-start space-x-3' : 'justify-end items-start space-x-5'}`}
                                     >
                                         {isBot ? (
                                             <>
+                                                <Encode/>
                                                 {/* 机器人头像 */}
-                                                <Avatar className="w-10 h-10 py-1 px-1 mt-3.5">
+                                                <Avatar
+                                                    className="w-10 h-10 py-1 px-1 mt-6 border border-black/15 dark:border-white/15">
                                                     <AvatarImage
                                                         src={message.avatarUrl || "https://api.dicebear.com/6.x/bottts/svg?seed=Felix"}
                                                     />

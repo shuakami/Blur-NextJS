@@ -11,6 +11,7 @@ export interface StreamChunk {
 }
 
 export interface FinalInfo {
+    isComplete?: boolean;
     total_tokens: number;
     generation_duration: number;
 }

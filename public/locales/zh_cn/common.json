@@ -33,6 +33,7 @@
   "LoginError": "登录出现错误",
   "Couldn't find your account.": "找不到你的帐户。",
   "Password is incorrect. Try again, or use another method.": "密码不正确。你可以再试一次，或者使用其他方式登录。",
+  "Too many requests. Please try again in a bit.": "请求过多。请稍后再试。",
   "今天": "今天",
   "昨天": "昨天",
   "前天": "前天"

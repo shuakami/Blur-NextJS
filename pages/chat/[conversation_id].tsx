@@ -12,19 +12,35 @@ import {useUser} from '@clerk/nextjs';
 import {motion, AnimatePresence} from 'framer-motion';
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
 import CText from '@/app/copyright/ctext';
+import Cookies from "js-cookie";
+import ScrollToBottom from "@/components/ui/ScrollToBottom";
 
-const SIDEBAR_WIDTH = 200; // 固定侧边栏宽度
+const SIDEBAR_WIDTH = 220; // 固定侧边栏宽度
+const MAX_RETRY_COUNT = 3;  // 最大重试次数
 
 export default function ChatPage() {
     const router = useRouter();
     const {conversation_id} = router.query;
-
     const [exists, setExists] = useState<boolean | null>(null);
     const {isSignedIn, isLoaded, user} = useUser();
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+    const [retryCount, setRetryCount] = useState(0);  // 追踪重试次数
+
+    useEffect(() => {
+        // 从 cookies 恢复侧边栏状态
+        const sidebarState = Cookies.get('isSidebarOpen');
+        if (sidebarState) {
+            setIsSidebarOpen(sidebarState === 'true');
+        }
+    }, []);
 
     const toggleSidebar = () => {
-        setIsSidebarOpen(prev => !prev);
+        setIsSidebarOpen(prev => {
+            const newState = !prev;
+            // 存储新的侧边栏状态到 cookies
+            Cookies.set('isSidebarOpen', newState.toString(), {expires: 7}); // 过期时间设置为 7 天
+            return newState;
+        });
     };
 
     useEffect(() => {
@@ -41,7 +57,7 @@ export default function ChatPage() {
             return;
         }
 
-        const checkConversationExists = async () => {
+        const checkConversationExists = async (retryCount: number) => {
             try {
                 const history = await fetchHistory({user_id: user?.id, conversation_id});
                 if (history && history.messages.length > 0) {
@@ -50,12 +66,19 @@ export default function ChatPage() {
                     setExists(false);
                 }
             } catch (error) {
-                setExists(false);
+                // 如果失败次数未达到最大值，递归重试
+                if (retryCount < MAX_RETRY_COUNT) {
+                    setRetryCount(retryCount + 1);
+                    checkConversationExists(retryCount + 1);  // 递归调用
+                } else {
+                    // 如果重试超过3次，跳回主页
+                    setExists(false);
+                }
             }
         };
 
-        checkConversationExists();
-    }, [conversation_id, isSignedIn, isLoaded, user?.id]);
+        checkConversationExists(retryCount);
+    }, [conversation_id, isSignedIn, isLoaded, user?.id, retryCount]);
 
     useEffect(() => {
         if (exists === false) {
@@ -76,12 +99,13 @@ export default function ChatPage() {
         return <div>加载中...</div>;
     }
 
+
     return (
         <ChatProvider initialConversationId={conversation_id}>
             <div className="w-full h-screen flex overflow-hidden">
                 {/* 侧边栏 */}
                 <motion.div
-                    className="fixed top-0 left-0 h-full shadow-lg z-30"
+                    className="fixed top-0 left-0 h-full z-30"
                     style={{width: SIDEBAR_WIDTH}}
                     initial={{x: -SIDEBAR_WIDTH}}
                     animate={{x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH}}
@@ -92,7 +116,7 @@ export default function ChatPage() {
 
                 {/* 主内容区域 */}
                 <motion.div
-                    className="flex flex-col h-full w-full"
+                    className="flex flex-col h-full w-full overflow-hidden"
                     style={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
                     initial={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
                     animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
@@ -114,16 +138,19 @@ export default function ChatPage() {
                     </AnimatePresence>
 
                     {/* 聊天内容区域 */}
-                    <div className="flex-1 overflow-auto w-full p-4">
-                        <ChatList/>
+                    <div className="flex-1 overflow-auto w-full mt-16">
+                        <div className="max-w-4xl mx-auto px-4 py-8">
+                            <ChatList/>
+                            <ScrollToBottom/>
+                        </div>
                     </div>
 
                     {/* 输入框容器 */}
-                    <div className="p-4 flex flex-col items-center w-full">
-                        <div className="w-full sm:max-w-2xl lg:max-w-xl">
+                    <div className="p-4 flex flex-col items-center w-full bg-transparent">
+                        <div className="w-full max-w-4xl">
                             <ChatInputWrapper/>
                         </div>
-                        <CText/> {/* 添加版权组件 */}
+                        <CText/>
                     </div>
                 </motion.div>
             </div>

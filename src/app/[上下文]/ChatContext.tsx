@@ -1,5 +1,6 @@
+// src/app/[上下文]/ChatContext.tsx
 import React, {createContext, useContext, useState, useEffect} from 'react';
-import {useUser, useAuth} from '@clerk/nextjs'; // 使用 Clerk 的 useUser 获取用户信息
+import {useUser, useAuth} from '@clerk/nextjs';
 import {sendMessage as sendMessageAPI} from '@/app/[消息发送]/send_message';
 import {fetchHistory} from '@/app/[拉取历史]/fetch_history';
 import {Message, StreamChunk, FinalInfo, SendMessageResponse, APIMessage} from '@/types/stream';
@@ -10,6 +11,8 @@ interface ChatContextProps {
     addMessage: (message: Message) => void;
     triggerConversationsReload: () => void;
     reloadConversationsCounter: number;
+    newConversationId: string | null; // 新增新对话 ID
+    resetNewConversationId: () => void; // 重置新对话 ID 的函数
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -18,22 +21,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                                                                                                           children,
                                                                                                           initialConversationId,
                                                                                                       }) => {
-    const {user} = useUser(); // 从 Clerk 获取用户信息
-    const {getToken} = useAuth(); // 获取用户的 JWT
+    const {user} = useUser();
+    const {getToken} = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const [conversationId, setConversationId] = useState<string | null>(initialConversationId || null);
-    const [chatTitle, setChatTitle] = useState<string | null>(null); // 可选的对话标题
+    const [chatTitle, setChatTitle] = useState<string | null>(null);
+    const [newConversationId, setNewConversationId] = useState<string | null>(null); // 新对话 ID
     const [reloadConversationsCounter, setReloadConversationsCounter] = useState<number>(0);
 
     // 确保获取到用户 ID
     const userId = user?.id;
 
-    // 添加消息
     const addMessage = (message: Message) => {
         setMessages((prev) => [...prev, message]);
     };
 
-    // 更新最后一条机器人消息的内容
     const updateLastBotMessage = (chunkContent: string) => {
         setMessages((prevMessages) => {
             const updatedMessages = [...prevMessages];
@@ -47,20 +49,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         });
     };
 
-    // 触发侧边栏重新加载
     const triggerConversationsReload = () => {
         setReloadConversationsCounter((prev) => prev + 1);
     };
 
-    // 当初始对话 ID 改变时，重新加载历史记录
     useEffect(() => {
         if (initialConversationId !== conversationId) {
             setConversationId(initialConversationId || null);
-            setMessages([]); // 清空当前消息，加载新对话
+            setMessages([]);
+            setNewConversationId(null); // 重置新对话 ID
         }
     }, [initialConversationId]);
 
-    // 拉取历史记录并设置消息
     useEffect(() => {
         const fetchAndSetHistory = async () => {
             if (!conversationId || !userId) return;
@@ -71,13 +71,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                     id: msg.message_id,
                     type: msg.role === 'assistant' ? 'bot' : 'user',
                     content: msg.content,
-                    avatarUrl:
-                        msg.role === 'assistant'
-                            ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix'
-                            : 'https://github.com/shuakami.png',
+                    avatarUrl: msg.role === 'assistant' ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' : 'https://github.com/shuakami.png',
                     timestamp: msg.timestamp * 1000,
-                    isStreaming: false, // 历史消息不需要流式
-                })).sort((a, b) => a.timestamp - b.timestamp); // 按时间升序排序
+                    isStreaming: false,
+                })).sort((a, b) => a.timestamp - b.timestamp);
 
                 setMessages(formattedMessages);
             } catch (error) {
@@ -88,28 +85,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         fetchAndSetHistory();
     }, [conversationId, reloadConversationsCounter, userId]);
 
-    // 发送消息
     const sendMessage = async (message: string, inputConversationId?: string) => {
         const activeConversationId = inputConversationId || conversationId;
 
-        // 如果用户未登录或用户ID不存在，添加一条错误消息并返回
         if (!userId) {
             addMessage({
                 type: 'error',
                 content: '无法发送消息，用户未登录或未授权。',
-                avatarUrl: '', // 错误消息没有头像
+                avatarUrl: '',
             });
             return;
         }
 
-        // 添加用户发送的消息
         addMessage({
             type: 'user',
             content: message,
             avatarUrl: 'https://github.com/shuakami.png',
         });
 
-        // 添加一个占位的机器人消息
         const botMessage: Message = {
             type: 'bot',
             content: '',
@@ -118,11 +111,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         addMessage(botMessage);
 
         try {
-            // 获取 JWT
             const token = await getToken();
             if (!token) {
                 throw new Error('无法获取 JWT，用户未授权');
             }
+
+            let currentConversationId: string | null = activeConversationId;
 
             await sendMessageAPI(
                 {
@@ -130,25 +124,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                     user_id: userId,
                     conversation_id: activeConversationId || undefined,
                 },
-                token, // 传入 JWT 令牌
+                token,
                 (initialResponse: SendMessageResponse) => {
-                    // 处理初始响应，设置 conversation_id 和 chat_title
-                    setConversationId(initialResponse.conversation_id);
-                    if (initialResponse.chat_title) {
-                        setChatTitle(initialResponse.chat_title);
-                        // 触发侧边栏重新加载
-                        triggerConversationsReload();
-                    }
+                    // 初始响应处理，但不设置 newConversationId，先记录对话ID
+                    currentConversationId = initialResponse.conversation_id;
+                    console.log('初始响应，记录 currentConversationId:', currentConversationId);
                 },
                 (chunk: StreamChunk) => {
-                    // 更新最后一条机器人消息的内容
                     if (chunk.content) {
                         updateLastBotMessage(chunk.content);
+                    }
+
+                    // 只在流式输出结束时（即 is_final_chunk 为 true 时）设置对话 ID
+                    if (chunk.is_final_chunk) {
+                        console.log('流式输出完成，设置 newConversationId:', currentConversationId);
+                        setNewConversationId(currentConversationId);
                     }
                 },
                 (finalInfo: FinalInfo) => {
                     console.log('最终信息:', finalInfo);
-                    // 可选：处理 final_info，例如统计信息
                 },
                 (error: any) => {
                     console.error('后端错误:', error);
@@ -161,9 +155,23 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         }
     };
 
+
+    // 重置新对话 ID 的函数
+    const resetNewConversationId = () => {
+        setNewConversationId(null);
+    };
+
     return (
         <ChatContext.Provider
-            value={{messages, sendMessage, addMessage, triggerConversationsReload, reloadConversationsCounter}}
+            value={{
+                messages,
+                sendMessage,
+                addMessage,
+                triggerConversationsReload,
+                reloadConversationsCounter,
+                newConversationId,
+                resetNewConversationId,
+            }}
         >
             {children}
         </ChatContext.Provider>

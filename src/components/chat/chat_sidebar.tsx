@@ -18,7 +18,7 @@ interface ChatSidebarProps {
         name: string;
         status: string;
     };
-    onClose: () => void; // 新增
+    onClose: () => void;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
@@ -53,7 +53,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={controls}
-            className="flex flex-col h-screen w-[210px] bg-[#F9F9F9]/65 dark:bg-[#171717] text-black dark:text-white"
+            className="flex flex-col h-screen w-[220px] bg-[#F9F9F9]/65 dark:bg-[#171717] text-black dark:text-white"
         >
             <ScrollArea className="flex-grow">
                 <div className="flex space-x-3 mt-5 w-44 justify-center items-center mx-4">

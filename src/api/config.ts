@@ -1,38 +1,50 @@
 // src/api/config.ts
 import axios from 'axios';
+import {ApiError, ErrorCode} from "@/types/error";
 
-// 创建 Axios 实例
 const apiClient = axios.create({
-    baseURL: 'http://localhost:33413/api/v1', // 基础 URL
-    timeout: 10000, // 请求超时时间（10秒）
+    baseURL: 'http://localhost:33413/api/v1',
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
-        // 根据需要添加其他默认头部
     },
 });
 
-// 请求拦截器（可选）
-apiClient.interceptors.request.use(
-    (config: any) => {
-        // 在发送请求之前做些什么，例如添加认证令牌
-        // config.headers['Authorization'] = `Bearer ${token}`;
-        return config;
-    },
-    (error: any) => {
-        // 对请求错误做些什么
-        return Promise.reject(error);
-    }
-);
-
-// 响应拦截器（可选）
 apiClient.interceptors.response.use(
-    (response: any) => {
-        // 对响应数据做点什么
+    (response) => {
         return response;
     },
-    (error: any) => {
-        // 对响应错误做点什么
-        return Promise.reject(error);
+    (error) => {
+        const apiError: ApiError = {
+            code: ErrorCode.NetworkError, // 默认错误码
+            message: error.message || "发生了一个错误",
+        };
+
+        if (error.response) {
+            if (error.response.status === 404) {
+                apiError.code = ErrorCode.NotFound;
+            } else if (error.response.status === 401) {
+                apiError.code = ErrorCode.LoginError;
+            } else if (error.response.status === 403) {
+                apiError.code = ErrorCode.Forbidden;
+            } else if (error.response.status === 500) {
+                apiError.code = ErrorCode.InternalServerError;
+            } else if (error.response.status === 422) {
+                apiError.code = ErrorCode.UnprocessableEntity;
+            } else if (error.response.status === 408) {
+                apiError.code = ErrorCode.Timeout;
+            } else if (error.response.status === 429) {
+                apiError.code = ErrorCode.TooManyRequests;
+            } else if (error.response.status === 400) {
+                apiError.code = ErrorCode.BadRequest;
+            }
+        }
+
+        // 触发自定义事件，将错误传递到全局错误处理组件
+        const event = new CustomEvent("apiError", {detail: apiError});
+        window.dispatchEvent(event);
+
+        return Promise.reject(apiError);
     }
 );
 
