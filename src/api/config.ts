@@ -3,7 +3,8 @@ import axios from 'axios';
 import {ApiError, ErrorCode} from "@/types/error";
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:33413/api/v1',
+    // 如果是生产环境，读取PROD_API_URL，不是就读取LOCAL_API_URL
+    baseURL: process.env.NODE_ENV === 'production' ? process.env.PROD_API_URL : process.env.LOCAL_API_URL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',

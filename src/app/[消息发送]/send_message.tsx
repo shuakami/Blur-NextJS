@@ -4,7 +4,8 @@ import {handleStream} from '@/app/[流式处理]/stream';
 import {SendMessageParams, FinalInfo, StreamChunk, SendMessageResponse} from '@/types/stream';
 
 // 设置 API 基础 URL 和端口
-const API_BASE_URL = 'http://localhost:33413';
+// 如果是生产环境，读取PROD_API_URL，不是就读取LOCAL_API_URL
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? process.env.PROD_API_URL : process.env.LOCAL_API_URL;
 
 export const sendMessage = async (
     params: SendMessageParams,
