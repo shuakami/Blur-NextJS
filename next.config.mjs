@@ -11,11 +11,14 @@ const nextConfig = {
         domains: [
             'github.com',
             'avatars.githubusercontent.com',
+            'img.clerk.com',
+            'github.githubassets.com',
             'basilisk-86.clerk.accounts.dev',
             'settled-basilisk-86.clerk.accounts.dev',
             'blur-api.al001.luoxiaohei.cn',
             'blur.al001.luoxiaohei.cn',
             'localhost',
+            'data:'
         ],
         deviceSizes: [640, 768, 1024, 1280, 1600],  // 为响应式图片优化的尺寸
         imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],  // 小图片优化的尺寸
@@ -70,13 +73,13 @@ const nextConfig = {
                     {
                         key: 'Content-Security-Policy',
                         value: `
-                    default-src 'self';
-                    script-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''};
-                    worker-src 'self' blob:;
-                    style-src 'self' 'unsafe-inline';
-                    img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://blur-api.al001.luoxiaohei.cn https://img.clerk.com;
-                    connect-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn ${isDev ? 'http://localhost:33413' : ''};
-                    font-src 'self' https://fonts.gstatic.com;
+                            "default-src 'self';",
+                            "script-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev 'unsafe-inline'" + (isDev ? " 'unsafe-eval';" : ";"),
+                            "worker-src 'self' blob:;",
+                            "style-src 'self' 'unsafe-inline';",
+                            "img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://blur-api.al001.luoxiaohei.cn https://img.clerk.com;",
+                            "connect-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn" + (isDev ? " http://localhost:33413;" : ";"),
+                            "font-src 'self' https://fonts.gstatic.com;"
                     `.trim().replace(/\n\s+/g, ' '),
                     },
                     {

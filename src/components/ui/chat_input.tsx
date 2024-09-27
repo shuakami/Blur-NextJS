@@ -102,7 +102,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 ${
                             inputContent
                                 ? 'bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-gray-200'
-                                : 'bg-gray-200 text-gray-400 dark:bg-[#333333] dark:text-[#777777]'
+                                : 'bg-gray-100 text-gray-400 dark:bg-[#333333] dark:text-[#777777]'
                         }`}
                         disabled={!inputContent.trim()}
                         whileHover={{scale: 1.05}}

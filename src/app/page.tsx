@@ -12,8 +12,6 @@ import {motion, AnimatePresence} from 'framer-motion';
 import CText from '@/app/copyright/ctext';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import Cookies from 'js-cookie';
-import Meta from "@/components/ui/Meta";
-import useTranslation from "@/hooks/useTranslation";
 import {ConversationsProvider} from "../../contexts/ConversationsContext";
 
 const SIDEBAR_WIDTH = 220;

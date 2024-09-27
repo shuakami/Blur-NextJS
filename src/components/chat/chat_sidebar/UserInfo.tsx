@@ -24,10 +24,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ avatarUrl, name, status }) => {
     };
 
     return (
-
         <div className="py-2 px-2">
-            {isModalOpen && <PersonalCenter onClose={handleCloseModal}/>}
-
+            <PersonalCenter isOpen={isModalOpen} onClose={handleCloseModal}/>
             <div
                 className="flex items-center space-x-2 hover:bg-[#f0f0f0] dark:hover:bg-[#1e1e1e] rounded-sm p-3 cursor-pointer"
                 onClick={handleOpenModal}
@@ -42,8 +40,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ avatarUrl, name, status }) => {
                     <p className="text-xs text-black dark:text-[#9e9e9e]">{status}</p>
                 </div>
             </div>
-
-            {/* 如果 isModalOpen 为 true，显示模态框 */}
         </div>
     );
 };
