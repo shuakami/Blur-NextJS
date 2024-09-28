@@ -3,13 +3,16 @@ import axios from 'axios';
 import {ApiError, ErrorCode} from "@/types/error";
 
 const apiClient = axios.create({
-    // 如果是生产环境，读取PROD_API_URL，不是就读取LOCAL_API_URL
-    baseURL: process.env.NODE_ENV === 'production' ? process.env.PROD_API_URL : process.env.LOCAL_API_URL,
+    // 如果是生产环境，读取NEXT_PUBLIC_PROD_API_URL，不是就读取NEXT_PUBLIC_LOCAL_API_URL
+    baseURL: process.env.NODE_ENV === 'production'
+        ? process.env.NEXT_PUBLIC_PROD_API_URL
+        : process.env.NEXT_PUBLIC_LOCAL_API_URL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
 
 export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
     apiClient.interceptors.request.use(
