@@ -23,7 +23,7 @@ export const fetchHistory = async (params: FetchHistoryParams): Promise<FetchHis
 
     try {
         // 发送 POST 请求
-        const response = await apiClient.post<FetchHistoryResponse>('/history', requestBody);
+        const response = await apiClient.post<FetchHistoryResponse>('/api/v1/history', requestBody);
         return response.data;
     } catch (error) {
         // 可以在此处集成日志记录服务，例如 Sentry

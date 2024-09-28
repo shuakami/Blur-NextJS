@@ -121,7 +121,7 @@ export default function UpdateAvatar() {
                                 更新个人信息
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-[600px] w-[450px] dark:bg-gray-800">
+                        <DialogContent className="max-w-[600px] w-[450px] dark:bg-gray-black/90">
                             <DialogHeader>
                                 <DialogTitle className="dark:text-white">更新个人信息</DialogTitle>
                             </DialogHeader>

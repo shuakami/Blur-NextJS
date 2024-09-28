@@ -9,7 +9,7 @@ interface Conversation {
 
 export const fetchConversations = async (user_id: string): Promise<Conversation[]> => {
     try {
-        const response = await apiClient.get<Conversation[]>('/conversations', {
+        const response = await apiClient.get<Conversation[]>('/api/v1/conversations', {
             params: {user_id},
         });
         return response.data;
