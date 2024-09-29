@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 
 const Encode: React.FC = () => {
     const {user} = useUser();
-    const userId = user?.id || '未登录';
+    const userId = user?.id || 'No Login';
     const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
     useEffect(() => {

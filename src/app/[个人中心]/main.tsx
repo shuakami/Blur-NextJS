@@ -8,15 +8,17 @@ import {Input} from "@/components/ui/input";
 import {Check, X} from "lucide-react";
 import {useState} from "react";
 import {GitHubLogoIcon} from "@radix-ui/react-icons";
+import useTranslation from "@/hooks/useTranslation";
 
 export const PersonalCenterMain: React.FC = () => {
+    const {t} = useTranslation();
     const {user, isLoaded} = useUser(); // 从 Clerk 中获取用户数据
     const userId = user?.id;
     const [showId, setShowId] = useState(false);
     const [isEditingUsername, setIsEditingUsername] = useState(false);
     const [isEditingEmail, setIsEditingEmail] = useState(false);
-    const [username, setUsername] = useState(user?.username || "shuakami0303"); // 使用 Clerk 的用户名
-    const [email, setEmail] = useState(user?.primaryEmailAddress?.emailAddress || "shuakami@sdjz.wiki"); // 使用 Clerk 的邮箱
+    const [username, setUsername] = useState(user?.username || "ERROR"); // 使用 Clerk 的用户名
+    const [email, setEmail] = useState(user?.primaryEmailAddress?.emailAddress || "unknown@example.com"); // 使用 Clerk 的邮箱
     const [newUsername, setNewUsername] = useState(username);
     const [newEmail, setNewEmail] = useState(email);
 
@@ -29,14 +31,14 @@ export const PersonalCenterMain: React.FC = () => {
             setUsername(newUsername);
             setIsEditingUsername(false);
             toast({
-                title: "用户名已更新",
-                description: `新的用户名是 ${newUsername}`,
+                title: t("用户名已更新"),
+                description: t("新的用户名是") + ` ${newUsername}`,
                 variant: "success",
             });
         } catch (error) {
             toast({
-                title: "更新失败",
-                description: "无法更新用户名，请稍后再试。",
+                title: t("更新失败"),
+                description: t("无法更新用户名，请稍后再试。"),
                 variant: "destructive",
             });
         }
@@ -53,8 +55,8 @@ export const PersonalCenterMain: React.FC = () => {
 
             if (existingEmail) {
                 toast({
-                    title: "邮箱已存在",
-                    description: ` ${newEmail} 已经存在（被占用），请使用其他邮箱。`,
+                    title: t("邮箱已存在"),
+                    description: t("邮箱") + ` ${newEmail} ` + t("已经存在（被占用），请使用其他邮箱。"),
                     variant: "destructive",
                 });
                 return;
@@ -70,15 +72,15 @@ export const PersonalCenterMain: React.FC = () => {
                 setEmail(newEmail);
                 setIsEditingEmail(false);
                 toast({
-                    title: "邮箱地址已更新",
-                    description: `已发送验证邮件至 ${newEmail}`,
+                    title: t("邮箱地址已更新"),
+                    description: t("已发送验证邮件至") + ` ${newEmail}`,
                     variant: "success",
                 });
             }
         } catch (error) {
             toast({
-                title: "更新失败",
-                description: "无法更新邮箱，请稍后再试。",
+                title: t("更新失败"),
+                description: t("无法更新邮箱，请稍后再试。"),
                 variant: "destructive",
             });
         }
@@ -95,7 +97,8 @@ export const PersonalCenterMain: React.FC = () => {
                     <LayoutGroup>
                         {/* 用户名 */}
                         <motion.div layout className="border-b border-gray-100 dark:border-gray-900 pb-6">
-                            <motion.h3 layout className="text-sm font-medium text-black dark:text-white mb-2">用户名
+                            <motion.h3 layout
+                                       className="text-sm font-medium text-black dark:text-white mb-2">{t("用户名")}
                             </motion.h3>
                             <AnimatePresence mode="popLayout">
                                 {isEditingUsername ? (
@@ -147,14 +150,14 @@ export const PersonalCenterMain: React.FC = () => {
                                             className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto"
                                             onClick={() => setIsEditingUsername(true)}
                                         >
-                                            更新用户名
+                                            {t("更新用户名")}
                                         </Button>
                                         <Button
                                             variant="link"
                                             className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto mx-3"
                                             onClick={() => setShowId(!showId)}
                                         >
-                                            显示id
+                                            {t("显示id")}
                                         </Button>
                                     </motion.div>
                                 )}
@@ -164,7 +167,7 @@ export const PersonalCenterMain: React.FC = () => {
                         {/* 电子邮件地址 */}
                         <motion.div layout className="border-b border-gray-100 dark:border-gray-900 pb-6">
                             <motion.h3 layout
-                                       className="text-sm font-medium text-black dark:text-white mb-2">电子邮件地址
+                                       className="text-sm font-medium text-black dark:text-white mb-2">{t("电子邮件地址")}
                             </motion.h3>
                             <AnimatePresence mode="popLayout">
                                 {isEditingEmail ? (
@@ -206,7 +209,7 @@ export const PersonalCenterMain: React.FC = () => {
                                                       className="text-base text-black dark:text-white">{email}</motion.p>
                                             <motion.span layout
                                                          className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                                                主要
+                                                {t("主要")}
                                             </motion.span>
                                         </motion.div>
                                         <Button
@@ -214,7 +217,7 @@ export const PersonalCenterMain: React.FC = () => {
                                             className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto"
                                             onClick={() => setIsEditingEmail(true)}
                                         >
-                                            添加电子邮件地址
+                                            {t("添加电子邮件地址")}
                                         </Button>
                                     </motion.div>
                                 )}
@@ -224,17 +227,17 @@ export const PersonalCenterMain: React.FC = () => {
 
                     {/* 连接的账户 */}
                     <div>
-                        <h3 className="text-sm font-medium text-black dark:text-white mb-2">链接的账户（未实装）</h3>
+                        <h3 className="text-sm font-medium text-black dark:text-white mb-2">{t("链接的账户（未实装）")}</h3>
                         <div className="flex items-center mb-2">
                             <GitHubLogoIcon
                                 height={22}
                                 width={22}
                                 className="mr-2"
                             />
-                            <p className="text-base text-black dark:text-white">GitHub • shuakami</p>
+                            <p className="text-base text-black dark:text-white">Github</p>
                         </div>
                         <button className="text-sm text-[#747474] dark:text-[#B5B5B5] hover:underline">
-                            连接账户
+                            {t("连接账户")}
                         </button>
                     </div>
                 </div>

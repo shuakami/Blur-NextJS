@@ -1,10 +1,8 @@
-// src/app/消息发送/send_message.tsx
-
 import {handleStream} from '@/app/[流式处理]/stream';
 import {SendMessageParams, FinalInfo, StreamChunk, SendMessageResponse} from '@/types/stream';
+import {getTranslate} from '@/hooks/useTranslation';
 
 // 设置 API 基础 URL 和端口
-// 如果是生产环境，读取PROD_API_URL，不是就读取LOCAL_API_URL
 const API_BASE_URL = process.env.NODE_ENV === 'production'
     ? process.env.NEXT_PUBLIC_PROD_API_URL
     : process.env.NEXT_PUBLIC_LOCAL_API_URL;
@@ -17,6 +15,7 @@ export const sendMessage = async (
     onFinalInfo?: (finalInfo: FinalInfo) => void,
     onError?: (error: any) => void
 ) => {
+    const t = getTranslate();
     try {
         // 构建请求体
         const requestBody: Record<string, any> = {
@@ -30,7 +29,7 @@ export const sendMessage = async (
             requestBody.conversation_id = params.conversation_id;
         }
 
-        // 发送 POST 请求到 localhost:33413
+        // 发送 POST 请求
         const response = await fetch(`${API_BASE_URL}/api/v1/message/send`, {
             method: 'POST',
             headers: {
@@ -41,7 +40,7 @@ export const sendMessage = async (
         });
 
         if (!response.body) {
-            throw new Error('浏览器不支持流式响应。');
+            throw new Error(t('浏览器不支持流式响应。'));
         }
 
         // 处理流式响应
@@ -53,7 +52,7 @@ export const sendMessage = async (
             onError
         );
     } catch (error) {
-        console.error('发送消息失败:', error);
+        console.error(t('发送消息失败:'), error);
         if (onError) {
             onError(error);
         }

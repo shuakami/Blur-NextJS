@@ -9,7 +9,6 @@ import {ClerkProvider} from "@clerk/nextjs";
 import {Toaster} from "@/components/ui/toaster";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
 import {ApiClientProvider} from "@/api/ApiClientProvider";
-import useVersionCheck from "@/hooks/useVersionCheck";
 import ClientVersionCheck from "@/components/ClientVersionCheck";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
@@ -60,9 +59,9 @@ export default function RootLayout({
                 enableSystem
                 disableTransitionOnChange
             >
-                <ClientVersionCheck/>
                 <ApiClientProvider>
                 <LanguageProvider>
+                    <ClientVersionCheck/>
                     <Toaster/>
                     <GlobalErrorHandler/>
                     {children}

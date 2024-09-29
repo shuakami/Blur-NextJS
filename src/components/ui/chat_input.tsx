@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Box, FileText, Send } from 'lucide-react'
-import { motion, useAnimation, AnimationProps } from 'framer-motion'
+import React, {useState, useRef, useEffect} from 'react';
+import {Box, FileText, Send} from 'lucide-react';
+import {motion, useAnimation, AnimationProps} from 'framer-motion';
+import useTranslation from '@/hooks/useTranslation'; // 引入 useTranslation 钩子
 
 interface ChatInputProps {
     onSend: (message: string) => void;
@@ -13,53 +14,54 @@ interface ChatInputProps {
 const ChatInput: React.FC<ChatInputProps> = ({
                                                  onSend,
                                                  onNetworkToggle,
-                                                 placeholder = '今天想聊点什么...',
+                                                 placeholder = '今天想聊点什么...', // 默认 placeholder 文本
                                                  maxHeight = 100,
-                                                 springConfig = { type: "spring", stiffness: 700, damping: 30 }
+                                                 springConfig = {type: 'spring', stiffness: 700, damping: 30}
                                              }) => {
-    const [isNetworkEnabled, setIsNetworkEnabled] = useState(false)
-    const [inputContent, setInputContent] = useState('')
-    const editorRef = useRef<HTMLDivElement>(null)
-    const controls = useAnimation()
+    const {t} = useTranslation();
+    const [isNetworkEnabled, setIsNetworkEnabled] = useState(false);
+    const [inputContent, setInputContent] = useState('');
+    const editorRef = useRef<HTMLDivElement>(null);
+    const controls = useAnimation();
 
     useEffect(() => {
         const adjustHeight = () => {
             if (editorRef.current) {
-                editorRef.current.style.height = "auto"
-                const newHeight = Math.min(editorRef.current.scrollHeight, maxHeight)
-                controls.start({ height: newHeight })
+                editorRef.current.style.height = 'auto';
+                const newHeight = Math.min(editorRef.current.scrollHeight, maxHeight);
+                controls.start({height: newHeight});
             }
-        }
+        };
 
-        adjustHeight()
-    }, [inputContent, controls, maxHeight])
+        adjustHeight();
+    }, [inputContent, controls, maxHeight]);
 
     const handleInputChange = () => {
         if (editorRef.current) {
-            setInputContent(editorRef.current.innerText)
+            setInputContent(editorRef.current.innerText);
         }
-    }
+    };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault()
-            handleSend()
+            e.preventDefault();
+            handleSend();
         }
-    }
+    };
 
     const handleSend = () => {
         if (inputContent.trim()) {
-            onSend(inputContent)
-            setInputContent('')
-            if (editorRef.current) editorRef.current.innerText = ''
+            onSend(inputContent);
+            setInputContent('');
+            if (editorRef.current) editorRef.current.innerText = '';
         }
-    }
+    };
 
     const toggleNetwork = () => {
-        const newState = !isNetworkEnabled
-        setIsNetworkEnabled(newState)
-        onNetworkToggle?.(newState)
-    }
+        const newState = !isNetworkEnabled;
+        setIsNetworkEnabled(newState);
+        onNetworkToggle?.(newState);
+    };
 
     return (
         <div
@@ -81,7 +83,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         animate={{opacity: 1, y: 0}}
                         transition={{delay: 0.2, ...springConfig}}
                     >
-                        {placeholder}
+                        {t(placeholder)}
                     </motion.div>
                 )}
                 <motion.div
@@ -91,11 +93,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     transition={{delay: 0.3, ...springConfig}}
                 >
                     <button
-                        className="p-1 text-gray-400 hover:text-gray-600 dark:text-[#777777] dark:hover:text-[#999999] transition-colors duration-200">
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:text-[#777777] dark:hover:text-[#999999] transition-colors duration-200"
+                    >
                         <Box className="w-4 h-4"/>
                     </button>
                     <button
-                        className="p-1 text-gray-400 hover:text-gray-600 dark:text-[#777777] dark:hover:text-[#999999] transition-colors duration-200">
+                        className="p-1 text-gray-400 hover:text-gray-600 dark:text-[#777777] dark:hover:text-[#999999] transition-colors duration-200"
+                    >
                         <FileText className="w-4 h-4"/>
                     </button>
                     <motion.button
@@ -110,12 +114,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         onClick={handleSend}
                     >
                         <Send className="w-3 h-3 mr-1"/>
-                        <span>发送</span>
+                        <span>{t('发送')}</span>
                     </motion.button>
                 </motion.div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default React.memo(ChatInput)
+export default React.memo(ChatInput);

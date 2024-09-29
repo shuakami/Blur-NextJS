@@ -49,7 +49,7 @@ export const metadata: Metadata = {
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
-    const [isLoading, setIsLoading] = useState(false);
+    const [, setIsLoading] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -81,9 +81,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         <ClerkProvider {...pageProps}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
                 <ConversationsProvider>
-                    <ClientVersionCheck/>
                 <ApiClientProvider>
                 <LanguageProvider>
+                    <ClientVersionCheck/>
                     <Toaster/>
                     <GlobalErrorHandler/>
                     <div className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}>

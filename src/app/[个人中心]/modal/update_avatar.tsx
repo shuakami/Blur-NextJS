@@ -12,9 +12,11 @@ import {toast} from "@/hooks/use-toast"
 import Cropper from 'react-easy-crop'
 import getCroppedImg, {Area} from '@/lib/cropImage'
 import {motion} from 'framer-motion'
+import useTranslation from "@/hooks/useTranslation"
 
 export default function UpdateAvatar() {
-    const {user, isLoaded} = useUser()
+    const {t} = useTranslation();
+    const {user} = useUser()
     const [avatarUrl, setAvatarUrl] = useState(user?.imageUrl || '')
     const [lastName, setLastName] = useState(user?.lastName || '')
     const [firstName, setFirstName] = useState(user?.firstName || '')
@@ -53,11 +55,11 @@ export default function UpdateAvatar() {
             console.error(e)
             toast({
                 variant: "destructive",
-                title: "裁剪失败",
-                description: "请重试。",
+                title: t("裁剪失败"),
+                description: t("请重试。"),
             })
         }
-    }, [previewUrl, croppedAreaPixels])
+    }, [previewUrl, croppedAreaPixels, t])
 
     const handleConfirm = async () => {
         setLoading(true)
@@ -66,8 +68,8 @@ export default function UpdateAvatar() {
                 setAvatarUrl(previewUrl)
                 toast({
                     variant: "default",
-                    title: "正在上传图片",
-                    description: "请耐心等一下...",
+                    title: t("正在上传图片"),
+                    description: t("请耐心等一下..."),
                 })
 
                 // 将Base64字符串转换为Blob
@@ -87,15 +89,15 @@ export default function UpdateAvatar() {
 
             toast({
                 variant: "default",
-                title: "信息已更新",
+                title: t("信息已更新"),
             })
             setIsOpen(false)
         } catch (error) {
             console.error(error)
             toast({
                 variant: "destructive",
-                title: "更新失败",
-                description: "上传过程中出现了问题，请稍后再试。",
+                title: t("更新失败"),
+                description: t("上传过程中出现了问题，请稍后再试。"),
             })
         } finally {
             setLoading(false)
@@ -108,7 +110,7 @@ export default function UpdateAvatar() {
             <div className="mx-auto max-w-2xl">
                 <div className="mb-10 mt-4 text-center">
                     <Avatar className="w-24 h-24 mx-auto mb-4">
-                        <AvatarImage src={avatarUrl || '/default-avatar.png'} alt="用户头像"/>
+                        <AvatarImage src={avatarUrl || '/default-avatar.png'} alt={t("用户头像")}/>
                         <AvatarFallback>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
                     </Avatar>
                     <h2 className="text-lg font-medium text-black dark:text-white mb-2">
@@ -118,12 +120,12 @@ export default function UpdateAvatar() {
                         <DialogTrigger asChild>
                             <Button variant="ghost"
                                     className="text-sm text-[#7B7B7B] hover:text-black dark:text-gray-400">
-                                更新个人信息
+                                {t("更新个人信息")}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-[600px] w-[450px] dark:bg-gray-black/90">
                             <DialogHeader>
-                                <DialogTitle className="dark:text-white">更新个人信息</DialogTitle>
+                                <DialogTitle className="dark:text-white">{t("更新个人信息")}</DialogTitle>
                             </DialogHeader>
 
                             <motion.div
@@ -149,8 +151,9 @@ export default function UpdateAvatar() {
                                         </div>
                                         <div
                                             className="absolute bottom-4 left-0 right-0 flex justify-center space-x-4 mt-6">
-                                            <Button onClick={() => setCropping(false)} variant="outline">取消</Button>
-                                            <Button onClick={showCroppedImage}>裁剪</Button>
+                                            <Button onClick={() => setCropping(false)}
+                                                    variant="outline">{t("取消")}</Button>
+                                            <Button onClick={showCroppedImage}>{t("裁剪")}</Button>
                                         </div>
                                     </div>
                                 ) : (
@@ -159,7 +162,7 @@ export default function UpdateAvatar() {
                                             <div className="relative group">
                                                 <Avatar
                                                     className="w-24 h-24 mb-2 cursor-pointer transition-opacity duration-200 group-hover:opacity-75">
-                                                    <AvatarImage src={previewUrl || avatarUrl} alt="头像预览"/>
+                                                    <AvatarImage src={previewUrl || avatarUrl} alt={t("头像预览")}/>
                                                     <AvatarFallback>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
                                                 </Avatar>
                                                 <div
@@ -180,7 +183,7 @@ export default function UpdateAvatar() {
                                         <div>
                                             <Label htmlFor="firstName"
                                                    className="text-sm font-medium dark:text-gray-300">
-                                                名字 (First Name)
+                                                {t("名字 (First Name)")}
                                             </Label>
                                             <div className="flex mt-1">
                                                 <Input
@@ -194,7 +197,7 @@ export default function UpdateAvatar() {
                                         <div>
                                             <Label htmlFor="lastName"
                                                    className="text-sm font-medium dark:text-gray-300">
-                                                姓氏 (Last Name)
+                                                {t("姓氏 (Last Name)")}
                                             </Label>
                                             <div className="flex mt-1">
                                                 <Input
@@ -211,15 +214,15 @@ export default function UpdateAvatar() {
 
                             <DialogFooter>
                                 <Button variant="outline" onClick={() => setIsOpen(false)}
-                                        disabled={loading}>取消</Button>
+                                        disabled={loading}>{t("取消")}</Button>
                                 <Button onClick={handleConfirm} disabled={loading || cropping}>
                                     {loading ? (
                                         <>
                                             <Loader2 className="animate-spin h-4 w-4 mr-2"/>
-                                            正在更新...
+                                            {t("正在更新...")}
                                         </>
                                     ) : (
-                                        '确认更改'
+                                        t('确认更改')
                                     )}
                                 </Button>
                             </DialogFooter>

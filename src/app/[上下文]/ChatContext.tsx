@@ -4,6 +4,7 @@ import {useUser, useAuth} from '@clerk/nextjs';
 import {sendMessage as sendMessageAPI} from '@/app/[消息发送]/send_message';
 import {fetchHistory} from '@/app/[拉取历史]/fetch_history';
 import {Message, StreamChunk, FinalInfo, SendMessageResponse, APIMessage} from '@/types/stream';
+import useTranslation from "@/hooks/useTranslation";
 
 interface ChatContextProps {
     messages: Message[];
@@ -21,11 +22,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                                                                                                           children,
                                                                                                           initialConversationId,
                                                                                                       }) => {
+    const {t} = useTranslation();
     const {user} = useUser();
     const {getToken} = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const [conversationId, setConversationId] = useState<string | null>(initialConversationId || null);
-    const [chatTitle, setChatTitle] = useState<string | null>(null);
     const [newConversationId, setNewConversationId] = useState<string | null>(null); // 新对话 ID
     const [reloadConversationsCounter, setReloadConversationsCounter] = useState<number>(0);
 
@@ -59,7 +60,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
             setMessages([]);
             setNewConversationId(null); // 重置新对话 ID
         }
-    }, [initialConversationId]);
+    }, [conversationId, initialConversationId]);
 
     useEffect(() => {
         const fetchAndSetHistory = async () => {
@@ -78,12 +79,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
 
                 setMessages(formattedMessages);
             } catch (error) {
-                console.error('无法加载历史记录', error);
+                // console.error(t('无法加载历史记录'), error);
             }
         };
 
         fetchAndSetHistory();
-    }, [conversationId, reloadConversationsCounter, userId]);
+    }, [conversationId, reloadConversationsCounter, user?.imageUrl, userId]);
 
     const sendMessage = async (message: string, inputConversationId?: string) => {
         const activeConversationId = inputConversationId || conversationId;
@@ -91,7 +92,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         if (!userId) {
             addMessage({
                 type: 'error',
-                content: '无法发送消息，用户未登录或未授权。',
+                content: t('无法发送消息，用户未登录或未授权。'),
                 avatarUrl: '',
             });
             return;
@@ -113,7 +114,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         try {
             const token = await getToken();
             if (!token) {
-                throw new Error('无法获取 JWT，用户未授权');
+                throw new Error(t('无法获取 JWT，用户未授权'));
             }
 
             let currentConversationId: string | null = activeConversationId;
@@ -145,13 +146,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                     console.log('最终信息:', finalInfo);
                 },
                 (error: any) => {
-                    console.error('后端错误:', error);
-                    updateLastBotMessage('抱歉，发送消息失败。');
+                    console.error(t('后端错误:'), error);
+                    updateLastBotMessage(t('抱歉，发送消息失败。'));
                 }
             );
         } catch (error) {
-            console.error('发送消息失败:', error);
-            updateLastBotMessage('抱歉，发送消息失败。');
+            console.error(t('发送消息失败:'), error);
+            updateLastBotMessage(t('抱歉，发送消息失败。'));
         }
     };
 
@@ -177,6 +178,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         </ChatContext.Provider>
     );
 };
+
 
 export const useChatContext = () => {
     const context = useContext(ChatContext);

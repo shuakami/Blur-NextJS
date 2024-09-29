@@ -6,7 +6,7 @@ import useTranslation from "@/hooks/useTranslation";
 
 const GlobalErrorHandler: React.FC = () => {
     const {toast} = useToast();
-    const {t} = useTranslation('error');
+    const {t} = useTranslation();
 
     useEffect(() => {
         const handleErrors = (error: ApiError) => {

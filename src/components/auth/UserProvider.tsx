@@ -29,7 +29,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 const token = await getToken(); // 获取JWT
                 setJwt(token);
             } catch (error) {
-                console.error("获取 JWT 失败:", error);
+                console.error("Error fetching JWT:", error);
             } finally {
                 setIsLoading(false);  // 完成加载
             }

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import useTranslation from "@/hooks/useTranslation";
 import { useRouter } from "next/router";
 import LoginHandler from "@/components/login/[安全工具]/LoginHandler";
-import Link from "next/link";  // 引入 Link 组件
+import Link from "next/link";
 
 
 export default function BetaLoginForm() {

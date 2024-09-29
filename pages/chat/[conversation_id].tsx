@@ -17,7 +17,6 @@ import ScrollToBottom from "@/components/ui/ScrollToBottom";
 import HomePageLoading from "@/components/Loading/loading_converdation_page";
 import SimplifiedUnauthenticatedHomePage from "@/components/NoLogin/nologin_home";
 import Meta from "@/components/ui/Meta";
-import useTranslation from "@/hooks/useTranslation";
 import {useConversations} from "../../contexts/ConversationsContext";
 
 const SIDEBAR_WIDTH = 220; // 固定侧边栏宽度
@@ -30,7 +29,6 @@ export default function ChatPage() {
     const {isSignedIn, isLoaded, user} = useUser();
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
     const [retryCount, setRetryCount] = useState(0);  // 追踪重试次数
-    const {t} = useTranslation()
     const {conversations} = useConversations(); // 获取 conversations
 
     // 根据 conversation_id 获取当前对话的 chat_title
@@ -96,7 +94,7 @@ export default function ChatPage() {
         if (exists === false && isSignedIn) {
             router.replace('/');
         }
-    }, [exists, router]);
+    }, [exists, router, isSignedIn]);
 
     if (!isLoaded) {
         return <HomePageLoading/>; // 等待 Clerk 加载完成

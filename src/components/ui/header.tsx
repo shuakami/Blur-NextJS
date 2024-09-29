@@ -41,7 +41,6 @@ export default function Header() {
                             </button>
                             {activeDropdown === item && (
                                 <div className="absolute top-full left-0 mt-2 w-48 bg-[rgba(17,17,17,0.75)] backdrop-blur-[50px] rounded-lg shadow-lg">
-                                    {/* Dropdown content would go here */}
                                 </div>
                             )}
                         </div>

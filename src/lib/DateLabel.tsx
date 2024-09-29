@@ -14,7 +14,7 @@ interface DateLabelProps {
 }
 
 const DateLabel: React.FC<DateLabelProps> = ({ timestamp }) => {
-    const { language, t } = useTranslation();
+    const {t} = useTranslation();
     const date = dayjs(timestamp);
     const now = dayjs();
 

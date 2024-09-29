@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useLayoutEffect, useRef, useState} from "react";
 
 interface AutoScrollToBottomProps {
     children: React.ReactNode;
@@ -12,10 +12,7 @@ const AutoScrollToBottom: React.FC<AutoScrollToBottomProps> = ({children, trigge
     // 自动滚动到底部
     const scrollToBottom = () => {
         if (autoScrollEnabled && containerRef.current) {
-            containerRef.current.scrollTo({
-                top: containerRef.current.scrollHeight,
-                behavior: "smooth",
-            });
+            containerRef.current.scrollIntoView({behavior: "smooth", block: "end"});
         }
     };
 
@@ -32,7 +29,8 @@ const AutoScrollToBottom: React.FC<AutoScrollToBottomProps> = ({children, trigge
         }
     };
 
-    useEffect(() => {
+    // 使用 useLayoutEffect 代替 useEffect，以便在 DOM 更新后立即执行滚动操作
+    useLayoutEffect(() => {
         scrollToBottom();
     }, [trigger]); // 当 trigger 变化时自动滚动
 

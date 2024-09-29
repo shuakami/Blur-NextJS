@@ -10,6 +10,7 @@ import UserInfo from './chat_sidebar/UserInfo';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import DateLabel from '@/lib/DateLabel';
 import {MessageCirclePlus, SidebarCloseIcon} from "lucide-react";
+import useTranslation from "@/hooks/useTranslation";
 
 interface ChatSidebarProps {
     items: SidebarItemType[];
@@ -22,6 +23,7 @@ interface ChatSidebarProps {
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
+    const {t} = useTranslation();
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const router = useRouter();
     const controls = useAnimation();
@@ -102,7 +104,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                没有对话
+                                {t('没有对话')}
                             </motion.div>
                         )}
                     </AnimatePresence>

@@ -49,7 +49,7 @@ export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
         (error) => {
             const apiError: ApiError = {
                 code: ErrorCode.NetworkError,
-                message: (error as Error).message || "发生了一个错误",
+                message: (error as Error).message || "Network Error",
             };
 
             if (error.response) {

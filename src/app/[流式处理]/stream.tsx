@@ -1,4 +1,7 @@
 import {StreamChunk, FinalInfo, SendMessageResponse} from '@/types/stream';
+import {getTranslate} from '@/hooks/useTranslation';
+
+
 
 export const handleStream = async (
     stream: ReadableStream<Uint8Array>,
@@ -7,10 +10,12 @@ export const handleStream = async (
     onFinalInfo?: (finalInfo: FinalInfo) => void,
     onError?: (error: any) => void
 ) => {
+    const t = getTranslate()
+
     if (!window.ReadableStream) {
-        console.error('您的浏览器不支持 ReadableStream。请升级浏览器以获得更好的体验。');
+        console.error(t('您的浏览器不支持 ReadableStream。请升级浏览器以获得更好的体验。'));
         if (onError) {
-            onError(new Error('浏览器不支持 ReadableStream'));
+            onError(new Error(t('浏览器不支持 ReadableStream')));
         }
         return;
     }
@@ -61,7 +66,7 @@ export const handleStream = async (
                         onError && onError(parsed.error);
                     }
                 } catch (err) {
-                    console.error('解析流式响应失败:', err);
+                    console.error(t('解析流式响应失败:'), err);
                     onError && onError(err);
                 }
             }
@@ -91,12 +96,12 @@ export const handleStream = async (
                     onError && onError(parsed.error);
                 }
             } catch (err) {
-                console.error('解析流式响应失败:', err);
+                console.error(t('解析流式响应失败:'), err);
                 onError && onError(err);
             }
         }
     } catch (err) {
-        console.error('读取流失败:', err);
+        console.error(t('读取流失败:'), err);
         onError && onError(err);
     } finally {
         reader.releaseLock();

@@ -1,3 +1,4 @@
+// src/app/[侧边栏管理]/messages_sidebar.tsx
 "use client";
 
 import React, {useCallback, useEffect, useState} from 'react';
@@ -7,7 +8,7 @@ import {useUser} from '@clerk/nextjs';
 import ChatSidebarLoading from "@/components/Loading/loading_chat_sidebar";
 import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
 import {useConversations} from "../../../contexts/ConversationsContext";
-
+import useTranslation from "@/hooks/useTranslation";
 
 interface Conversation {
     conversation_id: string;
@@ -16,7 +17,7 @@ interface Conversation {
 }
 
 // 对话按日期分组
-const groupConversationsByDate = (conversations: Conversation[]) => {
+const groupConversationsByDate = (conversations: Conversation[], t: (key: string) => string) => {
     // 按照时间戳降序排列对话
     conversations.sort((a, b) => b.timestamp - a.timestamp);
 
@@ -34,7 +35,7 @@ const groupConversationsByDate = (conversations: Conversation[]) => {
         date: grouped[dateKey][0].timestamp * 1000,  // 保留第一个对话的时间戳 (转换为毫秒)
         children: grouped[dateKey].map(convo => ({
             id: convo.conversation_id,
-            label: convo.chat_title || '未命名对话',
+            label: convo.chat_title || t('未命名对话'),
             href: `/chat/${convo.conversation_id}`, // 链接跳转
         })),
     }));
@@ -45,6 +46,7 @@ interface MessagesSidebarProps {
 }
 
 const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
+    const {t} = useTranslation();
     const {isSignedIn, user, isLoaded} = useUser(); // 获取用户登录状态和用户信息
     const {conversations, setConversations} = useConversations(); // 使用 ConversationsContext
     const [loading, setLoading] = useState<boolean>(false);
@@ -53,7 +55,7 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
     // 使用 useCallback 确保 loadConversations 稳定
     const loadConversations = useCallback(async () => {
         if (!user?.id) {
-            setError('用户信息未加载');
+            setError(t('用户信息未加载'));
             return;
         }
 
@@ -62,11 +64,11 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
             const data = await fetchConversations(user.id); // 使用真实的用户 ID
             setConversations(data); // 将对话列表存储到 Context 中
         } catch (err) {
-            setError('无法加载对话列表');
+            setError(t('无法加载对话列表'));
         } finally {
             setLoading(false);
         }
-    }, [user?.id, setConversations]);
+    }, [user?.id, setConversations, t]);
 
     useEffect(() => {
         if (isSignedIn && user?.id) {
@@ -85,11 +87,11 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
 
     if (loading) return <ChatSidebarLoading/>;
 
-    const sidebarItems = groupConversationsByDate(conversations);
+    const sidebarItems = groupConversationsByDate(conversations, t);
 
     const userInfo = {
         avatarUrl: user?.imageUrl || 'https://github.com/shuakami.png', // 使用 Clerk 提供的头像
-        name: user?.fullName || 'User',
+        name: user?.fullName || t('用户'),
         status: 'Test#AL1_0001',
     };
 

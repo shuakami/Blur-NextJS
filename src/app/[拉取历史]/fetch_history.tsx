@@ -2,6 +2,7 @@
 
 import apiClient from '@/api/config';
 import {FetchHistoryParams, FetchHistoryResponse} from '@/types/stream';
+import {getTranslate} from "@/hooks/useTranslation";
 
 /**
  * 拉取历史记录的函数
@@ -10,6 +11,7 @@ import {FetchHistoryParams, FetchHistoryResponse} from '@/types/stream';
  * @throws 如果请求失败，则抛出错误
  */
 export const fetchHistory = async (params: FetchHistoryParams): Promise<FetchHistoryResponse> => {
+    const t = getTranslate();
     const requestBody: Record<string, any> = {
         user_id: params.user_id,
         limit: params.limit || 20,
@@ -26,7 +28,6 @@ export const fetchHistory = async (params: FetchHistoryParams): Promise<FetchHis
         const response = await apiClient.post<FetchHistoryResponse>('/api/v1/history', requestBody);
         return response.data;
     } catch (error) {
-        // 可以在此处集成日志记录服务，例如 Sentry
-        throw new Error('拉取历史记录失败');
+        throw new Error(t('拉取历史记录失败'));
     }
 };

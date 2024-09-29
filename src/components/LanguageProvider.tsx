@@ -33,7 +33,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
                                                                   }) => {
     const [language, setLanguageState] = useState<string>(defaultLanguage);
     const [translations, setTranslations] = useState<Language>({});
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [, setIsLoading] = useState<boolean>(false);
     const router = useRouter();
 
     // 初始化语言
@@ -42,7 +42,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
         if (storedLang && storedLang !== language) {
             setLanguageState(storedLang);
         }
-    }, []);
+    }, [language]);
 
     // 加载翻译文件
     useEffect(() => {

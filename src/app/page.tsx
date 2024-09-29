@@ -36,7 +36,7 @@ const HomeContent = () => {
 
             return () => clearTimeout(timeoutId); // 清除定时器
         }
-    }, [newConversationId, router]);
+    }, [newConversationId, resetNewConversationId, router]);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(prev => {
