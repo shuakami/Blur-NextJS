@@ -65,7 +65,7 @@ export default function UnauthenticatedSidebar({onClose}: UnauthenticatedSidebar
                     </p>
                     <div className="space-y-2">
                         <Button
-                            className="w-full bg-black bg-gradient-to-r text-primary-foreground hover:bg-primary/90"
+                            className="w-full bg-gradient-to-r text-primary-foreground hover:bg-primary/90"
                             onClick={onLogin}
                         >
                             {t('登录')}
