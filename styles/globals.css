@@ -278,13 +278,6 @@ body {
   background: transparent;
 }
 
-/* 仅在需要时显示滚动条 */
-body,
-html {
-  overflow-y: auto; /* 垂直滚动条始终可用 */
-  scrollbar-width: thin; /* Firefox滚动条宽度 */
-  scrollbar-color: rgba(136, 136, 136, 0.18) transparent; /* Firefox滚动条颜色 */
-}
 
 /* 隐藏滚动条，但保留滚动功能 */
 body,
