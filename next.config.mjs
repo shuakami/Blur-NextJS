@@ -1,7 +1,3 @@
-// next.config.mjs
-
-import JavaScriptObfuscator from 'webpack-obfuscator';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 
@@ -40,23 +36,6 @@ const nextConfig = {
                     minimizer.options.terserOptions.compress.drop_console = true;
                 }
             });
-
-            // 降低混淆器的复杂性，避免白屏
-            config.plugins.push(
-                new JavaScriptObfuscator(
-                    {
-                        rotateStringArray: true,
-                        stringArray: true,
-                        stringArrayEncoding: ['rc4'],  // 使用编码避免性能问题
-                        stringArrayThreshold: 0.5,     // 降低混淆的阈值
-                        debugProtection: false,        // 关闭调试保护，避免过度干扰
-                        disableConsoleOutput: true,
-                    },
-                    {
-                        exclude: [/vendors~.+\.js$/],  // 避免混淆重要依赖库
-                    }
-                )
-            );
         }
 
         return config;
