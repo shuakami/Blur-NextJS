@@ -17,7 +17,7 @@ export const PersonalCenterMain: React.FC = () => {
     const [showId, setShowId] = useState(false);
     const [isEditingUsername, setIsEditingUsername] = useState(false);
     const [isEditingEmail, setIsEditingEmail] = useState(false);
-    const [username, setUsername] = useState(user?.username || "ERROR"); // 使用 Clerk 的用户名
+    const [username, setUsername] = useState(user?.username || t('还没有名字')); // 使用 Clerk 的用户名
     const [email, setEmail] = useState(user?.primaryEmailAddress?.emailAddress || "unknown@example.com"); // 使用 Clerk 的邮箱
     const [newUsername, setNewUsername] = useState(username);
     const [newEmail, setNewEmail] = useState(email);

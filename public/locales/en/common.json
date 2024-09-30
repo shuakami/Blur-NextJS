@@ -47,6 +47,8 @@
   "无法获取 JWT，用户未授权": "Failed to obtain JWT, user unauthorized",
   "后端错误:": "Backend Error:",
   "发送消息失败:": "Failed to send message:",
+  "还没有名字": "No name yet",
+  "未命名用户": "Unnamed user",
   "裁剪失败": "Cropping failed",
   "请重试。": "Please try again.",
   "正在上传图片": "Uploading image",

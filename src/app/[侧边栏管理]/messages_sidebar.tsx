@@ -91,7 +91,7 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
 
     const userInfo = {
         avatarUrl: user?.imageUrl || 'https://github.com/shuakami.png', // 使用 Clerk 提供的头像
-        name: user?.fullName || t('用户'),
+        name: user?.fullName || t('未命名用户'),
         status: 'Test#AL1_0001',
     };
 
