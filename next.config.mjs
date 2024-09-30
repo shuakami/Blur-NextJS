@@ -52,16 +52,16 @@ const nextConfig = {
                     {
                         key: 'Content-Security-Policy',
                         value: (
-                            `default-src 'self'; ` +
-                            `script-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn 'unsafe-inline'` +
+                            "default-src 'self'; " +
+                            "script-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn 'unsafe-inline'" +
                             (isDev ? " 'unsafe-eval';" : ";") +
-                            `worker-src 'self' blob:; ` +
-                            `style-src 'self' 'unsafe-inline'; ` +
-                            `img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://blur-api.al001.sdjz.wiki https://img.clerk.com https://api.dicebear.com; ` +
-                            `connect-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn https://blur-api.al001.sdjz.wiki;` +
+                            " worker-src 'self' blob:; " +
+                            " style-src 'self' 'unsafe-inline'; " +
+                            " img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://blur-api.al001.sdjz.wiki https://img.clerk.com https://api.dicebear.com; " +
+                            " connect-src 'self' data: https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn https://blur-api.al001.sdjz.wiki;" +
                             (isDev ? " http://localhost:33413;" : ";") +
-                            `font-src 'self' https://fonts.gstatic.com;` +
-                            `upgrade-insecure-requests;`
+                            " font-src 'self' https://fonts.gstatic.com; " +
+                            " upgrade-insecure-requests;"
                         )
                     },
                     {
