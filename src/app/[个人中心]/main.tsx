@@ -22,7 +22,6 @@ export const PersonalCenterMain: React.FC = () => {
     const [newUsername, setNewUsername] = useState(username);
     const [newEmail, setNewEmail] = useState(email);
 
-    // 更新用户名的提交处理
     const handleUsernameSubmit = async () => {
         if (!isLoaded || !user) return; // 确保用户数据已经加载，并且 user 存在
 
@@ -35,14 +34,27 @@ export const PersonalCenterMain: React.FC = () => {
                 description: t("新的用户名是") + ` ${newUsername}`,
                 variant: "success",
             });
-        } catch (error) {
+        } catch (error: unknown) {
+            let errorMessage = t("无法更新用户名，请稍后再试。");
+
+            if (error instanceof Error && (error as any).errors && (error as any).errors[0]) {
+                const errorCode = (error as any).errors[0].code;
+
+                if (errorCode === "form_username_invalid_length") {
+                    errorMessage = t("用户名必须在 4 到 64 个字符之间。");
+                } else if (errorCode === "form_username_needs_non_number_char") {
+                    errorMessage = t("用户名必须包含至少一个非数字字符。");
+                }
+            }
+
             toast({
                 title: t("更新失败"),
-                description: t("无法更新用户名，请稍后再试。"),
+                description: errorMessage,
                 variant: "destructive",
             });
         }
     };
+
 
     // 更新邮箱的提交处理
     const handleEmailSubmit = async () => {
