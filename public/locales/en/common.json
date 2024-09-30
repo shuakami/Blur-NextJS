@@ -120,7 +120,7 @@
   "解析流式响应失败:": "Failed to parse stream response:",
   "读取流失败:": "Failed to read stream:",
   "浏览器不支持流式响应。": "Browser does not support streaming response.",
-  "Blur 也可能会犯错哦。请注意检查消息是否正确。": "Even Blur can make mistakes, so double-check those messages.",
+  "Blur 也可能会犯错哦。请注意检查消息是否正确。": "Even Blur can make mistakes, so double-check those messages!",
   "服务器打了个盹，正在努力醒来中...": "The server's taking a little break, but it's on its way back to life...",
   "emmm...服务器也在摸鱼了，一会儿再来试试？": "The server's taking a little break... Maybe it's slacking off a bit. Try again soon!",
   "服务器可能又去卷了，等它卷完再回来。": "Looks like the server's caught in some extra work. It’ll return once it's done.",

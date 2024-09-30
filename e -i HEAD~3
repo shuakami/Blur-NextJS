@@ -1,0 +1,58 @@
+[33m31029a3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m 修复一个暗黑模式下按钮是黑色的问题
+[33md85a5d4[m Merge remote-tracking branch 'origin/master'
+[33mac40bb2[m (Fix)解决白屏问题
+[33mf2601c8[m (Fix:9)尝试解决白屏问题
+[33m31b0d51[m (Fix:8)尝试解决白屏问题
+[33mb9162d5[m (Fix:7)尝试解决白屏问题
+[33ma3a5c61[m (Fix:6)尝试解决白屏问题
+[33ma64c711[m (Fix:6)尝试解决白屏问题
+[33m6b8f42d[m (Fix:5)尝试解决白屏问题
+[33m7ee7539[m (Fix:4)尝试解决白屏问题
+[33m25c35bd[m Merge remote-tracking branch 'origin/master'
+[33m8ed494d[m (Fix:3)尝试解决白屏问题
+[33m823c7d0[m (Fix:3)尝试解决白屏问题
+[33m2b2e0d5[m (Fix:2)尝试解决白屏问题
+[33m9c9bf7a[m (Fix:1)尝试解决白屏问题
+[33mf6544f6[m 更新配置文件
+[33mdc6ca85[m 修复一个会导致白屏的问题
+[33md74914a[m 修复一个Vercel部署错误问题
+[33ma6c623d[m 翻译支持和代码优化
+[33m0d5eb73[m 统一API端点路径为`/api/v1` --- 为了一致性和规范化，所有API调用的端点路径都已更新为使用`/api/v1`前缀。这包括会话管理、历史记录和用户信息更新等API请求。
+[33m0baf28a[m 修复一个会导致APIURL无法正常读取的问题
+[33mb356370[m 支持环境变量的API URL切换
+[33m88e2ce4[m 补上ui组件
+[33mbd15dff[m 重做色系/个人中心模态框完善/裁剪头像功能/个人中心Skeleton缓冲占位组件/优化动画效果
+[33m2174f68[m Merge remote-tracking branch 'origin/master'
+[33me438fec[m 移除控制台日志以清理代码
+[33mff3e4d0[m 预加载UI（占位）/添加自动检查更新/metadata/智能Meta组件/优化聊天页面和侧边栏的加载和交互
+[33m2af3d26[m 现在Axios拦截器会在每次请求时加上jwt --- 在应用的ClerkProvider和ThemeProvider组件内引入了新的ApiClientProvider组件。 这个新组件通过使用useAuth从Clerk中获取用户令牌，并将其添加到API请求的Authorization头中，从而为API客户端提供身份验证。 此外，配置了API客户端拦截器，以应用适当的错误处理逻辑，并在全局错误处理组件中处理这些错误。这些更改支持了应用中API请求的身份验证和错误管理。
+[33md9b6d93[m 修复一个依赖丢失的问题
+[33m8c5a5e1[m 多项性能和安全优化
+[33mee7ddec[m 全局错误处理和UI改进
+[33m9edf247[m [大型提交_C6] 完成流式/显示/传入/整体功能模块开发并修复 ChatList 错误
+[33ma1bcac3[m [备份用提交-6]
+[33mc5a57c4[m [备份用提交-5]
+[33m00226d3[m [备份用提交-4]
+[33m0e5011f[m [备份用提交-3]
+[33mb90e388[m [备份用提交-2]
+[33mebcf194[m [备份用提交]
+[33me63f5d1[m 个人中心/输入框/界面调整和新功能开发
+[33mb2b7bed[m 修复会导致侧边栏混乱、重复的问题
+[33me38af82[m [有点小bug 之后修] 聊天侧边栏组件优化
+[33m64981e8[m 聊天侧边栏UI/Inter字体和类型调整
+[33m251c763[m 优化UI/集成Clerk进行用户认证和添加Toast通知
+[33m50090e2[m 登录页面/多语言/暗黑支持器
+[33mb28d38e[m 封装为ui组件
+[33m2b1b6ad[m 输入框也支持暗色模式了，调整了一下ui
+[33m23e2856[m 改进/支持暗黑模式
+[33m9ceeb2c[m 把打错的字修了一下，消息列表重构为UI组件
+[33me9535ae[m 补一下
+[33m73670ca[m Markdown 格式化基本完工
+[33mb00e383[m 修正(2) - Markdown格式化，还没写完
+[33m61c9c0a[m 新增一个Markdown格式化，还没写完
+[33ma6f309d[m (input.tsx) - 新增一个输入框组件
+[33m4245df6[m 更新下拉菜单设计和发布功能
+[33m343a56b[m 这下听懂了
+[33mab551dc[m 更新README
+[33m155d060[m 初始提交 - 初始化tailwindcss和UI库
+[33md31f99a[m Initial commit from Create Next App

@@ -62,47 +62,48 @@ export default function UpdateAvatar() {
     }, [previewUrl, croppedAreaPixels, t])
 
     const handleConfirm = async () => {
-        setLoading(true);
+        setLoading(true)
         try {
             if (previewUrl) {
-                setAvatarUrl(previewUrl);
+                setAvatarUrl(previewUrl)
                 toast({
                     variant: "default",
                     title: t("正在上传图片"),
                     description: t("请耐心等一下..."),
-                });
+                })
 
                 // 将Base64字符串转换为Blob
-                const response = await fetch(previewUrl);
-                const blob = await response.blob();
-                const file = new File([blob], "avatar.png", {type: blob.type});
+                const response = await fetch(previewUrl)
+                const blob = await response.blob()
+                const file = new File([blob], "avatar.png", {type: blob.type})
 
                 // 更新头像到Clerk
-                await user?.setProfileImage({file});
+                await user?.setProfileImage({file})
             }
 
             // 更新名字到Clerk
             await user?.update({
-                firstName,
-                lastName,
-            });
+                firstName: firstName,
+                lastName: lastName,
+            })
 
             toast({
                 variant: "default",
                 title: t("信息已更新"),
-            });
-            setIsOpen(false);
+            })
+            setIsOpen(false)
         } catch (error) {
-            console.error(error);
+            console.error(error)
             toast({
                 variant: "destructive",
                 title: t("更新失败"),
                 description: t("上传过程中出现了问题，请稍后再试。"),
-            });
+            })
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
+
 
     return (
         <div className="flex-1 overflow-y-auto p-8">
