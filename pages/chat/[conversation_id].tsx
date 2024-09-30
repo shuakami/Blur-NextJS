@@ -91,9 +91,9 @@ export default function ChatPage() {
 
     useEffect(() => {
         // 对话不存在并且已经登录的情况下（没有登录不跳转），重定向到首页
-        // if (exists === false && isSignedIn) {
-        //     router.replace('/');
-        // }
+        if (exists === false && isSignedIn) {
+            router.replace('/');
+        }
     }, [exists, router, isSignedIn]);
 
     if (!isLoaded) {
