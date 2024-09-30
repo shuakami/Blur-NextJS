@@ -13,21 +13,6 @@ const apiClient = axios.create({
     },
 });
 
-// 强制将所有 HTTP 请求改为 HTTPS
-apiClient.interceptors.request.use((config) => {
-    // 检查 URL 是否以 "http://" 开头
-    if (config.url?.startsWith('http://')) {
-        // 替换为 https://
-        config.url = config.url.replace('http://', 'https://');
-    }
-
-    // 同样处理 baseURL
-    if (config.baseURL?.startsWith('http://')) {
-        config.baseURL = config.baseURL.replace('http://', 'https://');
-    }
-
-    return config;
-});
 
 export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
     apiClient.interceptors.request.use(
