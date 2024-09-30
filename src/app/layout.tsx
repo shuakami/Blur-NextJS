@@ -12,6 +12,8 @@ import {ApiClientProvider} from "@/api/ApiClientProvider";
 import ClientVersionCheck from "@/components/ClientVersionCheck";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
+import {SpeedInsights} from "@vercel/speed-insights/next"
+import {Analytics} from "@vercel/analytics/react"
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -53,6 +55,8 @@ export default function RootLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
             >
+            <SpeedInsights/>
+            <Analytics/>
             <ThemeProvider
                 attribute="class"
                 defaultTheme="system"
