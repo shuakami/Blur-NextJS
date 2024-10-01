@@ -15,6 +15,8 @@ import { HorizontalRule } from './horizontalRule';
 import { Table, TableHeader, TableCell } from './table';
 import { TaskListItem } from './taskList';
 import { Strikethrough } from './strikethrough';
+import BlurAnimatedWrapper from "@/components/Animations/blur_text";
+
 
 // 定义 InlineCode 组件
 const InlineCode: React.FC<React.PropsWithChildren<Record<string, unknown>>> = ({ children }) => (
@@ -85,9 +87,11 @@ export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => 
 
         return (
             <div className="markdown-body">
+                <BlurAnimatedWrapper>
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
                         {preprocessedContent}
                     </ReactMarkdown>
+                </BlurAnimatedWrapper>
             </div>
         );
 };

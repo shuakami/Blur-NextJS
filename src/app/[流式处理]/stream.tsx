@@ -1,8 +1,6 @@
 import {StreamChunk, FinalInfo, SendMessageResponse} from '@/types/stream';
 import {getTranslate} from '@/hooks/useTranslation';
 
-
-
 export const handleStream = async (
     stream: ReadableStream<Uint8Array>,
     onInitialResponse: (response: SendMessageResponse) => void,

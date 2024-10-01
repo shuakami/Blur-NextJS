@@ -101,8 +101,6 @@ Markdown 还支持有序列表：
 const MarkdownDemo: React.FC = () => {
     return (
         <div className="container mx-auto p-6">
-            {/* 插入样式 */}
-
             {/* 渲染 Markdown 内容 */}
             <MarkdownRenderer content={markdownContent} />
         </div>

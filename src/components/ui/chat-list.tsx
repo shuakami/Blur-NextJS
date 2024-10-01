@@ -7,6 +7,9 @@ import './chat_list.css';
 import {CircleSlash} from "lucide-react";
 import Encode from "@/app/copyright/encode";
 import useTranslation from "@/hooks/useTranslation";
+import BlurAnimatedWrapper from "@/components/Animations/blur_text";
+import MoonLogo from "../../../pages/logo";
+
 
 // 定义消息的类型
 export interface Message {
@@ -57,13 +60,13 @@ export const ChatList: React.FC<ChatListProps> = ({messages}) => {
                                                 {/* 机器人头像 */}
                                                 <Avatar
                                                     className="w-10 h-10 py-1 px-1 mt-6 border border-black/15 dark:border-white/15">
-                                                    <AvatarImage
-                                                        src={message.avatarUrl || "https://api.dicebear.com/6.x/bottts/svg?seed=Felix"}
-                                                    />
+                                                    <MoonLogo className="w-full h-full"/>
                                                 </Avatar>
                                                 {/* 机器人消息使用 MarkdownRenderer 渲染 */}
                                                 <div className="p-4 max-w-[85%]">
-                                                    <MarkdownRenderer content={message.content}/>
+                                                    <BlurAnimatedWrapper>
+                                                        <MarkdownRenderer content={message.content}/>
+                                                    </BlurAnimatedWrapper>
                                                 </div>
                                             </>
                                         ) : (
