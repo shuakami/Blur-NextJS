@@ -1,0 +1,49 @@
+.placeholder {
+    font-size: 1.0225rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 2em;
+}
+
+.text {
+    position: relative;
+    display: inline-block;
+    background-size: 200% 100%;
+    background-position: 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    animation: sweep 3s infinite linear;
+}
+
+.text[data-sweep-color="black"] {
+    background-image: linear-gradient(90deg, black, rgba(128, 128, 128, 0.84), rgba(0, 0, 0, 0.84));
+}
+
+.text[data-sweep-color="white"] {
+    background-image: linear-gradient(90deg, transparent, white, transparent);
+}
+
+.hovered .text {
+    animation-play-state: paused;
+}
+
+@keyframes sweep {
+    0% {
+        background-position: 100%;
+    }
+    50% {
+        background-position: 0%;
+    }
+    100% {
+        background-position: -100%;
+    }
+}
+
+.placeholder.hovered {
+    color: inherit;
+}

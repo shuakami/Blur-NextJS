@@ -1,4 +1,3 @@
-// src/app/[上下文]/ChatContext.tsx
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import {useUser, useAuth} from '@clerk/nextjs';
 import {sendMessage as sendMessageAPI} from '@/app/[消息发送]/send_message';
@@ -12,8 +11,9 @@ interface ChatContextProps {
     addMessage: (message: Message) => void;
     triggerConversationsReload: () => void;
     reloadConversationsCounter: number;
-    newConversationId: string | null; // 新增新对话 ID
-    resetNewConversationId: () => void; // 重置新对话 ID 的函数
+    newConversationId: string | null;
+    resetNewConversationId: () => void;
+    isLoading?: boolean;
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -29,8 +29,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
     const [conversationId, setConversationId] = useState<string | null>(initialConversationId || null);
     const [newConversationId, setNewConversationId] = useState<string | null>(null); // 新对话 ID
     const [reloadConversationsCounter, setReloadConversationsCounter] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState<boolean>(false); // 加载状态
 
-    // 确保获取到用户 ID
     const userId = user?.id;
 
     const addMessage = (message: Message) => {
@@ -111,6 +111,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         };
         addMessage(botMessage);
 
+        setIsLoading(true); // 开始加载
+
         try {
             const token = await getToken();
             if (!token) {
@@ -127,18 +129,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                 },
                 token,
                 (initialResponse: SendMessageResponse) => {
-                    // 初始响应处理，但不设置 newConversationId，先记录对话ID
                     currentConversationId = initialResponse.conversation_id;
-                    // console.log('初始响应，记录 currentConversationId:', currentConversationId);
                 },
                 (chunk: StreamChunk) => {
                     if (chunk.content) {
+                        setIsLoading(false);
                         updateLastBotMessage(chunk.content);
                     }
 
-                    // 只在流式输出结束时（即 is_final_chunk 为 true 时）设置对话 ID
                     if (chunk.is_final_chunk) {
-                        // console.log('流式输出完成，设置 newConversationId:', currentConversationId);
                         setNewConversationId(currentConversationId);
                     }
                 },
@@ -148,16 +147,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                 (error: any) => {
                     console.error(t('后端错误:'), error);
                     updateLastBotMessage(t('抱歉，发送消息失败。'));
+                    setIsLoading(false); // 出错时停止加载状态
                 }
             );
         } catch (error) {
             console.error(t('发送消息失败:'), error);
             updateLastBotMessage(t('抱歉，发送消息失败。'));
+            setIsLoading(false); // 出错时停止加载状态
         }
     };
 
-
-    // 重置新对话 ID 的函数
     const resetNewConversationId = () => {
         setNewConversationId(null);
     };
@@ -172,13 +171,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                 reloadConversationsCounter,
                 newConversationId,
                 resetNewConversationId,
+                isLoading,
             }}
         >
             {children}
         </ChatContext.Provider>
     );
 };
-
 
 export const useChatContext = () => {
     const context = useContext(ChatContext);
