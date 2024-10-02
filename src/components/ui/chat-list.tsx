@@ -24,12 +24,12 @@ export interface Message {
 // 定义 ChatList 组件的 Props 类型
 interface ChatListProps {
     messages: Message[];
+    isLoading?: boolean;
 }
 
 // ChatList 组件
-export const ChatList: React.FC<ChatListProps> = ({messages}) => {
+export const ChatList: React.FC<ChatListProps> = ({isLoading, messages}) => {
     const {t} = useTranslation();
-    const {isLoading} = useChatContext(); // 从 ChatContext 获取 isLoading 状态
 
     return (
         <AutoScrollToBottom trigger={messages}>
