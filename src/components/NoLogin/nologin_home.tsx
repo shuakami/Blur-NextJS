@@ -80,10 +80,12 @@ export default function ChatPage() {
                             {t('请先尝试登录。无论是聊天还是创作，Blur都能手到擒来。')}
                         </p>
                         <div className="space-x-4">
-                            <Button variant="default" onClick={() => router.push('/login')}>
+                            <Button variant="default"
+                                    onClick={() => window.open('/login', '_blank', 'noopener,noreferrer')}>
                                 <LogIn className="mr-2 h-4 w-4"/> {t('登录')}
                             </Button>
-                            <Button variant="outline" onClick={() => router.push('/signup')}>
+                            <Button variant="outline"
+                                    onClick={() => window.open('/signup', '_blank', 'noopener,noreferrer')}>
                                 <UserPlus className="mr-2 h-4 w-4"/> {t('注册')}
                             </Button>
                         </div>

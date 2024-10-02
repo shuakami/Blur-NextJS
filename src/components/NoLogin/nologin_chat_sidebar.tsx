@@ -16,11 +16,13 @@ export default function UnauthenticatedSidebar({onClose}: UnauthenticatedSidebar
     const {t} = useTranslation();
     const router = useRouter();
     const onLogin = () => {
-        router.push('/login');
+        window.open('/login', '_blank', 'noopener,noreferrer');
     };
+
     const onRegister = () => {
-        router.push('/signup');
+        window.open('/signup', '_blank', 'noopener,noreferrer');
     };
+
     const onNewChat = () => {
         router.push('/');
     };
