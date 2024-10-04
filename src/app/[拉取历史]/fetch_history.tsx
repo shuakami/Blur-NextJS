@@ -1,4 +1,4 @@
-// src/app/fetch_history.ts
+// src/app/[拉取历史]/fetch_history.tsx
 
 import apiClient from '@/api/config';
 import {FetchHistoryParams, FetchHistoryResponse} from '@/types/stream';

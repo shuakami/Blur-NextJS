@@ -1,4 +1,3 @@
-// src/app/[侧边栏管理]/messages_sidebar.tsx
 "use client";
 
 import React, {useCallback, useEffect, useState} from 'react';
@@ -42,10 +41,11 @@ const groupConversationsByDate = (conversations: Conversation[], t: (key: string
 };
 
 interface MessagesSidebarProps {
-    onClose?: () => void
+    onClose?: () => void;
+    onUpdateConversations?: (loadConversations: () => void) => void; // 新增: 用于暴露加载函数
 }
 
-const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
+const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConversations}) => {
     const {t} = useTranslation();
     const {isSignedIn, user, isLoaded} = useUser(); // 获取用户登录状态和用户信息
     const {conversations, setConversations} = useConversations(); // 使用 ConversationsContext
@@ -69,6 +69,13 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
             setLoading(false);
         }
     }, [user?.id, setConversations, t]);
+
+    // 向父组件暴露加载函数
+    useEffect(() => {
+        if (onUpdateConversations) {
+            onUpdateConversations(loadConversations);
+        }
+    }, [onUpdateConversations, loadConversations]);
 
     useEffect(() => {
         if (isSignedIn && user?.id) {
@@ -95,8 +102,10 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose}) => {
         status: 'Test#AL1_0001',
     };
 
-    return <ChatSidebar items={sidebarItems} user={userInfo} onClose={onClose || (() => {
-    })}/>;
+    return (
+        <ChatSidebar items={sidebarItems} user={userInfo} onClose={onClose || (() => {
+        })} onUpdateConversations={loadConversations}/>
+    );
 };
 
 export default MessagesSidebar;

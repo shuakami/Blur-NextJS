@@ -1,25 +1,150 @@
-// src/components/chat/SidebarItemComponent.tsx
 "use client";
 
-import React, { useState } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+    ChevronRight,
+    ChevronDown,
+    MoreHorizontal,
+    Check,
+    X,
+    PencilLine,
+    MessageCircleX,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {SidebarItem} from './types';
 import CustomButton from './CustomButton';
+import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
+import {useUser} from '@clerk/nextjs';
+import {deleteConversation, updateConversationTitle} from "@/app/[对话管理]/api";
+import {toast} from "@/hooks/use-toast";
+import ConfirmModal from "@/components/ui/tofu/confirm-modal";
+import {useRouter} from 'next/navigation';
 
 interface SidebarItemComponentProps {
     item: SidebarItem;
     level: number;
     selectedItem: string | null;
     onSelect: (label: string) => void;
+    onUpdateConversations: () => void; // 新增: 用于刷新侧边栏数据
 }
 
-const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level, selectedItem, onSelect }) => {
+const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
+                                                                       item,
+                                                                       level,
+                                                                       selectedItem,
+                                                                       onSelect,
+                                                                       onUpdateConversations
+                                                                   }) => {
+    const {user} = useUser(); // 获取用户 ID
+    const router = useRouter(); // 用于导航
     const [isOpen, setIsOpen] = useState<boolean>(true);
+    const [menuOpen, setMenuOpen] = useState<boolean>(false); // 控制菜单是否打开
+    const [isEditing, setIsEditing] = useState<boolean>(false); // 是否处于编辑标题状态
+    const [newTitle, setNewTitle] = useState<string>(item.label); // 存储新的标题
+    const [hover, setHover] = useState<boolean>(false); // 控制hover状态
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // 控制模态框的打开状态
 
     const toggleOpen = () => setIsOpen(!isOpen);
+    const isSelected = selectedItem === item.id;
 
-    const isSelected = selectedItem === item.label;
+    // 处理菜单关闭
+    const handleCloseMenu = () => setMenuOpen(false);
+
+    // 自动聚焦
+    useEffect(() => {
+        if (isEditing && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isEditing]);
+
+    // 确认删除对话处理函数
+    const handleConfirmDelete = async () => {
+        setIsModalOpen(false); // 关闭模态框
+        if (item.id) {
+            try {
+                await deleteConversation(item.id, user?.id || ''); // 调用 API 删除对话
+
+                toast({
+                    title: '操作成功',
+                    description: '对话已删除',
+                    variant: "success"
+                });
+
+                // 如果删除的对话是当前选中的对话，跳转到首页
+                if (isSelected) {
+                    router.push('/'); // 跳转到首页
+                }
+
+                // 调用父组件传入的刷新侧边栏数据的函数
+                onUpdateConversations();
+
+            } catch (e) {
+                toast({
+                    title: '操作失败',
+                    description: '对话删除失败',
+                    variant: "destructive"
+                });
+            }
+        }
+    };
+
+    // 菜单项
+    const menuItems = [
+        {
+            id: 'update-title',
+            text: '更改对话标题',
+            icon: PencilLine,
+            onClick: () => {
+                setIsEditing(true); // 开启编辑模式
+                setMenuOpen(false); // 关闭菜单
+            },
+        },
+        {
+            id: 'delete-conversation',
+            text: '删除对话',
+            icon: MessageCircleX,
+            isDanger: true,
+            onClick: () => {
+                setIsModalOpen(true); // 打开模态框确认
+                setMenuOpen(false); // 关闭菜单
+            },
+        },
+    ];
+
+    // 提交新的对话标题
+    const handleSubmitNewTitle = async () => {
+        if (!newTitle.trim()) {
+            toast({
+                title: '操作失败',
+                description: '对话标题不能为空',
+                variant: "destructive"
+            });
+            return;
+        }
+
+        try {
+            await updateConversationTitle(item.id!, newTitle, user?.id || ''); // 调用 API 更新对话标题
+            setIsEditing(false); // 退出编辑模式
+            toast({
+                title: '操作成功',
+                description: '对话标题已更新',
+                variant: "success"
+            });
+
+            // 等3秒刷新侧边栏数据
+            setTimeout(() => {
+                onUpdateConversations();
+            }, 1500);
+
+        } catch (e) {
+            toast({
+                title: '操作失败',
+                description: '对话标题更新失败',
+                variant: "destructive"
+            });
+        }
+    };
 
     return (
         <motion.div
@@ -27,23 +152,79 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
+            className="relative"
+            onMouseEnter={() => setHover(true)} // 处理 hover 状态
+            onMouseLeave={() => setHover(false)}
         >
-            <button
-                onClick={item.children ? toggleOpen : () => onSelect(item.label)}
-                className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
-                    level > 0 ? 'pl-4' : ''
-                } text-black dark:text-white ${
-                    isSelected ? 'bg-[#e0e0e0] dark:bg-[#333333]' : 'hover:bg-[#f0f0f0] dark:hover:bg-[#1e1e1e]'
-                }`}
-            >
-                {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
-                {item.children && (
-                    <span className="text-black dark:text-white">
-                        {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                    </span>
+            <ConfirmModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="删除对话"
+                message={`您确定要删除 "${item.label}" 吗?`} // 显示对话标题
+            />
+            <div className="flex items-center">
+                {/* 如果处于编辑模式，显示输入框 */}
+                {isEditing ? (
+                    <div
+                        className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}
+                    >
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSubmitNewTitle(); // 监听回车键提交
+                                if (e.key === 'Escape') setIsEditing(false); // 监听 Esc 键取消编辑
+                            }}
+                            className="flex-grow bg-transparent focus:outline-none text-black dark:text-white"
+                            style={{maxWidth: '120px'}} // 限制输入框宽度
+                        />
+                        <Check size={18}
+                               className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
+                               onClick={handleSubmitNewTitle}/>
+                        <X size={18}
+                           className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
+                           onClick={() => setIsEditing(false)}/>
+                    </div>
+                ) : (
+                    <button
+                        onClick={item.children ? toggleOpen : () => onSelect(item.id ?? '')}
+                        className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
+                            level > 0 ? 'pl-4' : ''
+                        } text-black dark:text-white ${
+                            isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
+                        }`}
+                    >
+                        {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
+                        {item.children && (
+                            <span className="text-black dark:text-white">
+                                {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
+                            </span>
+                        )}
+                        <span className="text-sm flex-grow">{item.label}</span>
+
+                        {/* 显示三个点 */}
+                        {(isSelected || hover) && (
+                            <span
+                                className="ml-auto"
+                                onClick={(e) => {
+                                    e.stopPropagation(); // 防止点击菜单时触发选择操作
+                                    setMenuOpen(!menuOpen);
+                                }}
+                            >
+                                <MoreHorizontal size={16} className="text-black dark:text-white"/>
+                            </span>
+                        )}
+                    </button>
                 )}
-                <span className="text-sm flex-grow">{item.label}</span>
-            </button>
+            </div>
+
+            {/* 下拉菜单 */}
+            {menuOpen && (
+                <DropDownMenu isOpen={menuOpen} position="sidebar" onClose={handleCloseMenu} menuItems={menuItems}/>
+            )}
 
             {item.children && isOpen && (
                 <div className="ml-1">
@@ -56,6 +237,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({ item, level
                                     level={level + 1}
                                     selectedItem={selectedItem}
                                     onSelect={onSelect}
+                                    onUpdateConversations={onUpdateConversations} // 传递刷新侧边栏的回调函数
                                 />
                             ) : (
                                 <CustomButton

@@ -2,10 +2,10 @@
 "use client";
 
 import React, {useState, useEffect, useMemo} from 'react';
-import { useRouter } from 'next/navigation';
+import {useRouter, usePathname} from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {SidebarItemType, SidebarItem} from './chat_sidebar/types'; // 引入 SidebarItem
+import {SidebarItemType, SidebarItem} from './chat_sidebar/types';
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
 import UserInfo from './chat_sidebar/UserInfo';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
@@ -21,20 +21,37 @@ interface ChatSidebarProps {
         status: string;
     };
     onClose: () => void;
+    onUpdateConversations?: () => void;
 }
 
-const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
+const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, user, onClose}) => {
     const {t} = useTranslation();
-    const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const router = useRouter();
+    const pathname = usePathname();  // 获取当前路径
     const controls = useAnimation();
+    const [selectedItem, setSelectedItem] = useState<string | null>(null);  // 用来跟踪已选择的项
 
-    const handleSelectItem = (id: any, href?: string) => {
-        setSelectedItem(id);
+    // 处理对话选择
+    const handleSelectItem = (id: string, href?: string) => {
+        setSelectedItem(id);  // 设置选中的对话项
         if (href) {
-            router.push(href);  // 确保 href 是一个 string
+            router.push(href);  // 跳转到相应的对话页面
         }
     };
+
+    // 当页面加载时，根据 URL 设置 selectedItem
+    useEffect(() => {
+        const currentPath = pathname;
+        if (!currentPath) {
+            console.error('Current path is null or undefined');
+            return;
+        }
+        const pathParts = currentPath.split('/');
+        const conversationId = pathParts[pathParts.length - 1];
+        if (conversationId) {
+            setSelectedItem(conversationId);
+        }
+    }, [pathname]);
 
     useEffect(() => {
         controls.start({
@@ -83,6 +100,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
         }));
     }, [items]);
 
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -100,7 +118,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
                     </Button>
                     <Button
                         variant="ghost"
-                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg白色/10 hover:bg[#f0f0f0] dark:hoverbg[#212121] flex items-center justify-center"
+                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg[#f0f0f0] dark:hoverbg[#212121] flex items-center justify-center"
                         onClick={handleNewChat}
                     >
                         <MessageCirclePlus size={20} className="text-black dark:text-white"/>
@@ -112,16 +130,18 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
                         {groupedItems.length > 0 ? (
                             groupedItems.map((group) => (
                                 <div key={group.label}>
-                                    <div className="text-black/60 dark:text-[#999999] text-xs mx-6 my-2">
-                                        <span>{group.label}</span> {/* 使用预先计算好的日期标签 */}
+                                    <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
+                                        <span>{group.label}</span>
                                     </div>
                                     {group.children.map((subItem) => (
                                         <SidebarItemComponent
                                             key={subItem.id}
                                             item={subItem}
                                             level={0}
-                                            selectedItem={selectedItem}
-                                            onSelect={() => handleSelectItem(subItem.id, subItem.href)}
+                                            selectedItem={selectedItem}  // 传递已选择的项
+                                            onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
+                                            onUpdateConversations={onUpdateConversations || (() => {
+                                            })} // 确保是函数
                                         />
                                     ))}
                                 </div>

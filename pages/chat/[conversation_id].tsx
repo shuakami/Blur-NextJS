@@ -125,7 +125,7 @@ export default function ChatPage() {
 
                 {/* 主内容区域 */}
                 <motion.div
-                    className="flex flex-col h-full w-full overflow-hidden"
+                    className="flex flex-col h-full w-full overflow-hidden z-0"
                     style={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
                     initial={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
                     animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
