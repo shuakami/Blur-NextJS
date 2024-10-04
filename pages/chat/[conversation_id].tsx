@@ -1,23 +1,23 @@
-// pages/chat/[conversation_id].tsx
 "use client";
 
 import React, {useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
-import ChatList from '@/app/[消息显示]/chat_list';
+
 import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
-import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
-import {ChatProvider} from '@/app/[上下文]/ChatContext';
-import {fetchHistory} from '@/app/[拉取历史]/fetch_history';
 import {useUser} from '@clerk/nextjs';
 import {motion, AnimatePresence} from 'framer-motion';
-import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
+
 import CText from '@/app/copyright/ctext';
 import Cookies from "js-cookie";
-import ScrollToBottom from "@/components/ui/ScrollToBottom";
 import HomePageLoading from "@/components/Loading/loading_converdation_page";
 import SimplifiedUnauthenticatedHomePage from "@/components/NoLogin/nologin_home";
 import Meta from "@/components/ui/Meta";
+import {fetchHistory} from "@/app/[拉取历史]/fetch_history";
 import {useConversations} from "../../contexts/ConversationsContext";
+import {ChatProvider} from "@/app/[上下文]/ChatContext";
+import MessagesSidebar from "@/app/[侧边栏管理]/messages_sidebar";
+import HomeHeaderIcon from "@/app/[首页占位]/home_header_icon";
+import ChatList from "@/app/[消息显示]/chat_list";
 
 const SIDEBAR_WIDTH = 220; // 固定侧边栏宽度
 const MAX_RETRY_COUNT = 3;  // 最大重试次数
@@ -68,7 +68,7 @@ export default function ChatPage() {
 
         const checkConversationExists = async (retryCount: number) => {
             try {
-                const history = await fetchHistory({user_id: user?.id, conversation_id});
+                const history = await fetchHistory({user_id: user?.id, conversation_id, limit: 1});
                 if (history && history.messages.length > 0) {
                     setExists(true);
                 } else {
@@ -107,7 +107,6 @@ export default function ChatPage() {
     if (exists === null || !conversation_id || typeof conversation_id !== 'string') {
         return <HomePageLoading/>;
     }
-
 
     return (
         <ChatProvider initialConversationId={conversation_id}>
@@ -148,10 +147,9 @@ export default function ChatPage() {
                     </AnimatePresence>
 
                     {/* 聊天内容区域 */}
-                    <div className="flex-1 overflow-auto w-full mt-16">
+                    <div className="flex-1 overflow-auto w-full mt-16" id="chat-container">
                         <div className="max-w-4xl mx-auto px-4 py-8">
                             <ChatList/>
-                            <ScrollToBottom/>
                         </div>
                     </div>
 

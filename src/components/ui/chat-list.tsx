@@ -12,7 +12,6 @@ import {motion} from "framer-motion"; // 使用 framer-motion
 
 import Encode from "@/app/copyright/encode";
 import AnimatedShinyText from "@/components/ui/animated-shiny-text"; // 导入动画组件
-import {useChatContext} from '@/app/[上下文]/ChatContext'; // 获取 isLoading 状态
 
 // 定义消息的类型
 export interface Message {

@@ -1,16 +1,17 @@
+// src/components/chat/ChatSidebar.tsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {SidebarItemType, DateGroup} from './chat_sidebar/types'; // 引入 DateGroup
+import {SidebarItemType, SidebarItem} from './chat_sidebar/types'; // 引入 SidebarItem
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
 import UserInfo from './chat_sidebar/UserInfo';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import DateLabel from '@/lib/DateLabel';
 import {MessageCirclePlus, SidebarCloseIcon} from "lucide-react";
 import useTranslation from "@/hooks/useTranslation";
+import dayjs from 'dayjs';
 
 interface ChatSidebarProps {
     items: SidebarItemType[];
@@ -46,10 +47,41 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
         router.push('/');
     };
 
-    // 类型保护函数：判断是否为 DateGroup
-    const isDateGroup = (item: SidebarItemType): item is DateGroup => {
-        return (item as DateGroup).date !== undefined;
-    };
+    // 暴力解决：确保每个日期标签只渲染一次
+    const groupedItems: { children: SidebarItem[]; label: string }[] = useMemo(() => {
+        const map = new Map<string, SidebarItem[]>();
+        const now = dayjs();
+        const dateLabelSet = new Set<string>(); // 记录已经渲染过的日期标签
+
+        items.forEach((item) => {
+            if ('date' in item) { // 判断是否为 DateGroup
+                const dateLabel = dayjs(item.date).isSame(now, 'day') ? '今天' :
+                    dayjs(item.date).isSame(now.subtract(1, 'day'), 'day') ? '昨天' :
+                        dayjs(item.date).isSame(now.subtract(2, 'day'), 'day') ? '前天' :
+                            dayjs(item.date).isAfter(now.startOf('week')) ? '这个星期' :
+                                dayjs(item.date).isAfter(now.startOf('month')) ? '这个月' :
+                                    dayjs(item.date).isAfter(now.subtract(3, 'month')) ? '最近3个月' :
+                                        dayjs(item.date).isAfter(now.startOf('year')) ? '今年' :
+                                            dayjs(item.date).format('YYYY 年');
+
+                // 如果该日期标签已经存在，则将项目合并到已有的组中
+                if (!dateLabelSet.has(dateLabel)) {
+                    dateLabelSet.add(dateLabel);
+                    map.set(dateLabel, item.children || []);
+                } else {
+                    // 合并到已有的日期组中
+                    const existingChildren = map.get(dateLabel) || [];
+                    map.set(dateLabel, existingChildren.concat(item.children || []));
+                }
+            }
+        });
+
+        // 转换为数组并按时间顺序排列
+        return Array.from(map.entries()).map(([dateLabel, children]) => ({
+            label: dateLabel,
+            children,
+        }));
+    }, [items]);
 
     return (
         <motion.div
@@ -68,7 +100,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
                     </Button>
                     <Button
                         variant="ghost"
-                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg-[#f0f0f0] dark:hover:bg-[#212121] flex items-center justify-center"
+                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg白色/10 hover:bg[#f0f0f0] dark:hoverbg[#212121] flex items-center justify-center"
                         onClick={handleNewChat}
                     >
                         <MessageCirclePlus size={20} className="text-black dark:text-white"/>
@@ -77,25 +109,23 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({items, user, onClose}) => {
 
                 <div className="py-4 mt-2">
                     <AnimatePresence>
-                        {items.length > 0 ? (
-                            items.map((item) =>
-                                isDateGroup(item) ? ( // 使用类型保护来区分 DateGroup
-                                    <div key={item.date}>
-                                        <div className="text-black/60 dark:text-[#999999] text-xs mx-6 my-2">
-                                            <DateLabel timestamp={item.date}/>
-                                        </div>
-                                        {item.children?.map((subItem) => ( // 检查 children 是否存在
-                                            <SidebarItemComponent
-                                                key={subItem.id}
-                                                item={subItem}
-                                                level={0}
-                                                selectedItem={selectedItem}
-                                                onSelect={() => handleSelectItem(subItem.id, subItem.href)}
-                                            />
-                                        ))}
+                        {groupedItems.length > 0 ? (
+                            groupedItems.map((group) => (
+                                <div key={group.label}>
+                                    <div className="text-black/60 dark:text-[#999999] text-xs mx-6 my-2">
+                                        <span>{group.label}</span> {/* 使用预先计算好的日期标签 */}
                                     </div>
-                                ) : null
-                            )
+                                    {group.children.map((subItem) => (
+                                        <SidebarItemComponent
+                                            key={subItem.id}
+                                            item={subItem}
+                                            level={0}
+                                            selectedItem={selectedItem}
+                                            onSelect={() => handleSelectItem(subItem.id, subItem.href)}
+                                        />
+                                    ))}
+                                </div>
+                            ))
                         ) : (
                             <motion.div
                                 className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10"

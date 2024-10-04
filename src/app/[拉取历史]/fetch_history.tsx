@@ -1,4 +1,4 @@
-// src/app/拉取历史/fetch_history.ts
+// src/app/fetch_history.ts
 
 import apiClient from '@/api/config';
 import {FetchHistoryParams, FetchHistoryResponse} from '@/types/stream';
@@ -6,7 +6,7 @@ import {getTranslate} from "@/hooks/useTranslation";
 
 /**
  * 拉取历史记录的函数
- * @param params - 请求参数，包括 user_id 和 conversation_id
+ * @param params - 请求参数，包括 user_id、conversation_id、limit 和 offset
  * @returns 返回拉取的历史记录
  * @throws 如果请求失败，则抛出错误
  */
