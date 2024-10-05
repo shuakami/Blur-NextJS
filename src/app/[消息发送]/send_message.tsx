@@ -8,13 +8,7 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
     : process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
 export const sendMessage = async (
-    params: SendMessageParams,
-    jwtToken: string,  // 将 JWT 作为参数传递
-    onInitialResponse: (response: SendMessageResponse) => void,
-    onChunkReceived: (chunk: StreamChunk) => void,
-    onFinalInfo?: (finalInfo: FinalInfo) => void,
-    onError?: (error: any) => void
-) => {
+    params: SendMessageParams, jwtToken: string, onInitialResponse: (response: SendMessageResponse) => void, onChunkReceived: (chunk: StreamChunk) => void, onFinalInfo?: (finalInfo: FinalInfo) => void, onError?: (error: any) => void, signal?: AbortSignal) => {
     const t = getTranslate();
     try {
         // 构建请求体

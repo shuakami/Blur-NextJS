@@ -23,6 +23,7 @@ export interface SendMessageParams {
 }
 
 export interface SendMessageResponse {
+    message_id?: string | null;
     conversation_id: string;
     model: string;
     status: string;

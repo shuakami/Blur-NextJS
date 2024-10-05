@@ -3,6 +3,7 @@
 import React, {createContext, useContext, useState, useEffect, useRef, useCallback} from 'react';
 import {useUser, useAuth} from '@clerk/nextjs';
 import {sendMessage as sendMessageAPI} from '@/app/[消息发送]/send_message';
+import {stopStream as stopStreamAPI} from '@/app/[对话管理]/stop_stream'; // 引入停止流式传输的 API
 import {Message, StreamChunk, FinalInfo, SendMessageResponse, APIMessage} from '@/types/stream';
 import useTranslation from "@/hooks/useTranslation";
 import {fetchHistory} from "@/app/[拉取历史]/fetch_history";
@@ -16,7 +17,10 @@ interface ChatContextProps {
     newConversationId: string | null;
     resetNewConversationId: () => void;
     isLoading?: boolean;
-    loadMoreMessages: () => void; // 新增：加载更多消息的函数
+    loadMoreMessages: () => void;
+    isStreaming?: boolean; // 是否正在流式传输
+    stopStreaming?: () => void; // 停止流式传输
+    conversationId?: string | null; // 暴露 conversationId
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -36,6 +40,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
     const [hasMore, setHasMore] = useState<boolean>(true); // 是否有更多消息
     const [offset, setOffset] = useState<number>(0); // 偏移量
     const limit = 10; // 每次加载的消息数量
+    const [isStreaming, setIsStreaming] = useState<boolean>(false); // 是否正在流式传输
+    const abortControllerRef = useRef<AbortController | null>(null); // 用于停止流式传输
 
     const userId = user?.id;
 
@@ -145,6 +151,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         setMessages((prev) => [...prev, botMessage]);
 
         setIsLoading(true);
+        setIsStreaming(true);
+
+        // 创建 AbortController
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
 
         try {
             const token = await getToken();
@@ -153,6 +164,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
             }
 
             let currentConversationId: string | null = activeConversationId;
+            let currentMessageId: string | null | undefined = null; // 用于停止流式传输
 
             await sendMessageAPI(
                 {
@@ -163,6 +175,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                 token,
                 (initialResponse: SendMessageResponse) => {
                     currentConversationId = initialResponse.conversation_id;
+                    currentMessageId = initialResponse.message_id;
+                    if (!conversationId) {
+                        setConversationId(currentConversationId);
+                    }
                 },
                 (chunk: StreamChunk) => {
                     if (chunk.content) {
@@ -186,6 +202,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                             return updatedMessages;
                         });
 
+                        setIsStreaming(false);
                         setNewConversationId(currentConversationId);
                         triggerConversationsReload();
                     }
@@ -196,19 +213,64 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                 (error: any) => {
                     console.error(t('后端错误:'), error);
                     updateLastBotMessage(t('抱歉，发送消息失败。'));
+                    setIsStreaming(false);
                     setIsLoading(false);
-                }
+                },
+                abortController.signal // 传入 AbortSignal
             );
         } catch (error) {
             console.error(t('发送消息失败:'), error);
             updateLastBotMessage(t('抱歉，发送消息失败。'));
+            setIsStreaming(false);
             setIsLoading(false);
+        } finally {
+            abortControllerRef.current = null;
         }
     };
 
+    const stopStreaming = async () => {
+        if (!conversationId || !userId) {
+            console.error('无法停止流式传输，缺少 conversationId 或 userId');
+            return;
+        }
 
-    const resetNewConversationId = () => {
-        setNewConversationId(null);
+        // 获取最后一个正在 streaming 的消息
+        const lastBotMessage = messages.slice().reverse().find((msg) => msg.type === 'bot' && msg.isStreaming);
+
+        if (!lastBotMessage) {
+            console.error('无法停止流式传输，未找到正在 streaming 的消息');
+            return;
+        }
+
+        // 调用后端停止流式传输的 API
+        try {
+            await stopStreamAPI(conversationId, lastBotMessage.id || '', userId);
+
+            // 中止请求
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+
+            // 更新状态
+            setIsStreaming(false);
+
+            // 标记最后一个 bot 消息结束 streaming
+            setMessages((prevMessages) => {
+                const updatedMessages = [...prevMessages];
+                for (let i = updatedMessages.length - 1; i >= 0; i--) {
+                    if (updatedMessages[i].type === 'bot' && updatedMessages[i].isStreaming) {
+                        updatedMessages[i] = {
+                            ...updatedMessages[i],
+                            isStreaming: false, // 结束 streaming
+                        };
+                        break;
+                    }
+                }
+                return updatedMessages;
+            });
+        } catch (error) {
+            console.error('停止流式传输失败:', error);
+        }
     };
 
     // 加载更多消息的函数
@@ -216,6 +278,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         if (!isLoading && hasMore) {
             fetchAndSetHistory();
         }
+    };
+
+    const resetNewConversationId = () => {
+        setNewConversationId(null);
     };
 
     return (
@@ -229,7 +295,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                 newConversationId,
                 resetNewConversationId,
                 isLoading,
-                loadMoreMessages, // 提供加载更多消息的函数
+                loadMoreMessages,
+                isStreaming,
+                stopStreaming,
+                conversationId,
             }}
         >
             {children}
