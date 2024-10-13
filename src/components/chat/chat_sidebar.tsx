@@ -108,7 +108,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, 
             className="flex flex-col h-screen w-[220px] bg-[#F9F9F9]/65 dark:bg-[#171717] text-black dark:text-white"
         >
             <ScrollArea className="flex-grow">
-                <div className="flex space-x-3 mt-5 w-44 justify-center items-center mx-4">
+                <div className="flex space-x-3 mt-[18px] w-44 justify-center items-center mx-4">
                     <Button
                         variant="ghost"
                         className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 hover:bg-[#f0f0f0] dark:hover:bg-[#212121] flex items-center justify-center"

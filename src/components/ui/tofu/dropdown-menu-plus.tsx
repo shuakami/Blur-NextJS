@@ -1,29 +1,39 @@
-import React, { FC, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {ChevronRight, LucideIcon} from 'lucide-react';
+"use client";
+
+import React, {FC, useEffect, useRef, useState} from 'react';
+import {motion, AnimatePresence} from 'framer-motion';
+import {Check, CheckCircle, ChevronRight, CircleCheck, LucideIcon} from 'lucide-react';
 import {useFloating, shift, offset, flip, autoUpdate} from '@floating-ui/react-dom';
 
 interface MenuItem {
     id: string;
     text: string;
+    description?: string; // 新增描述
     href?: string;
     target?: string;
-    icon?: LucideIcon | React.ComponentType; // 或者传入react组件/svg
+    icon?: LucideIcon | React.ComponentType;
     isSpecial?: boolean;
     isDanger?: boolean;
     onClick?: () => void;
 }
 
-interface DropDownMenuProps {
-    referenceElement?: HTMLElement | null; // 传入触发元素
+interface DropDownMenuPlusProps {
+    referenceElement?: HTMLElement | null;
     isOpen: boolean;
     menuItems: MenuItem[];
     onClose?: () => void;
     placement?: 'left' | 'right' | 'top' | 'bottom';
 }
 
-const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItems, onClose, placement = 'right'}) => {
+const DropDownMenuPlus: FC<DropDownMenuPlusProps> = ({
+                                                         referenceElement,
+                                                         isOpen,
+                                                         menuItems,
+                                                         onClose,
+                                                         placement = 'right'
+                                                     }) => {
     const menuRef = useRef<HTMLDivElement>(null);
+    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
     const alignPlacement = () => {
         switch (placement) {
@@ -47,6 +57,7 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
         middleware: [offset(8), flip(), shift()],
         whileElementsMounted: autoUpdate,
     });
+
     useEffect(() => {
         if (referenceElement && refs.setReference) {
             refs.setReference(referenceElement);
@@ -73,6 +84,7 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
                 window.location.href = item.href;
             }
         }
+        setSelectedItemId(item.id);
         onClose?.();
     };
 
@@ -124,7 +136,7 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
                         position: strategy,
                         top: y ?? 0,
                         left: x ?? 0,
-                        minWidth: '250px',
+                        minWidth: '300px',
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -137,7 +149,7 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
                                 <a
                                     href={item.href}
                                     target={item.target || '_self'}
-                                    className={`flex items-center px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ease-in-out group
+                                    className={`flex items-start px-4 py-3 text-sm rounded-lg transition-all duration-200 ease-in-out group
                                         ${item.isDanger
                                         ? 'text-red-400 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/30'
                                         : 'text-gray-800 dark:text-gray-100 hover:bg-gray-100/70 dark:hover:bg-gray-700/70'
@@ -148,20 +160,23 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
                                         <item.icon className={`mr-3 h-5 w-5 transition-colors duration-200
                                             ${item.isDanger
                                             ? 'text-red-500 group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300'
-                                            : 'text-gray-600 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-400'
+                                            : 'text-gray-700 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-400'
                                         }`}
                                         />
                                     )}
-                                    <span className="flex-grow font-medium">{item.text}</span>
-                                    {item.target === '_blank' && (
-                                        <ChevronRight className={`ml-2 h-4 w-4 transition-colors duration-200
-                                            ${item.isDanger
-                                            ? 'text-red-500 group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300'
-                                            : 'text-gray-600 group-hover:text-primary-600 dark:text-gray-400 dark:group-hover:text-primary-400'
-                                        }`}
-                                        />
+                                    <div className="flex-grow">
+                                        <span className="font-medium">{item.text}</span>
+                                        {item.description && (
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                {item.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                    {selectedItemId === item.id && (
+                                        <Check className="h-5 w-5 text-primary-600 ml-2"/>
                                     )}
                                 </a>
+
                             </React.Fragment>
                         ))}
                     </div>
@@ -171,4 +186,4 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
     );
 };
 
-export default DropDownMenu;
+export default DropDownMenuPlus;

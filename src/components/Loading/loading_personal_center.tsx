@@ -3,8 +3,6 @@
 import {motion, AnimatePresence} from "framer-motion";
 import {Skeleton} from "@/components/ui/skeleton"; // Skeleton 组件
 import {CloseIcon} from "next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon";
-import {createPortal} from "react-dom";
-import {useState} from "react";
 
 interface PersonalCenterLoadingProps {
     isOpen: boolean;
@@ -12,9 +10,7 @@ interface PersonalCenterLoadingProps {
 }
 
 const PersonalCenterLoading: React.FC<PersonalCenterLoadingProps> = ({isOpen, onClose}) => {
-    const [activeTab, setActiveTab] = useState("profile");
-
-    return createPortal(
+    return (
         <AnimatePresence>
             {isOpen && (
                 <>
@@ -128,8 +124,7 @@ const PersonalCenterLoading: React.FC<PersonalCenterLoadingProps> = ({isOpen, on
                     </motion.div>
                 </>
             )}
-        </AnimatePresence>,
-        document.body
+        </AnimatePresence>
     );
 };
 

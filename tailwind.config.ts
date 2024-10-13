@@ -275,7 +275,7 @@ const config: Config = {
             'xs-sm': '14px',
             'sm-md': '15px',
             'md-lg': '16px',
-            'lg-xl': '18px',
+            'lg-xl': '18.5px',
             'xl-2xl': '20px',
             '2xl-3xl': '24px',
             '3xl-4xl': '28px',

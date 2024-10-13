@@ -1,9 +1,7 @@
-// LanguageProvider.tsx
-
 "use client";
 
 import React, {createContext, useContext, useState, useEffect, ReactNode, useCallback} from 'react';
-import { useRouter } from 'next/navigation';
+import {useRouter, usePathname} from 'next/navigation';
 import Cookies from 'js-cookie';
 import {motion} from 'framer-motion';
 
@@ -22,7 +20,7 @@ const TranslationContext = createContext<TranslationContextProps | undefined>(un
 interface LanguageProviderProps {
     children: ReactNode;
     defaultLanguage?: string;
-    additionalTranslationKey?: string; // 新增的可选参数
+    additionalTranslationKey?: string;
 }
 
 const translationCache: { [key: string]: Language } = {}; // 缓存翻译文件
@@ -32,25 +30,20 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
                                                                       defaultLanguage = 'en',
                                                                       additionalTranslationKey
                                                                   }) => {
-    const [language, setLanguageState] = useState<string>(defaultLanguage);
+    const [language, setLanguageState] = useState<string>(() => {
+        // 初始化语言，从 cookie 获取，如果没有，则使用默认值
+        return Cookies.get('NEXT_LOCALE') || defaultLanguage;
+    });
     const [translations, setTranslations] = useState<Language>({});
     const [, setIsLoading] = useState<boolean>(false);
     const router = useRouter();
-
-    // 初始化语言
-    useEffect(() => {
-        const storedLang = Cookies.get('NEXT_LOCALE');
-        if (storedLang && storedLang !== language) {
-            setLanguageState(storedLang);
-        }
-    }, [language]);
+    const pathname = usePathname();
 
     // 加载翻译文件
     useEffect(() => {
         const loadTranslations = async (lang: string) => {
             setIsLoading(true);
             try {
-                // 如果翻译文件已缓存，直接使用
                 if (translationCache[lang]) {
                     setTranslations(translationCache[lang]);
                 } else {
@@ -60,7 +53,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
                     }
                     const commonData = await commonResponse.json();
 
-                    // 处理额外翻译文件
                     let additionalData: Language = {};
                     if (additionalTranslationKey) {
                         const additionalResponse = await fetch(`/locales/${lang}/${additionalTranslationKey}.json`);
@@ -71,7 +63,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
                         }
                     }
 
-                    // 合并翻译内容并缓存
                     const mergedTranslations = {...commonData, ...additionalData};
                     translationCache[lang] = mergedTranslations;
                     setTranslations(mergedTranslations);
@@ -95,12 +86,11 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
         setLanguageState(lang);
         Cookies.set('NEXT_LOCALE', lang, {expires: 365});
 
-        // 触发自定义事件
-        window.dispatchEvent(new CustomEvent('languageChanged'));
+        // 构造新的 URL 路径，将语言代码添加到路径前
+        const newPath = `/${lang}${pathname ? pathname : ''}`;
+        router.push(newPath);
+    }, [language, pathname, router]);
 
-        // 使用 window.location.pathname 代替 asPath
-        router.replace(window.location.pathname); // 使用 replace 以避免添加历史记录
-    }, [language, router]);
 
     return (
         <TranslationContext.Provider value={{ language, setLanguage, t }}>

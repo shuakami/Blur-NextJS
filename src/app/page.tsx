@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import React, {useEffect, useState} from 'react';
@@ -14,6 +13,7 @@ import HomepageContent from "@/app/[首页占位]/home-content";
 import Cookies from 'js-cookie';
 import {ConversationsProvider} from "../../contexts/ConversationsContext";
 import UserAvatar from '@/components/ui/page_right_user_avatar';
+import ModelSelector from "@/components/ui/model_selector";
 
 const SIDEBAR_WIDTH = 220;
 
@@ -22,20 +22,18 @@ const HomeContent = () => {
     const {newConversationId, resetNewConversationId} = useChatContext();
     const [hasConversation, setHasConversation] = useState<boolean>(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
-        // 从 cookies 初始化侧边栏状态
         const storedState = Cookies.get('isSidebarOpen');
         return storedState ? storedState === 'true' : true;
     });
-
 
     useEffect(() => {
         if (newConversationId) {
             const timeoutId = setTimeout(() => {
                 router.push(`/chat/${newConversationId}`);
-                resetNewConversationId(); // 重置新对话 ID
+                resetNewConversationId();
             },);
 
-            return () => clearTimeout(timeoutId); // 清除定时器
+            return () => clearTimeout(timeoutId);
         }
     }, [newConversationId, resetNewConversationId, router]);
 
@@ -59,7 +57,7 @@ const HomeContent = () => {
                     top: 0,
                 }}
                 initial={{x: 0}}
-                animate={{x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH}} // 侧边栏始终固定在左侧
+                animate={{x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH}}
                 transition={{
                     duration: 0.55,
                     ease: [0.25, 0.8, 0.25, 1],
@@ -68,14 +66,13 @@ const HomeContent = () => {
                 <MessagesSidebar onClose={toggleSidebar}/>
             </motion.div>
 
-
             {/* 主内容区域 */}
             <motion.div
                 className="flex flex-col h-full overflow-hidden"
                 style={{
                     flexGrow: 1,
                     marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0,
-                    zIndex: isSidebarOpen ? 30 : 40, // 主内容区域在侧边栏关闭时提升 z-index
+                    zIndex: isSidebarOpen ? 30 : 40,
                 }}
                 initial={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
                 animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
@@ -84,22 +81,46 @@ const HomeContent = () => {
                     ease: [0.25, 0.8, 0.25, 1],
                 }}
             >
-                <AnimatePresence>
-                    {!isSidebarOpen && (
+                {/* 顶部导航栏部分 */}
+                <div className="flex justify-between items-center px-4 py-4 z-40">
+                    <div className="flex items-center space-x-4">
+                        {/* HomeHeaderIcon */}
                         <motion.div
                             className="absolute top-4 left-4 z-40"
-                            initial={{opacity: 0}}
-                            animate={{opacity: 1}}
-                            exit={{opacity: 0}}
-                            transition={{duration: 0.2}}
+                            initial={{opacity: 0, x: -20}}
+                            animate={{opacity: 1, x: 0}}
+                            exit={{opacity: 0, x: -20}}
+                            transition={{
+                                duration: 0.15,
+                                ease: 'easeOut',
+                            }}
                         >
                             <HomeHeaderIcon isSidebarOpen={isSidebarOpen} onOpen={toggleSidebar}/>
                         </motion.div>
-                    )}
-                </AnimatePresence>
+                        {/* ModelSelector */}
+                        <motion.div
+                            className="absolute top-[16.7] z-40"
+                            initial={{
+                                left: isSidebarOpen ? '13.5rem' : '6rem',
+                                opacity: 0,
+                                y: -10
+                            }}
+                            animate={{left: isSidebarOpen ? '13.5rem' : '6rem', opacity: 1, y: 0}}
+                            transition={{
+                                duration: 0.45,
+                                ease: [0.25, 0.8, 0.25, 1],
+                                delay: 0.05
+                            }}
+                        >
+                            <ModelSelector/>
+                        </motion.div>
+                    </div>
+                    {/* 右上角用户头像 */}
+                    <UserAvatar/>
+                </div>
 
                 {/* 聊天内容区域 */}
-                <div className="flex-1 overflow-auto w-full mt-16">
+                <div className="flex-1 overflow-auto w-full mt-4">
                     <div className="max-w-4xl mx-auto px-4 py-8">
                         {hasConversation ? (
                             <ChatList/>
@@ -118,13 +139,6 @@ const HomeContent = () => {
                     </div>
                     <CText/>
                 </div>
-
-
-                {/* 右上角用户头像 */}
-                <div className="absolute top-[2.5%] right-[2%] z-50">
-                    <UserAvatar/>
-                </div>
-
             </motion.div>
         </div>
     );

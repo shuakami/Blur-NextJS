@@ -5,11 +5,10 @@ import {PersonalCenterMain} from "./main";
 import {motion, AnimatePresence} from "framer-motion";
 import {CloseIcon} from "next/dist/client/components/react-dev-overlay/internal/icons/CloseIcon";
 import {createPortal} from "react-dom";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {useUser} from "@clerk/nextjs";
 import PersonalCenterLoading from "@/components/Loading/loading_personal_center";
 import {useRouter} from "next/navigation";
-
 
 interface PersonalCenterProps {
     isOpen: boolean;
@@ -20,6 +19,15 @@ const PersonalCenter: React.FC<PersonalCenterProps> = ({isOpen, onClose}) => {
     const [activeTab, setActiveTab] = useState("profile");
     const {isLoaded, isSignedIn} = useUser(); // 获取加载状态和登录状态
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
+
+    // 确保组件只在客户端渲染
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // 如果组件尚未挂载到客户端，返回null，避免Hydration错误
+    if (!mounted) return null;
 
     // 如果用户信息未加载，显示加载中状态
     if (!isLoaded) {
@@ -29,6 +37,7 @@ const PersonalCenter: React.FC<PersonalCenterProps> = ({isOpen, onClose}) => {
     // 如果用户未登录，跳回去首页
     if (!isSignedIn) {
         router.push("/");
+        return null;
     }
 
     return createPortal(

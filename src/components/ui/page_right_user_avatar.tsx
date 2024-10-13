@@ -1,3 +1,5 @@
+"use client";
+
 import {useUser, useAuth} from "@clerk/nextjs";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {useEffect, useState, useRef} from "react";
