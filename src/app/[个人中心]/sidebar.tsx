@@ -56,9 +56,9 @@ export const Sidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab}) => {
 
     return (
         <div
-            className="p-2 w-64 flex flex-col border-r border-r-gray-100 dark:border-r-gray-900 bg-muted/30 py-6 px-2 space-x-1.5">
+            className="p-2 w-72 flex flex-col border-r border-r-gray-100 dark:border-r-gray-900 bg-muted/30 py-6 px-2.5 space-x-1.5">
             <div className="mb-6 px-6 mt-5">
-                <h1 className="text-3xl font-semibold">{t("个人中心")}</h1>
+                <h1 className="text-2xl font-semibold">{t("个人中心")}</h1>
                 <p className="text-sm-md text-muted-foreground mt-1.5">{t("管理您的账户和偏好设置")}</p>
             </div>
             <nav className="flex-grow space-y-2 px-1">

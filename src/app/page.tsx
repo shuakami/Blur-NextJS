@@ -13,6 +13,7 @@ import CText from '@/app/copyright/ctext';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import Cookies from 'js-cookie';
 import {ConversationsProvider} from "../../contexts/ConversationsContext";
+import UserAvatar from '@/components/ui/page_right_user_avatar';
 
 const SIDEBAR_WIDTH = 220;
 
@@ -47,25 +48,41 @@ const HomeContent = () => {
     };
 
     return (
-        <div className="w-full h-screen flex overflow-hidden">
+        <div className="w-full h-screen flex overflow-hidden relative">
             {/* 侧边栏 */}
             <motion.div
-                className="fixed top-0 left-0 h-full z-30"
-                style={{width: SIDEBAR_WIDTH}}
-                initial={{x: -SIDEBAR_WIDTH}}
-                animate={{x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH}}
-                transition={{duration: 0.3, ease: "easeInOut"}}
+                className="h-full z-30"
+                style={{
+                    width: SIDEBAR_WIDTH,
+                    position: 'fixed',
+                    left: 0,
+                    top: 0,
+                }}
+                initial={{x: 0}}
+                animate={{x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH}} // 侧边栏始终固定在左侧
+                transition={{
+                    duration: 0.55,
+                    ease: [0.25, 0.8, 0.25, 1],
+                }}
             >
                 <MessagesSidebar onClose={toggleSidebar}/>
             </motion.div>
 
+
             {/* 主内容区域 */}
             <motion.div
-                className="flex flex-col h-full w-full overflow-hidden"
-                style={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
+                className="flex flex-col h-full overflow-hidden"
+                style={{
+                    flexGrow: 1,
+                    marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0,
+                    zIndex: isSidebarOpen ? 30 : 40, // 主内容区域在侧边栏关闭时提升 z-index
+                }}
                 initial={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
                 animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
-                transition={{duration: 0.3, ease: "easeInOut"}}
+                transition={{
+                    duration: 0.65,
+                    ease: [0.25, 0.8, 0.25, 1],
+                }}
             >
                 <AnimatePresence>
                     {!isSidebarOpen && (
@@ -101,6 +118,13 @@ const HomeContent = () => {
                     </div>
                     <CText/>
                 </div>
+
+
+                {/* 右上角用户头像 */}
+                <div className="absolute top-[2.5%] right-[2%] z-50">
+                    <UserAvatar/>
+                </div>
+
             </motion.div>
         </div>
     );
@@ -109,9 +133,9 @@ const HomeContent = () => {
 export default function Home() {
     return (
         <ConversationsProvider>
-        <ChatProvider>
-            <HomeContent/>
-        </ChatProvider>
+            <ChatProvider>
+                <HomeContent/>
+            </ChatProvider>
         </ConversationsProvider>
     );
 }

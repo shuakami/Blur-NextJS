@@ -1,4 +1,5 @@
-// LanguageProvider.jsx
+// LanguageProvider.tsx
+
 "use client";
 
 import React, {createContext, useContext, useState, useEffect, ReactNode, useCallback} from 'react';
@@ -93,6 +94,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
         if (lang === language) return; // 避免重复设置
         setLanguageState(lang);
         Cookies.set('NEXT_LOCALE', lang, {expires: 365});
+
+        // 触发自定义事件
+        window.dispatchEvent(new CustomEvent('languageChanged'));
 
         // 使用 window.location.pathname 代替 asPath
         router.replace(window.location.pathname); // 使用 replace 以避免添加历史记录

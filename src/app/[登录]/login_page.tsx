@@ -10,7 +10,7 @@ import {
     LanguagesIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import {useRef, useState} from "react";
 import LanguageDropdown from "@/app/[语言选择器]/language-dropdown";
 import useTranslation from "@/hooks/useTranslation";
 import { defaultLanguages } from "@/lib/languages";
@@ -24,9 +24,12 @@ export default function LoginPage() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { language, t } = useTranslation();
     const [menuOpen, setMenuOpen] = useState(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
     const handleClose = () => {
         setMenuOpen(false);
     };
+
     const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
     const getLanguageName = (code: string) => {
@@ -80,11 +83,12 @@ export default function LoginPage() {
             <div className="flex flex-col w-full lg:w-1/2 p-8 lg:p-16 justify-between">
                 <header className="flex justify-end">
                     <DropDownMenu isOpen={menuOpen}
-                                  position={"left"}
                                   onClose={handleClose}
-                                  menuItems={menuItems}
+                                  menuItems={menuItems} placement={'left'}
+                                  referenceElement={buttonRef.current}
                     />
                     <Button
+                        ref={buttonRef}
                         onClick={() => setMenuOpen(!menuOpen)}
                         variant="ghost"
                         size="icon"

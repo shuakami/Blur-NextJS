@@ -1,62 +1,65 @@
 import React, { FC, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {ChevronRight, LucideIcon} from 'lucide-react';
+import {useFloating, shift, offset, flip, autoUpdate} from '@floating-ui/react-dom';
 
 interface MenuItem {
     id: string;
     text: string;
     href?: string;
     target?: string;
-    icon?: LucideIcon;
+    icon?: LucideIcon | React.ComponentType; // 或者传入react组件/svg
     isSpecial?: boolean;
     isDanger?: boolean;
-    onClick?: () => void; // 添加 onClick 事件
+    onClick?: () => void;
 }
 
 interface DropDownMenuProps {
-    position?: 'top' | 'bottom' | 'left' | 'right' | 'down' | 'sidebar';
+    referenceElement?: HTMLElement | null; // 传入触发元素
     isOpen: boolean;
     menuItems: MenuItem[];
     onClose?: () => void;
+    placement?: 'left' | 'right'; // 额外传递定位信息
 }
 
-const DropDownMenu: FC<DropDownMenuProps> = ({ isOpen, menuItems, onClose, position = 'bottom' }) => {
+const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItems, onClose, placement = 'right'}) => {
     const menuRef = useRef<HTMLDivElement>(null);
 
-    const getPositionStyles = () => {
-        switch (position) {
-            case 'top':
-                return {
-                    bottom: '-15%',
-                    transform: 'translateY(-0px)'
-                };
-            case 'bottom':
-            default:
-                return {
-                    top: '125%',
-                    transform: 'translateY(0px)'
-                };
-            case 'left':
-                return {
-                    right: '7.5%',
-                    marginTop: '-0.25rem'
-                };
-            case 'sidebar':
-                return {
-                    left: '21.5%',
-                    marginTop: '-2.35rem'
-                };
-            case 'right':
-                return {
-                    left: '47%',
-                    marginTop: '-2.35rem'
-                };
-            case 'down':
-                return {};
+    // 使用 Floating UI 计算菜单的位置
+    const {x, y, strategy, refs, update} = useFloating({
+        placement: placement === 'right' ? 'right-start' : 'left-start',
+        strategy: 'fixed',
+        middleware: [offset(8), flip(), shift()],
+        whileElementsMounted: autoUpdate,
+    });
+    useEffect(() => {
+        if (referenceElement && refs.setReference) {
+            refs.setReference(referenceElement);
         }
-    };
+        if (menuRef.current) {
+            refs.setFloating(menuRef.current);
+        }
+    }, [referenceElement, isOpen, refs]);
 
-    const positionStyles = getPositionStyles();
+    useEffect(() => {
+        if (isOpen) {
+            update();
+        }
+    }, [isOpen, update]);
+
+    const handleMenuItemClick = (item: MenuItem, e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        e.preventDefault();
+        if (item.onClick) {
+            item.onClick();
+        } else if (item.href) {
+            if (item.target === '_blank') {
+                window.open(item.href, item.target);
+            } else {
+                window.location.href = item.href;
+            }
+        }
+        onClose?.();
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -64,7 +67,6 @@ const DropDownMenu: FC<DropDownMenuProps> = ({ isOpen, menuItems, onClose, posit
                 onClose?.();
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -77,38 +79,19 @@ const DropDownMenu: FC<DropDownMenuProps> = ({ isOpen, menuItems, onClose, posit
             scale: 1,
             y: 0,
             transition: {
-                type: "spring",
+                type: 'spring',
                 stiffness: 300,
-                damping: 30
-            }
+                damping: 30,
+            },
         },
         closed: {
             opacity: 0,
             scale: 0.95,
             y: -10,
             transition: {
-                duration: 0.2
-            }
-        }
-    };
-
-    const handleMenuItemClick = (item: MenuItem, e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        e.preventDefault(); // 阻止默认行为，确保 onClick 被优先执行
-
-        if (item.onClick) {
-            // 如果存在自定义的 onClick，则执行它
-            item.onClick();
-        } else if (item.href) {
-            // 如果没有自定义 onClick 则执行 href 跳转
-            if (item.target === '_blank') {
-                window.open(item.href, item.target);
-            } else {
-                window.location.href = item.href;
-            }
-        }
-
-        // 关闭菜单
-        onClose?.();
+                duration: 0.2,
+            },
+        },
     };
 
     return (
@@ -120,12 +103,13 @@ const DropDownMenu: FC<DropDownMenuProps> = ({ isOpen, menuItems, onClose, posit
                     animate="open"
                     exit="closed"
                     variants={menuVariants}
-                    transition={{duration: 0.3, ease: "easeInOut"}}
-                    className="fixed cursor-pointer backdrop-blur-md bg-white/80 dark:bg-gray-800/80 shadow-lg rounded-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
+                    transition={{duration: 0.3, ease: 'easeInOut'}}
+                    className="fixed z-50 w-auto cursor-pointer backdrop-blur-md bg-white/80 dark:bg-gray-800/80 shadow-lg rounded-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
                     style={{
-                        zIndex: 999,
+                        position: strategy,
+                        top: y ?? 0,
+                        left: x ?? 0,
                         minWidth: '250px',
-                        ...positionStyles
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -143,7 +127,7 @@ const DropDownMenu: FC<DropDownMenuProps> = ({ isOpen, menuItems, onClose, posit
                                         ? 'text-red-400 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/30'
                                         : 'text-gray-800 dark:text-gray-100 hover:bg-gray-100/70 dark:hover:bg-gray-700/70'
                                     }`}
-                                    onClick={(e) => handleMenuItemClick(item, e)} // 绑定点击事件
+                                    onClick={(e) => handleMenuItemClick(item, e)}
                                 >
                                     {item.icon && (
                                         <item.icon className={`mr-3 h-5 w-5 transition-colors duration-200

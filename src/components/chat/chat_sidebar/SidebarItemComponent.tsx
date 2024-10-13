@@ -48,6 +48,8 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
     const toggleOpen = () => setIsOpen(!isOpen);
     const isSelected = selectedItem === item.id;
 
+    const buttonRef = useRef<HTMLButtonElement>(null); // 创建 referenceElement 的 ref
+
     // 处理菜单关闭
     const handleCloseMenu = () => setMenuOpen(false);
 
@@ -178,8 +180,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                                 if (e.key === 'Enter') handleSubmitNewTitle(); // 监听回车键提交
                                 if (e.key === 'Escape') setIsEditing(false); // 监听 Esc 键取消编辑
                             }}
-                            className="flex-grow bg-transparent focus:outline-none text-black dark:text-white"
-                            style={{maxWidth: '120px'}} // 限制输入框宽度
+                            className="flex-grow bg-transparent focus:outline-none text-black dark:text-white max-w-[120px]"
                         />
                         <Check size={18}
                                className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
@@ -190,6 +191,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                     </div>
                 ) : (
                     <button
+                        ref={buttonRef}
                         onClick={item.children ? toggleOpen : () => onSelect(item.id ?? '')}
                         className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
                             level > 0 ? 'pl-4' : ''
@@ -223,7 +225,8 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
 
             {/* 下拉菜单 */}
             {menuOpen && (
-                <DropDownMenu isOpen={menuOpen} position="sidebar" onClose={handleCloseMenu} menuItems={menuItems}/>
+                <DropDownMenu isOpen={menuOpen} onClose={handleCloseMenu} menuItems={menuItems} placement={'right'}
+                              referenceElement={buttonRef.current}/>
             )}
 
             {item.children && isOpen && (

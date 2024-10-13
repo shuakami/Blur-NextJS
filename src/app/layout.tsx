@@ -14,6 +14,7 @@ import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
 import {SpeedInsights} from "@vercel/speed-insights/next"
 import {Analytics} from "@vercel/analytics/react"
+import {LXHThemeProvider} from "@/theme/ThemeContext";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -63,6 +64,7 @@ export default function RootLayout({
                 enableSystem
                 disableTransitionOnChange
             >
+                <LXHThemeProvider>
                 <ApiClientProvider>
                 <LanguageProvider>
                     <ClientVersionCheck/>
@@ -71,6 +73,7 @@ export default function RootLayout({
                     {children}
                 </LanguageProvider>
                 </ApiClientProvider>
+                </LXHThemeProvider>
             </ThemeProvider>
             </body>
             </html>

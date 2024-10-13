@@ -4,9 +4,9 @@
 
 import React, { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import useTranslation from "@/hooks/useTranslation"; // 引入 useTranslation hook
+import useTranslation from "@/hooks/useTranslation";
 import { defaultLanguages, Language } from "@/lib/languages";
-import {toast} from "@/hooks/use-toast"; // 导入语言列表
+import {toast} from "@/hooks/use-toast";
 
 interface LanguageDropdownProps {
     direction?: "up" | "down";
