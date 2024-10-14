@@ -1,5 +1,3 @@
-// pages/[version].tsx
-
 import fs from 'fs';
 import path from 'path';
 import {GetStaticPaths, GetStaticProps} from 'next';
@@ -87,9 +85,9 @@ const UpdatePage: React.FC<UpdatePageProps> = ({content, plainText, version, tit
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <div className="container mx-auto px-8 py-8 flex">
-                {/* 左侧边栏 */}
-                <div className="w-64 flex-shrink-0">
+            <div className="container mx-auto px-4 py-8 md:px-8 flex flex-col lg:flex-row">
+                {/* 左侧边栏 - 在大屏幕上显示，在小屏幕上隐藏 */}
+                <div className="hidden lg:block w-64 flex-shrink-0">
                     <div className="sticky top-24">
                         <DocsSidebar
                             searchPlaceholder="搜索文档..."
@@ -100,9 +98,9 @@ const UpdatePage: React.FC<UpdatePageProps> = ({content, plainText, version, tit
                 </div>
 
                 {/* 主内容和右侧目录树的容器 */}
-                <div className="flex-grow flex ml-8">
+                <div className="flex-grow flex flex-col lg:flex-row lg:ml-8">
                     {/* 主内容区域 */}
-                    <main className="flex-1 p-6 bg-white rounded-lg mt-16">
+                    <main className="flex-1 p-6 bg-white rounded-lg mt-6 md:mt-16">
                         {/* 面包屑和阅读时间布局 */}
                         <div className="flex justify-between items-center mb-6">
                             <BreadcrumbWithCustomSeparator
@@ -122,15 +120,15 @@ const UpdatePage: React.FC<UpdatePageProps> = ({content, plainText, version, tit
                         <MarkdownRenderer content={content}/>
                     </main>
 
-                    {/* 右侧目录树 */}
-                    <aside className="w-64 ml-8 flex-shrink-0">
+                    {/* 右侧目录树 - 在大屏幕上固定，在小屏幕上可隐藏 */}
+                    <aside className="hidden lg:block w-64 ml-8 flex-shrink-0">
                         <div className="sticky top-24"
                              style={{height: 'calc(100vh - 6rem)', overflowY: 'auto', overflowX: 'hidden'}}>
                             <TableOfContents content={content}/>
                         </div>
                     </aside>
-
                 </div>
+
             </div>
         </div>
     );

@@ -18,6 +18,7 @@
 .markdown-body {
   color: var(--text-color);
   line-height: 1.6;
+  font-size: 1.0225rem;
 }
 
 .message-user {

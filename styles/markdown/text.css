@@ -1,7 +1,6 @@
-
 .text-body {
-    font-size: 1.0225rem;
-    line-height: 1.8;
+    font-size: 1.0225rem; /* 统一字体大小 */
+    line-height: 1.8; /* 增加行高提高阅读舒适性 */
     margin-top: 1rem;
     margin-bottom: 1rem;
     color: var(--text-color);
@@ -9,11 +8,17 @@
     text-align: justify; /* 两端对齐，适合中文阅读习惯 */
     text-justify: inter-word; /* 确保英文单词间距合理 */
     font-weight: 400;
-    letter-spacing: 0.01em; /* 轻微增加字间距，提高可读性 */
-    word-spacing: 0.05em; /* 增加词间距，改善英文阅读体验 */
+    word-spacing: 0.02em; /* 适当增加词间距，减小阅读负担 */
     text-rendering: optimizeLegibility; /* 优化字体渲染 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* 针对高分辨率屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .text-body {
+        -webkit-font-smoothing: subpixel-antialiased;
+    }
 }
 
 .text-bold {
@@ -32,7 +37,7 @@
         --text-color: #e0e0e0; /* 主文字色 */
         --emphasis-color: #fff9f9; /* 强调色 */
         --background-color: #121212; /* 背景色 */
-        --link-color: #4A90E2; /* 链接颜色 */
+        --link-color: #60a1ef; /* 链接颜色 */
         --border-color: #333333; /* 边框颜色 */
         --dark-border-color: #4c4c4c;
     }

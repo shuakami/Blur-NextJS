@@ -39,7 +39,7 @@
 @media (prefers-color-scheme: dark) {
     :root {
         --primary-color: var(--link-color); /* 使用全局变量替代 */
-        --primary-hover: #5c9eff; /* 浅蓝色悬停效果 */
+        --primary-hover: rgba(92, 158, 255, 0.61); /* 浅蓝色悬停效果 */
         --primary-active: #76adff; /* 激活时颜色 */
     }
 
