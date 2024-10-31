@@ -3,7 +3,7 @@
     --list-marker-color: #555555;
     --list-indent: 1.5rem; /* 一级列表的缩进 */
     --nested-list-indent: 1.25rem; /* 嵌套列表的缩进 */
-    --item-spacing: 0.75rem;
+    --item-spacing: 0.85rem;
     --marker-text-gap: 0.45rem;
 }
 
@@ -25,18 +25,19 @@
 
 /* 列表项样式 */
 .list-item {
-    font-size: 1.0225rem;
-    line-height: 1.8;
-    margin-bottom: var(--item-spacing);
+    font-size: 1.0225rem; /* 与正文一致的字体大小 */
+    line-height: 1.6; /* 略低的行高，使列表显得更紧凑 */
+    margin-bottom: var(--item-spacing); /* 减少列表项之间的间距 */
     padding-left: var(--marker-text-gap);
-    color: var(--text-color);
+    color: var(--text-color); /* 与正文颜色保持一致 */
+    font-weight: 500; /* 保持正文的字重 */
 }
 
 /* 嵌套列表样式 */
 .list-item ul,
 .list-item ol {
     padding-left: var(--nested-list-indent);
-    margin-top: 0.5rem;
+    margin-top: 0.25rem; /* 减少嵌套列表项顶部的空隙，显得紧凑 */
 }
 
 .list-item ul {
@@ -66,26 +67,39 @@
     :root {
         --list-indent: 1.25rem;
         --nested-list-indent: 1rem;
-        --item-spacing: 0.5rem;
-        --marker-text-gap: 0.375rem;
+        --item-spacing: 0.375rem;
+        --marker-text-gap: 0.35rem;
+    }
+
+    .list-item {
+        font-size: 1rem; /* 缩小字体，适配小屏设备 */
+        line-height: 1.5; /* 进一步减小行高，适配紧凑布局 */
     }
 }
 
 /* 暗色模式支持 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-color: #e0e0e0;
-        --list-marker-color: #b0b0b0;
+        --text-color: #e0e0e0; /* 列表文字颜色 */
+        --list-marker-color: #b0b0b0; /* 列表符号颜色 */
     }
 
     .list-item {
-        color: var(--text-color);
+        color: var(--text-color); /* 与正文颜色保持一致 */
     }
 }
 
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
     .list-item {
-        font-weight: 900;
+        font-weight: 700; /* 增加字体粗细，确保高对比度模式下可读性 */
+    }
+}
+
+/* 针对高分辨率屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .text-body,
+    .list-item {
+        -webkit-font-smoothing: subpixel-antialiased;
     }
 }

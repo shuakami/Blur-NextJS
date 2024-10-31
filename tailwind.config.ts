@@ -258,9 +258,18 @@ const config: Config = {
       },
   	extend: {
         screens: {
+            'xs': '480px',
+            'sm': '640px',
+            'md': '768px',
+            'lg': '1024px',
+            'xl': '1280px',
+            '2xl': '1536px',
             '3xl': '1920px',
             '4xl': '2560px',
-            '5xl': '3200px'
+            '5xl': '3200px',
+            '6xl': '3840px',
+            '7xl': '4480px',
+            '8xl': '5120px'
         },
         fontFamily: {
             sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],

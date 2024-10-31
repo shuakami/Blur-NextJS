@@ -1,6 +1,11 @@
 import React, {useEffect, useState, useCallback, useMemo, useRef} from 'react';
 import {MarkdownRenderer} from '@/components/ui/markdown/MarkdownRenderer';
 import {ChatList} from "@/components/ui/chat-list";
+import SearchingMessage from '@/components/ui/LLM/SearchingMessage';
+import FormUI from "@/components/ui/LLM/Form";
+import TextFormUI from "@/components/ui/LLM/TextForm";
+import AgentUI from "@/components/ui/LLM/agent";
+
 
 const LETTERS_PER_FRAME = 3;
 const FRAME_DURATION = 16; // 约60fps
@@ -15,6 +20,11 @@ There's no doubt that my mother gives all her love to me. I do believe she is a 
 
 She is an easygoing and kind woman with bright eyes and a lovely smile. Although she is often busy, I still feel that I am taken good care of by her.
 
+$$
+P(A|B) = \\frac{P(B|A) P(A)}{P(B)}
+$$
+
+
 ### Her Support
 
 It's a great pleasure to chat with her when I get into troubles. She always encourages me not to give up and tries to cheer me up by coming up with good solutions.
@@ -25,6 +35,40 @@ In addition, I am fascinated by her:
 
 - Cooking
 - Writing
+
+## 渲染公式\` dayjs \` 
+
+\`\`\`tsx
+// src/components/ui/markdown/MarkdownRenderer.tsx
+    import dynamic from 'next/dynamic';
+    import React from 'react';
+    import 'katex/dist/katex.min.css';
+
+// 动态导入 react-katex 的 InlineMath
+    const DynamicInlineMath = dynamic(() =>
+        import('react-katex').then((mod) => mod.InlineMath), { ssr: false }
+    );
+
+    export const InlineMath: React.FC<{ children: string }> = ({ children }) => {
+        // @ts-ignore
+        return <DynamicInlineMath>{children}</DynamicInlineMath>;
+    };
+
+// 动态导入 react-katex 的 BlockMath
+    const DynamicBlockMath = dynamic(() =>
+        import('react-katex').then((mod) => mod.BlockMath), { ssr: false }
+    );
+
+    export const BlockMath: React.FC<{ children: string }> = ({ children }) => {
+        // @ts-ignore
+        return <DynamicBlockMath>{children}</DynamicBlockMath>;
+    };
+\`\`\`
+
+**我正在思考**
+> #### 老子应该调用谁
+>
+> 不知道
 
 ## Conclusion
 
@@ -48,7 +92,7 @@ dayjs('2021-05-01').fromNow(); // 获取给定时间的相对时间
         },
         {
             type: 'user',
-            content: '感谢解答，我会去试试 dayjs 的。另外想问问，怎么在多语言应用中处理日期格式？',
+            content: `感谢解答，我会去试试 dayjs 的。另外想问问，怎么在多语言应用中处理日期格式？\n \n 谢谢！ \n \n \n \n aaa \n \n\n\n\n\n\n\\n\n\n\n`,
             avatarUrl: 'https://github.com/shuakami.png'
         },
         {
@@ -70,7 +114,23 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
             type: 'bot',
             content: `喜欢就好~ (Wink)`,
             avatarUrl: 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix'
-        }
+        },
+       // 公式
+        {
+            type: 'bot',
+            content: 'latex: $$\\int_0^\\infty e^{-x^2}dx=\\frac{\\sqrt{\\pi}}{2}$$',
+            avatarUrl: 'https://github.com/shuakami.png'
+        },
+        {
+            type: 'error',
+            content: '节点异常',
+        },
+    ];
+
+    const options = [
+        { id: '1', label: 'Option 1', description: 'Description for option 1' },
+        { id: '2', label: 'Option 2', description: 'Description for option 2' },
+        { id: '3', label: 'Option 3', description: 'Description for option 3' },
     ];
 
 
@@ -105,8 +165,34 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
 
     return (
         <div className="text-markdown-container">
-            <MarkdownRenderer content={visibleText}/>
+            {/*<SearchingMessage/>*/}
+            {/*<MarkdownRenderer content={visibleText}/>*/}
             <ChatList messages={messages}/>
+            {/*<FormUI*/}
+            {/*    title="Please select an option"*/}
+            {/*    description="Choose the option that best fits your needs."*/}
+            {/*    options={options}*/}
+            {/*    onSubmit={(selectedOption) => {*/}
+            {/*        console.log('Selected option:', selectedOption);*/}
+            {/*        // Handle the submission here*/}
+            {/*    }}*/}
+            {/*/>*/}
+            {/*<FormUI*/}
+            {/*    title="选择你喜欢的水果"*/}
+            {/*    description="你可以选择多个选项"*/}
+            {/*    options={[*/}
+            {/*        { id: '1', label: '苹果', description: '红富士苹果' },*/}
+            {/*        { id: '2', label: '香蕉', description: '黄皮香蕉' },*/}
+            {/*        { id: '3', label: '橙子', description: '脐橙' },*/}
+            {/*    ]}*/}
+            {/*    onSubmit={(selectedOptions) => console.log(selectedOptions)}*/}
+            {/*    multiSelect={true}*/}
+            {/*/>*/}
+            {/*<TextFormUI*/}
+            {/*    question="请描述一下你的理想工作环境"*/}
+            {/*    onSubmit={(answer) => console.log(answer)}*/}
+            {/*/>*/}
+            {/* <AgentUI/> */}
         </div>
     );
 };

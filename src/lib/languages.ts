@@ -1,4 +1,4 @@
-// /utils/languages.ts
+// src/lib/languages.ts
 export interface Language {
     code: string; // 语言缩写
     name: string; // 显示名称

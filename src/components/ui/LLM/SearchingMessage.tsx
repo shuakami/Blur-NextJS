@@ -35,7 +35,7 @@ const SearchResult: React.FC<SearchResultProps> = ({ result, index }) => (
             width="16"
             height="16"
             className="flex-shrink-0 rounded-lg"
-            src={`https://www.google.com/s2/favicons?domain=${result.url}&sz=16`}
+            src={`/api/favicon?domain=${result.url}`}
         />
         <div className="flex-grow">
             <div className="text-sm text-gray-900 line-clamp-1">{result.title}</div>

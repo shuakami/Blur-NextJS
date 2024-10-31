@@ -18,7 +18,8 @@ import ClientVersionCheck from "@/components/ClientVersionCheck";
 import type {Metadata} from "next";
 import {ConversationsProvider} from "../contexts/ConversationsContext";
 import seoDescription from "@/seo/seo_description";
-import seoKeywords from "@/seo/seo_keywords"; // 导入 nprogress 样式
+import seoKeywords from "@/seo/seo_keywords";
+import { ModelProvider } from '@/components/ui/model_selector';
 
 NProgress.configure({ showSpinner: true, speed: 500, minimum: 0.2 }); // 设置进度条速度和最小进度
 
@@ -80,6 +81,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     return (
         <ClerkProvider {...pageProps}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <ModelProvider>
                 <ConversationsProvider>
                 <ApiClientProvider>
                 <LanguageProvider>
@@ -95,6 +97,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 </LanguageProvider>
                 </ApiClientProvider>
                 </ConversationsProvider>
+                </ModelProvider>
             </ThemeProvider>
         </ClerkProvider>
     );

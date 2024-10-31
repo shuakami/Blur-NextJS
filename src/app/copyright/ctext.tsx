@@ -30,7 +30,7 @@ const CText: React.FC = () => {
     return (
         <>
             <Encode/>
-            <div className="text-center text-xs text-black/60 dark:text-[#b2b2b2]/90 mt-2">
+            <div className="mb-3 text-center text-xs text-black/60 dark:text-[#b2b2b2]/90 mt-2">
                 <Link
                     href={`/update/${version}`}
                     target="_blank"

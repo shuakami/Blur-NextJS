@@ -19,11 +19,17 @@
   color: var(--text-color);
   line-height: 1.6;
   font-size: 1.0225rem;
+  padding: 0 1rem;
 }
+
+
 
 .message-user {
   background-color: #F4F4F4;
+  position: relative;
   color: #000;
+  white-space: pre-wrap; /* 保留空格和换行符 */
+  word-break: break-word; /* 长单词换行 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -399,3 +405,28 @@ html:hover::-webkit-scrollbar-track {
 }
 
 
+/* home-content.tsx | 扫光效果 */
+.animate-slide {
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 75%
+  );
+  transform: translateX(-100%);
+  animation: slide 1.5s infinite ease-in-out;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

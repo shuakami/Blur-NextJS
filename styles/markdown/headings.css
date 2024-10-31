@@ -1,149 +1,86 @@
 :root {
     --heading-color-dark: #2c2c2c; /* 深色标题 */
     --heading-color-light: #3a3a3a; /* 浅色标题 */
-    --heading-line-height: 1.3; /* 统一的标题行高 */
-    --heading-line-height-alt: 1.4; /* 小级别标题略高的行高，增加可读性 */
-}
-
-/* 设置全局的正文样式 */
-body {
-    line-height: 1.6;
-    color: #333;
 }
 
 /* 标题 h1 ~ h6 样式设计 */
+
 .text-heading1 {
-    font-size: 2.5rem; /* 40px */
-    font-weight: 800;
-    line-height: var(--heading-line-height);
-    margin-top: 2.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 2.125rem; /* 34px - 略微缩小字体 */
+    font-weight: 700;
+    line-height: 1.2;
+    margin-top: 1.75rem;
+    margin-bottom: 1rem;
     color: var(--heading-color-dark);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
 }
 
 .text-heading2 {
-    font-size: 2rem; /* 32px */
-    font-weight: 700;
-    line-height: var(--heading-line-height);
-    margin-top: 2rem;
-    margin-bottom: 1.25rem;
+    font-size: 1.4375rem; /* 23px - 微调减小 */
+    font-weight: 600;
+    line-height: 1.15;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
     color: var(--heading-color-dark);
     letter-spacing: -0.01em;
 }
 
 .text-heading3 {
-    font-size: 1.75rem; /* 28px */
+    font-size: 1.25rem; /* 20px - 减小字体并与 h2 拉开差距 */
     font-weight: 600;
-    line-height: var(--heading-line-height);
-    margin-top: 1.75rem;
-    margin-bottom: 1rem;
+    line-height: 1.2;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
     color: var(--heading-color-dark);
 }
 
 .text-heading4 {
-    font-size: 1.5rem; /* 24px */
-    font-weight: 600;
-    line-height: var(--heading-line-height);
-    margin-top: 1.5rem;
-    margin-bottom: 0.875rem;
+    font-size: 1.125rem; /* 18px - 略微减小 */
+    font-weight: 600; /* 保持粗体，增加视觉层次感 */
+    line-height: 1.25;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
     color: var(--heading-color-light);
 }
 
 .text-heading5 {
-    font-size: 1.25rem; /* 20px */
-    font-weight: 500;
-    line-height: var(--heading-line-height);
-    margin-top: 1.25rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.0625rem; /* 17px - 略微减小 */
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
     color: var(--heading-color-light);
 }
 
 .text-heading6 {
-    font-size: 1.125rem; /* 18px */
+    font-size: 0.9375rem; /* 15px - 减小字体 */
     font-weight: 500;
-    line-height: var(--heading-line-height);
+    line-height: 1.35;
     margin-top: 1rem;
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.375rem;
     color: var(--heading-color-light);
 }
 
 /* 响应式设计，适配移动端 */
 @media (max-width: 768px) {
-    .text-heading1 {
-        font-size: 2.25rem; /* 36px */
-    }
-
-    .text-heading2 {
-        font-size: 1.875rem; /* 30px */
-    }
-
-    .text-heading3 {
-        font-size: 1.625rem; /* 26px */
-    }
-
-    .text-heading4 {
-        font-size: 1.375rem; /* 22px */
-    }
-
-    .text-heading5 {
-        font-size: 1.1875rem; /* 19px */
-    }
-
-    .text-heading6 {
-        font-size: 1.0625rem; /* 17px */
-    }
-
-    /* 调整列表缩进和间距 */
-    :root {
-        --list-indent: 1.25rem;
-        --nested-list-indent: 0.75rem;
-        --item-spacing: 0.5rem;
-        --marker-text-gap: 0.375rem;
-    }
-
-    /* 调整标题的上下间距 */
-    .text-heading1 {
-        margin-top: 2rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .text-heading2 {
-        margin-top: 1.75rem;
-        margin-bottom: 1rem;
-    }
-
-    .text-heading3 {
-        margin-top: 1.5rem;
-        margin-bottom: 0.875rem;
-    }
-
-    .text-heading4 {
-        margin-top: 1.25rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .text-heading5 {
-        margin-top: 1.2rem;
-        margin-bottom: 0.625rem;
-    }
-
-    .text-heading6 {
-        margin-top: 1rem;
-        margin-bottom: 0.625rem;
-    }
+    .text-heading1 { font-size: 2rem; line-height: 1.2; margin-top: 1.5rem; margin-bottom: 1rem; }
+    .text-heading2 { font-size: 1.375rem; line-height: 1.15; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+    .text-heading3 { font-size: 1.125rem; line-height: 1.2; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+    .text-heading4 { font-size: 1rem; line-height: 1.25; margin-top: 1rem; margin-bottom: 0.5rem; }
+    .text-heading5 { font-size: 0.9375rem; line-height: 1.3; margin-top: 0.875rem; margin-bottom: 0.5rem; }
+    .text-heading6 { font-size: 0.875rem; line-height: 1.35; margin-top: 0.75rem; margin-bottom: 0.375rem; }
 }
 
 /* 暗色模式支持 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --heading-color-dark: var(--text-color); /* 适配全局文字颜色 */
-        --heading-color-light: #d0d0d0; /* 浅灰色，用于副标题 */
+        --heading-color-dark: var(--text-color);
+        --heading-color-light: #d0d0d0;
     }
 
     body {
         background-color: #121212;
-        color: var(--text-color); /* 使用全局文字颜色 */
+        color: var(--text-color);
     }
 
     .text-heading1,
@@ -152,18 +89,17 @@ body {
     .text-heading4,
     .text-heading5,
     .text-heading6 {
-        color: var(--heading-color-dark); /* 所有标题使用全局颜色 */
+        color: var(--heading-color-dark);
     }
 }
 
 /* 高对比度模式支持 */
 @media (prefers-contrast: high) {
     .text-heading1, .text-heading2, .text-heading3 {
-        font-weight: 900; /* 提升字体粗细，确保在高对比度下更加清晰 */
+        font-weight: 800;
     }
-
     .text-heading4, .text-heading5, .text-heading6 {
-        font-weight: 700; /* 提高字体粗细，保持一致性 */
+        font-weight: 700;
     }
 }
 

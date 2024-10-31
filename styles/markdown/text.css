@@ -4,8 +4,6 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
     color: var(--text-color);
-    max-width: 70ch; /* 控制行宽，提高可读性 */
-    text-align: justify; /* 两端对齐，适合中文阅读习惯 */
     text-justify: inter-word; /* 确保英文单词间距合理 */
     font-weight: 400;
     word-spacing: 0.02em; /* 适当增加词间距，减小阅读负担 */

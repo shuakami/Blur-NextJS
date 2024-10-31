@@ -125,6 +125,7 @@ export default function UserAvatar() {
                 referenceElement={avatarRef.current} // 定位菜单到头像旁边
                 isOpen={isMenuOpen}
                 menuItems={menuItems}
+                placement={'bottom'}
                 onClose={() => setIsMenuOpen(false)} // 点击外部区域关闭菜单
             />
 

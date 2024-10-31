@@ -48,7 +48,7 @@ const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({isSidebarOpen, onOpen}) 
                         href="/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 hover:bg-gray-50 dark:hover:bg-gray-850 flex items-center justify-center rounded-md"
+                        className="hidden md:flex p-2 hover:bg-gray-50 dark:hover:bg-gray-850 items-center justify-center rounded-md"
                     >
                         <SquarePen className="w-[22px] h-[22px] text-gray-750 dark:text-gray-300"/>
                     </a>

@@ -1,14 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import {GetStaticPaths, GetStaticProps} from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import matter from 'gray-matter';
-import {MarkdownRenderer} from '@/components/ui/markdown/MarkdownRenderer';
+import { MarkdownRenderer } from '@/components/ui/markdown/MarkdownRenderer';
 import DocsSidebar from '@/components/ui/tofu/docs-sidebar';
-import {FaBook, FaServer, FaEye, FaMicrophone} from 'react-icons/fa';
-import {BreadcrumbWithCustomSeparator} from "@/components/ui/tofu/Breadcrumb";
-import {ReadingTime} from "@/components/ui/tofu/ReadingTime";
+import { FaBook, FaServer, FaEye, FaMicrophone } from 'react-icons/fa';
+import { BreadcrumbWithCustomSeparator } from "@/components/ui/tofu/Breadcrumb";
+import { ReadingTime } from "@/components/ui/tofu/ReadingTime";
 import TableOfContents from "@/components/ui/tofu/TableOfContents";
-import {countNonTextElements, extractPlainText} from "@/lib/contentUtils"; // 导入辅助函数
+import { countNonTextElements, extractPlainText } from "@/lib/contentUtils";
 
 interface UpdatePageProps {
     content: string;
@@ -25,17 +25,17 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     const paths = filenames.map((filename) => {
         const version = filename.replace('.mdx', '');
-        return {params: {version}};
+        return { params: { version } };
     });
 
-    return {paths, fallback: false};
+    return { paths, fallback: false };
 };
 
-export const getStaticProps: GetStaticProps<UpdatePageProps> = async ({params}) => {
-    const {version} = params as { version: string };
+export const getStaticProps: GetStaticProps<UpdatePageProps> = async ({ params }) => {
+    const { version } = params as { version: string };
     const filePath = path.join(process.cwd(), 'content', 'update', `${version}.mdx`);
     const fileContent = fs.readFileSync(filePath, 'utf-8');
-    const {content, data} = matter(fileContent);
+    const { content, data } = matter(fileContent);
 
     // 计算非文本元素数量
     const nonTextElementsCount = await countNonTextElements(content);
@@ -55,7 +55,7 @@ export const getStaticProps: GetStaticProps<UpdatePageProps> = async ({params}) 
     };
 };
 
-const UpdatePage: React.FC<UpdatePageProps> = ({content, plainText, version, title, nonTextElementsCount, lang}) => {
+const UpdatePage: React.FC<UpdatePageProps> = ({ content, plainText, version, title, nonTextElementsCount, lang }) => {
     // 定义 SpecialButton 和 NavItem 数据
     const specialButtons = [
         {icon: FaBook, text: '用户指南'},
@@ -84,10 +84,10 @@ const UpdatePage: React.FC<UpdatePageProps> = ({content, plainText, version, tit
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="container mx-auto px-4 py-8 md:px-8 flex flex-col lg:flex-row">
+        <div className="min-h-screen bg-white">
+            <div className="container-fluid px-4 py-8 md:px-8 flex flex-col lg:flex-row">
                 {/* 左侧边栏 - 在大屏幕上显示，在小屏幕上隐藏 */}
-                <div className="hidden lg:block w-64 flex-shrink-0">
+                <div className="hidden lg:block flex-shrink-0">
                     <div className="sticky top-24">
                         <DocsSidebar
                             searchPlaceholder="搜索文档..."
@@ -98,9 +98,9 @@ const UpdatePage: React.FC<UpdatePageProps> = ({content, plainText, version, tit
                 </div>
 
                 {/* 主内容和右侧目录树的容器 */}
-                <div className="flex-grow flex flex-col lg:flex-row lg:ml-8">
+                <div className="flex-grow flex lg:ml-8">
                     {/* 主内容区域 */}
-                    <main className="flex-1 p-6 bg-white rounded-lg mt-6 md:mt-16">
+                    <main className="flex-1 p-6 bg-white rounded-lg mt-6 md:mt-16 max-w-full lg:max-w-[70%]">
                         {/* 面包屑和阅读时间布局 */}
                         <div className="flex justify-between items-center mb-6">
                             <BreadcrumbWithCustomSeparator
@@ -113,22 +113,20 @@ const UpdatePage: React.FC<UpdatePageProps> = ({content, plainText, version, tit
                             <ReadingTime text={plainText} nonTextElementsCount={nonTextElementsCount}/>
                         </div>
 
-                        {/* 标题 */}
-                        <h1 className="text-3xl font-bold mb-6">{title}</h1>
-
                         {/* Markdown 内容 */}
                         <MarkdownRenderer content={content}/>
                     </main>
 
                     {/* 右侧目录树 - 在大屏幕上固定，在小屏幕上可隐藏 */}
                     <aside className="hidden lg:block w-64 ml-8 flex-shrink-0">
-                        <div className="sticky top-24"
-                             style={{height: 'calc(100vh - 6rem)', overflowY: 'auto', overflowX: 'hidden'}}>
+                        <div
+                            className="sticky top-24"
+                            style={{height: 'calc(100vh - 6rem)', overflowY: 'auto', overflowX: 'hidden'}}
+                        >
                             <TableOfContents content={content}/>
                         </div>
                     </aside>
                 </div>
-
             </div>
         </div>
     );

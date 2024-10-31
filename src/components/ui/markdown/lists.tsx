@@ -1,13 +1,13 @@
 import React from 'react';
 
-export const UnorderedList: React.FC = (props) => (
-    <ul className="list-disc" {...props} />
+export const UnorderedList: React.FC<React.PropsWithChildren> = ({ children }) => (
+    <ul className="list-disc">{children}</ul>
 );
 
-export const OrderedList: React.FC = (props) => (
-    <ol className="list-decimal" {...props} />
+export const OrderedList: React.FC<React.PropsWithChildren> = ({ children }) => (
+    <ol className="list-decimal">{children}</ol>
 );
 
-export const ListItem: React.FC = (props) => (
-    <li className="list-item" {...props} />
+export const ListItem: React.FC<React.PropsWithChildren> = ({ children }) => (
+    <li className="list-item">{children}</li>
 );
