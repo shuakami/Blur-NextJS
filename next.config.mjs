@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+
 const nextConfig = {
     // 编译优化
     swcMinify: true,
@@ -89,7 +91,7 @@ const nextConfig = {
                 minimize: true,
                 minimizer: [
                     '...',
-                    new (require('css-minimizer-webpack-plugin'))(),
+                    new CssMinimizerPlugin(),
                 ],
             };
         }
