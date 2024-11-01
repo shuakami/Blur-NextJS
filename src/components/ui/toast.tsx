@@ -16,7 +16,7 @@ const ToastViewport = React.forwardRef<
     <ToastPrimitives.Viewport
         ref={ref}
         className={cn(
-            "fixed top-4 right-4 z-[100] flex max-h-screen w-auto flex-col-reverse gap-2",
+            "fixed top-4 right-4 z-[100] flex max-h-screen flex-col-reverse gap-2",
             className
         )}
         {...props}
@@ -25,20 +25,20 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-    "group pointer-events-auto relative flex items-center justify-center overflow-hidden rounded-full border px-4 py-2 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full backdrop-blur-sm",
+    "group pointer-events-auto relative ml-auto flex items-center justify-center overflow-hidden rounded-3xl border px-4 py-3 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full backdrop-blur-sm",
     {
         variants: {
             variant: {
                 default:
-                    "border-transparent bg-white/80 text-black dark:text-white dark:bg-black/80 border border-black/10 dark:border-accent/20",
+                    "border-transparent bg-white/90 text-zinc-900 dark:text-zinc-100 dark:bg-zinc-900/90 border border-zinc-200/20 dark:border-zinc-700/30 shadow-lg shadow-zinc-500/10 dark:shadow-zinc-900/20",
                 destructive:
-                    "destructive group border-destructive/75 bg-destructive/65 text-destructive-foreground",
+                    "border-red-500/20 bg-red-50/90 dark:bg-red-950/90 text-red-600 dark:text-red-300 shadow-lg shadow-red-500/10",
                 info:
-                    "border-blue-500 bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200 dark:border-blue-500",
+                    "border-blue-500/20 bg-blue-50/90 dark:bg-blue-950/90 text-blue-600 dark:text-blue-300 shadow-lg shadow-blue-500/10",
                 success:
-                    "border-green-500 bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200 dark:border-green-500",
+                    "border-green-500/20 bg-green-50/90 dark:bg-green-950/90 text-green-600 dark:text-green-300 shadow-lg shadow-green-500/10",
                 warning:
-                    "border-yellow-500 bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-300 dark:border-yellow-600",
+                    "border-yellow-500/20 bg-yellow-50/90 dark:bg-yellow-950/90 text-yellow-600 dark:text-yellow-300 shadow-lg shadow-yellow-500/10",
             },
         },
         defaultVariants: {
@@ -55,14 +55,10 @@ const Toast = React.forwardRef<
     return (
         <ToastPrimitives.Root
             ref={ref}
-            className={cn(
-                toastVariants({ variant }),
-                "flex items-center justify-between space-x-2 relative", // 添加 justify-between 使左右对齐更稳定
-                className
-            )}
+            className={cn(toastVariants({ variant }), className)}
             {...props}
         >
-            <div className="flex-1 flex items-center justify-center space-x-2"> {/* 保证内容区域的灵活性 */}
+            <div className="flex items-center gap-3 w-fit max-w-[480px] pr-2">
                 {children}
             </div>
             <ToastClose />
@@ -95,13 +91,14 @@ const ToastClose = React.forwardRef<
     <ToastPrimitives.Close
         ref={ref}
         className={cn(
-            "hidden", // 调整 right 值，避免按钮过度挤压内容
+            "absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 opacity-0 transition-all hover:bg-zinc-500/10 dark:hover:bg-zinc-100/10 focus:opacity-100 focus:outline-none group-hover:opacity-70 hover:opacity-100",
             className
         )}
         toast-close=""
         {...props}
     >
         <Cross2Icon className="h-3 w-3" />
+        <span className="sr-only">关闭</span>
     </ToastPrimitives.Close>
 ))
 
@@ -113,7 +110,7 @@ const ToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <ToastPrimitives.Title
         ref={ref}
-        className={cn("text-sm", className)} // 保持标题为粗体，作为inline-block显示
+        className={cn("text-sm font-medium leading-none tracking-tight", className)}
         {...props}
     />
 ))
@@ -125,7 +122,10 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <ToastPrimitives.Description
         ref={ref}
-        className={cn("text-sm opacity-90 before:content-['|'] before:mx-2", className)} // 添加分隔符，并且保持为inline-block显示
+        className={cn(
+            "text-sm opacity-90 pl-3 border-l border-zinc-200/30 dark:border-zinc-700/30",
+            className
+        )}
         {...props}
     />
 ))
