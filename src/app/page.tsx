@@ -64,6 +64,13 @@ const SidebarOverlay = React.memo(({ isOpen, onClose }: { isOpen: boolean; onClo
 ));
 SidebarOverlay.displayName = 'SidebarOverlay';
 
+const fadeInUpAnimation = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 10 },
+    transition: { duration: 0.3, ease: "easeOut" }
+};
+
 const HomeContent = () => {
     const router = useRouter();
     const { newConversationId, resetNewConversationId } = useChatContext();
@@ -141,7 +148,6 @@ const HomeContent = () => {
                         style={{ 
                             marginLeft: isSidebarOpen && !isMobile ? SIDEBAR_WIDTH : 0 
                         }}
-                        initial={false}
                         animate={{
                             marginLeft: isSidebarOpen && !isMobile ? SIDEBAR_WIDTH : 0,
                         }}
@@ -189,32 +195,59 @@ const HomeContent = () => {
                             </Suspense>
                         </div>
 
-                        {hasConversation ? (
-                            <div className="flex-1 overflow-auto w-full mt-4">
-                                <div className="max-w-4xl mx-auto px-4 py-8">
+                        <AnimatePresence mode="wait">
+                            {hasConversation ? (
+                                <motion.div 
+                                    key="conversation"
+                                    className="flex-1 overflow-auto w-full mt-4"
+                                    {...fadeInUpAnimation}
+                                >
+                                    <div className="max-w-4xl mx-auto px-4 py-8">
+                                        <Suspense fallback={null}>
+                                            <ChatList />
+                                        </Suspense>
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <motion.div 
+                                    key="homepage"
+                                    className="flex justify-center items-center h-full"
+                                    {...fadeInUpAnimation}
+                                >
                                     <Suspense fallback={null}>
-                                        <ChatList />
+                                        <HomepageContent onFirstMessage={() => {
+                                            setTimeout(() => setHasConversation(true), 100);
+                                        }} />
                                     </Suspense>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex justify-center items-center h-full">
-                                <Suspense fallback={null}>
-                                    <HomepageContent onFirstMessage={() => setHasConversation(true)} />
-                                </Suspense>
-                            </div>
-                        )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
-                        {hasConversation && (
-                            <div className="flex flex-col items-center w-full bg-transparent">
-                                <div className="w-full max-w-4xl">
-                                    <ChatInputWrapper onFirstMessage={() => setHasConversation(true)} />
-                                </div>
-                                <Suspense fallback={null}>
-                                    <CText />
-                                </Suspense>
-                            </div>
-                        )}
+                        <AnimatePresence>
+                            {hasConversation && (
+                                <motion.div 
+                                    className="flex flex-col items-center w-full bg-transparent"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 20 }}
+                                    transition={{ 
+                                        duration: 0.4,
+                                        delay: 0.2,
+                                        ease: "easeOut"
+                                    }}
+                                >
+                                    <div className="w-full max-w-4xl">
+                                        <ChatInputWrapper 
+                                            onFirstMessage={() => setHasConversation(true)} 
+                                        />
+                                    </div>
+                                    <Suspense fallback={null}>
+                                        <CText />
+                                    </Suspense>
+                                    <div className="mb-3"/>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </motion.div>
                 </>
             )}

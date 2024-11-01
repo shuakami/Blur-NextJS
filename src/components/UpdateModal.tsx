@@ -6,6 +6,7 @@ import { useState, useCallback, useMemo, createElement } from "react";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { ChatList } from '@/components/ui/chat-list';
 import LoadingDemo from "./ui/Update_content/LoadingDemo";
+import AnimationDemo from "./ui/Update_content/AnimationDemo";
 import { memo } from 'react';
 
 // 动画变体配置
@@ -54,7 +55,7 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
     
     const features = useMemo<Feature[]>(() => [
         {
-            title: "消息编辑功能",
+            title: "消息编辑功能（待实装）",
             description: "轻松修改已发送的消息，让沟通更加灵活自如",
             Demo: memo(function MessageEditDemo() {
                 return (
@@ -152,7 +153,16 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
                     </motion.div>
                 );
             }),
-        }
+        },
+        {
+            title: "动画优化",
+            description: "我们优化了动画效果，让页面更加流畅",
+            Demo: memo(() => (
+                <div className="flex items-center justify-center">
+                    <AnimationDemo />
+                </div>
+            )),
+        },
     ], []);
 
     const nextPage = useCallback(() => {
