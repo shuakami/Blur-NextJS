@@ -14,9 +14,6 @@ const BlurAnimatedWrapper = dynamic(() => import("@/components/Animations/blur_t
 const MoonLogo = dynamic(() => import("../../../pages/logo"), {
     ssr: false
 });
-const Encode = dynamic(() => import("@/app/copyright/encode"), {
-    ssr: false
-});
 const AnimatedShinyText = dynamic(() => import("@/components/ui/animated-shiny-text"), {
     ssr: false
 });
@@ -80,7 +77,6 @@ const BotMessage = memo(({ content, isLoading, isLatestBotMessage }: {
     isLatestBotMessage: boolean;
 }) => (
     <>
-        <Encode />
         <Avatar className="w-10 h-10 py-1 px-1 mt-6 border border-black/15 dark:border-white/15">
             <MoonLogo className="w-full h-full" />
         </Avatar>

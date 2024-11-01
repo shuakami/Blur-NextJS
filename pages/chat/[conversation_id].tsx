@@ -72,6 +72,7 @@ export default function ChatPage() {
     const { conversations } = useConversations(); 
     const [exists, setExists] = useState<boolean | null>(null);
     const { isSignedIn, isLoaded, user } = useUser();
+    const [isFullyLoaded, setIsFullyLoaded] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
         if (typeof window === "undefined") return true;
         const storedState = Cookies.get('isSidebarOpen');
@@ -81,8 +82,6 @@ export default function ChatPage() {
     const [isClient, setIsClient] = useState(false);
     const windowWidth = useWindowSize();
     const isMobile = useMemo(() => windowWidth < 768, [windowWidth]);
-
-
 
     const chat_title = useMemo(() => {
         const currentConversation = conversations.find(c => c.conversation_id === conversation_id);
@@ -150,9 +149,29 @@ export default function ChatPage() {
         }
     }, [exists, router, isSignedIn]);
 
-    if (!isLoaded) return <HomePageLoading/>;
-    if (!isSignedIn) return <SimplifiedUnauthenticatedHomePage/>;
-    if (exists === null || !conversation_id || typeof conversation_id !== 'string') {
+    useEffect(() => {
+        if (isLoaded && isClient && exists !== null) {
+            const timer = setTimeout(() => {
+                setIsFullyLoaded(true);
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [isLoaded, isClient, exists]);
+
+    if (!isFullyLoaded || !isLoaded) {
+        return <HomePageLoading/>;
+    }
+    
+    if (!isSignedIn) {
+        return <SimplifiedUnauthenticatedHomePage/>;
+    }
+
+    if (exists === false && isSignedIn) {
+        router.replace('/');
+        return <HomePageLoading/>;
+    }
+
+    if (!conversation_id || typeof conversation_id !== 'string') {
         return <HomePageLoading/>;
     }
 
@@ -165,7 +184,7 @@ export default function ChatPage() {
                         <motion.div
                             className="h-full z-40 fixed top-0 left-0 bg-white dark:bg-gray-900"
                             style={{ width: SIDEBAR_WIDTH }}
-                            initial={{ x: -SIDEBAR_WIDTH }}
+                            initial={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
                             animate={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
                             transition={sidebarAnimationConfig}
                         >

@@ -83,16 +83,13 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConve
         }
     }, [isSignedIn, user?.id, loadConversations]);
 
-    if (!isLoaded) {
-        return <ChatSidebarLoading/>; // 等待 Clerk 加载完成
-    }
 
     if (!isSignedIn) {
         return <UnauthenticatedSidebar onClose={onClose || (() => {
         })}/>; // 用户未登录时显示提示
     }
 
-    if (loading) return <ChatSidebarLoading/>;
+    if (loading) return null;
 
     const sidebarItems = groupConversationsByDate(conversations, t);
 

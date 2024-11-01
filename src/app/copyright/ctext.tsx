@@ -6,10 +6,6 @@ import useTranslation from "@/hooks/useTranslation";
 import Cookies from 'js-cookie';
 import {useThemeContext} from "@/theme/ThemeContext";
 
-// 懒加载组件
-const Encode = dynamic(() => import("@/app/copyright/encode"), {
-    loading: () => <div className="h-[20px]" /> // 添加占位符避免布局偏移
-});
 
 const UpdateModal = dynamic(() => import("@/components/UpdateModal"), {
     ssr: false,  // 禁用服务端渲染
@@ -17,28 +13,35 @@ const UpdateModal = dynamic(() => import("@/components/UpdateModal"), {
 });
 
 const BlurAnimatedWrapper = dynamic(() => import('@/components/Animations/blur_text'), {
-    ssr: false
+    ssr: false,
+    loading: () => <div className="min-h-[24px]" />
 });
 
 // 提取版本检查逻辑
 const useVersionCheck = (version: string) => {
-    const [showBlueDot, setShowBlueDot] = useState<boolean>(false);
-    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+    const [state, setState] = useState({
+        showBlueDot: false,
+        isUpdateModalOpen: false
+    });
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const shouldShowModal = params.get('UpdateModal') === 'true';
         const viewedVersion = Cookies.get('viewed_version');
         
-        if (shouldShowModal) {
-            setIsUpdateModalOpen(true);
-        }
-        if (viewedVersion !== version) {
-            setShowBlueDot(true);
-        }
+        setState({
+            showBlueDot: viewedVersion !== version,
+            isUpdateModalOpen: shouldShowModal
+        });
     }, [version]);
 
-    return {showBlueDot, setShowBlueDot, isUpdateModalOpen, setIsUpdateModalOpen};
+    return {
+        ...state,
+        setShowBlueDot: useCallback((show: boolean) => 
+            setState(prev => ({...prev, showBlueDot: show})), []),
+        setIsUpdateModalOpen: useCallback((open: boolean) => 
+            setState(prev => ({...prev, isUpdateModalOpen: open})), [])
+    };
 };
 
 // 提取 URL 处理逻辑
@@ -63,8 +66,8 @@ const CText: React.FC = () => {
     
     const {
         showBlueDot, 
-        setShowBlueDot, 
         isUpdateModalOpen, 
+        setShowBlueDot, 
         setIsUpdateModalOpen
     } = useVersionCheck(version);
     
@@ -83,28 +86,38 @@ const CText: React.FC = () => {
         setIsUpdateModalOpen(false);
     }, [updateUrl, setIsUpdateModalOpen]);
 
+    // 优化渲染内容
+    const content = (
+        <div className="text-center text-xs text-black/60 dark:text-[#b2b2b2]/90 mt-2">
+            <span
+                onClick={handleVersionClick}
+                className="relative text-black/50 dark:text-[#b2b2b2]/80 hover:text-black/80 dark:hover:text-[#b2b2b2]/60 cursor-pointer"
+            >
+                {version}
+                {showBlueDot && (
+                    <span 
+                        className={`absolute w-1 h-1 ${theme.bg(500)} rounded-full select-none`}
+                        aria-hidden="true"
+                    />
+                )}
+            </span>
+            &nbsp;-&nbsp;
+            <span className="text-black/50 dark:text-[#b2b2b2]/80">
+                {t('Blur 也可能会犯错哦。请注意检查消息是否正确。')}
+            </span>
+        </div>
+    );
+
     return (
-        <>
-            <BlurAnimatedWrapper>
-                <Encode />
-                <div className="text-center text-xs text-black/60 dark:text-[#b2b2b2]/90 mt-2">
-                    <span
-                        onClick={handleVersionClick}
-                        className="relative text-black/50 dark:text-[#b2b2b2]/80 hover:text-black/80 dark:hover:text-[#b2b2b2]/60 cursor-pointer"
-                    >
-                        {version}
-                        {showBlueDot && (
-                            <span className={`absolute w-1 h-1 ${theme.bg(500)} rounded-full select-none`} />
-                        )}
-                    </span>
-                    &nbsp;-&nbsp;
-                    <span className="text-black/50 dark:text-[#b2b2b2]/80">
-                        {t('Blur 也可能会犯错哦。请注意检查消息是否正确。')}
-                    </span>
-                </div>
-                {isUpdateModalOpen && <UpdateModal isOpen={isUpdateModalOpen} onClose={handleCloseModal} />}
-            </BlurAnimatedWrapper>
-        </>
+        <BlurAnimatedWrapper>
+            {content}
+            {isUpdateModalOpen && (
+                <UpdateModal 
+                    isOpen={isUpdateModalOpen} 
+                    onClose={handleCloseModal} 
+                />
+            )}
+        </BlurAnimatedWrapper>
     );
 };
 

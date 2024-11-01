@@ -7,3 +7,4 @@ declare module 'nprogress';
 declare module 'uuid';
 declare module 'lodash';
 declare module 'react-katex';
+declare module 'lodash-es';

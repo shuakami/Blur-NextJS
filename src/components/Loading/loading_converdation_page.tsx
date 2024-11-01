@@ -13,9 +13,8 @@ export default function HomePageLoading() {
             {/* Sidebar*/}
             <motion.div
                 className="fixed top-0 left-0 h-full z-30"
-                style={{width: SIDEBAR_WIDTH}}
-                initial={{x: -SIDEBAR_WIDTH}}
-                animate={{x: 0}}
+                initial={{opacity: 0}}
+                animate={{opacity: 1}}
                 transition={{duration: 0.3, ease: "easeInOut"}}
             >
                 <ChatSidebarLoading/>

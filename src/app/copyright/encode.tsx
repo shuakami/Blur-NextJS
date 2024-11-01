@@ -5,7 +5,7 @@ import {memo, useCallback, useEffect, useMemo, useRef} from "react";
 const OPACITY = 0.015;
 const COLOR_CACHE = new Map<string, string>();
 
-// 优化的颜色计算函数
+// 颜色计算函数
 const getColorValue = (char: string, isDark: boolean): string => {
     const cacheKey = `${char}-${isDark}`;
     
