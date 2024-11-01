@@ -54,30 +54,27 @@ const nextConfig = {
 
     // Webpack 配置优化
     webpack: (config, {dev, isServer}) => {
-        if (!dev) {
-            // 生产环境优化
+        // 只在客户端生产环境进行优化
+        if (!dev && !isServer) {
+            // 修改优化配置
             config.optimization = {
                 ...config.optimization,
                 moduleIds: 'deterministic',
-                runtimeChunk: {
-                    name: 'runtime',
-                },
                 splitChunks: {
                     chunks: 'all',
                     minSize: 20000,
                     maxSize: 244000,
-                    minChunks: 1,
-                    maxAsyncRequests: 30,
-                    maxInitialRequests: 30,
                     cacheGroups: {
-                        defaultVendors: {
+                        vendor: {
+                            name: 'vendor',
                             test: /[\\/]node_modules[\\/]/,
-                            priority: -10,
-                            reuseExistingChunk: true,
+                            chunks: 'all',
+                            priority: 10,
                         },
-                        default: {
+                        common: {
+                            name: 'common',
                             minChunks: 2,
-                            priority: -20,
+                            priority: -10,
                             reuseExistingChunk: true,
                         },
                         styles: {
@@ -88,45 +85,54 @@ const nextConfig = {
                         },
                     },
                 },
-                minimize: true,
                 minimizer: [
                     '...',
-                    new CssMinimizerPlugin(),
+                    new CssMinimizerPlugin({
+                        minimizerOptions: {
+                            preset: [
+                                'default',
+                                {
+                                    discardComments: { removeAll: true },
+                                },
+                            ],
+                        },
+                    }),
                 ],
             };
         }
 
-        // 图片优化
-        config.module.rules.push({
-            test: /\.(jpe?g|png|gif|webp)$/i,
-            use: [
-                {
-                    loader: 'image-webpack-loader',
-                    options: {
-                        mozjpeg: {
-                            progressive: true,
-                            quality: 65,
-                        },
-                        optipng: {
-                            enabled: true,
-                            optimizationLevel: 7,
-                        },
-                        pngquant: {
-                            quality: [0.65, 0.90],
-                            speed: 4,
-                            strip: true,
-                        },
-                        gifsicle: {
-                            interlaced: false,
-                        },
-                        webp: {
-                            quality: 75,
-                            method: 6,
+        // 图片优化配置
+        if (!isServer) {
+            config.module.rules.push({
+                test: /\.(jpe?g|png|gif|webp)$/i,
+                type: 'asset',
+                use: [
+                    {
+                        loader: 'image-webpack-loader',
+                        options: {
+                            mozjpeg: {
+                                progressive: true,
+                                quality: 65,
+                            },
+                            optipng: {
+                                enabled: true,
+                                optimizationLevel: 7,
+                            },
+                            pngquant: {
+                                quality: [0.65, 0.90],
+                                speed: 4,
+                            },
+                            gifsicle: {
+                                interlaced: false,
+                            },
+                            webp: {
+                                quality: 75,
+                            },
                         },
                     },
-                },
-            ],
-        });
+                ],
+            });
+        }
 
         return config;
     },
