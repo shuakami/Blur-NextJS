@@ -157,13 +157,21 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
         {
             title: "动画优化",
             description: "我们优化了动画效果，让页面更加流畅",
-            Demo: memo(() => (
-                <div className="flex items-center justify-center">
-                    <AnimationDemo />
-                </div>
-            )),
+            Demo: memo(function AnimationSpeedDemo() {
+                return (
+                    <div className="flex items-center justify-center">
+                        <AnimationDemo />
+                    </div>
+                );
+            }),
         },
     ], []);
+
+    // 为每个 Demo 组件添加 displayName
+    features[0].Demo.displayName = 'MessageEditDemo';
+    features[1].Demo.displayName = 'UIDemo';
+    features[2].Demo.displayName = 'LoadingSpeedDemo';
+    features[3].Demo.displayName = 'AnimationSpeedDemo';
 
     const nextPage = useCallback(() => {
         if (currentPage < features.length - 1) {
