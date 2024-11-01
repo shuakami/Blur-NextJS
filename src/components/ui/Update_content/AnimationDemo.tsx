@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from 'react';
-import { AnimatePresence, motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { IconCheck, IconLoader2, IconArrowUpRight } from '@tabler/icons-react';
 
 // 精美的卡片组件
@@ -18,8 +18,10 @@ const DemoCard = memo(({ children, label }: { children: React.ReactNode; label: 
     </motion.div>
 ));
 
+DemoCard.displayName = 'DemoCard';
+
 // 按钮动画示例
-const ButtonDemo = () => {
+const ButtonDemo = memo(() => {
     const [isHovered, setIsHovered] = useState(false);
     const [isClicked, setIsClicked] = useState(false);
     
@@ -57,10 +59,12 @@ const ButtonDemo = () => {
             </AnimatePresence>
         </motion.button>
     );
-};
+});
+
+ButtonDemo.displayName = 'ButtonDemo';
 
 // 加载状态示例
-const LoadingDemo = () => {
+const LoadingDemo = memo(() => {
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
@@ -99,7 +103,9 @@ const LoadingDemo = () => {
             </AnimatePresence>
         </div>
     );
-};
+});
+
+LoadingDemo.displayName = 'LoadingDemo';
 
 // 列表项动画
 const ListItemDemo = () => {
@@ -108,7 +114,7 @@ const ListItemDemo = () => {
     return (
         <div className="flex flex-col space-y-2">
             <AnimatePresence>
-                {items.map((item) => (
+                {items.map((item, index) => (
                     <motion.div
                         key={item}
                         className="text-sm w-full px-2 py-2.5 rounded-lg bg-black/10 dark:bg-white/20 transform transition-transform duration-300"
@@ -128,7 +134,9 @@ const ListItemDemo = () => {
     );
 };
 
-const AnimationDemo = () => {
+ListItemDemo.displayName = 'ListItemDemo';
+
+const AnimationDemo = memo(() => {
     const [currentDemo, setCurrentDemo] = useState(1);
     
     useEffect(() => {
@@ -169,6 +177,8 @@ const AnimationDemo = () => {
             
         </div>
     );
-};
+});
 
-export default memo(AnimationDemo);
+AnimationDemo.displayName = 'AnimationDemo';
+
+export default AnimationDemo;
