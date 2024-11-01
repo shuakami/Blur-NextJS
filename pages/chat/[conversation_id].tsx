@@ -234,14 +234,29 @@ export default function ChatPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col items-center w-full bg-transparent">
-                                <div className="w-full max-w-4xl">
-                                    <ChatInputWrapper/>
+                            <motion.div layout>
+                                <div className="flex flex-col items-center w-full bg-transparent">
+                                    <div className="w-full max-w-4xl">
+                                        <ChatInputWrapper/>
+                                    </div>
+                                    <motion.div 
+                                        className="w-full"
+                                        initial={{ opacity: 0, height: "24px" }}
+                                        animate={{ opacity: 1, height: "24px" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <Suspense fallback={
+                                            <div className="h-[24px] flex items-center justify-center opacity-0">
+                                                <div className="text-xs text-black/60 dark:text-[#b2b2b2]/90">占位文本</div>
+                                            </div>
+                                        }>
+                                            <CText />
+                                        </Suspense>
+                                    </motion.div>
+                                    <div className="mb-3"/>
                                 </div>
-                                <Suspense fallback={null}>
-                                    <CText/>
-                                </Suspense>
-                            </div>
+                            </motion.div>
                         </motion.div>
                     </>
                 )}

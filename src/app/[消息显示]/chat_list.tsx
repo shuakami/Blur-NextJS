@@ -2,18 +2,25 @@
 
 "use client";
 
-import React from 'react';
-import {useChatContext} from '@/app/[上下文]/ChatContext'; // 从上下文获取消息
-import {ChatList as UIChatList} from '@/components/ui/chat-list';
+import React, { memo } from 'react';
+import dynamic from 'next/dynamic';
+import {useChatContext} from '@/app/[上下文]/ChatContext';
 
-const ChatList: React.FC = () => {
-    const {messages, isLoading} = useChatContext(); // 从上下文中获取 messages
+// 懒加载 UIChatList
+const UIChatList = dynamic(
+    () => import('@/components/ui/chat-list').then(mod => mod.ChatList),
+    {
+        loading: () => <div className="animate-pulse h-full w-full bg-gray-100 dark:bg-gray-800/30" />,
+        ssr: false
+    }
+);
 
-    return (
-        <>
-            <UIChatList messages={messages} isLoading={isLoading}/>
-        </>
-    );
-};
+const ChatList = memo(() => {
+    const {messages, isLoading} = useChatContext();
+    
+    return <UIChatList messages={messages} isLoading={isLoading} />;
+});
+
+ChatList.displayName = 'ChatList';
 
 export default ChatList;

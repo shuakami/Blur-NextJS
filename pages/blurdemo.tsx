@@ -5,6 +5,7 @@ import SearchingMessage from '@/components/ui/LLM/SearchingMessage';
 import FormUI from "@/components/ui/LLM/Form";
 import TextFormUI from "@/components/ui/LLM/TextForm";
 import AgentUI from "@/components/ui/LLM/agent";
+import UpdateModal from '@/components/UpdateModal';
 
 
 const LETTERS_PER_FRAME = 3;
@@ -12,6 +13,7 @@ const FRAME_DURATION = 16; // 约60fps
 
 const BlurTextDemo: React.FC = () => {
     const [visibleText, setVisibleText] = useState('');
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
     const fullText = useMemo(() => `# Welcome to My Blog
 
 There's no doubt that my mother gives all her love to me. I do believe she is a great person who makes my life beautiful and meaningful.
@@ -168,6 +170,11 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
             {/*<SearchingMessage/>*/}
             {/*<MarkdownRenderer content={visibleText}/>*/}
             <ChatList messages={messages}/>
+            <button onClick={() => setShowUpdateModal(true)}>Show Update Modal</button>
+            <UpdateModal 
+                isOpen={showUpdateModal} 
+                onClose={() => setShowUpdateModal(false)} 
+            />
             {/*<FormUI*/}
             {/*    title="Please select an option"*/}
             {/*    description="Choose the option that best fits your needs."*/}

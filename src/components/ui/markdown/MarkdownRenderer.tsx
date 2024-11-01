@@ -1,45 +1,64 @@
 "use client";
-import React from 'react';
+import React, { useMemo, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import type { Components } from 'react-markdown';
-import { Heading1, Heading2, Heading3, Heading4, Heading5, Heading6 } from './headings';
+import dynamic from 'next/dynamic';
+
+// 懒加载较大的组件
+const BlurAnimatedWrapper = dynamic(() => import("@/components/Animations/blur_text"), {
+    ssr: false
+});
+
+// 静态导入基础组件
+import {
+    Heading1, Heading2, Heading3,
+    Heading4, Heading5, Heading6
+} from './headings';
 import { Paragraph, Strong, Emphasis } from './text';
 import { UnorderedList, OrderedList, ListItem } from './lists';
 import { Link } from './link';
 import { Image } from './image';
-
 import { Blockquote } from './blockquote';
 import { HorizontalRule } from './horizontalRule';
 import { Table, TableHeader, TableCell } from './table';
 import { TaskListItem } from './taskList';
 import { Strikethrough } from './strikethrough';
-import BlurAnimatedWrapper from "@/components/Animations/blur_text";
-import {BlockMath, InlineMath} from "@/components/ui/markdown/MathRenderer";
+import { BlockMath, InlineMath } from "@/components/ui/markdown/MathRenderer";
 import CodeBlock from "@/components/ui/markdown/code";
 
-// 定义 InlineCode 组件
-const InlineCode: React.FC<React.PropsWithChildren<Record<string, unknown>>> = ({ children }) => (
-    <code>{children}</code>
-);
+// InlineCode 组件
+const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ children }) => (
+    <code className="inline-code">{children}</code>
+));
+InlineCode.displayName = 'InlineCode';
 
-// 预处理 Markdown 内容，确保所有代码块都已闭合，并正确区分代码块和内联代码
+// 预处理
 const preprocessMarkdown = (content: string): string => {
-    const lines = content.split('\n');
+    // 使用正则表达式一次性处理所有代码块
+    const codeBlockRegex = /```[\s\S]*?```|`[^`]+`/g;
     let insideCodeBlock = false;
-    const processedLines: string[] = [];
+    let processedContent = content;
 
-    lines.forEach((line) => {
-        const trimmedLine = line.trim();
-        if (trimmedLine.startsWith('```')) {
+    // 如果没有代码块标记，直接返回原内容
+    if (!codeBlockRegex.test(content)) {
+        return content;
+    }
+
+    // 处理未闭合的代码块
+    const lines = processedContent.split('\n');
+    const processedLines: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim().startsWith('```')) {
             insideCodeBlock = !insideCodeBlock;
         }
         processedLines.push(line);
-    });
+    }
 
-    // 如果文件以未闭合的代码块结尾，自动添加闭合 ```
     if (insideCodeBlock) {
         processedLines.push('```');
     }
@@ -47,29 +66,40 @@ const preprocessMarkdown = (content: string): string => {
     return processedLines.join('\n');
 };
 
-export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
-    const preprocessedContent = preprocessMarkdown(content);
+// 创建 remarkPlugins 配置
+const remarkPlugins = [remarkGfm, remarkMath];
+const rehypePlugins = [rehypeKatex];
 
+export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }) => {
+    // 缓存预处理结果
+    const preprocessedContent = useMemo(() => preprocessMarkdown(content), [content]);
+    const components = useMemo<Components>(() => ({
+        // 标题组件
+        h1: ({ node, ...props }) => <Heading1 {...props} />,
+        h2: ({ node, ...props }) => <Heading2 {...props} />,
+        h3: ({ node, ...props }) => <Heading3 {...props} />,
+        h4: ({ node, ...props }) => <Heading4 {...props} />,
+        h5: ({ node, ...props }) => <Heading5 {...props} />,
+        h6: ({ node, ...props }) => <Heading6 {...props} />,
 
-    const components: Components = {
-        h1: ({ ...props }) => <Heading1 {...props} />,
-        h2: ({ ...props }) => <Heading2 {...props} />,
-        h3: ({ ...props }) => <Heading3 {...props} />,
-        h4: ({ ...props }) => <Heading4 {...props} />,
-        h5: ({ ...props }) => <Heading5 {...props} />,
-        h6: ({ ...props }) => <Heading6 {...props} />,
-        p: ({ ...props }) => <Paragraph {...props} />,
-        strong: ({ ...props }) => <Strong {...props} />,
-        em: ({ ...props }) => <Emphasis {...props} />,
-        ul: ({ ...props }) => <UnorderedList {...props} />,
-        ol: ({ ...props }) => <OrderedList {...props} />,
-        li: ({ ...props }) => <ListItem {...props} />,
-        a: ({ ...props }) => <Link {...props} />,
-        img: ({ ...props }) => <Image {...props} />,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        code: ({ inline, className, children, ...props }) => {
+        // 文本组件
+        p: ({ node, ...props }) => <Paragraph {...props} />,
+        strong: ({ node, ...props }) => <Strong {...props} />,
+        em: ({ node, ...props }) => <Emphasis {...props} />,
+
+        // 列表组件
+        ul: ({ node, ...props }) => <UnorderedList {...props} />,
+        ol: ({ node, ...props }) => <OrderedList {...props} />,
+        li: ({ node, ...props }) => <ListItem {...props} />,
+
+        // 链接和图片
+        a: ({ node, ...props }) => <Link {...props} />,
+        img: ({ node, ...props }) => <Image {...props} />,
+        
+        // 代码块组件
+        code: ({ node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
+            const inline = !match;
             return inline ? (
                 <InlineCode {...props}>{children}</InlineCode>
             ) : (
@@ -79,31 +109,39 @@ export const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => 
                 />
             );
         },
-        blockquote: ({ ...props }) => <Blockquote {...props} />,
-        hr: ({ ...props }) => <HorizontalRule {...props} />,
-        del: ({ ...props }) => <Strikethrough {...props} />,
-        input: ({ ...props }) => <TaskListItem {...props} />,
-        table: ({ ...props }) => <Table {...props} />,
-        th: ({ ...props }) => <TableHeader {...props} />,
-        td: ({ ...props }) => <TableCell {...props} />,
 
-        // 显式定义 math 和 inlineMath 的类型
-        // @ts-ignore
-        math: ({ value }: { value: string }) => <BlockMath>{value}</BlockMath>,
-        inlineMath: ({ value }: { value: string }) => <InlineMath>{value}</InlineMath>,
-    };
+        // 其他组件
+        blockquote: ({ node, ...props }) => <Blockquote {...props} />,
+        hr: ({ node, ...props }) => <HorizontalRule {...props} />,
+        del: ({ node, ...props }) => <Strikethrough {...props} />,
+        input: ({ node, ...props }) => <TaskListItem {...props} />,
+        
+        // 表格组件
+        table: ({ node, ...props }) => <Table {...props} />,
+        th: ({ node, ...props }) => <TableHeader {...props} />,
+        td: ({ node, ...props }) => <TableCell {...props} />,
+
+        // 数学公式组件
+        math: memo(({ value }: { value: string }) => <BlockMath>{value}</BlockMath>),
+        inlineMath: memo(({ value }: { value: string }) => <InlineMath>{value}</InlineMath>),
+    }), []);
 
     return (
         <div className="markdown-body">
             <BlurAnimatedWrapper>
                 <ReactMarkdown
-                    remarkPlugins={[remarkGfm, remarkMath]} // 支持GFM和数学语法
-                    rehypePlugins={[rehypeKatex]} // Katex渲染数学公式
+                    remarkPlugins={remarkPlugins}
+                    rehypePlugins={rehypePlugins}
                     components={components}
+                    skipHtml
                 >
                     {preprocessedContent}
                 </ReactMarkdown>
             </BlurAnimatedWrapper>
         </div>
     );
-};
+});
+
+MarkdownRenderer.displayName = 'MarkdownRenderer';
+
+export default MarkdownRenderer;

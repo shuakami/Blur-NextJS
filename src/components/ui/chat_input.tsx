@@ -130,19 +130,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const textarea = textareaRef.current;
         const currentScrollTop = textarea.scrollTop;
         
-        textarea.style.height = `${MIN_HEIGHT}px`;
+        textarea.style.height = 'auto';
         const scrollHeight = Math.max(MIN_HEIGHT, textarea.scrollHeight);
         const newHeight = Math.min(scrollHeight, maxHeight);
         
         if (newHeight !== height) {
             setHeight(newHeight);
-            textarea.style.height = `${newHeight}px`;
-            
-            if (newHeight === maxHeight) {
-                textarea.scrollTop = textarea.scrollHeight;
-            } else {
-                textarea.scrollTop = currentScrollTop;
-            }
         }
     }, [height, maxHeight]);
 
@@ -162,6 +155,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
         try {
             await onSend(message);
             setMessage('');
+            // 重置高度
+            if (textareaRef.current) {
+                textareaRef.current.style.height = `${INITIAL_HEIGHT}px`;
+            }
             setHeight(INITIAL_HEIGHT);
         } catch (error) {
             console.error('发送消息失败:', error);
@@ -207,7 +204,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                 initial={false}
                                 animate={{ height }}
                                 transition={springConfig}
-                                className="relative"
+                                className="relative w-full"
                             >
                                 <textarea
                                     ref={textareaRef}
@@ -217,14 +214,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                     placeholder={t(placeholder)}
                                     rows={1}
                                     className="block w-full resize-none bg-transparent py-2 
-                                             text-[15px] leading-6
+                                             text-[15px] leading-6 absolute inset-0 
                                              text-gray-900 dark:text-gray-100
                                              placeholder:text-gray-500 dark:placeholder:text-gray-400
                                              focus:outline-none
                                              scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600
                                              scrollbar-track-transparent"
                                     style={{
-                                        height: `${height}px`,
+                                        height: '100%',
                                         overflowY: height >= maxHeight ? 'auto' : 'hidden'
                                     }}
                                 />
