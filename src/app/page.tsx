@@ -62,6 +62,7 @@ const SidebarOverlay = React.memo(({ isOpen, onClose }: { isOpen: boolean; onClo
         )}
     </AnimatePresence>
 ));
+SidebarOverlay.displayName = 'SidebarOverlay';
 
 const HomeContent = () => {
     const router = useRouter();
@@ -220,6 +221,7 @@ const HomeContent = () => {
         </div>
     );
 };
+HomeContent.displayName = 'HomeContent';
 
 export default function Home() {
     return (

@@ -23,7 +23,6 @@ const HomeHeaderIcon = dynamic(() => import('@/app/[首页占位]/home_header_ic
 
 const SIDEBAR_WIDTH = 220;
 const MAX_RETRY_COUNT = 3;
-const DEFAULT_CHAT_TITLE = 'Chat - Blur AI';
 
 const useWindowSize = () => {
     const [width, setWidth] = useState(
@@ -250,3 +249,4 @@ export default function ChatPage() {
         </ChatProvider>
     );
 }
+ChatPage.displayName = 'ChatPage';
