@@ -10,13 +10,14 @@ const AgentIcon = () => (
     </svg>
 );
 
-const MarkdownRenderer = ({ content }) => (
+const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => (
     <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
 );
 
-const AgentCard = ({ agentName, content }) => {
-    const [status, setStatus] = useState('receiving');
-    const [displayContent, setDisplayContent] = useState('');
+
+const AgentCard: React.FC<{ agentName: string; content: string }> = ({ agentName, content }) => {
+    const [status, setStatus] = useState<string>('receiving');
+    const [displayContent, setDisplayContent] = useState<string>('');
 
     useEffect(() => {
         setStatus('receiving');
