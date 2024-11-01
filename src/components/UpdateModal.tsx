@@ -40,7 +40,7 @@ interface UpdateModalProps {
 }
 
 // Demo 组件类型定义
-type DemoComponent = React.FC<{}>;
+type DemoComponent = React.FC;
 
 // Feature 接口定义
 interface Feature {
@@ -168,8 +168,6 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
             setCurrentPage(curr => curr - 1);
         }
     }, [currentPage]);
-
-    const version = process.env.NEXT_PUBLIC_VERSION || 'error_version';
 
     return (
         <AnimatePresence mode="wait">

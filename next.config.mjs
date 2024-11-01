@@ -1,6 +1,4 @@
 /** @type {import('next').NextConfig} */
-import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-
 const nextConfig = {
     // 编译优化
     swcMinify: true,
@@ -23,7 +21,7 @@ const nextConfig = {
             'localhost',
             'data:'
         ],
-        deviceSizes: [640, 768, 1024, 1280, 1920], 
+        deviceSizes: [640, 768, 1024, 1280, 1920],
         imageSizes: [16, 32, 48, 64, 96],
         formats: ['image/webp', 'image/avif'],
         minimumCacheTTL: 3600,
@@ -33,8 +31,8 @@ const nextConfig = {
     experimental: {
         optimizeCss: true,
         turbo: {
-            loaders: {
-                '.svg': ['@svgr/webpack'],
+            rules: {
+                '*.svg': ['@svgr/webpack'],
             },
         },
         scrollRestoration: true,
@@ -45,119 +43,31 @@ const nextConfig = {
             'framer-motion',
             'react-markdown',
         ],
-        optimizeServerReact: true,
-        adjustFontFallbacks: true,
-        optimisticClientCache: true,
-        serverMinification: true,
-        serverSourceMaps: false,
     },
 
-    // Webpack 配置优化
-    webpack: (config, {dev, isServer}) => {
-        // 只在客户端生产环境进行优化
-        if (!dev && !isServer) {
-            // 修改优化配置
-            config.optimization = {
-                ...config.optimization,
-                moduleIds: 'deterministic',
-                splitChunks: {
-                    chunks: 'all',
-                    minSize: 20000,
-                    maxSize: 244000,
-                    cacheGroups: {
-                        vendor: {
-                            name: 'vendor',
-                            test: /[\\/]node_modules[\\/]/,
-                            chunks: 'all',
-                            priority: 10,
-                        },
-                        common: {
-                            name: 'common',
-                            minChunks: 2,
-                            priority: -10,
-                            reuseExistingChunk: true,
-                        },
-                        styles: {
-                            name: 'styles',
-                            test: /\.(css|scss)$/,
-                            chunks: 'all',
-                            enforce: true,
-                        },
+    // 基础 webpack 配置
+    webpack: (config, { dev, isServer }) => {
+        if (!isServer && !dev) {
+            config.optimization.splitChunks = {
+                chunks: 'all',
+                minSize: 20000,
+                maxSize: 244000,
+                cacheGroups: {
+                    vendor: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name: 'vendors',
+                        priority: -10,
+                        reuseExistingChunk: true,
                     },
                 },
-                minimizer: [
-                    '...',
-                    new CssMinimizerPlugin({
-                        minimizerOptions: {
-                            preset: [
-                                'default',
-                                {
-                                    discardComments: { removeAll: true },
-                                },
-                            ],
-                        },
-                    }),
-                ],
             };
         }
-
-        // 图片优化配置
-        if (!isServer) {
-            config.module.rules.push({
-                test: /\.(jpe?g|png|gif|webp)$/i,
-                type: 'asset',
-                use: [
-                    {
-                        loader: 'image-webpack-loader',
-                        options: {
-                            mozjpeg: {
-                                progressive: true,
-                                quality: 65,
-                            },
-                            optipng: {
-                                enabled: true,
-                                optimizationLevel: 7,
-                            },
-                            pngquant: {
-                                quality: [0.65, 0.90],
-                                speed: 4,
-                            },
-                            gifsicle: {
-                                interlaced: false,
-                            },
-                            webp: {
-                                quality: 75,
-                            },
-                        },
-                    },
-                ],
-            });
-        }
-
         return config;
     },
 
-    // 缓存优化
-    onDemandEntries: {
-        maxInactiveAge: 60 * 60 * 1000,
-        pagesBufferLength: 5,
-    },
-
-    // 输出优化
-    output: 'standalone',
-    poweredByHeader: false,
-    generateEtags: true,
-    compress: true,
-    
-    // 性能优化
-    reactStrictMode: true,
-    productionBrowserSourceMaps: false,
-    staticPageGenerationTimeout: 120,
-    
     // 缓存策略
     async headers() {
         const isDev = process.env.NODE_ENV !== 'production';
-
         return [
             {
                 source: '/:all*(svg|jpg|png|webp|avif|js|css)',
@@ -238,16 +148,13 @@ const nextConfig = {
         ];
     },
 
-    // 禁用生产环境源映射
-    productionBrowserSourceMaps: false,
-
-    // 输出优化
+    // 基础优化
     output: 'standalone',
     poweredByHeader: false,
     generateEtags: true,
     compress: true,
-    
-    // 静态页面优化
+    reactStrictMode: true,
+    productionBrowserSourceMaps: false,
     staticPageGenerationTimeout: 120,
 };
 

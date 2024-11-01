@@ -37,10 +37,8 @@ InlineCode.displayName = 'InlineCode';
 
 // 预处理
 const preprocessMarkdown = (content: string): string => {
-    // 使用正则表达式一次性处理所有代码块
     const codeBlockRegex = /```[\s\S]*?```|`[^`]+`/g;
     let insideCodeBlock = false;
-    let processedContent = content;
 
     // 如果没有代码块标记，直接返回原内容
     if (!codeBlockRegex.test(content)) {
@@ -48,7 +46,7 @@ const preprocessMarkdown = (content: string): string => {
     }
 
     // 处理未闭合的代码块
-    const lines = processedContent.split('\n');
+    const lines = content.split('\n');
     const processedLines: string[] = [];
     
     for (let i = 0; i < lines.length; i++) {
@@ -70,34 +68,41 @@ const preprocessMarkdown = (content: string): string => {
 const remarkPlugins = [remarkGfm, remarkMath];
 const rehypePlugins = [rehypeKatex];
 
+// 数学公式组件
+const MathBlock = memo(({ value }: { value: string }) => <BlockMath>{value}</BlockMath>);
+MathBlock.displayName = 'MathBlock';
+
+const InlineMathBlock = memo(({ value }: { value: string }) => <InlineMath>{value}</InlineMath>);
+InlineMathBlock.displayName = 'InlineMathBlock';
+
 export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }) => {
     // 缓存预处理结果
     const preprocessedContent = useMemo(() => preprocessMarkdown(content), [content]);
     const components = useMemo<Components>(() => ({
         // 标题组件
-        h1: ({ node, ...props }) => <Heading1 {...props} />,
-        h2: ({ node, ...props }) => <Heading2 {...props} />,
-        h3: ({ node, ...props }) => <Heading3 {...props} />,
-        h4: ({ node, ...props }) => <Heading4 {...props} />,
-        h5: ({ node, ...props }) => <Heading5 {...props} />,
-        h6: ({ node, ...props }) => <Heading6 {...props} />,
+        h1: ({ children, ...props }) => <Heading1 {...props}>{children}</Heading1>,
+        h2: ({ children, ...props }) => <Heading2 {...props}>{children}</Heading2>,
+        h3: ({ children, ...props }) => <Heading3 {...props}>{children}</Heading3>,
+        h4: ({ children, ...props }) => <Heading4 {...props}>{children}</Heading4>,
+        h5: ({ children, ...props }) => <Heading5 {...props}>{children}</Heading5>,
+        h6: ({ children, ...props }) => <Heading6 {...props}>{children}</Heading6>,
 
         // 文本组件
-        p: ({ node, ...props }) => <Paragraph {...props} />,
-        strong: ({ node, ...props }) => <Strong {...props} />,
-        em: ({ node, ...props }) => <Emphasis {...props} />,
+        p: ({ children, ...props }) => <Paragraph {...props}>{children}</Paragraph>,
+        strong: ({ children, ...props }) => <Strong {...props}>{children}</Strong>,
+        em: ({ children, ...props }) => <Emphasis {...props}>{children}</Emphasis>,
 
         // 列表组件
-        ul: ({ node, ...props }) => <UnorderedList {...props} />,
-        ol: ({ node, ...props }) => <OrderedList {...props} />,
-        li: ({ node, ...props }) => <ListItem {...props} />,
+        ul: ({ children, ...props }) => <UnorderedList {...props}>{children}</UnorderedList>,
+        ol: ({ children, ...props }) => <OrderedList {...props}>{children}</OrderedList>,
+        li: ({ children, ...props }) => <ListItem {...props}>{children}</ListItem>,
 
         // 链接和图片
-        a: ({ node, ...props }) => <Link {...props} />,
-        img: ({ node, ...props }) => <Image {...props} />,
+        a: ({ children, ...props }) => <Link {...props}>{children}</Link>,
+        img: ({ src, alt = '', ...props }) => <Image src={src} alt={alt} {...props} />,
         
         // 代码块组件
-        code: ({ node, className, children, ...props }) => {
+        code: ({ className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
             const inline = !match;
             return inline ? (
@@ -111,19 +116,19 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
         },
 
         // 其他组件
-        blockquote: ({ node, ...props }) => <Blockquote {...props} />,
-        hr: ({ node, ...props }) => <HorizontalRule {...props} />,
-        del: ({ node, ...props }) => <Strikethrough {...props} />,
-        input: ({ node, ...props }) => <TaskListItem {...props} />,
+        blockquote: ({ children, ...props }) => <Blockquote {...props}>{children}</Blockquote>,
+        hr: (props) => <HorizontalRule {...props} />,
+        del: ({ children, ...props }) => <Strikethrough {...props}>{children}</Strikethrough>,
+        input: (props) => <TaskListItem {...props} />,
         
         // 表格组件
-        table: ({ node, ...props }) => <Table {...props} />,
-        th: ({ node, ...props }) => <TableHeader {...props} />,
-        td: ({ node, ...props }) => <TableCell {...props} />,
+        table: ({ children, ...props }) => <Table {...props}>{children}</Table>,
+        th: ({ children, ...props }) => <TableHeader {...props}>{children}</TableHeader>,
+        td: ({ children, ...props }) => <TableCell {...props}>{children}</TableCell>,
 
         // 数学公式组件
-        math: memo(({ value }: { value: string }) => <BlockMath>{value}</BlockMath>),
-        inlineMath: memo(({ value }: { value: string }) => <InlineMath>{value}</InlineMath>),
+        math: MathBlock,
+        inlineMath: InlineMathBlock,
     }), []);
 
     return (
