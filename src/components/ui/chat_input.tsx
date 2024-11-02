@@ -197,7 +197,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         className="flex w-full items-end gap-1.5 rounded-[26px] p-2 
                                   bg-[#f4f4f4] dark:bg-[#2a2a2a] 
                                   transition-colors duration-200"
-                        layout
                     >
                         <div className="flex min-w-0 flex-1 flex-col pl-4">
                             <motion.div

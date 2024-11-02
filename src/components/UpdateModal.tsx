@@ -194,7 +194,7 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
                     as={motion.div}
                     open={isOpen}
                     onClose={onClose}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                    className="fixed inset-0 z-50 flex items-center justify-center"
                 >
                     <DialogBackdrop
                         as={motion.div}
@@ -204,35 +204,48 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
                     
                     <motion.div
                         {...animations.modal}
-                        className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden"
+                        className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-[calc(100%-2rem)] md:w-full max-w-3xl overflow-hidden max-h-[90vh] md:max-h-[85vh]"
                     >
                         <button 
                             onClick={onClose}
-                            className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 z-10"
+                            className="absolute right-3 top-3 md:right-4 md:top-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 z-10"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M6 18L18 6M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
                         </button>
-
+    
                         <motion.div 
-                            className="flex items-stretch"
+                            className="flex flex-col h-full md:flex-row md:items-stretch"
                             {...animations.content}
                         >
+                            {/* Demo Section - 在移动端放在顶部 */}
+                            <div className="w-full h-[180px] md:h-auto md:w-[400px] bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center relative">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={currentPage}
+                                        {...animations.demo}
+                                        className="w-full"
+                                    >
+                                        {createElement(features[currentPage].Demo)}
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
+    
                             {/* Content */}
-                            <div className="flex-1 py-[27px] px-8">
+                            <div className="flex-1 px-4 py-5 md:px-8 md:py-[27px]">
                                 <div className="h-full flex flex-col">
                                     {/* Header */}
-                                    <h2 className="text-xl font-semibold mb-6">
+                                    <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">
                                         <span className="text-gray-650 dark:text-gray-300">Blur</span>
                                         <span className="text-gray-500 dark:text-gray-500 font-light mx-2">/</span>
                                         <span className="text-gray-900 dark:text-white font-semibold">Update</span>
                                     </h2>
                                     
                                     {/* Feature Content */}
-                                    <div className="flex-1 space-y-4">
+                                    <div className="flex-1 space-y-3 md:space-y-4">
                                         <motion.h3 
-                                            className="text-2xl font-bold tracking-tight"
+                                            className="text-xl md:text-2xl font-bold tracking-tight"
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             key={features[currentPage].title}
@@ -244,7 +257,7 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
                                         </motion.h3>
                                         
                                         <motion.p 
-                                            className="text-base leading-relaxed text-gray-600 dark:text-gray-400 max-w-md"
+                                            className="text-sm md:text-base leading-relaxed text-gray-600 dark:text-gray-400"
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.1 }}
@@ -253,9 +266,9 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
                                             {features[currentPage].description}
                                         </motion.p>
                                     </div>
-
+    
                                     {/* Navigation */}
-                                    <div className="flex items-center gap-4 pt-6">
+                                    <div className="flex items-center gap-3 md:gap-4 pt-4 md:pt-6">
                                         <div className="flex gap-1.5">
                                             {features.map((_, idx) => (
                                                 <div
@@ -271,36 +284,23 @@ const UpdateModal: React.FC<UpdateModalProps> = memo(({ isOpen, onClose }) => {
                                         <div className="flex-1" />
                                         <button
                                             onClick={prevPage}
-                                            className={`p-2 rounded-lg ${
+                                            className={`p-1.5 md:p-2 rounded-lg ${
                                                 currentPage === 0 
                                                 ? 'opacity-30 cursor-not-allowed' 
                                                 : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                                             }`}
                                             disabled={currentPage === 0}
                                         >
-                                            <IconChevronLeft className="w-5 h-5" />
+                                            <IconChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                                         </button>
                                         <button
                                             onClick={nextPage}
-                                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                                            className="p-1.5 md:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                                         >
-                                            <IconChevronRight className="w-5 h-5" />
+                                            <IconChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Demo Section */}
-                            <div className="w-[400px] h-auto bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center relative">
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={currentPage}
-                                        {...animations.demo}
-                                        className="w-full"
-                                    >
-                                        {createElement(features[currentPage].Demo)}
-                                    </motion.div>
-                                </AnimatePresence>
                             </div>
                         </motion.div>
                     </motion.div>

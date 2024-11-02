@@ -65,9 +65,9 @@ const SidebarOverlay = React.memo(({ isOpen, onClose }: { isOpen: boolean; onClo
 SidebarOverlay.displayName = 'SidebarOverlay';
 
 const fadeInUpAnimation = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 10 },
+    initial: { opacity: 0},
+    animate: { opacity: 1},
+    exit: { opacity: 0},
     transition: { duration: 0.3, ease: "easeOut" }
 };
 
@@ -216,7 +216,7 @@ const HomeContent = () => {
                                 >
                                     <Suspense fallback={null}>
                                         <HomepageContent onFirstMessage={() => {
-                                            setTimeout(() => setHasConversation(true), 100);
+                                            setTimeout(() => setHasConversation(true), 4000);
                                         }} />
                                     </Suspense>
                                 </motion.div>

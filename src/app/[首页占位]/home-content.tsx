@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { Monitor, Shirt, Mail, Code, PenTool, FileText, Lightbulb, Briefcase, MoreHorizontal } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import ChatInputWrapper from '@/components/ui/ChatInputWrapper'
 
 interface HomepageContentProps {
@@ -107,7 +107,11 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
     return (
         <div className="mx-auto flex h-full w-full flex-col text-base lg:justify-center md:max-w-3xl">
             <div className="mb-7 hidden text-center lg:block">
-                <motion.div layout="position">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                >
                     <div className="relative inline-flex justify-center text-center text-2xl font-semibold leading-9">
                         <h1 className="text-2xl font-semibold mb-5">{title}</h1>
                     </div>
@@ -144,60 +148,81 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
                 </div>
             </div>
 
-            <motion.div layout="position">
+            <div className="relative w-full">
                 <div className={`w-full ${isMobile ? 'fixed bottom-0 left-0 pb-4 pt-2 bg-gradient-to-t from-white dark:from-gray-900 to-transparent' : ''}`}>
                     <div className="mx-auto max-w-3xl px-4">
                         <ChatInputWrapper onFirstMessage={onFirstMessage}/>
                     </div>
                 </div>
                 
-                {animationDone && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="hidden lg:block mt-12"
-                    >
-                        <div className="max-w-3xl mx-auto">
-                            <motion.nav
-                                initial="hidden"
-                                animate="visible"
-                                variants={{
-                                    visible: { transition: { staggerChildren: 0.05 } },
-                                }}
-                                className="flex flex-wrap justify-center gap-4"
-                            >
-                                {CATEGORIES.map((category, index) => (
-                                    <motion.button
-                                        key={index}
-                                        variants={categoryVariants}
-                                        className="group relative overflow-hidden rounded-lg border border-token-border-light dark:border-token-border-dark
-                                                hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out"
-                                    >
-                                        <div className="flex items-center p-2.5 space-x-1.5">
-                                            <span className="text-2xl" style={{ color: category.color }}>
-                                                {category.icon}
-                                            </span>
-                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                                                {category.title}
-                                            </span>
-                                        </div>
-                                    </motion.button>
-                                ))}
-                                <motion.button
-                                    variants={categoryVariants}
-                                    className="rounded-lg border border-token-border-light dark:border-token-border-dark
-                                            hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out p-2"
-                                    aria-label="更多选项"
+                <AnimatePresence>
+                    {animationDone && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ 
+                                opacity: 1, 
+                                height: "auto",
+                                transition: {
+                                    height: {
+                                        duration: 0.4,
+                                        ease: [0.25, 0.8, 0.25, 1]
+                                    },
+                                    opacity: {
+                                        duration: 0.3,
+                                        delay: 0.1
+                                    }
+                                }
+                            }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="hidden lg:block overflow-hidden"
+                        >
+                            <div className="mt-12 max-w-3xl mx-auto">
+                                <motion.nav
+                                    initial="hidden"
+                                    animate="visible"
+                                    variants={{
+                                        hidden: { opacity: 0 },
+                                        visible: { 
+                                            opacity: 1,
+                                            transition: { 
+                                                staggerChildren: 0.05,
+                                                ease: [0.25, 0.8, 0.25, 1]
+                                            } 
+                                        },
+                                    }}
+                                    className="flex flex-wrap justify-center gap-4"
                                 >
-                                    <MoreHorizontal className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-                                </motion.button>
-                            </motion.nav>
-                        </div>
-                    </motion.div>
-                )}
-            </motion.div>
+                                    {CATEGORIES.map((category, index) => (
+                                        <motion.button
+                                            key={index}
+                                            variants={categoryVariants}
+                                            className="group relative overflow-hidden rounded-lg border border-token-border-light dark:border-token-border-dark
+                                                    hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out"
+                                        >
+                                            <div className="flex items-center p-2.5 space-x-1.5">
+                                                <span className="text-2xl" style={{ color: category.color }}>
+                                                    {category.icon}
+                                                </span>
+                                                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                                    {category.title}
+                                                </span>
+                                            </div>
+                                        </motion.button>
+                                    ))}
+                                    <motion.button
+                                        variants={categoryVariants}
+                                        className="rounded-lg border border-token-border-light dark:border-token-border-dark
+                                                hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out p-2"
+                                        aria-label="更多选项"
+                                    >
+                                        <MoreHorizontal className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                                    </motion.button>
+                                </motion.nav>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     );
 }
