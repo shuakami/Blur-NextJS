@@ -1,118 +1,107 @@
 :root {
-    --heading-color-dark: #2c2c2c; /* 深色标题 */
-    --heading-color-light: #3a3a3a; /* 浅色标题 */
+    --heading-color-dark: #24292e;
+    --heading-color-light: #2f3437;
+    --heading-accent: #0d1117;
 }
 
-/* 标题 h1 ~ h6 样式设计 */
-
+/* H1: 主标题 */
 .text-heading1 {
-    font-size: 2.125rem; /* 34px - 略微缩小字体 */
-    font-weight: 700;
-    line-height: 1.2;
-    margin-top: 1.75rem;
-    margin-bottom: 1rem;
-    color: var(--heading-color-dark);
-    letter-spacing: -0.015em;
-}
-
-.text-heading2 {
-    font-size: 1.4375rem; /* 23px - 微调减小 */
-    font-weight: 600;
-    line-height: 1.15;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--heading-color-dark);
-    letter-spacing: -0.01em;
-}
-
-.text-heading3 {
-    font-size: 1.25rem; /* 20px - 减小字体并与 h2 拉开差距 */
-    font-weight: 600;
-    line-height: 1.2;
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
-    color: var(--heading-color-dark);
-}
-
-.text-heading4 {
-    font-size: 1.125rem; /* 18px - 略微减小 */
-    font-weight: 600; /* 保持粗体，增加视觉层次感 */
-    line-height: 1.25;
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
-    color: var(--heading-color-light);
-}
-
-.text-heading5 {
-    font-size: 1.0625rem; /* 17px - 略微减小 */
+    font-size: 1.625rem;
     font-weight: 600;
     line-height: 1.3;
-    margin-top: 1rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--heading-accent);
+    letter-spacing: -0.01em;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* H2: 次级标题 */
+.text-heading2 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--heading-color-dark);
+    letter-spacing: -0.008em;
+}
+
+/* H3: 段落标题 */
+.text-heading3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-top: 1.75rem;
+    margin-bottom: 0.875rem;
+    color: var(--heading-color-dark);
+}
+
+/* H4: 小节标题 */
+.text-heading4 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--heading-color-light);
+}
+
+/* H5: 细节标题 */
+.text-heading5 {
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-top: 1.25rem;
+    margin-bottom: 0.625rem;
+    color: var(--heading-color-light);
+}
+
+/* H6: 最小标题 */
+.text-heading6 {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-top: 1.25rem;
     margin-bottom: 0.5rem;
     color: var(--heading-color-light);
 }
 
-.text-heading6 {
-    font-size: 0.9375rem; /* 15px - 减小字体 */
-    font-weight: 500;
-    line-height: 1.35;
-    margin-top: 1rem;
-    margin-bottom: 0.375rem;
-    color: var(--heading-color-light);
-}
-
-/* 响应式设计，适配移动端 */
-@media (max-width: 768px) {
-    .text-heading1 { font-size: 2rem; line-height: 1.2; margin-top: 1.5rem; margin-bottom: 1rem; }
-    .text-heading2 { font-size: 1.375rem; line-height: 1.15; margin-top: 1.25rem; margin-bottom: 0.5rem; }
-    .text-heading3 { font-size: 1.125rem; line-height: 1.2; margin-top: 1.25rem; margin-bottom: 0.5rem; }
-    .text-heading4 { font-size: 1rem; line-height: 1.25; margin-top: 1rem; margin-bottom: 0.5rem; }
-    .text-heading5 { font-size: 0.9375rem; line-height: 1.3; margin-top: 0.875rem; margin-bottom: 0.5rem; }
-    .text-heading6 { font-size: 0.875rem; line-height: 1.35; margin-top: 0.75rem; margin-bottom: 0.375rem; }
-}
-
-/* 暗色模式支持 */
+/* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --heading-color-dark: var(--text-color);
-        --heading-color-light: #d0d0d0;
-    }
-
-    body {
-        background-color: #121212;
-        color: var(--text-color);
-    }
-
-    .text-heading1,
-    .text-heading2,
-    .text-heading3,
-    .text-heading4,
-    .text-heading5,
-    .text-heading6 {
-        color: var(--heading-color-dark);
+        --heading-color-dark: #e1e4e8;
+        --heading-color-light: #c9d1d9;
+        --heading-accent: #f0f6fc;
     }
 }
 
-/* 高对比度模式支持 */
-@media (prefers-contrast: high) {
-    .text-heading1, .text-heading2, .text-heading3 {
-        font-weight: 800;
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .text-heading1 {
+        font-size: 1.375rem;
+        margin-top: 2rem;
+        margin-bottom: 1.25rem;
     }
-    .text-heading4, .text-heading5, .text-heading6 {
-        font-weight: 700;
+    
+    .text-heading2 {
+        font-size: 1.25rem;
+        margin-top: 1.75rem;
     }
-}
-
-/* 高分辨率屏幕优化 */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .text-body,
-    .list-item,
-    .text-heading1,
-    .text-heading2,
-    .text-heading3,
-    .text-heading4,
+    
+    .text-heading3 {
+        font-size: 1.125rem;
+        margin-top: 1.5rem;
+    }
+    
+    .text-heading4 {
+        font-size: 1.0625rem;
+        margin-top: 1.25rem;
+    }
+    
     .text-heading5,
     .text-heading6 {
-        -webkit-font-smoothing: subpixel-antialiased;
+        font-size: 1rem;
+        margin-top: 1rem;
     }
 }

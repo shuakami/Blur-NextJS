@@ -168,13 +168,13 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
     return (
         <div className="text-markdown-container">
             {/*<SearchingMessage/>*/}
-            {/*<MarkdownRenderer content={visibleText}/>*/}
+            <MarkdownRenderer content={visibleText}/>
             <ChatList messages={messages}/>
-            <button onClick={() => setShowUpdateModal(true)}>Show Update Modal</button>
+            {/* <button onClick={() => setShowUpdateModal(true)}>Show Update Modal</button>
             <UpdateModal 
                 isOpen={showUpdateModal} 
                 onClose={() => setShowUpdateModal(false)} 
-            />
+            /> */}
             {/*<FormUI*/}
             {/*    title="Please select an option"*/}
             {/*    description="Choose the option that best fits your needs."*/}

@@ -1,0 +1,202 @@
+/* 
+ * Luoxiaohei / Code Theme
+ * Version: 0.01
+ * Release Date: November 2, 2024
+ * Author: Shuakami
+ */
+
+
+/* 代码块 (code block)*/
+.hljs {
+    color: #383A42;
+    background: transparent;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: auto;
+    font-weight: 350;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
+    font-feature-settings: "liga" 1, "calt" 1;
+    -webkit-font-smoothing: auto;
+    text-rendering: optimizeLegibility;
+}
+
+/* 关键字 (import, export, const, let, return) */
+.hljs-keyword {
+    color: #aa25a8;
+    font-weight: 350;
+}
+
+/* 内置类型和类型注解 (Number, String, Boolean, Array, Object, Function, etc.) */
+.hljs-type,
+.hljs-built_in {
+    color: #C18401;
+    font-weight: 350;
+}
+
+/* 字符串和模板字符串 (String, Template String) */
+.hljs-string,
+.hljs-template-string {
+    color: #50A14F;
+}
+
+/* 数字 (number)*/
+.hljs-number {
+    color: #a77a19;
+}
+
+/* 函数名 (function)*/
+.hljs-title.function_ {
+    color: #4078F2;
+    font-weight: 350;
+}
+
+/* 类名和接口名 (class)*/
+.hljs-title.class_ {
+    color: #4078F2;
+    font-weight: 350;
+}
+
+/* 变量名和属性 (variable)*/
+.hljs-variable,
+.hljs-property {
+    color: #383A42;
+}
+
+/* 对象属性 (attr)*/
+.hljs-attr {
+    color: #986801;
+}
+
+/* 函数参数 (params)*/
+.hljs-params {
+    color: #383A42;
+}
+
+/* 注释 (comment)   */
+.hljs-comment {
+    color: #A0A1A7;
+    font-style: italic;
+    font-weight: 350;
+}
+
+/* 操作符和标点 (operator, punctuation)*/
+.hljs-operator,
+.hljs-punctuation {
+    color: #515254;
+}
+
+/* 正则表达式 (regexp)*/
+.hljs-regexp {
+    color: #50A14F;
+}
+
+/* 装饰器 (meta)*/
+.hljs-meta {
+    color: #4078F2;
+}
+
+/* JSX/TSX 标签 (tag)*/
+.hljs-tag {
+    color: #383A42;
+}
+
+/* JSX/TSX 标签名 (tag name)*/
+.hljs-tag .hljs-name {
+    color: #E45649;
+}
+
+/* JSX/TSX 标签属性 (tag attr)*/
+.hljs-tag .hljs-attr {
+    color: #986801;
+}
+
+/* 暗色模式 */
+@media (prefers-color-scheme: dark) {
+    .hljs {
+        color: #ABB2BF;
+    }
+
+    .hljs-keyword {
+        color: #C678DD;
+    }
+
+    .hljs-type,
+    .hljs-built_in {
+        color: #E5C07B;
+    }
+
+    .hljs-string,
+    .hljs-template-string {
+        color: #98C379;
+    }
+
+    .hljs-number {
+        color: #E5C07B;
+    }
+
+    .hljs-title.function_ {
+        color: #61AFEF;
+    }
+
+    .hljs-title.class_ {
+        color: #E5C07B;
+    }
+
+    .hljs-variable,
+    .hljs-property {
+        color: #ABB2BF;
+    }
+
+    .hljs-attr {
+        color: #D19A66;
+    }
+
+    .hljs-comment {
+        color: #7F848E;
+    }
+
+    .hljs-operator,
+    .hljs-punctuation {
+        color: #7A7C7F;
+    }
+
+    .hljs-regexp {
+        color: #98C379;
+    }
+
+    .hljs-params {
+        color: #ABB2BF;
+    }
+
+    .hljs-meta {
+        color: #61AFEF;
+    }
+
+    .hljs-tag {
+        color: #ABB2BF;
+    }
+
+    .hljs-tag .hljs-name {
+        color: #E06C75;
+    }
+
+    .hljs-tag .hljs-attr {
+        color: #D19A66;
+    }
+}
+
+/* 特殊强调 (emphasis)*/
+.hljs-emphasis {
+    font-style: italic;
+}
+
+/* 特殊强调 (strong)*/
+.hljs-strong {
+    font-weight: 350;
+}
+
+/* 链接 (link)*/
+.hljs-link {
+    text-decoration: underline;
+    color: inherit;
+}
