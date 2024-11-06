@@ -17,11 +17,7 @@
 
 .markdown-body {
   color: var(--text-color);
-  line-height: 1.6;
-  font-size: 1.0225rem;
-  padding: 0 1rem;
 }
-
 
 
 .message-user {
@@ -93,6 +89,7 @@ body {
 
 @layer base {
   :root {
+    --gray-950: #0d0d0d;
     --transition-duration: 0.7s;
     --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --background: 0 0% 100%; /* 白色 */

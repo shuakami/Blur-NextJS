@@ -89,8 +89,6 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConve
         })}/>; // 用户未登录时显示提示
     }
 
-    if (loading) return null;
-
     const sidebarItems = groupConversationsByDate(conversations, t);
 
     const userInfo = {

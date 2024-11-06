@@ -153,7 +153,6 @@ const nextConfig = {
     poweredByHeader: false,
     generateEtags: true,
     compress: true,
-    reactStrictMode: true,
     productionBrowserSourceMaps: false,
     staticPageGenerationTimeout: 120,
 };

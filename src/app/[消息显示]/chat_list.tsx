@@ -18,7 +18,8 @@ const UIChatList = dynamic(
 const ChatList = memo(() => {
     const {messages, isLoading} = useChatContext();
     
-    return <UIChatList messages={messages} isLoading={isLoading} />;
+    console.log(messages);
+    return <UIChatList messages={messages} isLoading={isLoading || false} />;
 });
 
 ChatList.displayName = 'ChatList';

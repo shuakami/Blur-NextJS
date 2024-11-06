@@ -84,7 +84,9 @@ const EditableMessage = memo(({
         
         setIsSaving(true);
         try {
-            await onSave(editedContent);
+            await onSave(editedContent.trim());
+        } catch (error) {
+            console.error('保存修改失败:', error);
         } finally {
             setIsSaving(false);
         }
@@ -93,20 +95,20 @@ const EditableMessage = memo(({
     const isDisabled = isSaving || editedContent.trim() === content || !editedContent.trim();
 
     return (
-        <div className="min-w-[500px] w-auto message-user rounded-3xl relative group">
-            <div className="pb-6">
+        <div className="w-full message-user rounded-3xl relative group">
+            <div className="pb-14">
                 <textarea
                     ref={textareaRef}
                     value={editedContent}
                     onChange={handleChange}
-                    className="w-full resize-none bg-transparent px-5 py-3
+                    className="w-full resize-none bg-transparent px-6 py-4
                              text-sm-md text-gray-900 dark:text-gray-100
                              focus:outline-none
                              scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
                     style={{ minHeight: '2.5rem' }}
                 />
             </div>
-            <div className="absolute right-3 bottom-3 flex items-center gap-2">
+            <div className="absolute right-4 bottom-4 flex items-center gap-1.5">
                 <Button onClick={onCancel}>
                     取消
                 </Button>

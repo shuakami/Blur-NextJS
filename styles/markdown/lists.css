@@ -1,5 +1,4 @@
 :root {
-    --text-color: #333333;
     --list-marker-color: #555555;
     --list-indent: 1.5rem; /* 一级列表的缩进 */
     --nested-list-indent: 1.25rem; /* 嵌套列表的缩进 */

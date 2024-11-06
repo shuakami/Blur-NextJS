@@ -18,9 +18,14 @@ export const sendMessage = async (
             user_id: params.user_id,
         };
 
-        // 如果传入了 conversation_id，则添加到请求体中
+        // 添加 conversation_id
         if (params.conversation_id) {
             requestBody.conversation_id = params.conversation_id;
+        }
+        
+        // 添加 parent_message_id
+        if (params.parent_message_id) {
+            requestBody.parent_message_id = params.parent_message_id;
         }
 
         // 发送 POST 请求

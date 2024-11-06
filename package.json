@@ -70,7 +70,8 @@
     "strip-markdown": "^6.0.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "unified": "^11.0.5"
+    "unified": "^11.0.5",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",

@@ -18,8 +18,9 @@ export interface FinalInfo {
 
 export interface SendMessageParams {
     user_input: string;
-    user_id?: string;
+    user_id: string;
     conversation_id?: string;
+    parent_message_id?: string;
 }
 
 export interface SendMessageResponse {
@@ -35,27 +36,41 @@ export interface SendMessageResponse {
 
 export interface Message {
     id?: string;
-    type: string;
+    message_id?: string;
+    type: 'user' | 'bot' | 'error';
+    role?: 'system' | 'user' | 'assistant';
     content: string;
-    avatarUrl: string;
+    avatarUrl?: string;
+    timestamp?: number;
     isStreaming?: boolean;
+    status?: 'active' | 'inactive';
+    parentId?: string;
+    childrenIds?: string[];
+    parent_message_id?: string;
+    streamBuffer?: string;
+    version?: number;
+    modified_count?: number;
+    isEdited?: boolean;
+    edit_version?: number;
+    original_message_id?: string;
 }
-
-////////////////////////////////////////
 
 export interface Conversation {
     conversation_id: string;
     chat_title: string | null;
-    timestamp: number;  // 秒级时间戳
+    timestamp: number;
 }
 
 export interface APIMessage {
     message_id: string;
     content: string;
-    role: 'user' | 'assistant';
-    timestamp: number; // 秒级时间戳
-    branch: string | null;
-    keys_used_count: number;
+    role: 'system' | 'user' | 'assistant';
+    timestamp: number;
+    status: 'active' | 'inactive';
+    parent_id?: string;
+    children_ids?: string[];
+    version?: number;              // 新增字段
+    modified_count?: number;       // 新增字段
 }
 
 export interface FetchHistoryResponse {
@@ -70,12 +85,37 @@ export interface FetchHistoryParams {
     limit?: number;
     offset?: number;
 }
-
-
 export interface UIMessage {
-    avatarUrl: string;
-    content: string;
     id: string;
+    content: string;
+    type: 'user' | 'bot' | 'error';
     timestamp: number;
-    type: 'user' | 'bot';
+    avatarUrl: string;
+    status?: 'active' | 'inactive';
+    parentId?: string;
+    childrenIds?: string[];
+    isStreaming?: boolean;
+    version?: number;              // 新增字段
+    modified_count?: number;       // 新增字段
+}
+
+export interface MessageTransformer {
+    toUIMessage: (apiMessage: APIMessage) => UIMessage;
+    toAPIMessage: (uiMessage: UIMessage) => Partial<APIMessage>;
+}
+
+// 消息版本接口
+export interface MessageVersion {
+    messages: {
+        user: Message;
+        bot: Message | null;
+    }[];
+    activeIndex: number;
+}
+
+// 聊天列表组件的属性接口
+export interface ChatListProps {
+    isLoading: boolean;
+    messages: Message[];
+    demo?: boolean; // 可选属性
 }

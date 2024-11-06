@@ -246,10 +246,12 @@ export default function ChatPage() {
                             </div>
 
                             <div className="flex-1 overflow-auto w-full mt-12">
-                                <div className="max-w-4xl mx-auto py-8">
-                                    <Suspense fallback={null}>
-                                        <ChatList/>
-                                    </Suspense>
+                                <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
+                                    <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl">
+                                        <Suspense fallback={null}>
+                                            <ChatList />
+                                        </Suspense>
+                                    </div>
                                 </div>
                             </div>
 
