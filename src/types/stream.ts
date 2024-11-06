@@ -77,6 +77,7 @@ export interface FetchHistoryResponse {
     user_id: string;
     conversation_id: string;
     messages: APIMessage[];
+    total_count: number;
 }
 
 export interface FetchHistoryParams {

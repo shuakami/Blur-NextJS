@@ -5,15 +5,9 @@
 import React, { memo } from 'react';
 import dynamic from 'next/dynamic';
 import {useChatContext} from '@/app/[上下文]/ChatContext';
+import {ChatList as UIChatList} from '@/components/ui/chat-list';
 
-// 懒加载 UIChatList
-const UIChatList = dynamic(
-    () => import('@/components/ui/chat-list').then(mod => mod.ChatList),
-    {
-        loading: () => <div className="animate-pulse h-full w-full bg-gray-100 dark:bg-gray-800/30" />,
-        ssr: false
-    }
-);
+
 
 const ChatList = memo(() => {
     const {messages, isLoading} = useChatContext();

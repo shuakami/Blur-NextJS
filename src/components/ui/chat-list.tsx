@@ -1,19 +1,10 @@
 import React, { memo, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { CircleSlash } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MarkdownRenderer } from "@/components/ui/markdown/MarkdownRenderer";
 import './chat_list.css';
 import ErrorMessage from "./chat-list/ErrorMessage";
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import { ChatListProps, Message } from "@/types/stream";
-
-
-
-
-
 
 // 消息项组件
 const MessageItem = memo(({ 
@@ -44,21 +35,25 @@ const MessageItem = memo(({
     }
 
     return (
-        <div className={`flex ${isBot ? 'items-start space-x-3' : 'justify-end items-start space-x-5'}`}>
+        <div className="flex flex-col">
             {isBot ? (
-                <BotMessage
-                    content={message.content}
-                    isLoading={isLoading}
-                    isLatestBotMessage={isLastMessage}
-                />
+                <div className={`flex py-3 first:pt-4 last:pb-4 items-start space-x-4`}>
+                    <BotMessage
+                        content={message.content}
+                        isLoading={isLoading}
+                        isLatestBotMessage={isLastMessage}
+                    />
+                </div>
             ) : (
-                <UserMessage
-                    message={message}
-                    isEditing={isEditing}
-                    onEdit={() => onEditStart(message.id!)}
-                    onSave={(newContent) => onEditComplete(message.id!, newContent)}
-                    onCancel={onEditCancel}
-                />
+                <div className={`flex py-3 first:pt-4 last:pb-4 justify-end items-start space-x-5`}>
+                    <UserMessage
+                        message={message}
+                        isEditing={isEditing}
+                        onEdit={() => onEditStart(message.id!)}
+                        onSave={(newContent) => onEditComplete(message.id!, newContent)}
+                        onCancel={onEditCancel}
+                    />
+                </div>
             )}
         </div>
     );
@@ -86,8 +81,8 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
     }, []);
 
     return (
-        <div className="p-4 space-y-8 h-full overflow-hidden">
-            <div className="space-y-8">
+        <div className="h-full overflow-hidden w-full">
+          <div className="space-y-1">
                 <TransitionGroup>
                     {messages.map((message, index) => (
                         <CSSTransition key={message.id || index} timeout={500} classNames="message">

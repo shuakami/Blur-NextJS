@@ -1,12 +1,18 @@
-// src/app/contexts/ChatContext.tsx
+// src/app/[上下文]/ChatContext.tsx
 
 import React, {createContext, useContext, useState, useEffect, useRef, useCallback} from 'react';
 import {useUser, useAuth} from '@clerk/nextjs';
-import {sendMessage as sendMessageAPI} from '@/app/[消息发送]/send_message';
-import {stopStream as stopStreamAPI} from '@/app/[对话管理]/stop_stream'; // 引入停止流式传输的 API
-import {Message, StreamChunk, FinalInfo, SendMessageResponse, APIMessage} from '@/types/stream';
+import {
+    sendMessageAPI,
+    stopStreamAPI,
+    fetchHistoryAPI,
+    formatMessages,
+    createUserMessage,
+    createBotMessage,
+    createErrorMessage
+} from './api/chatAPI';
 import useTranslation from "@/hooks/useTranslation";
-import {fetchHistory} from "@/app/[拉取历史]/fetch_history";
+import { Message } from '@/types/stream';
 
 interface ChatContextProps {
     messages: Message[];
@@ -86,27 +92,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         setIsLoading(true);
 
         try {
-            const history = await fetchHistory({
-                user_id: userId,
-                conversation_id: conversationId,
+            const history = await fetchHistoryAPI({
+                userId,
+                conversationId,
                 limit,
                 offset,
             });
 
-            const formattedMessages: Message[] = history.messages.map((msg: APIMessage) => ({
-                id: msg.message_id,
-                type: msg.role === 'assistant' ? 'bot' : 'user',
-                content: msg.content,
-                avatarUrl: msg.role === 'assistant' ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' : user?.imageUrl,
-                timestamp: msg.timestamp * 1000,
-                isStreaming: false,
-            }));
+            const formattedMessages = formatMessages(history.messages, user?.imageUrl);
 
             if (formattedMessages.length < limit) {
                 setHasMore(false);
             }
 
-            // 正常顺序显示消息，无需 reverse
             setMessages((prev) => [...prev, ...formattedMessages]);
             setOffset((prev) => prev + limit);
         } catch (error) {
@@ -125,35 +123,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
         const activeConversationId = inputConversationId || conversationId;
 
         if (!userId) {
-            addMessage({
-                type: 'error',
-                content: t('无法发送消息，用户未登录或未授权。'),
-                avatarUrl: '',
-            });
+            addMessage(createErrorMessage(t('无法发送消息，用户未登录或未授权。')));
             return;
         }
 
-        const userMessage: Message = {
-            type: 'user',
-            content: message,
-            avatarUrl: user?.imageUrl || 'https://github.com/shuakami.png',
-        };
-        // 将用户消息添加到底部
+        const userMessage = createUserMessage(message, user?.imageUrl);
         setMessages((prev) => [...prev, userMessage]);
 
-        const botMessage: Message = {
-            type: 'bot',
-            content: '',
-            avatarUrl: 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix',
-            isStreaming: true, // 表示 bot 消息正在 streaming
-        };
-        // 预先将一个空的 bot 消息添加到底部
+        const botMessage = createBotMessage();
         setMessages((prev) => [...prev, botMessage]);
 
         setIsLoading(true);
         setIsStreaming(true);
 
-        // 创建 AbortController
         const abortController = new AbortController();
         abortControllerRef.current = abortController;
 
@@ -164,40 +146,33 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
             }
 
             let currentConversationId: string | null = activeConversationId;
-            let currentMessageId: string | null | undefined = null; // 用于停止流式传输
 
-            await sendMessageAPI(
-                {
-                    user_input: message,
-                    user_id: userId,
-                    conversation_id: activeConversationId || undefined,
-                },
+            await sendMessageAPI({
+                userInput: message,
+                userId,
                 token,
-                (initialResponse: SendMessageResponse) => {
+                conversationId: activeConversationId,
+                onInitialResponse: (initialResponse) => {
                     currentConversationId = initialResponse.conversation_id;
-                    currentMessageId = initialResponse.message_id;
                     if (!conversationId) {
                         setConversationId(currentConversationId);
                     }
                 },
-                (chunk: StreamChunk) => {
+                onChunk: (chunk) => {
                     if (chunk.content) {
                         setIsLoading(false);
-                        updateLastBotMessage(chunk.content);  // 更新最后的 bot 消息内容
+                        updateLastBotMessage(chunk.content);
                     }
 
                     if (chunk.is_final_chunk) {
-                        // 标记最后一个 bot 消息结束 streaming
                         setMessages((prevMessages) => {
                             const updatedMessages = [...prevMessages];
-                            for (let i = updatedMessages.length - 1; i >= 0; i--) {
-                                if (updatedMessages[i].type === 'bot' && updatedMessages[i].isStreaming) {
-                                    updatedMessages[i] = {
-                                        ...updatedMessages[i],
-                                        isStreaming: false, // 结束 streaming
-                                    };
-                                    break;
-                                }
+                            const lastBotMessageIndex = updatedMessages.length - 1;
+                            if (lastBotMessageIndex >= 0) {
+                                updatedMessages[lastBotMessageIndex] = {
+                                    ...updatedMessages[lastBotMessageIndex],
+                                    isStreaming: false,
+                                };
                             }
                             return updatedMessages;
                         });
@@ -207,17 +182,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
                         triggerConversationsReload();
                     }
                 },
-                (finalInfo: FinalInfo) => {
+                onFinalInfo: (finalInfo) => {
                     console.log('最终信息:', finalInfo);
                 },
-                (error: any) => {
+                onError: (error) => {
                     console.error(t('后端错误:'), error);
                     updateLastBotMessage(t('抱歉，发送消息失败。'));
                     setIsStreaming(false);
                     setIsLoading(false);
                 },
-                abortController.signal // 传入 AbortSignal
-            );
+                signal: abortController.signal
+            });
         } catch (error) {
             console.error(t('发送消息失败:'), error);
             updateLastBotMessage(t('抱歉，发送消息失败。'));
@@ -234,40 +209,30 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
             return;
         }
 
-        // 获取最后一个正在 streaming 的消息
-        const lastBotMessage = messages.slice().reverse().find((msg) => msg.type === 'bot' && msg.isStreaming);
+        const lastBotMessage = messages.slice().reverse().find(
+            (msg) => msg.type === 'bot' && msg.isStreaming
+        );
 
-        if (!lastBotMessage) {
+        if (!lastBotMessage || !lastBotMessage.id) {
             console.error('无法停止流式传输，未找到正在 streaming 的消息');
             return;
         }
 
-        // 调用后端停止流式传输的 API
         try {
-            await stopStreamAPI(conversationId, lastBotMessage.id || '', userId);
+            await stopStreamAPI(conversationId, lastBotMessage.id, userId);
 
-            // 中止请求
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
 
-            // 更新状态
             setIsStreaming(false);
-
-            // 标记最后一个 bot 消息结束 streaming
-            setMessages((prevMessages) => {
-                const updatedMessages = [...prevMessages];
-                for (let i = updatedMessages.length - 1; i >= 0; i--) {
-                    if (updatedMessages[i].type === 'bot' && updatedMessages[i].isStreaming) {
-                        updatedMessages[i] = {
-                            ...updatedMessages[i],
-                            isStreaming: false, // 结束 streaming
-                        };
-                        break;
-                    }
-                }
-                return updatedMessages;
-            });
+            setMessages((prevMessages) => 
+                prevMessages.map(msg => 
+                    msg.type === 'bot' && msg.isStreaming
+                        ? { ...msg, isStreaming: false }
+                        : msg
+                )
+            );
         } catch (error) {
             console.error('停止流式传输失败:', error);
         }
