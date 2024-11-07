@@ -127,4 +127,5 @@ export interface ChatListProps {
     isLoading?: boolean;
     messages: Message[];
     demo?: boolean;
+    onEditMessage?: (id: string, newContent: string) => Promise<void>; // 添加此行
 }

@@ -25,6 +25,7 @@ const MessageItem = memo(({
     onEditComplete: (id: string, content: string) => Promise<void>;
     onEditCancel: () => void;
     isLastMessage: boolean;
+    thought?: ThoughtProcess;
 }) => {
     const isBot = message.type === 'bot';
     const isError = message.type === 'error';
