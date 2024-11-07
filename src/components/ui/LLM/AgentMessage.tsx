@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, Bot, MessageCircle } from 'lucide-react';
 interface AgentMessageProps {
     message: {
         content: string;
-        agentName: string;
+        agentName: keyof typeof agentIcons;
         role: string;
         timestamp: string;
         thoughts?: string; // 添加思考过程
@@ -19,7 +19,7 @@ interface AgentMessageProps {
     messagesLength: number;
 }
 
-const agentIcons = {
+const agentIcons: Record<string, string> = {
     '知识专家': '🧠',
     '创意专家': '💡',
     '逻辑专家': '⚡',
