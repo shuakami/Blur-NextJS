@@ -38,7 +38,7 @@ export const useMessageHandler = (user: User | null) => {
             timestamp: msg.timestamp * 1000,
             isStreaming: false,
             status: msg.status,
-            parentId: msg.parent_id,
+            parentId: msg.parent_id || undefined,
             childrenIds: msg.children_ids,
             version: msg.version,
             modified_count: msg.modified_count,
