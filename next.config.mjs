@@ -9,17 +9,15 @@ const nextConfig = {
 
     // 图片优化
     images: {
-        domains: [
-            'github.com',
-            'avatars.githubusercontent.com',
-            'img.clerk.com',
-            'github.githubassets.com',
-            'basilisk-86.clerk.accounts.dev',
-            'settled-basilisk-86.clerk.accounts.dev',
-            'blur-api.al001.luoxiaohei.cn',
-            'blur.al001.luoxiaohei.cn',
-            'localhost',
-            'data:'
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**',
+            },
+            {
+                protocol: 'http',
+                hostname: '**',
+            }
         ],
         deviceSizes: [640, 768, 1024, 1280, 1920],
         imageSizes: [16, 32, 48, 64, 96],
@@ -88,7 +86,7 @@ const nextConfig = {
                                 "script-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn 'unsafe-inline'" +
                                 " worker-src 'self' blob:; " +
                                 " style-src 'self' 'unsafe-inline'; " +
-                                " img-src 'self' data: https://github.com https://avatars.githubusercontent.com https://basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://blur-api.al001.sdjz.wiki https://img.clerk.com https://api.dicebear.com; " +
+                                " img-src * data:; " +
                                 " connect-src 'self' data: https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn https://blur-api.al001.sdjz.wiki;" +
                                 " font-src 'self' https://fonts.gstatic.com; " +
                                 " upgrade-insecure-requests;"

@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
 import type { Components } from 'react-markdown';
 import dynamic from 'next/dynamic';
 
@@ -35,50 +36,9 @@ const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ chi
 ));
 InlineCode.displayName = 'InlineCode';
 
-// 修改预处理函数
-const preprocessMarkdown = (content: string): string => {
-    const lines = content.split('\n');
-    const processedLines: string[] = [];
-    let insideCodeBlock = false;
-
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        
-        // 检查是否进入或离开代码块
-        if (line.trim().startsWith('```')) {
-            insideCodeBlock = !insideCodeBlock;
-            processedLines.push(line);
-            continue;
-        }
-
-        if (insideCodeBlock) {
-            // 在代码块内，保持原样
-            processedLines.push(line);
-        } else {
-            // 在代码块外
-            if (line.match(/^\s*>/)) {
-                // 引用块：保留一个空格
-                line = line.replace(/^\s*>(\s*)/, '> ');
-                processedLines.push(line);
-            } else if (line.match(/^\s*`[^`]+`\s*$/)) {
-                // 行内代码：保持原样
-                processedLines.push(line);
-            } else if (line.match(/^\s+/) && !line.match(/^\s{4,}/)) {
-                // 普通缩进行：移除多余空格
-                processedLines.push(line.trimLeft());
-            } else {
-                // 其他情况：保持原样
-                processedLines.push(line);
-            }
-        }
-    }
-
-    return processedLines.join('\n');
-};
-
 // 创建 remarkPlugins 配置
 const remarkPlugins = [remarkGfm, remarkMath];
-const rehypePlugins = [rehypeKatex];
+const rehypePlugins = [rehypeKatex, rehypeRaw];
 
 // 数学公式组件
 const MathBlock = memo(({ value }: { value: string }) => <BlockMath>{value}</BlockMath>);
@@ -88,8 +48,6 @@ const InlineMathBlock = memo(({ value }: { value: string }) => <InlineMath>{valu
 InlineMathBlock.displayName = 'InlineMathBlock';
 
 export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }) => {
-    const preprocessedContent = useMemo(() => preprocessMarkdown(content), [content]);
-    
     const components = useMemo<Components>(() => ({
         // 标题组件
         h1: ({ children, ...props }) => <Heading1 {...props}>{children}</Heading1>,
@@ -116,29 +74,15 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
         // 代码块组件
         code: ({ className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
-            const content = String(children).replace(/\n$/, '');
-            
-            // 精确判断代码块类型
-            if (match) {
-                // 有语言标记的代码块
-                return (
-                    <CodeBlock
-                        code={content}
-                        language={match[1]}
-                    />
-                );
-            } else if (content.includes('\n')) {
-                // 多行无语言标记的代码块
-                return (
-                    <CodeBlock
-                        code={content}
-                        language="plaintext"
-                    />
-                );
-            } else {
-                // 行内代码
-                return <InlineCode>{content}</InlineCode>;
-            }
+            const codeContent = String(children).replace(/\n$/, '');
+
+            // 将处理逻辑转移到 CodeBlock 组件中
+            return (
+                <CodeBlock
+                    code={codeContent}
+                    language={match ? match[1] : 'plaintext'}
+                />
+            );
         },
 
         // 其他组件
@@ -168,9 +112,9 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
                     remarkPlugins={remarkPlugins}
                     rehypePlugins={rehypePlugins}
                     components={components}
-                    skipHtml
+                    skipHtml={true}
                 >
-                    {preprocessedContent}
+                    {content}
                 </ReactMarkdown>
             </BlurAnimatedWrapper>
         </div>

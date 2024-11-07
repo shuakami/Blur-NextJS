@@ -113,7 +113,7 @@
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     .hljs {
-        color: #ABB2BF;
+        color: #E6E6E6;
     }
 
     .hljs-keyword {
@@ -200,3 +200,7 @@
     text-decoration: underline;
     color: inherit;
 }
+
+
+
+

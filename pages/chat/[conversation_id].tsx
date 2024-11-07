@@ -54,7 +54,7 @@ const SidebarOverlay = React.memo(({ isOpen, onClose }: { isOpen: boolean; onClo
     <AnimatePresence>
         {isOpen && (
             <motion.div
-                className="fixed inset-0 bg-black/40 z-30 md:hidden"
+                className="fixed inset-0 z-30 md:hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -178,11 +178,11 @@ export default function ChatPage() {
     return (
         <ChatProvider initialConversationId={conversation_id}>
          <Meta pageName={chat_title}/> 
-            <div className="w-full h-screen flex overflow-hidden relative">
+            <div className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
                 {isClient && (
                     <>
                         <motion.div
-                            className="h-full z-40 fixed top-0 left-0 bg-white dark:bg-gray-900"
+                            className="h-full z-40 fixed top-0 left-0"
                             style={{ width: SIDEBAR_WIDTH }}
                             initial={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
                             animate={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}

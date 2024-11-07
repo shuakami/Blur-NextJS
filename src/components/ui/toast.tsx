@@ -30,15 +30,15 @@ const toastVariants = cva(
         variants: {
             variant: {
                 default:
-                    "border-transparent bg-white/90 text-zinc-900 dark:text-zinc-100 dark:bg-zinc-900/90 border border-zinc-200/20 dark:border-zinc-700/30 shadow-lg shadow-zinc-500/10 dark:shadow-zinc-900/20",
+                    "border-gray-200 bg-white/90 text-gray-900 dark:border-gray-800 dark:bg-gray-900/90 dark:text-gray-100 shadow-lg shadow-gray-500/10 dark:shadow-gray-900/20",
                 destructive:
-                    "border-red-500/20 bg-red-50/90 dark:bg-red-950/90 text-red-600 dark:text-red-300 shadow-lg shadow-red-500/10",
+                    "border-red-200 bg-red-50/90 text-red-600 dark:border-red-800 dark:bg-red-900/90 dark:text-red-300 shadow-lg shadow-red-500/10",
                 info:
-                    "border-blue-500/20 bg-blue-50/90 dark:bg-blue-950/90 text-blue-600 dark:text-blue-300 shadow-lg shadow-blue-500/10",
+                    "border-blue-200 bg-blue-50/90 text-blue-600 dark:border-blue-800 dark:bg-blue-900/90 dark:text-blue-300 shadow-lg shadow-blue-500/10",
                 success:
-                    "border-green-500/20 bg-green-50/90 dark:bg-green-950/90 text-green-600 dark:text-green-300 shadow-lg shadow-green-500/10",
+                    "border-green-200 bg-green-50/90 text-green-600 dark:border-green-800 dark:bg-green-900/90 dark:text-green-300 shadow-lg shadow-green-500/10",
                 warning:
-                    "border-yellow-500/20 bg-yellow-50/90 dark:bg-yellow-950/90 text-yellow-600 dark:text-yellow-300 shadow-lg shadow-yellow-500/10",
+                    "border-yellow-200 bg-yellow-50/90 text-yellow-600 dark:border-yellow-800 dark:bg-yellow-900/90 dark:text-yellow-300 shadow-lg shadow-yellow-500/10",
             },
         },
         defaultVariants: {

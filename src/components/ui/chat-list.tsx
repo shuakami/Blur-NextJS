@@ -1,5 +1,4 @@
 import React, { memo, useCallback } from "react";
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './chat_list.css';
 import ErrorMessage from "./chat-list/ErrorMessage";
 import BotMessage from "./BotMessage";
@@ -47,7 +46,7 @@ const MessageItem = memo(({
                     />
                 </div>
             ) : (
-                <div className={`flex py-3 first:pt-4 last:pb-4 justify-end items-start space-x-5`}>
+                <div className={`flex py-3 first:pt-4 last:pb-4 justify-end items-start space-x-4`}>
                     <UserMessage
                         message={message}
                         isEditing={isEditing}
@@ -85,9 +84,7 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
     return (
         <div className="h-full overflow-hidden w-full">
           <div className="space-y-1">
-                <TransitionGroup>
                     {messages.map((message, index) => (
-                        <CSSTransition key={message.id || index} timeout={500} classNames="message">
                             <MessageItem
                                 message={message}
                                 index={index}
@@ -98,9 +95,7 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
                                 onEditCancel={handleEditCancel}
                                 isLastMessage={index === messages.length - 1}
                             />
-                        </CSSTransition>
                     ))}
-                </TransitionGroup>
             </div>
         </div>
     );

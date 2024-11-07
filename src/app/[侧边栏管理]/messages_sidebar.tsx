@@ -51,9 +51,6 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConve
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    // 打印侧边栏数据
-    console.log(conversations);
-
     // 使用 useCallback 确保 loadConversations 稳定
     const loadConversations = useCallback(async () => {
         if (!user?.id) {

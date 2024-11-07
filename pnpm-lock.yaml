@@ -50,6 +50,9 @@ importers:
       '@tabler/icons-react':
         specifier: ^3.21.0
         version: 3.21.0(react@18.3.1)
+      '@tanstack/react-virtual':
+        specifier: ^3.10.9
+        version: 3.10.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vercel/analytics':
         specifier: ^1.3.1
         version: 1.3.1(next@14.2.11(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
@@ -164,6 +167,9 @@ importers:
       rehype-katex:
         specifier: ^7.0.1
         version: 7.0.1
+      rehype-raw:
+        specifier: ^7.0.0
+        version: 7.0.0
       remark:
         specifier: ^15.0.1
         version: 15.0.1
@@ -1914,14 +1920,14 @@ packages:
   '@tabler/icons@3.21.0':
     resolution: {integrity: sha512-5+GkkmWCr1wgMor5cOF1/YYflTQdc15y10FUikJ3HW8hDiFjfbuoAHJi17FT1vwsr1sA78rkJMn+fDoOOjnnPA==}
 
-  '@tanstack/react-virtual@3.10.8':
-    resolution: {integrity: sha512-VbzbVGSsZlQktyLrP5nxE+vE1ZR+U0NFAWPbJLoG2+DKPwd2D7dVICTVIIaYlJqX1ZCEnYDbaOpmMwbsyhBoIA==}
+  '@tanstack/react-virtual@3.10.9':
+    resolution: {integrity: sha512-OXO2uBjFqA4Ibr2O3y0YMnkrRWGVNqcvHQXmGvMu6IK8chZl3PrDxFXdGZ2iZkSrKh3/qUYoFqYe+Rx23RoU0g==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  '@tanstack/virtual-core@3.10.8':
-    resolution: {integrity: sha512-PBu00mtt95jbKFi6Llk9aik8bnR3tR/oQP1o3TSi+iG//+Q2RTIzCEgKkHG8BB86kxMNW6O8wku+Lmi+QFR6jA==}
+  '@tanstack/virtual-core@3.10.9':
+    resolution: {integrity: sha512-kBknKOKzmeR7lN+vSadaKWXaLS0SZZG+oqpQ/k80Q6g9REn6zRHS/ZYdrIzHnpHgy/eWs00SujveUN/GJT2qTw==}
 
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
@@ -3992,6 +3998,9 @@ packages:
   hast-util-parse-selector@4.0.0:
     resolution: {integrity: sha512-wkQCkSYoOGCRKERFWcxMVMOcYE2K1AaNLU8DXS9arxnLOUEWbOXKXiJUNzEpqZ3JOKpnha3jkFrumEjVliDe7A==}
 
+  hast-util-raw@9.0.4:
+    resolution: {integrity: sha512-LHE65TD2YiNsHD3YuXcKPHXPLuYh/gjp12mOfU8jxSrm1f/yJpsb0F/KKljS6U9LJoP0Ux+tCe8iJ2AsPzTdgA==}
+
   hast-util-to-estree@3.1.0:
     resolution: {integrity: sha512-lfX5g6hqVh9kjS/B9E2gSkvHH4SZNiQFiqWS0x9fENzEl+8W12RqdRxX6d/Cwxi30tPQs3bIO+aolQJNp1bIyw==}
 
@@ -4000,6 +4009,9 @@ packages:
 
   hast-util-to-jsx-runtime@2.3.0:
     resolution: {integrity: sha512-H/y0+IWPdsLLS738P8tDnrQ8Z+dj12zQQ6WC11TIM21C8WFVoIxcqWXf2H3hiTVZjF1AWqoimGwrTWecWrnmRQ==}
+
+  hast-util-to-parse5@8.0.0:
+    resolution: {integrity: sha512-3KKrV5ZVI8if87DVSi1vDeByYrkGzg4mEfeu4alwgmmIeARiBLKCZS2uw5Gb6nU9x9Yufyj3iudm6i7nl52PFw==}
 
   hast-util-to-text@4.0.2:
     resolution: {integrity: sha512-KK6y/BN8lbaq654j7JgBydev7wuNMcID54lkRav1P0CaE1e47P72AWWPiGKXTJU271ooYzcvTAn/Zt0REnvc7A==}
@@ -6103,6 +6115,9 @@ packages:
 
   rehype-katex@7.0.1:
     resolution: {integrity: sha512-OiM2wrZ/wuhKkigASodFoo8wimG3H12LWQaH8qSPVJn9apWKFSH3YOCtbKpBorTVw/eI7cuT21XBbvwEswbIOA==}
+
+  rehype-raw@7.0.0:
+    resolution: {integrity: sha512-/aE8hCfKlQeA8LmyeyQvQF3eBiLRGNlfBJEvWH7ivp9sBqs7TNqBL5X3v157rM4IFETqDnIOO+z5M/biZbo9Ww==}
 
   remark-gfm@4.0.0:
     resolution: {integrity: sha512-U92vJgBPkbw4Zfu/IiW2oTZLSL3Zpv+uI7My2eq8JxKgqraFdU8YUGicEJCEgSbeaG+QDFqIcwwfMTOEelPxuA==}
@@ -8302,7 +8317,7 @@ snapshots:
       '@floating-ui/react': 0.26.27(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-aria/focus': 3.18.4(react@18.3.1)
       '@react-aria/interactions': 3.22.4(react@18.3.1)
-      '@tanstack/react-virtual': 3.10.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-virtual': 3.10.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
@@ -9323,13 +9338,13 @@ snapshots:
 
   '@tabler/icons@3.21.0': {}
 
-  '@tanstack/react-virtual@3.10.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-virtual@3.10.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/virtual-core': 3.10.8
+      '@tanstack/virtual-core': 3.10.9
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/virtual-core@3.10.8': {}
+  '@tanstack/virtual-core@3.10.9': {}
 
   '@trysound/sax@0.2.0': {}
 
@@ -11894,6 +11909,22 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.4
 
+  hast-util-raw@9.0.4:
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/unist': 3.0.3
+      '@ungap/structured-clone': 1.2.0
+      hast-util-from-parse5: 8.0.1
+      hast-util-to-parse5: 8.0.0
+      html-void-elements: 3.0.0
+      mdast-util-to-hast: 13.2.0
+      parse5: 7.2.0
+      unist-util-position: 5.0.0
+      unist-util-visit: 5.0.0
+      vfile: 6.0.3
+      web-namespaces: 2.0.1
+      zwitch: 2.0.4
+
   hast-util-to-estree@3.1.0:
     dependencies:
       '@types/estree': 1.0.6
@@ -11948,6 +11979,16 @@ snapshots:
       vfile-message: 4.0.2
     transitivePeerDependencies:
       - supports-color
+
+  hast-util-to-parse5@8.0.0:
+    dependencies:
+      '@types/hast': 3.0.4
+      comma-separated-tokens: 2.0.3
+      devlop: 1.1.0
+      property-information: 6.5.0
+      space-separated-tokens: 2.0.2
+      web-namespaces: 2.0.1
+      zwitch: 2.0.4
 
   hast-util-to-text@4.0.2:
     dependencies:
@@ -14695,6 +14736,12 @@ snapshots:
       hast-util-to-text: 4.0.2
       katex: 0.16.11
       unist-util-visit-parents: 6.0.1
+      vfile: 6.0.3
+
+  rehype-raw@7.0.0:
+    dependencies:
+      '@types/hast': 3.0.4
+      hast-util-raw: 9.0.4
       vfile: 6.0.3
 
   remark-gfm@4.0.0:

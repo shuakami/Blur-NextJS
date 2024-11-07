@@ -55,13 +55,9 @@
         --text-tertiary: #808080;     /* 第三级文本，中灰 */
         --text-quaternary: #666666;   /* 第四级文本，深灰 */
         --emphasis-color: #ffffff;     /* 强调文本，纯白 */
-        --background-color: #121212;   /* 背景色，深灰黑 */
+        --background-color: #212121;   /* 背景色，深灰黑 */
         --border-light: rgba(255, 255, 255, .1);
         --border-medium: rgba(255, 255, 255, .15);
-    }
-
-    .text-body {
-        background-color: var(--background-color);
     }
 }
 
