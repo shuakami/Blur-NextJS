@@ -27,9 +27,9 @@ interface ChatSidebarProps {
 const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, user, onClose}) => {
     const {t} = useTranslation();
     const router = useRouter();
-    const pathname = usePathname();  // 获取当前路径
+    const pathname = usePathname();
     const controls = useAnimation();
-    const [selectedItem, setSelectedItem] = useState<string | null>(null);  // 用来跟踪已选择的项
+    const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
     // 处理对话选择
     const handleSelectItem = (id: string, href?: string) => {
@@ -39,18 +39,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, 
         }
     };
 
-    // 当页面加载时，根据 URL 设置 selectedItem
+    // 根据 URL 更新 selectedItem
     useEffect(() => {
-        const currentPath = pathname;
-        if (!currentPath) {
-            console.error('Current path is null or undefined');
-            return;
-        }
-        const pathParts = currentPath.split('/');
+        if (!pathname) return;
+        const pathParts = pathname.split('/');
         const conversationId = pathParts[pathParts.length - 1];
-        if (conversationId) {
-            setSelectedItem(conversationId);
-        }
+        setSelectedItem(conversationId || null);
     }, [pathname]);
 
     useEffect(() => {
@@ -100,6 +94,17 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, 
         }));
     }, [items]);
 
+    // 定义优雅的动画配置
+    const animationConfig = useMemo(() => ({
+        initial: { height: 0 },
+        animate: { height: "auto" },
+        exit: { height: 0 },
+        transition: { 
+            duration: 0.55,
+            ease: [0.25, 0.8, 0.25, 1]  // 使用贝塞尔曲线实现更流畅的动画
+        }
+    }), []);
+    
 
     return (
         <motion.div
@@ -126,38 +131,36 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, 
                 </div>
 
                 <div className="py-4 mt-2">
-                    <AnimatePresence>
-                        {groupedItems.length > 0 ? (
-                            groupedItems.map((group) => (
+                    {groupedItems.length > 0 ? (
+                        <AnimatePresence mode="wait">
+                            {groupedItems.map((group) => (
                                 <div key={group.label}>
                                     <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
                                         <span>{group.label}</span>
                                     </div>
-                                    {group.children.map((subItem) => (
-                                        <SidebarItemComponent
-                                            key={subItem.id}
-                                            item={subItem}
-                                            level={0}
-                                            selectedItem={selectedItem}  // 传递已选择的项
-                                            onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
-                                            onUpdateConversations={onUpdateConversations || (() => {
-                                            })} // 确保是函数
-                                        />
-                                    ))}
+                                    <motion.div
+                                        {...animationConfig}
+                                        className="overflow-hidden"
+                                    >
+                                        {group.children.map((subItem) => (
+                                            <SidebarItemComponent
+                                                key={subItem.id}
+                                                item={subItem}
+                                                level={0}
+                                                selectedItem={selectedItem}
+                                                onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
+                                                onUpdateConversations={onUpdateConversations || (() => {})}
+                                            />
+                                        ))}
+                                    </motion.div>
                                 </div>
-                            ))
-                        ) : (
-                            <motion.div
-                                className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                {t('没有对话')}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                            ))}
+                        </AnimatePresence>
+                    ) : (
+                        <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
+                            {t('没有对话')}
+                        </div>
+                    )}
                 </div>
             </ScrollArea>
 

@@ -1,5 +1,6 @@
 :root {
     /* 基础颜色变量 - 只使用黑白灰 */
+    --text-primary: #0c0c0c;
     --text-color: #0c0c0c;        /* 主要文本，接近纯黑 */
     --text-secondary: #404040;    /* 次要文本，深灰 */
     --text-tertiary: #666666;     /* 第三级文本，中灰 */
@@ -17,6 +18,7 @@
 .text-body {
     font-size: 1.0225rem; /* 统一字体大小 */
     line-height: 1.8; /* 增加行高提高阅读舒适性 */
+    margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     color: var(--text-color);
     text-justify: inter-word; /* 确保英文单词间距合理 */
@@ -47,6 +49,7 @@
 /* 添加暗色模式支持 */
 @media (prefers-color-scheme: dark) {
     :root {
+        --text-primary: #fff;
         --text-color: #e0e0e0;        /* 主要文本，浅灰白 */
         --text-secondary: #b0b0b0;    /* 次要文本，浅灰 */
         --text-tertiary: #808080;     /* 第三级文本，中灰 */

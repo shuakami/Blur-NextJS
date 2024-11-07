@@ -118,12 +118,29 @@ const HomeContent = () => {
     useEffect(() => {
         if (!newConversationId) return;
         
-        const timeoutId = setTimeout(() => {
-            router.push(`/chat/${newConversationId}`);
+        window.history.replaceState(
+            { conversationId: newConversationId }, 
+            '', 
+            `/chat/${newConversationId}`
+        );
+        
+        requestAnimationFrame(() => {
+            setHasConversation(true);
             resetNewConversationId();
         });
-        return () => clearTimeout(timeoutId);
-    }, [newConversationId, router, resetNewConversationId]);
+    }, [newConversationId, resetNewConversationId]);
+
+    useEffect(() => {
+        const handlePopState = (event: PopStateEvent) => {
+            const isHomePage = window.location.pathname === '/';
+            if (isHomePage) {
+                setHasConversation(false);
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
 
     return (
         <div className="w-full h-screen flex overflow-hidden relative">
@@ -199,13 +216,15 @@ const HomeContent = () => {
                             {hasConversation ? (
                                 <motion.div 
                                     key="conversation"
-                                    className="flex-1 overflow-auto w-full mt-4"
+                                    className="flex-1 overflow-auto w-full mt-12"
                                     {...fadeInUpAnimation}
                                 >
-                                    <div className="max-w-4xl mx-auto px-4 py-8">
-                                        <Suspense fallback={null}>
-                                            <ChatList />
-                                        </Suspense>
+                                    <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
+                                        <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl">
+                                            <Suspense fallback={null}>
+                                                <ChatList />
+                                            </Suspense>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ) : (
@@ -215,9 +234,9 @@ const HomeContent = () => {
                                     {...fadeInUpAnimation}
                                 >
                                     <Suspense fallback={null}>
-                                        <HomepageContent onFirstMessage={() => {
-                                            setTimeout(() => setHasConversation(true), 4000);
-                                        }} />
+                                        <HomepageContent 
+                                            onFirstMessage={() => setHasConversation(true)}
+                                        />
                                     </Suspense>
                                 </motion.div>
                             )}

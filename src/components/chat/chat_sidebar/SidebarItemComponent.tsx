@@ -19,6 +19,7 @@ import {deleteConversation, updateConversationTitle} from "@/app/[对话管理]/
 import {toast} from "@/hooks/use-toast";
 import ConfirmModal from "@/components/ui/tofu/confirm-modal";
 import {useRouter} from 'next/navigation';
+import { useConversations } from '../../../../contexts/ConversationsContext';
 
 interface SidebarItemComponentProps {
     item: SidebarItem;
@@ -44,6 +45,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
     const [hover, setHover] = useState<boolean>(false); // 控制hover状态
     const inputRef = useRef<HTMLInputElement>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // 控制模态框的打开状态
+    const { removeConversation, updateConversationTitle: updateTitle } = useConversations();
 
     const toggleOpen = () => setIsOpen(!isOpen);
     const isSelected = selectedItem === item.id;
@@ -60,12 +62,21 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
         }
     }, [isEditing]);
 
-    // 确认删除对话处理函数
+    // 修改确认删除处理函数
     const handleConfirmDelete = async () => {
-        setIsModalOpen(false); // 关闭模态框
+        setIsModalOpen(false);
         if (item.id) {
             try {
-                await deleteConversation(item.id, user?.id || ''); // 调用 API 删除对话
+                // 后台执行删除操作
+                await deleteConversation(item.id, user?.id || '');
+
+                // 如果删除的对话是当前选中的对话，立即跳转到首页
+                if (isSelected) {
+                    router.push('/');
+                }
+
+                // 立即从 UI 中移除
+                removeConversation(item.id);
 
                 toast({
                     title: '操作成功',
@@ -73,15 +84,10 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                     variant: "success"
                 });
 
-                // 如果删除的对话是当前选中的对话，跳转到首页
-                if (isSelected) {
-                    router.push('/'); // 跳转到首页
-                }
-
-                // 调用父组件传入的刷新侧边栏数据的函数
-                onUpdateConversations();
-
             } catch (e) {
+                // 如果删除失败，再次刷新列表以恢复状态
+                onUpdateConversations();
+                
                 toast({
                     title: '操作失败',
                     description: '对话删除失败',
@@ -126,20 +132,23 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
         }
 
         try {
-            await updateConversationTitle(item.id!, newTitle, user?.id || ''); // 调用 API 更新对话标题
-            setIsEditing(false); // 退出编辑模式
+            // 立即更新 UI
+            updateTitle(item.id!, newTitle);
+            setIsEditing(false);
+
+            // 后台执行 API 请求
+            await updateConversationTitle(item.id!, newTitle, user?.id || '');
+            
             toast({
                 title: '操作成功',
                 description: '对话标题已更新',
                 variant: "success"
             });
 
-            // 等3秒刷新侧边栏数据
-            setTimeout(() => {
-                onUpdateConversations();
-            }, 1500);
-
         } catch (e) {
+            // 如果 API 请求失败，回滚更改
+            onUpdateConversations();
+            
             toast({
                 title: '操作失败',
                 description: '对话标题更新失败',
@@ -149,113 +158,142 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="relative"
-            onMouseEnter={() => setHover(true)} // 处理 hover 状态
-            onMouseLeave={() => setHover(false)}
-        >
-            <ConfirmModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onConfirm={handleConfirmDelete}
-                title="删除对话"
-                message={`您确定要删除 "${item.label}" 吗?`} // 显示对话标题
-            />
-            <div className="flex items-center">
-                {/* 如果处于编辑模式，显示输入框 */}
-                {isEditing ? (
-                    <div
-                        className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}
-                    >
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={newTitle}
-                            onChange={(e) => setNewTitle(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleSubmitNewTitle(); // 监听回车键提交
-                                if (e.key === 'Escape') setIsEditing(false); // 监听 Esc 键取消编辑
-                            }}
-                            className="flex-grow bg-transparent focus:outline-none text-black dark:text-white max-w-[120px]"
-                        />
-                        <Check size={18}
-                               className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
-                               onClick={handleSubmitNewTitle}/>
-                        <X size={18}
-                           className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
-                           onClick={() => setIsEditing(false)}/>
-                    </div>
-                ) : (
-                    <button
-                        ref={buttonRef}
-                        onClick={item.children ? toggleOpen : () => onSelect(item.id ?? '')}
-                        className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
-                            level > 0 ? 'pl-4' : ''
-                        } text-black dark:text-white ${
-                            isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
-                        }`}
-                    >
-                        {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
-                        {item.children && (
-                            <span className="text-black dark:text-white">
-                                {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
-                            </span>
-                        )}
-                        <span className="text-sm flex-grow">{item.label}</span>
-
-                        {/* 显示三个点 */}
-                        {(isSelected || hover) && (
-                            <span
-                                className="ml-auto"
-                                onClick={(e) => {
-                                    e.stopPropagation(); // 防止点击菜单时触发选择操作
-                                    setMenuOpen(!menuOpen);
+        <AnimatePresence mode="popLayout">
+            <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
+                transition={{ 
+                    duration: 0.3,
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 30
+                }}
+                className="relative"
+                onMouseEnter={() => setHover(true)}
+                onMouseLeave={() => setHover(false)}
+                layout
+            >
+                <ConfirmModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title="删除对话"
+                    message={`您确定要删除 "${item.label}" 吗?`}
+                />
+                
+                <motion.div
+                    className="flex items-center"
+                    layout
+                >
+                    {isEditing ? (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}
+                        >
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={newTitle}
+                                onChange={(e) => setNewTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSubmitNewTitle(); // 监听回车键提交
+                                    if (e.key === 'Escape') setIsEditing(false); // 监听 Esc 键取消编辑
                                 }}
-                            >
-                                <MoreHorizontal size={16} className="text-black dark:text-white"/>
-                            </span>
-                        )}
-                    </button>
+                                className="flex-grow bg-transparent focus:outline-none text-black dark:text-white max-w-[120px]"
+                            />
+                            <Check size={18}
+                                   className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
+                                   onClick={handleSubmitNewTitle}/>
+                            <X size={18}
+                               className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
+                               onClick={() => setIsEditing(false)}/>
+                        </motion.div>
+                    ) : (
+                        <motion.button
+                            layout
+                            ref={buttonRef}
+                            onClick={item.children ? toggleOpen : () => onSelect(item.id ?? '')}
+                            className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
+                                level > 0 ? 'pl-4' : ''
+                            } text-black dark:text-white ${
+                                isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
+                            }`}
+                        >
+                            {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
+                            {item.children && (
+                                <span className="text-black dark:text-white">
+                                    {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
+                                </span>
+                            )}
+                            <span className="text-sm flex-grow">{item.label}</span>
+
+                            {(isSelected || hover) && (
+                                <span
+                                    className="ml-auto"
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // 防止点击菜单时触发选择操作
+                                        setMenuOpen(!menuOpen);
+                                    }}
+                                >
+                                    <MoreHorizontal size={16} className="text-black dark:text-white"/>
+                                </span>
+                            )}
+                        </motion.button>
+                    )}
+                </motion.div>
+
+                {menuOpen && (
+                    <DropDownMenu isOpen={menuOpen} onClose={handleCloseMenu} menuItems={menuItems} placement={'right'}
+                                  referenceElement={buttonRef.current}/>
                 )}
-            </div>
 
-            {/* 下拉菜单 */}
-            {menuOpen && (
-                <DropDownMenu isOpen={menuOpen} onClose={handleCloseMenu} menuItems={menuItems} placement={'right'}
-                              referenceElement={buttonRef.current}/>
-            )}
-
-            {item.children && isOpen && (
-                <div className="ml-1">
-                    <AnimatePresence initial={false}>
-                        {item.children.map((child) => (
-                            child.children ? (
-                                <SidebarItemComponent
-                                    key={child.id}
-                                    item={child}
-                                    level={level + 1}
-                                    selectedItem={selectedItem}
-                                    onSelect={onSelect}
-                                    onUpdateConversations={onUpdateConversations} // 传递刷新侧边栏的回调函数
-                                />
-                            ) : (
-                                <CustomButton
-                                    key={child.id}
-                                    label={child.label}
-                                    href={child.href}
-                                    selected={selectedItem === child.label}
-                                    onClick={() => onSelect(child.label)}
-                                />
-                            )
-                        ))}
-                    </AnimatePresence>
-                </div>
-            )}
-        </motion.div>
+                <AnimatePresence mode="popLayout">
+                    {item.children && isOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="ml-1"
+                        >
+                            {item.children.map((child) => (
+                                <AnimatePresence key={child.id} mode="popLayout">
+                                    {child.children ? (
+                                        <SidebarItemComponent
+                                            key={child.id}
+                                            item={child}
+                                            level={level + 1}
+                                            selectedItem={selectedItem}
+                                            onSelect={onSelect}
+                                            onUpdateConversations={onUpdateConversations}
+                                        />
+                                    ) : (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            <CustomButton
+                                                key={child.id}
+                                                label={child.label}
+                                                href={child.href}
+                                                selected={selectedItem === child.label}
+                                                onClick={() => onSelect(child.label)}
+                                            />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        </AnimatePresence>
     );
 };
 

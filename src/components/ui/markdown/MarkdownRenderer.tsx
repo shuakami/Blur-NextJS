@@ -35,30 +35,42 @@ const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ chi
 ));
 InlineCode.displayName = 'InlineCode';
 
-// 预处理
+// 修改预处理函数
 const preprocessMarkdown = (content: string): string => {
-    const codeBlockRegex = /```[\s\S]*?```|`[^`]+`/g;
-    let insideCodeBlock = false;
-
-    // 如果没有代码块标记，直接返回原内容
-    if (!codeBlockRegex.test(content)) {
-        return content;
-    }
-
-    // 处理未闭合的代码块
     const lines = content.split('\n');
     const processedLines: string[] = [];
-    
+    let insideCodeBlock = false;
+
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        let line = lines[i];
+        
+        // 检查是否进入或离开代码块
         if (line.trim().startsWith('```')) {
             insideCodeBlock = !insideCodeBlock;
+            processedLines.push(line);
+            continue;
         }
-        processedLines.push(line);
-    }
 
-    if (insideCodeBlock) {
-        processedLines.push('```');
+        if (insideCodeBlock) {
+            // 在代码块内，保持原样
+            processedLines.push(line);
+        } else {
+            // 在代码块外
+            if (line.match(/^\s*>/)) {
+                // 引用块：保留一个空格
+                line = line.replace(/^\s*>(\s*)/, '> ');
+                processedLines.push(line);
+            } else if (line.match(/^\s*`[^`]+`\s*$/)) {
+                // 行内代码：保持原样
+                processedLines.push(line);
+            } else if (line.match(/^\s+/) && !line.match(/^\s{4,}/)) {
+                // 普通缩进行：移除多余空格
+                processedLines.push(line.trimLeft());
+            } else {
+                // 其他情况：保持原样
+                processedLines.push(line);
+            }
+        }
     }
 
     return processedLines.join('\n');
@@ -76,8 +88,8 @@ const InlineMathBlock = memo(({ value }: { value: string }) => <InlineMath>{valu
 InlineMathBlock.displayName = 'InlineMathBlock';
 
 export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }) => {
-    // 缓存预处理结果
     const preprocessedContent = useMemo(() => preprocessMarkdown(content), [content]);
+    
     const components = useMemo<Components>(() => ({
         // 标题组件
         h1: ({ children, ...props }) => <Heading1 {...props}>{children}</Heading1>,
@@ -104,19 +116,37 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
         // 代码块组件
         code: ({ className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || '');
-            const inline = !match;
-            return inline ? (
-                <InlineCode {...props}>{children}</InlineCode>
-            ) : (
-                <CodeBlock
-                    code={String(children).replace(/\n$/, '')}
-                    language={match ? match[1] : undefined}
-                />
-            );
+            const content = String(children).replace(/\n$/, '');
+            
+            // 精确判断代码块类型
+            if (match) {
+                // 有语言标记的代码块
+                return (
+                    <CodeBlock
+                        code={content}
+                        language={match[1]}
+                    />
+                );
+            } else if (content.includes('\n')) {
+                // 多行无语言标记的代码块
+                return (
+                    <CodeBlock
+                        code={content}
+                        language="plaintext"
+                    />
+                );
+            } else {
+                // 行内代码
+                return <InlineCode>{content}</InlineCode>;
+            }
         },
 
         // 其他组件
-        blockquote: ({ children, ...props }) => <Blockquote {...props}>{children}</Blockquote>,
+        blockquote: ({ children, ...props }) => (
+            <Blockquote {...props}>
+                {children}
+            </Blockquote>
+        ),
         hr: (props) => <HorizontalRule {...props} />,
         del: ({ children, ...props }) => <Strikethrough {...props}>{children}</Strikethrough>,
         input: (props) => <TaskListItem {...props} />,

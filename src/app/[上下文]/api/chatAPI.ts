@@ -1,7 +1,7 @@
 import { sendMessage as sendMessageAPIBase } from '@/app/[消息发送]/send_message';
 import { stopStream as stopStreamAPIBase } from '@/app/[对话管理]/stop_stream';
 import { fetchHistory as fetchHistoryBase } from "@/app/[拉取历史]/fetch_history";
-import { SendMessageResponse, StreamChunk, FinalInfo, APIMessage, Message } from '@/types/stream';
+import { SendMessageResponse, StreamChunk, FinalInfo, APIMessage, Message, UIMessage } from '@/types/stream';
 
 // 发送消息的参数接口
 interface SendMessageParams {
@@ -95,16 +95,21 @@ export const fetchHistoryAPI = async ({
 };
 
 // 格式化消息的辅助函数
-export const formatMessages = (apiMessages: APIMessage[], userImageUrl?: string): Message[] => {
-    return apiMessages.map((msg: APIMessage) => ({
-        id: msg.message_id,
-        type: msg.role === 'assistant' ? 'bot' : 'user',
+export const formatMessages = (apiMessages: APIMessage[], userImageUrl?: string): UIMessage[] => {
+    return apiMessages.map((msg: APIMessage): UIMessage => ({
+        message_id: msg.message_id,
         content: msg.content,
+        timestamp: msg.timestamp,
+        status: msg.status,
+        parent_id: msg.parent_id,
+        children_ids: msg.children_ids,
+        version: msg.version,
+        modified_count: msg.modified_count,
+        type: msg.role === 'assistant' ? 'bot' : 'user',
         avatarUrl: msg.role === 'assistant' 
             ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' 
             : userImageUrl || '',
-        timestamp: msg.timestamp * 1000,
-        isStreaming: false,
+        isStreaming: false
     }));
 };
 

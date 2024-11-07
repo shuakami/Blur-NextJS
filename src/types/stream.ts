@@ -1,5 +1,37 @@
 // src/types/stream.ts
 
+// 基础消息接口
+interface BaseMessage {
+    message_id: string;
+    content: string;
+    timestamp: number;
+    status: 'active' | 'inactive';
+    parent_id: string | null;
+    children_ids: string[];
+    version: number;
+    modified_count: number;
+}
+
+// API消息接口
+export interface APIMessage extends BaseMessage {
+    role: 'system' | 'user' | 'assistant';
+}
+
+// UI消息接口
+export interface UIMessage extends BaseMessage {
+    type: 'user' | 'bot' | 'error' | 'thought';
+    avatarUrl: string;
+    isStreaming?: boolean;
+}
+
+// 对话接口
+export interface Conversation {
+    user_id: string;
+    conversation_id: string;
+    messages: APIMessage[];
+    total_messages: number;
+}
+
 export interface StreamChunk {
     type: string;
     chunk_index: number;
@@ -37,7 +69,7 @@ export interface SendMessageResponse {
 export interface Message {
     id?: string;
     message_id?: string;
-    type: 'user' | 'bot' | 'error';
+    type: string;
     role?: 'system' | 'user' | 'assistant';
     content: string;
     avatarUrl?: string;
@@ -53,24 +85,13 @@ export interface Message {
     isEdited?: boolean;
     edit_version?: number;
     original_message_id?: string;
+    thought?: ThoughtProcess;
 }
 
-export interface Conversation {
-    conversation_id: string;
-    chat_title: string | null;
-    timestamp: number;
-}
-
-export interface APIMessage {
-    message_id: string;
-    content: string;
-    role: 'system' | 'user' | 'assistant';
-    timestamp: number;
-    status: 'active' | 'inactive';
-    parent_id?: string;
-    children_ids?: string[];
-    version?: number;              // 新增字段
-    modified_count?: number;       // 新增字段
+export interface ThoughtProcess {
+    content?: string;
+    isAnimating?: boolean;
+    duration?: number;
 }
 
 export interface FetchHistoryResponse {
@@ -85,19 +106,6 @@ export interface FetchHistoryParams {
     conversation_id?: string;
     limit?: number;
     offset?: number;
-}
-export interface UIMessage {
-    id: string;
-    content: string;
-    type: 'user' | 'bot' | 'error';
-    timestamp: number;
-    avatarUrl: string;
-    status?: 'active' | 'inactive';
-    parentId?: string;
-    childrenIds?: string[];
-    isStreaming?: boolean;
-    version?: number;              // 新增字段
-    modified_count?: number;       // 新增字段
 }
 
 export interface MessageTransformer {
@@ -116,7 +124,7 @@ export interface MessageVersion {
 
 // 聊天列表组件的属性接口
 export interface ChatListProps {
-    isLoading: boolean;
+    isLoading?: boolean;
     messages: Message[];
-    demo?: boolean; // 可选属性
+    demo?: boolean;
 }

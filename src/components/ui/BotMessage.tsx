@@ -5,14 +5,23 @@ import { motion } from "framer-motion";
 import MoonLogo from "../../../pages/logo";
 import BlurAnimatedWrapper from "../Animations/blur_text";
 import AnimatedShinyText from "./animated-shiny-text";
+import { ThoughtProcess } from "@/types/stream";
+import { ThoughtStream } from "./chat/ThoughtStream";
 
-// Bot 消息组件
-const BotMessage = memo(({ content, isLoading, isLatestBotMessage }: {
+interface BotMessageProps {
     content: string;
     isLoading?: boolean;
     isLatestBotMessage: boolean;
-}) => {
-    console.log("渲染 BotMessage:", { content, isLoading, isLatestBotMessage }); // 加渲染log
+    thought?: ThoughtProcess;
+}
+
+// Bot 消息组件
+const BotMessage = memo(({ 
+    content, 
+    isLoading, 
+    isLatestBotMessage,
+    thought
+}: BotMessageProps) => {
     return (
         <div className="flex mt-4 items-start gap-1 sm:gap-2 md:gap-4 lg:gap-6">
             <Avatar className="h-10 w-10 flex-shrink-0">
@@ -20,6 +29,15 @@ const BotMessage = memo(({ content, isLoading, isLatestBotMessage }: {
             </Avatar>
 
             <div className="flex flex-col gap-1.5 min-w-0">
+                {/* 思考流组件 */}
+                {thought && (
+                    <ThoughtStream
+                        duration={thought.duration || 0}
+                        content={thought.content || ''}
+                        isAnimating={thought.isAnimating || false}
+                    />
+                )}
+
                 <BlurAnimatedWrapper>
                     <motion.div 
                         initial={{ opacity: 0 }} 
@@ -36,10 +54,6 @@ const BotMessage = memo(({ content, isLoading, isLatestBotMessage }: {
                         )}
                     </motion.div>
                 </BlurAnimatedWrapper>
-
-                <div className="flex items-center gap-2 mt-0.5">
-                    {/* 这里可以添加操作按钮，比如复制、点赞等 */}
-                </div>
             </div>
         </div>
     );

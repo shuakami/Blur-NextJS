@@ -10,6 +10,31 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
 export const sendMessage = async (
     params: SendMessageParams, jwtToken: string, onInitialResponse: (response: SendMessageResponse) => void, onChunkReceived: (chunk: StreamChunk) => void, onFinalInfo?: (finalInfo: FinalInfo) => void, onError?: (error: any) => void, signal?: AbortSignal) => {
     const t = getTranslate();
+
+    // 自定义的 onInitialResponse 处理函数
+    const handleInitialResponse = (response: SendMessageResponse) => {
+        // 如果是新对话（没有 conversation_id），则添加到对话列表
+        if (!params.conversation_id && response.conversation_id) {
+            const newConversation = {
+                conversation_id: response.conversation_id,
+                chat_title: response.chat_title || "未命名对话",
+                timestamp: Math.floor(Date.now() / 1000),
+                created_timestamp: Math.floor(Date.now() / 1000)
+            };
+
+            //打印
+            console.log(newConversation);
+            
+            // 使用全局状态更新对话列表
+            window.dispatchEvent(new CustomEvent('addConversation', {
+                detail: newConversation
+            }));
+        }
+        
+        // 调用原始的 onInitialResponse
+        onInitialResponse(response);
+    };
+
     try {
         // 构建请求体
         const requestBody: Record<string, any> = {
@@ -45,11 +70,12 @@ export const sendMessage = async (
         // 处理流式响应
         await handleStream(
             response.body,
-            onInitialResponse,
+            handleInitialResponse,
             onChunkReceived,
             onFinalInfo,
             onError
         );
+
     } catch (error) {
         console.error(t('发送消息失败:'), error);
         if (onError) {

@@ -4,7 +4,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {fetchConversations} from '@/app/[侧边栏管理]/fetch_conversations';
 import ChatSidebar from '@/components/chat/chat_sidebar';
 import {useUser} from '@clerk/nextjs';
-import ChatSidebarLoading from "@/components/Loading/loading_chat_sidebar";
 import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
 import {useConversations} from "../../../contexts/ConversationsContext";
 import useTranslation from "@/hooks/useTranslation";
@@ -12,7 +11,7 @@ import useTranslation from "@/hooks/useTranslation";
 interface Conversation {
     conversation_id: string;
     chat_title: string | null;
-    timestamp: number;  // 秒级时间戳
+    timestamp: number;
 }
 
 // 对话按日期分组
@@ -51,6 +50,9 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConve
     const {conversations, setConversations} = useConversations(); // 使用 ConversationsContext
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    // 打印侧边栏数据
+    console.log(conversations);
 
     // 使用 useCallback 确保 loadConversations 稳定
     const loadConversations = useCallback(async () => {

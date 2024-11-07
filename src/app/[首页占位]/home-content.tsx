@@ -56,8 +56,10 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
     const [title, setTitle] = useState('');
     const [animationDone, setAnimationDone] = useState(false);
     const windowWidth = useWindowSize();
-    const isMobile = useMemo(() => windowWidth < 1020, [windowWidth]);
-
+    const isMobile2 = useMemo(() => windowWidth < 800, [windowWidth]);
+    // 800~940
+    const isPad = useMemo(() => windowWidth >= 800 && windowWidth <= 940, [windowWidth]);
+    
     const randomChar = useCallback(() => 
         RANDOM_CHARS[Math.floor(Math.random() * RANDOM_CHARS.length)],
     []);
@@ -123,12 +125,12 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
                     <h1 className="text-2xl font-semibold mb-3">{title}</h1>
                 </div>
                 
-                <div className="mb-24 w-full flex-shrink overflow-y-hidden">
-                    <div className="w-full mb-6 px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 xs:mt-16 md:mt-0">
+                <div className="mb-32 w-full flex-shrink overflow-y-hidden">
+                    <div className="w-full px-4 sm:px-6">
+                        <div className="grid grid-cols-1 gap-4 xs:mt-8 md:mt-0">
                             {SUGGESTIONS.map((suggestion, index) => (
                                 <div key={index} 
-                                    className="bg-white dark:bg-gray-900 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer
+                                    className="bg-white dark:bg-gray-900 rounded-xl p-5 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer
                                             border border-gray-100 dark:border-gray-700 transition-all duration-300">
                                     <div className="flex items-center gap-3">
                                         <div className="text-primary">
@@ -149,7 +151,8 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
             </div>
 
             <div className="relative w-full">
-                <div className={`w-full ${isMobile ? 'fixed bottom-0 left-0 pb-4 pt-2 bg-gradient-to-t from-white dark:from-gray-900 to-transparent' : ''}`}>
+                <div className={`w-full ${isMobile2 ? 'fixed bottom-0 left-0 pb-6 pt-4 bg-gradient-to-t from-white dark:from-gray-900 to-transparent' : ''} 
+                        ${isPad ? 'translate-y-[-40px]' : ''}`}>
                     <div className="mx-auto max-w-3xl px-4">
                         <ChatInputWrapper onFirstMessage={onFirstMessage}/>
                     </div>

@@ -6,6 +6,8 @@ import FormUI from "@/components/ui/LLM/Form";
 import TextFormUI from "@/components/ui/LLM/TextForm";
 import AgentUI from "@/components/ui/LLM/agent";
 import UpdateModal from '@/components/UpdateModal';
+import AgentContent from '@/components/ui/LLM/AgentMessage';
+import { ThoughtStream } from '@/components/ui/chat/ThoughtStream';
 
 
 const LETTERS_PER_FRAME = 3;
@@ -67,10 +69,11 @@ In addition, I am fascinated by her:
     };
 \`\`\`
 
-**我正在思考**
+> **我正在思考**
 > #### 老子应该调用谁
 >
 > 不知道
+
 
 ## Conclusion
 
@@ -127,6 +130,21 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
             type: 'error',
             content: '节点异常',
         },
+        {
+            type: 'bot',
+            content: '这是机器人的回复内容',
+            thought: {
+                titles: ['分析问题...', '思考方案...', '整理答案...'],
+                content: `
+        > **分析过程**
+        > 1. 首先理解用户需求，的编辑文档编辑，但我不觉得快把肯定比我空军第八·好的吧v卡博客大巴尽快把我都快把科技部
+        > 2. 考虑最佳实现方案
+        > 3. 优化代码结构
+                `,
+                isAnimating: true,
+                duration: 9
+            },
+        },
     ];
 
     const options = [
@@ -165,10 +183,29 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
         return () => cancelAnimationFrame(requestRef.current!);
     }, [animateText]);
 
+    const thoughtContent = `
+    > **Laying out the profile**  
+    > I'm thinking through the scenario of "洛小黑," a 16-year-old high school student...  
+    >  
+    > **Navigating nuances**  
+    > Interestingly enough, the instructions emphasize clear communication...  
+    `;
+
+    const [titles, setTitles] = useState<string[]>([]);
+    // 模拟接收新标题,10个，间隔3秒
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTitles(prev => [...prev, "Processing data..."]);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+        
+
+
     return (
-        <div className="text-markdown-container">
-            {/*<SearchingMessage/>*/}
-            <MarkdownRenderer content={visibleText}/>
+        <div className="flex-col px-4 py-6 flex mx-auto max-w-3xl justify-center items-center">
+           {/* <SearchingMessage/> */}
+            {/* <MarkdownRenderer content={visibleText}/> */}
             <ChatList messages={messages}/>
             {/* <button onClick={() => setShowUpdateModal(true)}>Show Update Modal</button>
             <UpdateModal 
@@ -200,6 +237,13 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
             {/*    onSubmit={(answer) => console.log(answer)}*/}
             {/*/>*/}
             {/* <AgentUI/> */}
+            {/* <AgentContent/> */}
+            {/* <ThoughtStream 
+            titles={titles}
+            isAnimating={true}
+            duration={9}
+            content={thoughtContent}
+        /> */}
         </div>
     );
 };

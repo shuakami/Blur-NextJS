@@ -49,13 +49,13 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, language = 'plaintext'
     }
 
     return (
-        <div className="relative group rounded-lg overflow-hidden bg-gray-50/50 dark:bg-gray-800/30 
-                      border border-gray-150/50 dark:border-gray-900/15 backdrop-blur-sm">
+        <div className="mb-3 relative group rounded-lg overflow-hidden bg-gray-50/45 dark:bg-gray-900
+                      border border-gray-50 dark:border-gray-900/45">
             {/* 头部工具栏 */}
-            <div className="absolute top-3 right-3 flex items-center gap-2">
+            <div className="absolute top-3 right-3 flex items-center gap-1">
                 {/* 语言标识 */}
-                <div className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium 
-                             text-gray-500 dark:text-gray-400 select-none">
+                <div className="flex items-center gap-1 px-2 py-1 text-xs font-light
+                             text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 select-none">
                     <Terminal size={14} />
                     {language}
                 </div>
@@ -63,7 +63,7 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, language = 'plaintext'
                 {/* 复制按钮 */}
                 <CopyToClipboard text={code} onCopy={handleCopy}>
                     <button 
-                        className=" p-1.5 rounded-md text-gray-400 hover:text-gray-600
+                        className="p-1.5 rounded-md text-gray-400 hover:text-gray-600
                                  dark:text-gray-500 dark:hover:text-gray-300
                                  hover:bg-gray-100 dark:hover:bg-gray-700/50
                                  transition-colors duration-200"
@@ -79,10 +79,10 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, language = 'plaintext'
             </div>
 
             {/* 代码内容 */}
-            <pre className="!mt-0 pt-4 pb-4 px-4 overflow-x-auto">
+            <pre className="!mt-0 pt-2.5 pb-3 px-4 overflow-x-auto">
                 <code 
                     ref={codeRef}
-                    className={`language-${language} text-sm`}
+                    className={`language-${language} hljs`}
                     dangerouslySetInnerHTML={{ __html: highlightedCode }}
                 />
             </pre>

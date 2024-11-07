@@ -4,7 +4,7 @@ import './chat_list.css';
 import ErrorMessage from "./chat-list/ErrorMessage";
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
-import { ChatListProps, Message } from "@/types/stream";
+import { ChatListProps, Message, ThoughtProcess } from "@/types/stream";
 
 // 消息项组件
 const MessageItem = memo(({ 
@@ -38,10 +38,11 @@ const MessageItem = memo(({
         <div className="flex flex-col">
             {isBot ? (
                 <div className={`flex py-3 first:pt-4 last:pb-4 items-start space-x-4`}>
-                    <BotMessage
+                       <BotMessage
                         content={message.content}
                         isLoading={isLoading}
                         isLatestBotMessage={isLastMessage}
+                        thought={message.thought}
                     />
                 </div>
             ) : (

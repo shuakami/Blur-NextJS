@@ -10,8 +10,8 @@
 .hljs {
     color: #383A42;
     background: transparent;
-    font-size: 0.9375rem;
-    line-height: 1.5;
+    font-size: 0.875rem;
+    line-height: 1.75;
     -webkit-font-smoothing: auto;
     font-weight: 350;
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
