@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 
 const ToastProvider = ToastPrimitives.Provider
 
-const ToastViewport = React.forwardRef<
+const ToastViewport = React.memo(React.forwardRef<
     React.ElementRef<typeof ToastPrimitives.Viewport>,
     React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
 >(({ className, ...props }, ref) => (
@@ -21,7 +21,7 @@ const ToastViewport = React.forwardRef<
         )}
         {...props}
     />
-))
+)))
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
@@ -47,7 +47,7 @@ const toastVariants = cva(
     }
 );
 
-const Toast = React.forwardRef<
+const Toast = React.memo(React.forwardRef<
     React.ElementRef<typeof ToastPrimitives.Root>,
     React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
@@ -64,8 +64,7 @@ const Toast = React.forwardRef<
             <ToastClose />
         </ToastPrimitives.Root>
     )
-})
-
+}))
 Toast.displayName = ToastPrimitives.Root.displayName
 
 

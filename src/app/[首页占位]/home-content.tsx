@@ -58,7 +58,7 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
     const windowWidth = useWindowSize();
     const isMobile2 = useMemo(() => windowWidth < 800, [windowWidth]);
     // 800~940
-    const isPad = useMemo(() => windowWidth >= 800 && windowWidth <= 940, [windowWidth]);
+    const isPad = useMemo(() => windowWidth >= 800 && windowWidth <= 1020, [windowWidth]);
     
     const randomChar = useCallback(() => 
         RANDOM_CHARS[Math.floor(Math.random() * RANDOM_CHARS.length)],

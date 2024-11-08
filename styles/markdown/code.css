@@ -26,16 +26,15 @@
 
 /* 内联代码 */
 .inline-code {
-    background-color: rgba(248, 248, 248, 0.8);
-    padding: 0.2em 0.4em;
-    border-radius: 0.375rem;
+    background-color: #ECECEC;
+    padding: .15rem .3rem;
+    border-radius: 0.25rem;
     font-size: 0.875em;
-    color: #444;
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    color: #383838;
     white-space: nowrap;
     vertical-align: baseline;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-weight: 400;
+    font-weight: 500;
     margin-left: 0.15em;
     margin-right: 0.15em;
     height: auto;

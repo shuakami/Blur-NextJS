@@ -5,7 +5,7 @@ import localFont from "next/font/local";
 import "../../styles/globals.css";
 import {ThemeProvider} from "@/components/ui/theme-provider";
 import {LanguageProvider} from "@/components/LanguageProvider";
-import {ClerkProvider} from "@clerk/nextjs";
+import {OptimizedClerkProvider} from "@/components/providers/OptimizedClerkProvider";
 import {Toaster} from "@/components/ui/toaster";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
 import {ApiClientProvider} from "@/api/ApiClientProvider";
@@ -52,7 +52,7 @@ export default function RootLayout({
 }>) {
 
     return (
-        <ClerkProvider>
+        <OptimizedClerkProvider>
             <html lang="en">
             <body
                 className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
@@ -80,6 +80,6 @@ export default function RootLayout({
             </ThemeProvider>
             </body>
             </html>
-        </ClerkProvider>
+        </OptimizedClerkProvider>
     );
 }

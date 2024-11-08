@@ -1,15 +1,16 @@
 :root {
-    --list-marker-color: #555555;
-    --list-indent: 1.5rem; /* 一级列表的缩进 */
-    --nested-list-indent: 1.25rem; /* 嵌套列表的缩进 */
-    --item-spacing: 0.85rem;
-    --marker-text-gap: 0.45rem;
+    --list-marker-color: var(--text-tertiary);
+    --list-indent: 1.625em;
+    --list-nested-indent: 2.95em;
+    --item-spacing: 0.375rem;
+    --marker-text-gap: 0.3rem;
 }
 
 /* 基础列表样式 */
 .list-decimal,
 .list-disc {
-    margin: 1rem 0;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
     padding-left: var(--list-indent);
 }
 
@@ -24,74 +25,60 @@
 
 /* 列表项样式 */
 .list-item {
-    font-size: 1.0225rem; /* 与正文一致的字体大小 */
-    line-height: 1.6; /* 略低的行高，使列表显得更紧凑 */
-    margin-bottom: var(--item-spacing); /* 减少列表项之间的间距 */
+    font-size: 1.0225rem;
+    line-height: 1.75;
+    margin-bottom: var(--item-spacing);
     padding-left: var(--marker-text-gap);
-    color: var(--text-color); /* 与正文颜色保持一致 */
-    font-weight: 500; /* 保持正文的字重 */
+    color: var(--text-color);
+    font-weight: 400;
+    word-spacing: 0.02em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* 嵌套列表样式 */
 .list-item ul,
 .list-item ol {
-    padding-left: var(--nested-list-indent);
-    margin-top: 0.25rem; /* 减少嵌套列表项顶部的空隙，显得紧凑 */
+    padding-left: var(--list-nested-indent);
+    margin-left: calc(-1.25em);
 }
 
 .list-item ul {
-    list-style-type: circle; /* 第二级无序列表使用圆圈符号 */
+    list-style-type: disc;
 }
 
 .list-item ol {
-    list-style-type: lower-alpha; /* 第二级有序列表使用字母 */
+    list-style-type: lower-alpha;
 }
 
 /* 深度嵌套列表的样式 */
 .list-item ul ul,
 .list-item ol ol {
-    padding-left: calc(var(--nested-list-indent) + 0.5rem);
+    margin-top: 0.5em;
+    padding-left: var(--list-nested-indent);
+    margin-left: calc(-1.25em);
 }
 
 .list-item ul ul {
-    list-style-type: square; /* 第三级无序列表使用方形符号 */
+    list-style-type: disc;
 }
 
 .list-item ol ol {
-    list-style-type: lower-roman; /* 第三级有序列表使用罗马数字 */
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    :root {
-        --list-indent: 1.25rem;
-        --nested-list-indent: 1rem;
-        --item-spacing: 0.375rem;
-        --marker-text-gap: 0.35rem;
-    }
-
-    .list-item {
-        font-size: 1rem; /* 缩小字体，适配小屏设备 */
-        line-height: 1.5; /* 进一步减小行高，适配紧凑布局 */
-    }
+    list-style-type: lower-roman;
 }
 
 /* 暗色模式支持 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-color: #e0e0e0; /* 列表文字颜色 */
-        --list-marker-color: #b0b0b0; /* 列表符号颜色 */
-    }
-
-    .list-item {
-        color: var(--text-color); /* 与正文颜色保持一致 */
+        --list-marker-color: var(--text-secondary);
     }
 }
 
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
     .list-item {
-        font-weight: 700; /* 增加字体粗细，确保高对比度模式下可读性 */
+        font-weight: 700;
     }
 }
 
@@ -100,5 +87,12 @@
     .text-body,
     .list-item {
         -webkit-font-smoothing: subpixel-antialiased;
+    }
+}
+
+/* 打印样式支持 */
+@media print {
+    .list-item {
+        font-size: 12pt;
     }
 }

@@ -88,9 +88,9 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, language = 'plaintext'
             {/* 头部工具栏 */}
             <div className="z-30 absolute top-3 right-3 flex items-center gap-1">
                 {/* 语言标识 */}
-                <div className="flex items-center gap-1 px-2 py-1 text-xs font-light bg-[#FCFCFC] dark:bg-[#2A2A2A]
+                <div className="flex items-center gap-1 px-2 py-1 text-xs font-light bg-gray-50/45 dark:bg-gray-945
                              text-gray-450 hover:text-gray-600 dark:text-gray-500
-                              dark:hover:text-gray-300 select-none hover:bg-gray-80 dark:hover:bg-gray-850
+                              dark:hover:text-gray-300 select-none hover:bg-gray-80 dark:hover:bg-gray-940
                               transition-colors duration-200 rounded-md">
                     <Terminal size={14} />
                     {language}
@@ -99,9 +99,9 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, language = 'plaintext'
                 {/* 复制按钮 */}
                 <CopyToClipboard text={code} onCopy={handleCopy}>
                     <button 
-                        className="p-1.5 rounded-md text-gray-400 bg-[#FCFCFC] dark:bg-[#2A2A2A] hover:text-gray-600
+                        className="p-1.5 rounded-md text-gray-400 bg-[#FCFCFC] dark:bg-gray-945 hover:text-gray-600
                                  dark:text-gray-500 dark:hover:text-gray-300
-                                 hover:bg-gray-80 dark:hover:bg-gray-850
+                                 hover:bg-gray-80 dark:hover:bg-gray-940
                                  transition-colors duration-200"
                         title="复制代码"
                     >

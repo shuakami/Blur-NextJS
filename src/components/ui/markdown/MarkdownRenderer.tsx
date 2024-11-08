@@ -6,13 +6,6 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import type { Components } from 'react-markdown';
-import dynamic from 'next/dynamic';
-
-// 懒加载较大的组件
-const BlurAnimatedWrapper = dynamic(() => import("@/components/Animations/blur_text"), {
-    ssr: false
-});
-
 // 静态导入基础组件
 import {
     Heading1, Heading2, Heading3,
@@ -107,16 +100,14 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
 
     return (
         <div className="markdown-body">
-            <BlurAnimatedWrapper>
                 <ReactMarkdown
                     remarkPlugins={remarkPlugins}
                     rehypePlugins={rehypePlugins}
                     components={components}
-                    skipHtml={true}
+                    skipHtml={false}
                 >
                     {content}
                 </ReactMarkdown>
-            </BlurAnimatedWrapper>
         </div>
     );
 });

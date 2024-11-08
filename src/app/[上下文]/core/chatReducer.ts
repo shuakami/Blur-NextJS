@@ -1,5 +1,5 @@
 import { Message } from '@/types/stream';
-
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * 聊天状态接口
@@ -172,36 +172,113 @@ export type Action =
 /**
  * 聊天状态更新器
  * @function chatReducer
- * @description 处理所有聊天状态的更新操作
- * @param {ChatState} state - 当前状态
- * @param {Action} action - 要执行的动作
- * @returns {ChatState} 更新后的状态
+ * @description 处理所有聊天状态的更新操作，包括添加消息、更新消息、设置加载状态等。
+ * @param {ChatState} state - 当前的聊天状态，包含消息列表、对话ID等信息。
+ * @param {Action} action - 要执行的动作，包含类型和相关的负载数据。
+ * @returns {ChatState} 更新后的聊天状态。
  * @example
  * const [state, dispatch] = useReducer(chatReducer, initialState);
  * dispatch({ type: 'ADD_MESSAGE', payload: newMessage });
  */
 export const chatReducer = (state: ChatState, action: Action): ChatState => {
     switch (action.type) {
+        /**
+         * 设置对话ID
+         * @param {string} action.payload - 新的对话ID，用于标识当前对话。
+         * @returns {ChatState} 更新后的状态，包含新的对话ID。
+         */
         case 'SET_CONVERSATION_ID':
             return { ...state, conversationId: action.payload };
-        case 'ADD_MESSAGE':
-            return { ...state, messages: [...state.messages, action.payload] };
-        case 'ADD_MESSAGES':
-            return { ...state, messages: [...state.messages, ...action.payload] };
+
+        /**
+         * 添加单条消息
+         * @param {Message} action.payload - 要添加的消息对象（带自动修补），包含消息内容和发送者信息。
+         * @returns {ChatState} 更新后的状态，包含新的消息列表。
+         */
+        case 'ADD_MESSAGE': {
+            const messageWithId = {
+                ...action.payload,
+                message_id: action.payload.message_id || uuidv4()
+            };
+            return { ...state, messages: [...state.messages, messageWithId] };
+        }
+
+        /**
+         * 添加多条消息
+         * @param {Message[]} action.payload - 要添加的消息数组（带自动修补），包含多条消息对象。
+         * @returns {ChatState} 更新后的状态，包含新的消息列表。
+         */
+        case 'ADD_MESSAGES': {
+            const messagesWithIds = action.payload.map(msg => ({
+                ...msg,
+                message_id: msg.message_id || uuidv4()
+            }));
+            return { ...state, messages: [...state.messages, ...messagesWithIds] };
+        }
+
+        /**
+         * 设置加载状态
+         * @param {boolean} action.payload - 加载状态，指示是否正在加载数据。
+         * @returns {ChatState} 更新后的状态，包含新的加载状态。
+         */
         case 'SET_LOADING':
             return { ...state, isLoading: action.payload };
+
+        /**
+         * 设置是否还有更多数据
+         * @param {boolean} action.payload - 是否还有更多数据可加载。
+         * @returns {ChatState} 更新后的状态，包含新的更多数据标志。
+         */
         case 'SET_HAS_MORE':
             return { ...state, hasMore: action.payload };
+
+        /**
+         * 设置消息偏移量
+         * @param {number} action.payload - 新的消息偏移量，用于分页加载更多消息。
+         * @returns {ChatState} 更新后的状态，包含新的偏移量。
+         */
         case 'SET_OFFSET':
             return { ...state, offset: action.payload };
+
+        /**
+         * 设置流式传输状态
+         * @param {boolean} action.payload - 新的流式传输状态，指示是否正在进行流式响应。
+         * @returns {ChatState} 更新后的状态，包含新的流式传输状态。
+         */
         case 'SET_IS_STREAMING':
             return { ...state, isStreaming: action.payload };
+
+        /**
+         * 增加重载计数器
+         * @description 触发对话列表的重新加载，每次调用此动作都会增加计数器。
+         * @returns {ChatState} 更新后的状态，包含新的重载计数器值。
+         */
         case 'INCREMENT_RELOAD_COUNTER':
             return { ...state, reloadConversationsCounter: state.reloadConversationsCounter + 1 };
+
+        /**
+         * 重置新对话ID
+         * @description 清除新创建的对话ID，将其设置为null。
+         * @returns {ChatState} 更新后的状态，包含重置后的新对话ID。
+         */
         case 'RESET_NEW_CONVERSATION_ID':
             return { ...state, newConversationId: null };
+
+        /**
+         * 清空所有消息
+         * @description 清空消息列表并重置相关状态，包括偏移量和更多数据标志。
+         * @returns {ChatState} 更新后的状态，包含空的消息列表和重置的状态。
+         */
         case 'CLEAR_MESSAGES':
             return { ...state, messages: [], offset: 0, hasMore: true };
+
+        /**
+         * 更新指定消息
+         * @param {Object} action.payload - 更新信息
+         * @param {string} action.payload.message_id - 要更新的消息ID。
+         * @param {Partial<Message>} action.payload.updates - 要更新的消息字段，包含部分消息信息。
+         * @returns {ChatState} 更新后的状态，包含更新后的消息列表。
+         */
         case 'UPDATE_MESSAGE':
             return {
                 ...state,
@@ -209,6 +286,7 @@ export const chatReducer = (state: ChatState, action: Action): ChatState => {
                     msg.message_id === action.payload.message_id ? { ...msg, ...action.payload.updates } : msg
                 )
             };
+
         default:
             return state;
     }

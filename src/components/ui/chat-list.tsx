@@ -1,9 +1,10 @@
 import React, { memo, useCallback } from "react";
-import './chat_list.css';
-import ErrorMessage from "./chat-list/ErrorMessage";
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import { ChatListProps, Message, ThoughtProcess } from "@/types/stream";
+import './chat_list.css';
+
+const ErrorMessage = React.lazy(() => import("./chat-list/ErrorMessage"));
 
 // 消息项组件
 const MessageItem = memo(({ 
@@ -26,6 +27,7 @@ const MessageItem = memo(({
     isLastMessage: boolean;
     thought?: ThoughtProcess;
 }) => {
+    
     const isBot = message.type === 'bot';
     const isError = message.type === 'error';
     const isEditing = message.id === editingId;
@@ -64,6 +66,10 @@ MessageItem.displayName = 'MessageItem';
 
 // 主组件
 export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: ChatListProps) => {
+
+    // 打印messages
+    console.log('ChatList messages:', messages);
+
     const [editingId, setEditingId] = React.useState<string | null>(null);
 
     const handleEdit = useCallback(async (id: string, newContent: string) => {
@@ -86,6 +92,7 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
           <div className="space-y-1">
                     {messages.map((message, index) => (
                             <MessageItem
+                                key={message.message_id} 
                                 message={message}
                                 index={index}
                                 isLoading={isLoading}

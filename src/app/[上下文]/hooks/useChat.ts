@@ -1,6 +1,6 @@
 // src/app/[上下文]/useChat.ts
 
-import { useReducer, useEffect, useCallback, useRef } from 'react';
+import { useReducer, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useUser } from '@clerk/nextjs';
 import useTranslation from "@/hooks/useTranslation";
 import { Message } from '@/types/stream';
@@ -84,7 +84,8 @@ const useChat = (initialConversationId?: string) => {
         fetchAndSetHistory();
     }, [fetchAndSetHistory, state.reloadConversationsCounter]);
 
-    return {
+    // 使用 useMemo 记忆化返回的对象
+    const memoizedChat = useMemo(() => ({
         messages: state.messages,
         sendMessage,
         addMessage,
@@ -97,7 +98,22 @@ const useChat = (initialConversationId?: string) => {
         isStreaming: state.isStreaming,
         stopStreaming,
         conversationId: state.conversationId,
-    };
+    }), [
+        state.messages,
+        sendMessage,
+        addMessage,
+        triggerConversationsReload,
+        state.reloadConversationsCounter,
+        state.newConversationId,
+        resetNewConversationId,
+        state.isLoading,
+        loadMoreMessages,
+        state.isStreaming,
+        stopStreaming,
+        state.conversationId,
+    ]);
+
+    return memoizedChat;
 };
 
 export default useChat;
