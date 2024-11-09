@@ -30,7 +30,7 @@ const UserMessage = memo(({
 }) => {
 
     return (
-        <div className={`-mt-5 relative group ${isEditing ? 'w-full' : 'max-w-[70%]'}`}>
+        <div className={`relative group ${isEditing ? 'w-full' : 'max-w-[70%]'}`}>
             {!isEditing && message.status !== 'inactive' && (
                 <div className="absolute right-full top-1 mr-12 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <Suspense fallback={null}>

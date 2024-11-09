@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense, useMemo, useCallback } from 'reac
 import { useRouter } from 'next/router';
 import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
 import { useUser } from '@clerk/nextjs';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Cookies from "js-cookie";
 import { ChatProvider } from "@/app/[上下文]/ChatContext";
 import dynamic from 'next/dynamic';
@@ -20,6 +20,7 @@ const Meta = dynamic(() => import("@/components/ui/Meta"), { ssr: false });
 const ModelSelector = dynamic(() => import("@/components/ui/model_selector").then(mod => mod.default), { ssr: false });
 const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
 const HomeHeaderIcon = dynamic(() => import('@/app/[首页占位]/home_header_icon').then(mod => mod.default), { ssr: false });
+const Overlay = dynamic(() => import('@/components/ui/overlay/index'), { ssr: false });
 
 const SIDEBAR_WIDTH = 220;
 const MAX_RETRY_COUNT = 3;
@@ -49,22 +50,6 @@ const useWindowSize = () => {
 
     return width;
 };
-
-const SidebarOverlay = React.memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => (
-    <AnimatePresence>
-        {isOpen && (
-            <motion.div
-                className="fixed inset-0 z-30 md:hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-            />
-        )}
-    </AnimatePresence>
-));
-
-SidebarOverlay.displayName = 'SidebarOverlay';
 
 export default function ChatPage() {
     const router = useRouter();
@@ -177,26 +162,35 @@ export default function ChatPage() {
 
     return (
         <ChatProvider initialConversationId={conversation_id}>
-         <Meta pageName={chat_title}/> 
-            <div className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
+            <Meta pageName={chat_title}/> 
+            <main className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
                 {isClient && (
                     <>
-                        <motion.div
-                            className="h-full z-40 fixed top-0 left-0"
-                            style={{ width: SIDEBAR_WIDTH }}
-                            initial={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
-                            animate={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
-                            transition={sidebarAnimationConfig}
-                        >
-                            <Suspense fallback={null}>
-                                <MessagesSidebar onClose={toggleSidebar}/>
-                            </Suspense>
-                        </motion.div>
+                        {/* 侧边栏 */}
+                        <nav>
+                            <motion.div className="h-full z-40 fixed top-0 left-0"
+                                style={{ width: SIDEBAR_WIDTH }}
+                                initial={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
+                                animate={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
+                                transition={sidebarAnimationConfig}
+                            >
+                                <Suspense fallback={null}>
+                                    <MessagesSidebar onClose={toggleSidebar}/>
+                                </Suspense>
+                            </motion.div>
+                        </nav>
 
-                        <SidebarOverlay isOpen={isSidebarOpen && isMobile} onClose={toggleSidebar}/>
+                        {/* 侧边栏遮罩层（移动端Only） */}
+                        <Suspense fallback={null}>
+                            <Overlay 
+                                isOpen={isSidebarOpen && isMobile} 
+                                onClose={toggleSidebar}
+                                zIndex={35}
+                            />
+                        </Suspense>
 
-                        <motion.div
-                            className="flex flex-col h-full overflow-hidden w-full"
+                        {/* 主内容 */}
+                        <motion.div className="flex flex-col h-full overflow-hidden w-full"
                             style={{ 
                                 marginLeft: isSidebarOpen && !isMobile ? SIDEBAR_WIDTH : 0 
                             }}
@@ -209,7 +203,8 @@ export default function ChatPage() {
                                 ease: [0.25, 0.8, 0.25, 1],
                             }}
                         >
-                            <div className="flex justify-between items-center px-4 py-4 absolute top-0 left-0 w-full">
+                            {/* 头部工具栏 */}
+                            <header className="flex justify-between items-center px-4 py-4 absolute top-0 left-0 w-full">
                                 <div className={`flex items-center ${isMobile ? '' : 'space-x-4'}`}>
                                     <motion.div
                                         className={`absolute top-4 ${isMobile ? '' : 'left-4'} z-40`}
@@ -243,45 +238,49 @@ export default function ChatPage() {
                                         </motion.div>
                                     </Suspense>
                                 </div>
-                            </div>
+                            </header>
 
-                            <div className="flex-1 overflow-auto w-full mt-12">
+                            {/* 聊天内容 */}
+                            <section className="flex-1 overflow-auto w-full">
                                 <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
-                                    <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl">
+                                    <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]">
                                         <Suspense fallback={null}>
                                             <ChatList />
                                         </Suspense>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
 
-                            <motion.div layout>
-                                <div className="flex flex-col items-center w-full bg-transparent">
-                                    <div className="w-full max-w-4xl">
-                                        <ChatInputWrapper/>
+                            {/* 底部输入框&版权 */}
+                            <footer>
+                                <motion.div layout>
+                                    <div className="flex flex-col items-center w-full bg-transparent">
+                                        <div className="w-full max-w-4xl">
+                                            <ChatInputWrapper/>
+                                        </div>
+                                        <motion.div 
+                                            className="w-full"
+                                            initial={{ opacity: 0, height: "24px" }}
+                                            animate={{ opacity: 1, height: "24px" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <Suspense fallback={
+                                                <div className="h-[24px] flex items-center justify-center opacity-0">
+                                                    <div className="text-xs text-black/60 dark:text-[#b2b2b2]/90">占位文本</div>
+                                                </div>
+                                            }>
+                                                <CText />
+                                            </Suspense>
+                                        </motion.div>
+                                        <div className="mb-3"/>
                                     </div>
-                                    <motion.div 
-                                        className="w-full"
-                                        initial={{ opacity: 0, height: "24px" }}
-                                        animate={{ opacity: 1, height: "24px" }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Suspense fallback={
-                                            <div className="h-[24px] flex items-center justify-center opacity-0">
-                                                <div className="text-xs text-black/60 dark:text-[#b2b2b2]/90">占位文本</div>
-                                            </div>
-                                        }>
-                                            <CText />
-                                        </Suspense>
-                                    </motion.div>
-                                    <div className="mb-3"/>
-                                </div>
-                            </motion.div>
+                                </motion.div>
+                            </footer>
                         </motion.div>
                     </>
                 )}
-            </div>
+            </main>
         </ChatProvider>
     );
 }

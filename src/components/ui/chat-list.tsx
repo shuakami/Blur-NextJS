@@ -37,10 +37,10 @@ const MessageItem = memo(({
     }
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full mt-14">
             {isBot ? (
-                <div className={`flex py-3 first:pt-4 last:pb-4 items-start space-x-4`}>
-                       <BotMessage
+                <div className={`flex py-2 first:pt-3 last:pb-3 items-start w-full`}>
+                    <BotMessage
                         content={message.content}
                         isLoading={isLoading}
                         isLatestBotMessage={isLastMessage}
@@ -48,7 +48,7 @@ const MessageItem = memo(({
                     />
                 </div>
             ) : (
-                <div className={`flex py-3 first:pt-4 last:pb-4 justify-end items-start space-x-4`}>
+                <div className={`flex py-2 first:pt-3 last:pb-3 justify-end items-start pr-3 sm:pr-0 -mt-5`}>
                     <UserMessage
                         message={message}
                         isEditing={isEditing}
@@ -89,20 +89,20 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
 
     return (
         <div className="h-full overflow-hidden w-full">
-          <div className="space-y-1">
-                    {messages.map((message, index) => (
-                            <MessageItem
-                                key={message.message_id} 
-                                message={message}
-                                index={index}
-                                isLoading={isLoading}
-                                editingId={editingId}
-                                onEditStart={handleEditStart}
-                                onEditComplete={handleEdit}
-                                onEditCancel={handleEditCancel}
-                                isLastMessage={index === messages.length - 1}
-                            />
-                    ))}
+            <div className="space-y-0.5">
+                {messages.map((message, index) => (
+                    <MessageItem
+                        key={message.message_id} 
+                        message={message}
+                        index={index}
+                        isLoading={isLoading}
+                        editingId={editingId}
+                        onEditStart={handleEditStart}
+                        onEditComplete={handleEdit}
+                        onEditCancel={handleEditCancel}
+                        isLastMessage={index === messages.length - 1}
+                    />
+                ))}
             </div>
         </div>
     );

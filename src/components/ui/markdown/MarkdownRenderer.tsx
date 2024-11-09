@@ -27,6 +27,7 @@ import CodeBlock from "@/components/ui/markdown/code";
 const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ children }) => (
     <code className="inline-code">{children}</code>
 ));
+
 InlineCode.displayName = 'InlineCode';
 
 // 创建 remarkPlugins 配置

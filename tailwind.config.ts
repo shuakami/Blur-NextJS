@@ -304,7 +304,8 @@ const config: Config = {
         },
         maxWidth: {
             'golden-sm': '61.8%',
-            'golden-md': '38.2%'
+            'golden-md': '38.2%',
+            '3xl-4xl': '50rem',
         },
         fontSize: {
             ss: '9px',
@@ -520,7 +521,14 @@ const config: Config = {
                 '0%': { transform: 'translateX(-100%)' },
                 '100%': { transform: 'translateX(100%)' },
             },
-  		}
+  		},
+          transitionDuration: {
+            '550': '550ms',
+            '650': '650ms',
+          },
+          transitionTimingFunction: {
+            'custom': 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+          },
   	}
   },
   plugins: [require("tailwindcss-animate")],

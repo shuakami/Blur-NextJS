@@ -16,6 +16,7 @@ const HomepageContent = dynamic(() => import("@/app/[首页占位]/home-content"
 const ModelSelector = dynamic(() => import("@/components/ui/model_selector").then(mod => mod.default), { ssr: false });
 const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
 const HomeHeaderIcon = dynamic(() => import('./[首页占位]/home_header_icon').then(mod => mod.default), { ssr: false });
+const Overlay = dynamic(() => import('@/components/ui/overlay/index'), { ssr: false });
 
 const SIDEBAR_WIDTH = 220;
 
@@ -48,21 +49,6 @@ const useWindowSize = () => {
 
     return windowSize;
 };
-
-const SidebarOverlay = React.memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => (
-    <AnimatePresence>
-        {isOpen && (
-            <motion.div
-                className="fixed inset-0 z-30 md:hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-            />
-        )}
-    </AnimatePresence>
-));
-SidebarOverlay.displayName = 'SidebarOverlay';
 
 const fadeInUpAnimation = {
     initial: { opacity: 0},
@@ -158,7 +144,7 @@ const HomeContent = () => {
                         </Suspense>
                     </motion.div>
 
-                    <SidebarOverlay isOpen={isSidebarOpen && isMobile} onClose={toggleSidebar} />
+                    <Overlay isOpen={isSidebarOpen && isMobile} onClose={toggleSidebar} />
 
                     <motion.div
                         className="flex flex-col h-full overflow-hidden w-full"
@@ -220,7 +206,7 @@ const HomeContent = () => {
                                     {...fadeInUpAnimation}
                                 >
                                     <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
-                                        <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl">
+                                        <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]">
                                             <Suspense fallback={null}>
                                                 <ChatList />
                                             </Suspense>

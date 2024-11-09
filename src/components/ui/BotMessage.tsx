@@ -5,7 +5,6 @@ import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
 import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
 
-
 // 懒加载组件
 const BlurAnimatedWrapper = lazy(() => import("../Animations/blur_text"));
 const AnimatedShinyText = lazy(() => import("./animated-shiny-text"));
@@ -27,12 +26,14 @@ const BotMessage = memo(({
     thought
 }: BotMessageProps) => {
     return (
-        <div className="group relative flex max-w-full items-start gap-1 sm:gap-2 md:gap-4 lg:gap-6">
-            <Avatar className="h-10 w-10 flex-shrink-0">
-                <MoonLogo className="relative p-1" />
-            </Avatar>
+        <div className="group relative flex max-w-full items-start gap-4">
+            <div className="pl-3 sm:pl-0">
+                <Avatar className="h-9 w-9 flex-shrink-0">
+                    <MoonLogo className="relative p-1.5" />
+                </Avatar>
+            </div>
 
-            <div className="flex flex-col gap-1.5 min-w-0">
+            <div className="flex flex-col gap-1.5 min-w-0 flex-1 pr-3 sm:pr-0">
                 {/* 思考流组件 */}
                 {thought && (
                     <Suspense fallback={null}>
