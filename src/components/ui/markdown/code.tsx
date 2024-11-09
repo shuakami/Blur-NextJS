@@ -25,8 +25,9 @@ async function loadLanguage(language: string): Promise<void> {
             const { default: tsxLanguage } = await import('./Languages/tsxLanguage');
             hljs.registerLanguage('tsx', tsxLanguage);
         } else {
-            const module = await import(`highlight.js/es/languages/${normalizedLang}`);
-            hljs.registerLanguage(normalizedLang, module.default);
+            // 使用 highlight.js 的新导入方式
+            const languageModule = await import('highlight.js/lib/languages/' + normalizedLang);
+            hljs.registerLanguage(normalizedLang, languageModule.default);
         }
         
         loadedLanguages.add(language);

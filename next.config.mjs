@@ -60,6 +60,15 @@ const nextConfig = {
                 },
             };
         }
+
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            'highlight.js/lib/languages': new URL(
+                './node_modules/highlight.js/lib/languages',
+                import.meta.url
+            ).pathname,
+        };
+
         return config;
     },
 
