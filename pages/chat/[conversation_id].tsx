@@ -243,7 +243,7 @@ export default function ChatPage() {
                             {/* 聊天内容 */}
                             <section className="flex-1 overflow-auto w-full">
                                 <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
-                                    <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]">
+                                    <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-custom-lg xl:max-w-custom-xl">
                                         <Suspense fallback={null}>
                                             <ChatList />
                                         </Suspense>

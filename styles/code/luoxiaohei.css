@@ -18,6 +18,8 @@
     font-feature-settings: "liga" 1, "calt" 1;
     -webkit-font-smoothing: auto;
     text-rendering: optimizeLegibility;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 /* 关键字 (import, export, const, let, return) */

@@ -12,23 +12,7 @@ export const addMessageHandler = (message: Message, dispatch: Dispatch<Action>) 
         ...dialogProcessor.updateMessage(message),
         message_id: message.message_id || uuidv4()
     };
+    console.log('添加消息:', processedMessage);
     dispatch({ type: 'ADD_MESSAGE', payload: processedMessage });
 };
 
-// 更新最后一个机器人消息
-export const updateLastBotMessageHandler = (chunkContent: string, messages: Message[], dispatch: Dispatch<Action>) => {
-    const lastStreamingBotMessage = [...messages].reverse().find(
-        (msg) => msg.type === 'bot' && msg.isStreaming
-    );
-    if (lastStreamingBotMessage) {
-        dispatch({
-            type: 'UPDATE_MESSAGE',
-            payload: {
-                message_id: lastStreamingBotMessage.message_id,
-                updates: {
-                    content: lastStreamingBotMessage.content + chunkContent
-                }
-            }
-        });
-    }
-};

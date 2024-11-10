@@ -22,16 +22,16 @@ import { TaskListItem } from './taskList';
 import { Strikethrough } from './strikethrough';
 import { BlockMath, InlineMath } from "@/components/ui/markdown/MathRenderer";
 import CodeBlock from "@/components/ui/markdown/code";
+import remarkCodePreserver from "@/components/ui/markdown/pig/code";
 
 // InlineCode 组件
 const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ children }) => (
     <code className="inline-code">{children}</code>
 ));
-
 InlineCode.displayName = 'InlineCode';
 
 // 创建 remarkPlugins 配置
-const remarkPlugins = [remarkGfm, remarkMath];
+const remarkPlugins = [remarkGfm, remarkMath, remarkCodePreserver];
 const rehypePlugins = [rehypeKatex, rehypeRaw];
 
 // 数学公式组件
@@ -66,17 +66,18 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
         img: ({ src, alt = '', ...props }) => <Image src={src} alt={alt} {...props} />,
         
         // 代码块组件
-        code: ({ className, children, ...props }) => {
-            const match = /language-(\w+)/.exec(className || '');
-            const codeContent = String(children).replace(/\n$/, '');
-
-            // 将处理逻辑转移到 CodeBlock 组件中
-            return (
-                <CodeBlock
-                    code={codeContent}
-                    language={match ? match[1] : 'plaintext'}
-                />
-            );
+        // @ts-ignore
+        code: ({ inline, className, children, ...props }) => {
+            if (inline) {
+                return <InlineCode {...props}>{children}</InlineCode>;
+            }
+            
+            const codeContent = String(children)
+                .replace(/\n$/, '')
+                .replace(/^```[\w-]*\n/, '')
+                .replace(/```$/, '');
+            
+            return <CodeBlock code={codeContent} />;
         },
 
         // 其他组件

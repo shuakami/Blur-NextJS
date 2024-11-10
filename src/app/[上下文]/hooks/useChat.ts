@@ -24,6 +24,7 @@ const useChat = (initialConversationId?: string) => {
     // 保持 messagesRef 同步最新的 messages
     useEffect(() => {
         messagesRef.current = state.messages;
+        console.log('messagesRef 更新:', messagesRef.current);
     }, [state.messages]);
 
     const userId = user?.id;
@@ -48,7 +49,7 @@ const useChat = (initialConversationId?: string) => {
         t,
         userId,
         userImageUrl,
-        messagesRef,
+        messagesRef, // 传递 messagesRef
     });
 
     const { fetchAndSetHistory } = useFetchHistory({

@@ -3,6 +3,7 @@ import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import { ChatListProps, Message, ThoughtProcess } from "@/types/stream";
 import './chat_list.css';
+import ScrollDownButton from '@/components/ui/scroll-down-button';
 
 const ErrorMessage = React.lazy(() => import("./chat-list/ErrorMessage"));
 
@@ -35,6 +36,7 @@ const MessageItem = memo(({
     if (isError) {
         return <ErrorMessage content={message.content} />;
     }
+
 
     return (
         <div className="flex flex-col w-full mt-14">
@@ -88,22 +90,26 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
     }, []);
 
     return (
-        <div className="h-full overflow-hidden w-full">
-            <div className="space-y-0.5">
-                {messages.map((message, index) => (
-                    <MessageItem
-                        key={message.message_id} 
-                        message={message}
-                        index={index}
-                        isLoading={isLoading}
-                        editingId={editingId}
-                        onEditStart={handleEditStart}
-                        onEditComplete={handleEdit}
-                        onEditCancel={handleEditCancel}
-                        isLastMessage={index === messages.length - 1}
-                    />
-                ))}
+        <div className="relative">
+            <div className="h-full overflow-hidden w-full">
+                <div className="space-y-0.5">
+                    {messages.map((message, index) => (
+                        <MessageItem
+                            key={message.message_id} 
+                            message={message}
+                            index={index}
+                            isLoading={isLoading}
+                            editingId={editingId}
+                            onEditStart={handleEditStart}
+                            onEditComplete={handleEdit}
+                            onEditCancel={handleEditCancel}
+                            isLastMessage={index === messages.length - 1}
+                        />
+                    ))}
+                  <ScrollDownButton/>
+                </div>
             </div>
+
         </div>
     );
 });

@@ -1,11 +1,12 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+    mode: 'jit',
     darkMode: ["class"],
     content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-        "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
@@ -296,7 +297,9 @@ const config: Config = {
             '5xl': '3200px',
             '6xl': '3840px',
             '7xl': '4480px',
-            '8xl': '5120px'
+            '8xl': '5120px',
+            'custom-lg': '40rem',
+            'custom-xl': '48rem'
         },
         fontFamily: {
             sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
@@ -521,6 +524,34 @@ const config: Config = {
                 '0%': { transform: 'translateX(-100%)' },
                 '100%': { transform: 'translateX(100%)' },
             },
+            'scroll-down': {
+                '0%': { 
+                    transform: 'translate(-50%, 0) scale(1)',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                },
+                '50%': { 
+                    transform: 'translate(-50%, 6px) scale(0.95)',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.2)'
+                },
+                '100%': { 
+                    transform: 'translate(-50%, 0) scale(1)',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                }
+            },
+            'arrow-down': {
+                '0%': { 
+                    transform: 'translateY(0)',
+                    opacity: '1'
+                },
+                '50%': { 
+                    transform: 'translateY(4px)',
+                    opacity: '0.7'
+                },
+                '100%': { 
+                    transform: 'translateY(0)',
+                    opacity: '1'
+                }
+            }
   		},
           transitionDuration: {
             '550': '550ms',
