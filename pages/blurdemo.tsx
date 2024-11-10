@@ -8,6 +8,7 @@ import AgentUI from "@/components/ui/LLM/agent";
 import UpdateModal from '@/components/UpdateModal';
 import AgentContent from '@/components/ui/LLM/AgentMessage';
 import { ThoughtStream } from '@/components/ui/chat/ThoughtStream';
+import { ChatProvider } from '@/app/[上下文]/ChatContext';
 
 
 const LETTERS_PER_FRAME = 3;
@@ -255,6 +256,7 @@ highlight.js 默认的 Markdown 支持相对基础，以下是常见的高亮类
 
 
     return (
+        <ChatProvider>
         <div className="flex-col px-4 py-6 flex mx-auto max-w-3xl justify-center items-center">
            {/* <SearchingMessage/> */}
             {/* <MarkdownRenderer content={visibleText}/> */}
@@ -297,6 +299,7 @@ highlight.js 默认的 Markdown 支持相对基础，以下是常见的高亮类
             content={thoughtContent}
         /> */}
         </div>
+        </ChatProvider>
     );
 };
 
