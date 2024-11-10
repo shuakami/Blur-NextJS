@@ -5,8 +5,8 @@ import remarkParse from 'remark-parse';
 import remarkMdx from 'remark-mdx';
 import strip from 'strip-markdown';
 import remarkStringify from 'remark-stringify';
-// @ts-ignore
-import {Root} from 'unist';
+import type {Root} from 'mdast';
+
 
 // 定义需要计数的非文本元素类型
 const NON_TEXT_ELEMENTS = ['image', 'video', 'audio', 'code', 'codeBlock', 'blockquote', 'table'];

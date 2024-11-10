@@ -216,6 +216,9 @@ importers:
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.6.2)
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/react':
         specifier: ^18
         version: 18.3.6
@@ -225,6 +228,9 @@ importers:
       '@types/react-syntax-highlighter':
         specifier: ^15.5.13
         version: 15.5.13
+      '@types/unist':
+        specifier: ^3.0.3
+        version: 3.0.3
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3

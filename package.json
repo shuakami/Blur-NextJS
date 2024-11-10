@@ -80,9 +80,11 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@types/mdast": "^4.0.4",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/unist": "^3.0.3",
     "cross-env": "^7.0.3",
     "css-minimizer-webpack-plugin": "^7.0.0",
     "eslint": "^8",
