@@ -131,23 +131,24 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
     const renderGroupItems = useMemo(() => (
         groupedItems.map((group) => (
             <div key={group.label}>
-                    <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
-                        <span>{group.label}</span>
-                    </div>
+                <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
+                    <span>{group.label}</span>
+                </div>
                 <div className="overflow-hidden">
-                        {group.children.map((subItem, index) => (
-                            <SidebarItemComponent
-                                item={subItem}
-                                level={0}
-                                selectedItem={selectedItem}
-                                onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
-                                onUpdateConversations={onUpdateConversations || (() => {})}
-                            />
-                        ))}
+                    {group.children.map((subItem) => (
+                        <SidebarItemComponent
+                            key={subItem.id}
+                            item={subItem}
+                            level={0}
+                            selectedItem={selectedItem}
+                            onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
+                            onUpdateConversations={onUpdateConversations || (() => {})}
+                        />
+                    ))}
                 </div>
             </div>
         ))
-    ), [groupedItems, itemVariants, selectedItem, handleSelectItem, onUpdateConversations]);
+    ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations]);
 
     return (
         <div
@@ -191,14 +192,11 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
                             {renderGroupItems}
                         </motion.div>
                     ) : (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
+                        <div
                             className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10"
                         >
                             {t('没有对话')}
-                        </motion.div>
+                        </div>
                     )}
                 </div>
             </ScrollArea>
