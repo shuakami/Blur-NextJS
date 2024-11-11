@@ -471,3 +471,20 @@ html:hover::-webkit-scrollbar-track {
 .dark .shine-effect::before {
   display: none;
 }
+
+
+/* home-content.tsx | 分类按钮动画 */
+@keyframes categoryAppear {
+  0% {
+      opacity: 0;
+      transform: scale(0.9);
+  }
+  100% {
+      opacity: 1;
+      transform: scale(1);
+  }
+}
+
+.animate-category-appear {
+  animation: categoryAppear 0.3s ease-out forwards;
+}

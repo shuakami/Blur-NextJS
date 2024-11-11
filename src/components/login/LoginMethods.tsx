@@ -7,7 +7,6 @@ import GoogleLoginButton from "./GoogleLoginButton";
 import BetaUserLoginButton from "./BetaUserLoginButton";
 import EmailLoginForm from "./EmailLoginForm";
 import BetaLoginForm from "./BetaLoginForm";
-import { motion, AnimatePresence } from "framer-motion";
 
 
 export default function LoginMethods() {
@@ -21,34 +20,16 @@ export default function LoginMethods() {
         <div className="w-full">
             <GitHubLoginButton/>
             <GoogleLoginButton/>
-
             <BetaUserLoginButton isEmailLogin={isEmailLogin} toggleLoginMethod={toggleLoginMethod}/>
 
             <hr className="border-t border-[#acaba9]/15 dark:border-[#666666]/40 mb-5"/>
 
-            <AnimatePresence mode="wait">
-                {isEmailLogin ? (
-                    <motion.div
-                        key="email-login"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                    >
-                        <EmailLoginForm/>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        key="beta-login"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                    >
-                        <BetaLoginForm/>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <div className={`transition-opacity duration-200 ${isEmailLogin ? 'opacity-100' : 'opacity-0 hidden'}`}>
+                <EmailLoginForm/>
+            </div>
+            <div className={`transition-opacity duration-200 ${!isEmailLogin ? 'opacity-100' : 'opacity-0 hidden'}`}>
+                <BetaLoginForm/>
+            </div>
         </div>
     );
 }

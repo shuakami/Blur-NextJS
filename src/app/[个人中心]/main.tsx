@@ -2,7 +2,6 @@ import {useUser} from "@clerk/nextjs";
 import {toast} from "@/hooks/use-toast";
 import * as React from "react";
 import UpdateAvatar from "@/app/[个人中心]/modal/update_avatar";
-import {motion, AnimatePresence, LayoutGroup} from "framer-motion";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Check, X} from "lucide-react";
@@ -55,7 +54,6 @@ export const PersonalCenterMain: React.FC = () => {
         }
     };
 
-
     // 更新邮箱的提交处理
     const handleEmailSubmit = async () => {
         if (!isLoaded || !user) return; // 确保用户数据已经加载，并且 user 存在
@@ -106,137 +104,91 @@ export const PersonalCenterMain: React.FC = () => {
                 <UpdateAvatar/>
 
                 <div className="space-y-8">
-                    <LayoutGroup>
-                        {/* 用户名 */}
-                        <motion.div layout className="border-b border-gray-100 dark:border-gray-900 pb-6">
-                            <motion.h3 layout
-                                       className="text-sm font-medium text-black dark:text-white mb-2">{t("用户名")}
-                            </motion.h3>
-                            <AnimatePresence mode="popLayout">
-                                {isEditingUsername ? (
-                                    <motion.div
-                                        key="edit-username"
-                                        initial={{opacity: 0}}
-                                        animate={{opacity: 1}}
-                                        exit={{opacity: 0}}
-                                        transition={{duration: 0.2}}
-                                        layout
-                                        className="space-y-2"
-                                    >
-                                        <div className="flex items-center space-x-2">
-                                            <Input
-                                                value={newUsername}
-                                                onChange={(e) => setNewUsername(e.target.value)}
-                                                className="max-w-xs dark:bg-gray-800 dark:text-white"
-                                            />
-                                            <Button size="icon" variant="ghost" onClick={handleUsernameSubmit}>
-                                                <Check className="h-4 w-4"/>
-                                            </Button>
-                                            <Button size="icon" variant="ghost"
-                                                    onClick={() => setIsEditingUsername(false)}>
-                                                <X className="h-4 w-4"/>
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        key="display-username"
-                                        initial={{opacity: 0}}
-                                        animate={{opacity: 1}}
-                                        exit={{opacity: 0}}
-                                        transition={{duration: 0.2}}
-                                        layout
-                                    >
-                                        <motion.p layout className="text-base text-black dark:text-white mb-2">
-                                            {username}{' '}
-                                            <motion.span
-                                                className={`text-xs mb-2 transition-all ease-in-out duration-200 ${
-                                                    showId ? 'text-black/90 dark:text-white/90 select-text' : 'text-[#FCFCFC] dark:text-[#151515] select-none'
-                                                }`}
-                                            >
-                                                &lt;{userId}&gt;
-                                            </motion.span>
-                                        </motion.p>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto"
-                                            onClick={() => setIsEditingUsername(true)}
-                                        >
-                                            {t("更新用户名")}
-                                        </Button>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto mx-3"
-                                            onClick={() => setShowId(!showId)}
-                                        >
-                                            {t("显示id")}
-                                        </Button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
+                    <div className="border-b border-gray-100 dark:border-gray-900 pb-6">
+                        <h3 className="text-sm font-medium text-black dark:text-white mb-2">{t("用户名")}</h3>
+                        {isEditingUsername ? (
+                            <div className="space-y-2 transition-opacity duration-200 ease-in-out opacity-100">
+                                <div className="flex items-center space-x-2">
+                                    <Input
+                                        value={newUsername}
+                                        onChange={(e) => setNewUsername(e.target.value)}
+                                        className="max-w-xs dark:bg-gray-800 dark:text-white"
+                                    />
+                                    <Button size="icon" variant="ghost" onClick={handleUsernameSubmit}>
+                                        <Check className="h-4 w-4"/>
+                                    </Button>
+                                    <Button size="icon" variant="ghost"
+                                            onClick={() => setIsEditingUsername(false)}>
+                                        <X className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="transition-opacity duration-200 ease-in-out opacity-100">
+                                <p className="text-base text-black dark:text-white mb-2">
+                                    {username}{' '}
+                                    <span className={`text-xs mb-2 transition-all ease-in-out duration-200 ${
+                                        showId ? 'text-black/90 dark:text-white/90 select-text' : 'text-[#FCFCFC] dark:text-[#151515] select-none'
+                                    }`}>
+                                        &lt;{userId}&gt;
+                                    </span>
+                                </p>
+                                <Button
+                                    variant="link"
+                                    className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto"
+                                    onClick={() => setIsEditingUsername(true)}
+                                >
+                                    {t("更新用户名")}
+                                </Button>
+                                <Button
+                                    variant="link"
+                                    className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto mx-3"
+                                    onClick={() => setShowId(!showId)}
+                                >
+                                    {t("显示id")}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
 
-                        {/* 电子邮件地址 */}
-                        <motion.div layout className="border-b border-gray-100 dark:border-gray-900 pb-6">
-                            <motion.h3 layout
-                                       className="text-sm font-medium text-black dark:text-white mb-2">{t("电子邮件地址")}
-                            </motion.h3>
-                            <AnimatePresence mode="popLayout">
-                                {isEditingEmail ? (
-                                    <motion.div
-                                        key="edit-email"
-                                        initial={{opacity: 0}}
-                                        animate={{opacity: 1}}
-                                        exit={{opacity: 0}}
-                                        transition={{duration: 0.2}}
-                                        layout
-                                        className="space-y-2"
-                                    >
-                                        <div className="flex items-center space-x-2">
-                                            <Input
-                                                value={newEmail}
-                                                onChange={(e) => setNewEmail(e.target.value)}
-                                                className="max-w-xs dark:bg-gray-800 dark:text-white"
-                                            />
-                                            <Button size="icon" variant="ghost" onClick={handleEmailSubmit}>
-                                                <Check className="h-4 w-4"/>
-                                            </Button>
-                                            <Button size="icon" variant="ghost"
-                                                    onClick={() => setIsEditingEmail(false)}>
-                                                <X className="h-4 w-4"/>
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        key="display-email"
-                                        initial={{opacity: 0}}
-                                        animate={{opacity: 1}}
-                                        exit={{opacity: 0}}
-                                        transition={{duration: 0.2}}
-                                        layout
-                                    >
-                                        <motion.div layout className="flex items-center justify-between mb-2">
-                                            <motion.p layout
-                                                      className="text-base text-black dark:text-white">{email}</motion.p>
-                                            <motion.span layout
-                                                         className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                                                {t("主要")}
-                                            </motion.span>
-                                        </motion.div>
-                                        <Button
-                                            variant="link"
-                                            className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto"
-                                            onClick={() => setIsEditingEmail(true)}
-                                        >
-                                            {t("添加电子邮件地址")}
-                                        </Button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
-                    </LayoutGroup>
-
+                    {/* 电子邮件地址 */}
+                    <div className="border-b border-gray-100 dark:border-gray-900 pb-6">
+                        <h3 className="text-sm font-medium text-black dark:text-white mb-2">{t("电子邮件地址")}</h3>
+                        {isEditingEmail ? (
+                            <div className="space-y-2 transition-opacity duration-200 ease-in-out opacity-100">
+                                <div className="flex items-center space-x-2">
+                                    <Input
+                                        value={newEmail}
+                                        onChange={(e) => setNewEmail(e.target.value)}
+                                        className="max-w-xs dark:bg-gray-800 dark:text-white"
+                                    />
+                                    <Button size="icon" variant="ghost" onClick={handleEmailSubmit}>
+                                        <Check className="h-4 w-4"/>
+                                    </Button>
+                                    <Button size="icon" variant="ghost"
+                                            onClick={() => setIsEditingEmail(false)}>
+                                        <X className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="transition-opacity duration-200 ease-in-out opacity-100">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-base text-black dark:text-white">{email}</p>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                                        {t("主要")}
+                                    </span>
+                                </div>
+                                <Button
+                                    variant="link"
+                                    className="text-sm text-[#747474] dark:text-[#B5B5B5] p-0 h-auto"
+                                    onClick={() => setIsEditingEmail(true)}
+                                >
+                                    {t("添加电子邮件地址")}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
                     {/* 连接的账户 */}
                     <div>
                         <h3 className="text-sm font-medium text-black dark:text-white mb-2">{t("链接的账户（未实装）")}</h3>

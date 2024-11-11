@@ -6,7 +6,7 @@ import {LanguageSettings} from "@/app/[设置]/language_settings";
 import {NotificationSettings} from "@/app/[设置]/notification_settings";
 import {PrivacySettings} from "@/app/[设置]/privacy_setting";
 import AboutBlur from "@/app/[设置]/about";
-import {useSearchParams} from "next/navigation"; // 导入 useSearchParams
+import {useSearchParams} from "next/navigation";
 
 interface SettingsMainProps {
     activeTab: string;

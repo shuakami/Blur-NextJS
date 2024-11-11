@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useChatContext } from '@/app/[上下文]/ChatContext';
+import { usePathname } from 'next/navigation';
 
 interface ScrollDownButtonProps {
     className?: string;
@@ -21,6 +22,9 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className }) => {
     const isProgrammaticScroll = useRef(false); // 标识是否为程序化滚动
 
     const userInteractionHandler = useRef<() => void>();
+
+    const pathname = usePathname();
+    const lastPathRef = useRef(pathname);
 
     const checkShouldShow = useCallback((container: Element) => {
         const currentScrollY = container.scrollTop;
@@ -137,45 +141,69 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className }) => {
         smoothScroll(container, currentPosition, targetPosition, duration, isAuto);
     }, [smoothScroll, isStreaming]);
 
+    const shouldScrollToBottom = useCallback((container: Element) => {
+        // 检查是否有足够的滚动空间
+        const hasEnoughScrollSpace = container.scrollHeight > container.clientHeight + 100;
+        
+        // 检查是否在顶部或接近顶部
+        const isNearTop = container.scrollTop < 100;
+        
+        // 检查路径是否发生变化
+        const pathChanged = lastPathRef.current !== pathname;
+        
+        // 更新上次路径
+        lastPathRef.current = pathname;
+        
+        return hasEnoughScrollSpace && (isNearTop || pathChanged);
+    }, [pathname]);
+
     useEffect(() => {
         const scrollContainer = document.querySelector('section.flex-1.overflow-auto');
         if (!scrollContainer) return;
 
-        // 初始加载时使用平滑滚动到底部
+        // 初始加载或路径变化时的滚动处理
         initialScrollTimeout.current = setTimeout(() => {
-            const targetPosition = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-            scrollToBottom(scrollContainer);
-        }, 600);
+            if (shouldScrollToBottom(scrollContainer)) {
+                scrollToBottom(scrollContainer);
+            }
+        }, 800);
 
         const handleScroll = () => {
             if (!scrollContainer) return;
 
             checkShouldShow(scrollContainer);
 
-            // 在流式状态下，如果用户滚动到底部，继续自动滚动
+            // 在流式状态下，如果用户在底部或接近底部，继续自动滚动
             if (isStreaming) {
                 const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-                const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
+                // 增加判断范围，使其更容易触发自动滚动
+                const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
                 
-                if (isNearBottom) {
+                if (isNearBottom || scrollTop === 0) { // 添加对顶部位置的判断
                     if (autoScrollTimeout.current) {
                         clearTimeout(autoScrollTimeout.current);
                     }
                     autoScrollTimeout.current = setTimeout(() => {
                         scrollToBottom(scrollContainer, true);
-                    }, 600);
+                    }, 100); // 减少延迟时间
                 }
             }
         };
 
         const handleContentChange = () => {
-            if (isStreaming) {
+            if (!isStreaming) return;
+            
+            const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+            
+            // 如果用户在底部或未滚动，则自动滚动
+            if (isNearBottom || scrollTop === 0) {
                 if (autoScrollTimeout.current) {
                     clearTimeout(autoScrollTimeout.current);
                 }
                 autoScrollTimeout.current = setTimeout(() => {
                     scrollToBottom(scrollContainer, true);
-                }, 600);
+                }, 100); // 减少延迟时间
             }
         };
 
@@ -185,6 +213,11 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className }) => {
             subtree: true,
             characterData: true
         });
+
+        // 添加即时的内容变化检查
+        if (isStreaming) {
+            handleContentChange();
+        }
 
         scrollContainer.addEventListener('scroll', handleScroll);
         checkShouldShow(scrollContainer);
@@ -200,7 +233,7 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className }) => {
                 clearTimeout(initialScrollTimeout.current);
             }
         };
-    }, [checkShouldShow, scrollToBottom, isStreaming, cancelScroll]);
+    }, [checkShouldShow, scrollToBottom, isStreaming, cancelScroll, shouldScrollToBottom, pathname]);
 
     const handleClick = useCallback(() => {
         const scrollContainer = document.querySelector('section.flex-1.overflow-auto');

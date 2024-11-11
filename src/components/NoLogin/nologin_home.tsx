@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
-import {motion, AnimatePresence} from 'framer-motion';
+import {motion} from 'framer-motion';
 import Cookies from 'js-cookie';
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
 import CText from '@/app/copyright/ctext';
@@ -36,15 +36,28 @@ export default function ChatPage() {
         });
     };
 
+    // 优化动画配置
+    const transitionConfig = {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        mass: 0.8,
+    };
+
     return (
         <div className="w-full h-screen flex overflow-hidden">
             {/* 侧边栏 */}
             <motion.div
                 className="fixed top-0 left-0 h-full z-30"
                 style={{width: SIDEBAR_WIDTH}}
-                initial={{x: -SIDEBAR_WIDTH}}
-                animate={{x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH}}
-                transition={{duration: 0.3, ease: 'easeInOut'}}
+                initial={false}  // 禁用初始动画
+                animate={{
+                    x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH,
+                    boxShadow: isSidebarOpen 
+                        ? "2px 0 8px rgba(0,0,0,0.1)" 
+                        : "none"
+                }}
+                transition={transitionConfig}
             >
                 <UnauthenticatedSidebar onClose={toggleSidebar}/>
             </motion.div>
@@ -52,25 +65,30 @@ export default function ChatPage() {
             {/* 主内容区域 */}
             <motion.div
                 className="flex flex-col h-full w-full overflow-hidden"
-                style={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
-                initial={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
-                animate={{marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0}}
-                transition={{duration: 0.3, ease: 'easeInOut'}}
+                animate={{
+                    marginLeft: isSidebarOpen ? SIDEBAR_WIDTH : 0
+                }}
+                transition={transitionConfig}
             >
-                {/* Header 中的 SidebarOpenIcon */}
-                <AnimatePresence>
+                <motion.div
+                    className="absolute top-4 left-4 z-40"
+                    initial={false}
+                    animate={{
+                        opacity: isSidebarOpen ? 0 : 1,
+                        scale: isSidebarOpen ? 0.8 : 1,
+                    }}
+                    transition={{
+                        duration: 0.2,
+                        ease: "easeOut"
+                    }}
+                >
                     {!isSidebarOpen && (
-                        <motion.div
-                            className="absolute top-4 left-4 z-40"
-                            initial={{opacity: 0}}
-                            animate={{opacity: 1}}
-                            exit={{opacity: 0}}
-                            transition={{duration: 0.2}}
-                        >
-                            <HomeHeaderIcon isSidebarOpen={isSidebarOpen} onOpen={toggleSidebar}/>
-                        </motion.div>
+                        <HomeHeaderIcon 
+                            isSidebarOpen={isSidebarOpen} 
+                            onOpen={toggleSidebar}
+                        />
                     )}
-                </AnimatePresence>
+                </motion.div>
 
                 <div className="w-full h-screen flex items-center justify-center text-foreground">
                     <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col items-center justify-center h-full">

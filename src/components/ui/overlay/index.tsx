@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 
 interface OverlayProps {
     isOpen: boolean;
@@ -7,34 +7,58 @@ interface OverlayProps {
     zIndex?: number;
 }
 
-/**
- * 移动端侧边栏遮罩层 - Overlay
- * @param {boolean} isOpen - 控制遮罩层是否显示
- * @param {function} onClose - 关闭遮罩层的回调函数
- * @param {number} [zIndex=30] - 遮罩层的 z-index 值
- */
 const Overlay: React.FC<OverlayProps> = ({ 
     isOpen, 
     onClose,
     zIndex = 30 
-}) => (
-    <AnimatePresence>
-        {isOpen && (
-            <motion.div
-                className="fixed inset-0 bg-white/30 dark:bg-black/35"
-                style={{ zIndex }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{
-                    duration: 0.2,
-                    ease: "easeInOut"
-                }}
-                onClick={onClose}
-            />
-        )}
-    </AnimatePresence>
-);
+}) => {
+    const [mounted, setMounted] = useState(false);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+        if (isOpen) {
+            setMounted(true);
+            timeoutId = setTimeout(() => {
+                setVisible(true);
+            }, 50);
+        } else {
+            setVisible(false);
+            timeoutId = setTimeout(() => {
+                setMounted(false);
+            }, 50);
+        }
+
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [isOpen]);
+
+    const handleClick = useCallback(() => {
+        setVisible(false);
+        setTimeout(onClose, 50);
+    }, [onClose]);
+
+    if (!mounted) return null;
+
+    return (
+        <div
+            className={cn(
+                "fixed inset-0",
+                "transition-all duration-300 ease-in-out",
+                visible ? [
+                    "opacity-100",
+                    "bg-white/30 dark:bg-black/35",
+                ] : [
+                    "opacity-0",
+                    "bg-white/0 dark:bg-black/0",
+                ]
+            )}
+            style={{ zIndex }}
+            onClick={handleClick}
+        />
+    );
+};
 
 Overlay.displayName = 'Overlay';
 

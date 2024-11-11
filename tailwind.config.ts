@@ -510,49 +510,54 @@ const config: Config = {
         animation: {
             'shiny-text': 'shiny-text 8s infinite',
             'sweep': 'sweep 3s ease-in-out',
-        },
-        keyframes: {
+            'slideIn': 'slideIn 0.2s ease-out'
+          },
+          keyframes: {
             'shiny-text': {
-                '0%, 90%, 100%': {
-                    'background-position': 'calc(-100% - var(--shiny-width)) 0'
-                },
-                '30%, 60%': {
-                    'background-position': 'calc(100% + var(--shiny-width)) 0'
-                }
+              '0%, 90%, 100%': {
+                'background-position': 'calc(-100% - var(--shiny-width)) 0'
+              },
+              '30%, 60%': {
+                'background-position': 'calc(100% + var(--shiny-width)) 0'
+              }
+            },
+            slideIn: {
+              '0%': { transform: 'translateY(10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
             },
             sweep: {
-                '0%': { transform: 'translateX(-100%)' },
-                '100%': { transform: 'translateX(100%)' },
+              '0%': { transform: 'translateX(-100%)' },
+              '100%': { transform: 'translateX(100%)' }
             },
             'scroll-down': {
-                '0%': { 
-                    transform: 'translate(-50%, 0) scale(1)',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                },
-                '50%': { 
-                    transform: 'translate(-50%, 6px) scale(0.95)',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.2)'
-                },
-                '100%': { 
-                    transform: 'translate(-50%, 0) scale(1)',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                }
+              '0%': { 
+                transform: 'translate(-50%, 0) scale(1)',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+              },
+              '50%': { 
+                transform: 'translate(-50%, 6px) scale(0.95)',
+                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.2)'
+              },
+              '100%': { 
+                transform: 'translate(-50%, 0) scale(1)',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+              }
             },
             'arrow-down': {
-                '0%': { 
-                    transform: 'translateY(0)',
-                    opacity: '1'
-                },
-                '50%': { 
-                    transform: 'translateY(4px)',
-                    opacity: '0.7'
-                },
-                '100%': { 
-                    transform: 'translateY(0)',
-                    opacity: '1'
-                }
+              '0%': { 
+                transform: 'translateY(0)',
+                opacity: '1'
+              },
+              '50%': { 
+                transform: 'translateY(4px)',
+                opacity: '0.7'
+              },
+              '100%': { 
+                transform: 'translateY(0)',
+                opacity: '1'
+              }
             }
-  		},
+          },
           transitionDuration: {
             '550': '550ms',
             '650': '650ms',
@@ -560,7 +565,7 @@ const config: Config = {
           transitionTimingFunction: {
             'custom': 'cubic-bezier(0.25, 0.8, 0.25, 1)',
           },
-  	}
+        }
   },
   plugins: [require("tailwindcss-animate")],
 };

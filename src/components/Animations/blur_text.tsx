@@ -57,7 +57,6 @@ const BlurAnimatedWrapper: React.FC<BlurAnimatedWrapperProps> = memo(({
   }, []);
 
   return (
-    <AnimatePresence mode="wait">
       <motion.div
         ref={containerRef}
         variants={variants}
@@ -81,7 +80,6 @@ const BlurAnimatedWrapper: React.FC<BlurAnimatedWrapperProps> = memo(({
       >
         {children}
       </motion.div>
-    </AnimatePresence>
   );
 });
 

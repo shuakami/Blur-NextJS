@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { MarkdownRenderer } from '../markdown/MarkdownRenderer';
 import { cn } from '@/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
 
 interface ThoughtStreamProps {
     duration: number;
@@ -47,36 +46,36 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
                 className="w-full group flex items-center gap-2 text-gray-650 dark:text-gray-300 hover:dark:text-gray-750 hover:text-gray-800 h-8 my-1.5 relative transition-colors"
             >
                 <div className="flex items-center gap-1 overflow-hidden">
-                    <AnimatePresence mode="wait">
-                        <motion.span
-                            key={currentTitle}
-                            initial={{ y: 10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: -10, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className={cn(
-                                "relative",
-                                isAnimating && "shine-effect"
-                            )}
-                        >
-                            {isAnimating ? currentTitle : `Thought for ${duration} seconds`}
-                        </motion.span>
-                    </AnimatePresence>
-                    {isExpanded ? (
-                        <ChevronUp className="w-5 h-5" />
-                    ) : (
-                        <ChevronDown className="w-5 h-5" />
-                    )}
+                    <span
+                        className={cn(
+                            "relative transition-all duration-200 transform",
+                            isAnimating && "shine-effect",
+                            // 使用CSS控制动画效果
+                            "animate-slideIn"
+                        )}
+                    >
+                        {isAnimating ? currentTitle : `Thought for ${duration} seconds`}
+                    </span>
+                    <span className="transition-transform duration-200">
+                        {isExpanded ? (
+                            <ChevronUp className="w-5 h-5" />
+                        ) : (
+                            <ChevronDown className="w-5 h-5" />
+                        )}
+                    </span>
                 </div>
             </button>
 
-            {isExpanded && (
-                <div className="overflow-hidden transition-all">
-                    <div className="mb-2">
-                        <MarkdownRenderer content={content} />
-                    </div>
+            <div 
+                className={cn(
+                    "overflow-hidden transition-all duration-200",
+                    isExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                )}
+            >
+                <div className="mb-2">
+                    <MarkdownRenderer content={content} />
                 </div>
-            )}
+            </div>
         </div>
     );
 }; 

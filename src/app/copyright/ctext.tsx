@@ -8,7 +8,7 @@ import {useThemeContext} from "@/theme/ThemeContext";
 
 
 const UpdateModal = dynamic(() => import("@/components/UpdateModal"), {
-    ssr: false,  // 禁用服务端渲染
+    ssr: false,
     loading: () => null
 });
 

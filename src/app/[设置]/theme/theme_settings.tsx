@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import {Check} from "lucide-react";
-import {motion, AnimatePresence} from "framer-motion";
+import {motion} from "framer-motion";
 import useTranslation from "@/hooks/useTranslation";
 import {useTheme} from "next-themes";
 
@@ -36,7 +36,6 @@ export const ThemeSettings: React.FC = () => {
                         }`}
                         onClick={() => handleThemeChange(theme as "light" | "dark" | "system")}
                         whileTap={{scale: 0.98}}
-                        transition={{type: "spring", stiffness: 400, damping: 30}}
                     >
                         <div className="relative w-full" style={{aspectRatio: "5 / 3"}}>
                             <Image
@@ -52,19 +51,17 @@ export const ThemeSettings: React.FC = () => {
                                 {t(theme === "light" ? "明亮模式" : theme === "dark" ? "暗黑模式" : "跟随系统")}
                             </p>
                         </div>
-                        <AnimatePresence>
-                            {currentTheme === theme && (
-                                <motion.div
-                                    className="absolute top-2 right-2 bg-blue-500 rounded-full p-1"
-                                    initial={{opacity: 0, scale: 0.5}}
-                                    animate={{opacity: 1, scale: 1}}
-                                    exit={{opacity: 0, scale: 0.5}}
-                                    transition={{duration: 0.2}}
-                                >
-                                    <Check className="h-3 w-3 text-white"/>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        {currentTheme === theme && (
+                            <motion.div
+                                className="absolute top-2 right-2 bg-blue-500 rounded-full p-1"
+                                initial={{opacity: 0, scale: 0.5}}
+                                animate={{opacity: 1, scale: 1}}
+                                exit={{opacity: 0, scale: 0.5}}
+                                transition={{duration: 0.2}} // 保留轻量级动画
+                            >
+                                <Check className="h-3 w-3 text-white"/>
+                            </motion.div>
+                        )}
                     </motion.div>
                 ))}
             </motion.div>

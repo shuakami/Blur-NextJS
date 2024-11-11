@@ -10,7 +10,7 @@ import {
     PencilLine,
     MessageCircleX,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {SidebarItem} from './types';
 import CustomButton from './CustomButton';
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
@@ -159,137 +159,111 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
     };
 
     return (
-        <AnimatePresence mode="popLayout">
-            <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="relative"
-                onMouseEnter={() => setHover(true)}
-                onMouseLeave={() => setHover(false)}
-                layout
-            >
-                <ConfirmModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={handleConfirmDelete}
-                    title="删除对话"
-                    message={`您确定要删除 "${item.label}" 吗?`}
-                />
-                
-                <motion.div
-                    className="flex items-center"
-                    layout
-                >
-                    {isEditing ? (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}
-                        >
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                value={newTitle}
-                                onChange={(e) => setNewTitle(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleSubmitNewTitle(); // 监听回车键提交
-                                    if (e.key === 'Escape') setIsEditing(false); // 监听 Esc 键取消编辑
-                                }}
-                                className="flex-grow bg-transparent focus:outline-none text-black dark:text-white max-w-[120px]"
-                            />
-                            <Check size={18}
-                                   className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
-                                   onClick={handleSubmitNewTitle}/>
-                            <X size={18}
+        <div className="relative">
+            <ConfirmModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="删除对话"
+                message={`您确定要删除 "${item.label}" 吗?`}
+            />
+            
+            <div className="flex items-center">
+                {isEditing ? (
+                    <div className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}>
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSubmitNewTitle();
+                                if (e.key === 'Escape') setIsEditing(false);
+                            }}
+                            className="flex-grow bg-transparent focus:outline-none text-black dark:text-white max-w-[120px]"
+                        />
+                        <Check size={18}
                                className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
-                               onClick={() => setIsEditing(false)}/>
-                        </motion.div>
-                    ) : (
-                        <motion.button
-                            layout
-                            ref={buttonRef}
-                            onClick={item.children ? toggleOpen : () => onSelect(item.id ?? '')}
-                            className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
-                                level > 0 ? 'pl-4' : ''
-                            } text-black dark:text-white ${
-                                isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
-                            }`}
-                        >
-                            {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
-                            {item.children && (
-                                <span className="text-black dark:text-white">
-                                    {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
-                                </span>
-                            )}
-                            <span className="text-sm flex-grow">{item.label}</span>
+                               onClick={handleSubmitNewTitle}/>
+                        <X size={18}
+                           className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
+                           onClick={() => setIsEditing(false)}/>
+                    </div>
+                ) : (
+                    <button
+                        ref={buttonRef}
+                        onClick={item.children ? toggleOpen : () => onSelect(item.id ?? '')}
+                        onMouseEnter={() => setHover(true)}
+                        onMouseLeave={() => setHover(false)}
+                        className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
+                            level > 0 ? 'pl-4' : ''
+                        } text-black dark:text-white ${
+                            isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
+                        }`}
+                    >
+                        {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
+                        {item.children && (
+                            <span className="text-black dark:text-white">
+                                {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
+                            </span>
+                        )}
+                        <span className="text-sm flex-grow">{item.label}</span>
 
-                            {(isSelected || hover) && (
-                                <span
-                                    className="ml-auto"
-                                    onClick={(e) => {
-                                        e.stopPropagation(); // 防止点击菜单时触发选择操作
-                                        setMenuOpen(!menuOpen);
-                                    }}
-                                >
-                                    <MoreHorizontal size={16} className="text-black dark:text-white"/>
-                                </span>
-                            )}
-                        </motion.button>
-                    )}
-                </motion.div>
-
-                {menuOpen && (
-                    <DropDownMenu isOpen={menuOpen} onClose={handleCloseMenu} menuItems={menuItems} placement={'right'}
-                                  referenceElement={buttonRef.current}/>
+                        {(isSelected || hover) && (
+                            <span
+                                className="ml-auto"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMenuOpen(!menuOpen);
+                                }}
+                            >
+                                <MoreHorizontal size={16} className="text-black dark:text-white"/>
+                            </span>
+                        )}
+                    </button>
                 )}
+            </div>
 
-                <AnimatePresence mode="popLayout">
-                    {item.children && isOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="ml-1"
-                        >
-                            {item.children.map((child) => (
-                                <AnimatePresence key={child.id} mode="popLayout">
-                                    {child.children ? (
-                                        <SidebarItemComponent
-                                            key={child.id}
-                                            item={child}
-                                            level={level + 1}
-                                            selectedItem={selectedItem}
-                                            onSelect={onSelect}
-                                            onUpdateConversations={onUpdateConversations}
-                                        />
-                                    ) : (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.2 }}
-                                        >
-                                            <CustomButton
-                                                key={child.id}
-                                                label={child.label}
-                                                href={child.href}
-                                                selected={selectedItem === child.label}
-                                                onClick={() => onSelect(child.label)}
-                                            />
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            ))}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </motion.div>
-        </AnimatePresence>
+            {menuOpen && (
+                <DropDownMenu 
+                    isOpen={menuOpen} 
+                    onClose={handleCloseMenu} 
+                    menuItems={menuItems} 
+                    placement={'right'}
+                    referenceElement={buttonRef.current}
+                />
+            )}
+
+            {item.children && (
+                <motion.div
+                    animate={{ height: isOpen ? 'auto' : 0 }}
+                    initial={false}
+                    transition={{ duration: 0.2 }}
+                    className="ml-1 overflow-hidden"
+                >
+                    {item.children.map((child) => (
+                        <div key={child.id}>
+                            {child.children ? (
+                                <SidebarItemComponent
+                                    item={child}
+                                    level={level + 1}
+                                    selectedItem={selectedItem}
+                                    onSelect={onSelect}
+                                    onUpdateConversations={onUpdateConversations}
+                                />
+                            ) : (
+                                <CustomButton
+                                    label={child.label}
+                                    href={child.href}
+                                    selected={selectedItem === child.label}
+                                    onClick={() => onSelect(child.label)}
+                                />
+                            )}
+                        </div>
+                    ))}
+                </motion.div>
+            )}
+        </div>
     );
 };
 

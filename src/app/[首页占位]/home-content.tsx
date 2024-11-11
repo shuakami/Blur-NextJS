@@ -101,23 +101,15 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
         return () => clearInterval(interval);
     }, [randomChar]);
 
-    const categoryVariants = useMemo(() => ({
-        hidden: { opacity: 0, scale: 0.9 },
-        visible: { opacity: 1, scale: 1 },
-    }), []);
-
     return (
         <div className="mx-auto flex h-full w-full flex-col text-base lg:justify-center md:max-w-3xl">
             <div className="mb-7 hidden text-center lg:block">
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                >
+                <div className="transition-opacity duration-300 ease-out"
+                     style={{ opacity: title ? 1 : 0 }}>
                     <div className="relative inline-flex justify-center text-center text-2xl font-semibold leading-9">
                         <h1 className="text-2xl font-semibold mb-5">{title}</h1>
                     </div>
-                </motion.div>
+                </div>
             </div>
 
             <div className="justify-end lg:justify-center flex h-full flex-shrink flex-col items-center overflow-y-hidden text-token-text-primary lg:hidden">
@@ -158,49 +150,35 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
                     </div>
                 </div>
                 
-                <AnimatePresence>
                     {animationDone && (
                         <motion.div
-                            initial={{ opacity: 0, height: 0 }}
+                            initial={{ height: 0 }}
                             animate={{ 
-                                opacity: 1, 
                                 height: "auto",
                                 transition: {
                                     height: {
                                         duration: 0.4,
                                         ease: [0.25, 0.8, 0.25, 1]
-                                    },
-                                    opacity: {
-                                        duration: 0.3,
-                                        delay: 0.1
                                     }
                                 }
                             }}
-                            exit={{ opacity: 0, height: 0 }}
+                            exit={{ height: 0 }}
                             className="hidden lg:block overflow-hidden"
                         >
                             <div className="mt-12 max-w-3xl mx-auto">
-                                <motion.nav
-                                    initial="hidden"
-                                    animate="visible"
-                                    variants={{
-                                        hidden: { opacity: 0 },
-                                        visible: { 
-                                            opacity: 1,
-                                            transition: { 
-                                                staggerChildren: 0.05,
-                                                ease: [0.25, 0.8, 0.25, 1]
-                                            } 
-                                        },
-                                    }}
-                                    className="flex flex-wrap justify-center gap-4"
-                                >
+                                <nav className="flex flex-wrap justify-center gap-4">
                                     {CATEGORIES.map((category, index) => (
-                                        <motion.button
+                                        <button
                                             key={index}
-                                            variants={categoryVariants}
-                                            className="group relative overflow-hidden rounded-lg border border-token-border-light dark:border-token-border-dark
-                                                    hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out"
+                                            className={`group relative overflow-hidden rounded-lg border 
+                                                border-token-border-light dark:border-token-border-dark
+                                                hover:bg-gray-50 dark:hover:bg-gray-750 
+                                                transition-all duration-200 ease-in-out
+                                                opacity-0 scale-90 animate-category-appear`}
+                                            style={{
+                                                animationDelay: `${index * 50}ms`,
+                                                animationFillMode: 'forwards'
+                                            }}
                                         >
                                             <div className="flex items-center p-2.5 space-x-1.5">
                                                 <span className="text-2xl" style={{ color: category.color }}>
@@ -210,21 +188,24 @@ export default function HomepageContent({onFirstMessage}: HomepageContentProps) 
                                                     {category.title}
                                                 </span>
                                             </div>
-                                        </motion.button>
+                                        </button>
                                     ))}
-                                    <motion.button
-                                        variants={categoryVariants}
-                                        className="rounded-lg border border-token-border-light dark:border-token-border-dark
-                                                hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out p-2"
+                                    <button
+                                        className={`rounded-lg border border-token-border-light dark:border-token-border-dark
+                                            hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out p-2
+                                            opacity-0 scale-90 animate-category-appear`}
+                                        style={{
+                                            animationDelay: `${CATEGORIES.length * 50}ms`,
+                                            animationFillMode: 'forwards'
+                                        }}
                                         aria-label="更多选项"
                                     >
                                         <MoreHorizontal className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-                                    </motion.button>
-                                </motion.nav>
+                                    </button>
+                                </nav>
                             </div>
                         </motion.div>
                     )}
-                </AnimatePresence>
             </div>
         </div>
     );

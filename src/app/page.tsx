@@ -104,17 +104,28 @@ const HomeContent = () => {
     useEffect(() => {
         if (!newConversationId) return;
         
-        window.history.replaceState(
-            { conversationId: newConversationId }, 
-            '', 
-            `/chat/${newConversationId}`
-        );
-        
-        requestAnimationFrame(() => {
-            setHasConversation(true);
-            resetNewConversationId();
-        });
-    }, [newConversationId, resetNewConversationId]);
+        const updateUrl = async () => {
+            try {
+                // 先更新 URL
+                await router.replace(`/chat/${newConversationId}`, { 
+                    scroll: false,  // 防止页面滚动
+                });
+                
+                // 然后更新状态
+                requestAnimationFrame(() => {
+                    setHasConversation(true);
+                    resetNewConversationId();
+                });
+            } catch (error) {
+                console.error('Failed to update URL:', error);
+                // 即使 URL 更新失败，也要确保状态更新
+                setHasConversation(true);
+                resetNewConversationId();
+            }
+        };
+
+        updateUrl();
+    }, [newConversationId, resetNewConversationId, router]);
 
     useEffect(() => {
         const handlePopState = (event: PopStateEvent) => {
@@ -228,7 +239,6 @@ const HomeContent = () => {
                             )}
                         </AnimatePresence>
 
-                        <AnimatePresence>
                             {hasConversation && (
                                 <motion.div 
                                     className="flex flex-col items-center w-full bg-transparent"
@@ -252,7 +262,6 @@ const HomeContent = () => {
                                     <div className="mb-3"/>
                                 </motion.div>
                             )}
-                        </AnimatePresence>
                     </motion.div>
                 </>
             )}

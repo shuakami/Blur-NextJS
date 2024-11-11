@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from "react";
-import {motion, AnimatePresence} from "framer-motion";
 import useTranslation from "@/hooks/useTranslation";
 import {Search} from "lucide-react";
 import {useThemeContext} from "@/theme/ThemeContext";
@@ -43,40 +42,24 @@ export const LanguageSettings: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16}/>
             </div>
 
-            <AnimatePresence>
-                <motion.div
-                    className="grid grid-cols-2 gap-4"
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    variants={{
-                        visible: {transition: {staggerChildren: 0.05}},
-                    }}
-                >
-                    {filteredLanguages.map((lang) => (
-                        <motion.div
-                            key={lang.code}
-                            className={`flex items-center justify-between cursor-pointer p-4 rounded-lg ${
-                                language === lang.code
-                                    ? `bg-gray-100 dark:bg-gray-800 ring-2  ${theme.ring()}`
-                                    : "hover:bg-gray-50 dark:hover:bg-gray-900"
-                            }`}
-                            onClick={() => handleLanguageChange(lang.code)}
-                            whileTap={{scale: 0.98}}
-                            transition={{type: "spring", stiffness: 400, damping: 17}}
-                            variants={{
-                                hidden: {opacity: 0, y: 20},
-                                visible: {opacity: 1, y: 0},
-                            }}
-                        >
-                            <span className="text-sm">{lang.name}</span>
-                            {language === lang.code && (
-                                <div className={`w-2 h-2 ${theme.bg(500)} rounded-full`}/>
-                            )}
-                        </motion.div>
-                    ))}
-                </motion.div>
-            </AnimatePresence>
+            <div className="grid grid-cols-2 gap-4">
+                {filteredLanguages.map((lang) => (
+                    <div
+                        key={lang.code}
+                        className={`flex items-center justify-between cursor-pointer p-4 rounded-lg transition-all duration-300 ${
+                            language === lang.code
+                                ? `bg-gray-100 dark:bg-gray-800 ring-2 ${theme.ring()}`
+                                : "hover:bg-gray-50 dark:hover:bg-gray-900"
+                        }`}
+                        onClick={() => handleLanguageChange(lang.code)}
+                    >
+                        <span className="text-sm">{lang.name}</span>
+                        {language === lang.code && (
+                            <div className={`w-2 h-2 ${theme.bg(500)} rounded-full`}/>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };

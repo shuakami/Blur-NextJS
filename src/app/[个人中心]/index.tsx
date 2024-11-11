@@ -42,7 +42,7 @@ const PersonalCenter: React.FC<PersonalCenterProps> = ({isOpen, onClose}) => {
     }
 
     return createPortal(
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
             {isOpen && (
                 <>
                     {/* 遮罩层 */}
@@ -51,54 +51,34 @@ const PersonalCenter: React.FC<PersonalCenterProps> = ({isOpen, onClose}) => {
                         initial={{opacity: 0}}
                         animate={{opacity: 1}}
                         exit={{opacity: 0}}
-                        transition={{duration: 0.3, ease: "easeOut"}}
+                        transition={{duration: 0.2}}
                     />
 
-                    {/* 手机端的侧边栏和遮罩 - 移到外层 */}
-                    <AnimatePresence>
-                        {isMobileMenuOpen && (
-                            <>
-                                {/* 手机端侧边栏遮罩 */}
-                                <motion.div
-                                    className="md:hidden fixed inset-0 bg-black/50 z-[100]"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                />
-                                
-                                {/* 手机端侧边栏内容 */}
-                                <motion.div
-                                    className="md:hidden fixed inset-y-0 left-0 w-[280px] bg-background shadow-lg z-[101]"
-                                    initial={{ x: '-100%' }}
-                                    animate={{ x: 0 }}
-                                    exit={{ x: '-100%' }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                >
-                                    <Sidebar 
-                                        activeTab={activeTab} 
-                                        setActiveTab={(tab) => {
-                                            setActiveTab(tab);
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        isMobile={true}
-                                    />
-                                </motion.div>
-                            </>
-                        )}
-                    </AnimatePresence>
+                    {/* 手机端的侧边栏 - 使用CSS transition */}
+                    <div
+                        className={`md:hidden fixed inset-y-0 left-0 w-[280px] bg-background shadow-lg z-[101]
+                            transition-transform duration-300 ease-out
+                            ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                    >
+                        <Sidebar 
+                            activeTab={activeTab} 
+                            setActiveTab={(tab) => {
+                                setActiveTab(tab);
+                                setIsMobileMenuOpen(false);
+                            }}
+                            isMobile={true}
+                        />
+                    </div>
 
-                    {/* 模态框容器 */}
+                    {/* 模态框 */}
                     <motion.div
                         className="fixed inset-0 flex items-center justify-center z-50 p-4 sm:p-6 md:p-8"
-                        initial={{opacity: 0, scale: 0.9}}
+                        initial={{opacity: 0, scale: 0.95}}
                         animate={{opacity: 1, scale: 1}}
-                        exit={{opacity: 0, scale: 0.9}}
+                        exit={{opacity: 0, scale: 0.95}}
                         transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 30,
-                            duration: 0.6,
+                            duration: 0.2,
+                            ease: "easeOut"
                         }}
                     >
                         <div

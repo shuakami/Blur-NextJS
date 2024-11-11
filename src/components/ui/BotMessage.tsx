@@ -1,12 +1,10 @@
 import React, { memo, lazy, Suspense } from "react";
-import { motion } from "framer-motion";
 import { ThoughtProcess } from "@/types/stream";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
 import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
 
 // 懒加载组件
-const BlurAnimatedWrapper = lazy(() => import("../Animations/blur_text"));
 const AnimatedShinyText = lazy(() => import("./animated-shiny-text"));
 const ThoughtStream = lazy(() => import("./chat/ThoughtStream").then(module => ({ default: module.ThoughtStream })));
 const MessageToolbar = lazy(() => import("./message-toolbar").then(module => ({ default: module.MessageToolbar })));
@@ -46,22 +44,13 @@ const BotMessage = memo(({
                 )}
 
                 <Suspense fallback={null}>
-                    <BlurAnimatedWrapper>
-                        <motion.div 
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
-                            exit={{ opacity: 0 }}
-                            className="prose-container"
-                        >
-                            {isLoading && isLatestBotMessage ? (
-                                <AnimatedShinyText darkMode={false} />
-                            ) : (
-                                <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:my-3">
-                                    <MarkdownRenderer content={content} />
-                                </div>
-                            )}
-                        </motion.div>
-                    </BlurAnimatedWrapper>
+                    {isLoading && isLatestBotMessage ? (
+                        <AnimatedShinyText darkMode={false} />
+                    ) : (
+                        <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:my-3">
+                            <MarkdownRenderer content={content} />
+                        </div>
+                    )}
                 </Suspense>
 
                 {/* 工具栏 - hover时显示 */}
