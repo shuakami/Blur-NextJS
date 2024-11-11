@@ -13,11 +13,11 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: '*.luoxiaohei.cn',
+                hostname: '**',
             },
             {
-                protocol: 'https',
-                hostname: '*.sdjz.wiki',
+                protocol: 'http',
+                hostname: '**',
             }
         ],
         deviceSizes: [640, 750, 828, 1080, 1200, 1920], // 优化断点
@@ -72,9 +72,11 @@ const nextConfig = {
                         lib: {
                             test: /[\\/]node_modules[\\/]/,
                             name(module) {
-                                const packageName = module.context.match(
+                                const match = module.context?.match(
                                     /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                                )[1];
+                                );
+                                if (!match || !match[1]) return 'vendors';
+                                const packageName = match[1];
                                 return `lib.${packageName.replace('@', '')}`;
                             },
                             priority: 10,
