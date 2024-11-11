@@ -90,7 +90,7 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
     }, []);
 
     return (
-        <div className="relative">
+        <div className="relative w-full">
             <div className="h-full overflow-hidden w-full">
                 <div className="space-y-0.5">
                     {messages.map((message, index) => (
@@ -106,10 +106,9 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
                             isLastMessage={index === messages.length - 1}
                         />
                     ))}
-                  <ScrollDownButton/>
+                        <ScrollDownButton/>
                 </div>
             </div>
-
         </div>
     );
 });

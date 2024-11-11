@@ -52,30 +52,36 @@ const ModelContext = createContext<{
 export const ModelProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
     const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
 
-    // 更新 URL 和 Cookie
+    // 更新 URL 和 Cookie 的函数移到这里，并确保只在必要时更新
     const updateModelInUrlAndCookie = (model: Model) => {
         if (typeof window !== "undefined") {
             const url = new URL(window.location.href);
-            url.searchParams.set('modal', `${model.name}-${model.version}`);
-
-            // 更新 URL，不刷新页面
-            window.history.replaceState({}, '', url);
-
-            // 设置 Cookie
-            Cookies.set('selectedModel', `${model.name}-${model.version}`);
+            const currentModal = url.searchParams.get('modal');
+            const newModal = `${model.name}-${model.version}`;
+            
+            // 只在值真正改变时才更新
+            if (currentModal !== newModal) {
+                url.searchParams.set('modal', newModal);
+                window.history.replaceState({}, '', url);
+                Cookies.set('selectedModel', newModal);
+            }
         }
     };
 
-    // 同步 URL 和 Cookie 选择的模型
+    // 包装 setSelectedModel 以同步更新 URL 和 Cookie
+    const handleModelChange = (model: Model) => {
+        setSelectedModel(model);
+        updateModelInUrlAndCookie(model);
+    };
+
     useEffect(() => {
         if (typeof window !== "undefined") {
             const urlParams = new URLSearchParams(window.location.search);
             const modalFromUrl = urlParams.get("modal");
             const cookieModel = Cookies.get("selectedModel");
 
-            let modelToSet = models[0]; // 默认模型
+            let modelToSet = models[0];
 
-            // 检查 URL 的 modal 参数是否有效
             if (modalFromUrl) {
                 const [name, version] = modalFromUrl.split("-");
                 const matchedModel = models.find(
@@ -83,26 +89,24 @@ export const ModelProvider: FC<{ children: React.ReactNode }> = ({ children }) =
                 );
                 if (matchedModel) {
                     modelToSet = matchedModel;
-                } else {
-                    // 如果 URL 的 modal 参数无效，清除它并设置默认模型
-                    urlParams.delete("modal");
-                    window.history.replaceState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
                 }
             } else if (cookieModel) {
-                // 使用 cookie 模型作为后备
                 const [name, version] = cookieModel.split("-");
-                modelToSet = models.find(
+                const matchedModel = models.find(
                     (model) => model.name === name && model.version === version
-                ) || modelToSet;
+                );
+                if (matchedModel) {
+                    modelToSet = matchedModel;
+                }
             }
 
-            // 同步状态
-            setSelectedModel(modelToSet);
+            // 使用新的处理函数
+            handleModelChange(modelToSet);
         }
     }, []);
 
     return (
-        <ModelContext.Provider value={{ selectedModel, setSelectedModel }}>
+        <ModelContext.Provider value={{ selectedModel, setSelectedModel: handleModelChange }}>
             {children}
         </ModelContext.Provider>
     );
@@ -121,21 +125,16 @@ export const useModel = () => {
 const ModelSelector: FC = () => {
     const { selectedModel, setSelectedModel } = useModel();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const buttonRef = useRef<HTMLButtonElement>(null); // 引用按钮元素
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
-    // 菜单项转换
     const menuItems = models.map((model) => ({
         id: `${model.name}-${model.version}`,
         text: `${model.name} ${model.version}`,
-        description: model.description, // 添加描述信息
-        icon: model.icon, // 添加图标
+        description: model.description,
+        icon: model.icon,
         onClick: () => {
             setSelectedModel(model);
-            // 更新 URL 和 Cookie
-            const url = new URL(window.location.href);
-            url.searchParams.set('modal', `${model.name}-${model.version}`);
-            window.history.replaceState({}, '', url);
-            Cookies.set('selectedModel', `${model.name}-${model.version}`);
+            setIsMenuOpen(false);
         },
     }));
 

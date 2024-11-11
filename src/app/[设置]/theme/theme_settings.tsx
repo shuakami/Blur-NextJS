@@ -14,14 +14,14 @@ export const ThemeSettings: React.FC = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-6">
+        <div className="w-full max-w-full md:max-w-2xl mx-auto p-4 md:p-6">
             <h2 className="text-2xl font-semibold mb-2">{t("主题设置")}</h2>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
                 {t("选择适合您的显示模式。")}
             </p>
 
             <motion.div
-                className="grid grid-cols-3 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
                 initial={{opacity: 0, y: 10}}
                 animate={{opacity: 1, y: 0}}
                 transition={{duration: 0.3}}

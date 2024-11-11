@@ -1,6 +1,7 @@
 import React, {FC, useEffect, useRef} from 'react';
+import {createPortal} from 'react-dom';
 import {motion, AnimatePresence} from 'framer-motion';
-import {AlertTriangle, X} from 'lucide-react';
+import {X} from 'lucide-react';
 
 interface ConfirmModalProps {
     isOpen: boolean;
@@ -20,63 +21,68 @@ const ConfirmModal: FC<ConfirmModalProps> = ({isOpen, onClose, onConfirm, title,
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            document.body.style.overflow = 'hidden';
+        }
+        
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.body.style.overflow = 'unset';
         };
-    }, [onClose]);
+    }, [isOpen, onClose]);
 
-    const modalVariants = {
-        hidden: {opacity: 0, scale: 0.95, y: 20},
-        visible: {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            transition: {type: "spring", stiffness: 300, damping: 30}
-        },
-        exit: {opacity: 0, scale: 0.95, y: 20, transition: {duration: 0.2}}
-    };
-
-    return (
+    const modalContent = (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
+                        className="absolute inset-0 bg-black/20"
+                    />
+                    
                     <motion.div
                         ref={modalRef}
-                        variants={modalVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden max-w-lg w-full mx-4"
+                        initial={{opacity: 0, scale: 0.98}}
+                        animate={{
+                            opacity: 1,
+                            scale: 1,
+                            transition: {type: "spring", stiffness: 400, damping: 30}
+                        }}
+                        exit={{opacity: 0, scale: 0.98}}
+                        className="relative z-10 bg-white dark:bg-gray-900 rounded-xl shadow-lg w-full max-w-[480px] border border-gray-200/50 dark:border-gray-700/50"
                     >
-                        <div className="p-6">
-                            <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center space-x-3">
-                                    <div className="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-full">
-                                        <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400"/>
-                                    </div>
-                                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h3>
-                                </div>
+                        <div className="flex items-center justify-between px-6 pt-6">
+                            <h3 className="text-base font-medium text-gray-900 dark:text-white">
+                                {title}
+                            </h3>
+                            <button
+                                onClick={onClose}
+                                className="rounded-full p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                            >
+                                <X className="w-4 h-4"/>
+                            </button>
+                        </div>
+
+                        <div className="px-6 pb-6">
+                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                {message}
+                            </p>
+                            
+                            <div className="flex justify-end gap-3 mt-6">
                                 <button
                                     onClick={onClose}
-                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors duration-200"
-                                >
-                                    <X className="w-6 h-6"/>
-                                </button>
-                            </div>
-                            <p className="text-gray-700 dark:text-gray-300 mb-7 text-base leading-relaxed">{message}</p>
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    onClick={onClose}
-                                    className="px-3.5 py-1.5 text-base bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                                    className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                                 >
                                     取消
                                 </button>
                                 <button
                                     onClick={onConfirm}
-                                    className="px-3.5 py-1.5 text-base bg-black text-white rounded-lg hover:bg-black transition-colors duration-200"
+                                    className="px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
                                 >
-                                    确认
+                                    确认删除
                                 </button>
                             </div>
                         </div>
@@ -85,6 +91,10 @@ const ConfirmModal: FC<ConfirmModalProps> = ({isOpen, onClose, onConfirm, title,
             )}
         </AnimatePresence>
     );
+
+    return typeof document !== 'undefined' 
+        ? createPortal(modalContent, document.body)
+        : null;
 };
 
 export default ConfirmModal;

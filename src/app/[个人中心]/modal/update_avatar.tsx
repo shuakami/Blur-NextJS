@@ -129,7 +129,7 @@ export default function UpdateAvatar() {
 
                             <motion.div
                                 className="py-6 space-y-4"
-                                layout  // 监听布局变化
+                                layout
                                 transition={{duration: 0.2, ease: "easeInOut"}}  // 设置过渡效果
                             >
                                 {cropping ? (

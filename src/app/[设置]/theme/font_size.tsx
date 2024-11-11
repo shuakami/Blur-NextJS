@@ -20,13 +20,13 @@ export const FontSizeSettings: React.FC = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto px-4 py-6">
+        <div className="w-full max-w-full md:max-w-2xl mx-auto p-4 md:p-6">
             <h2 className="text-2xl font-semibold mb-2">{t('字体大小')}</h2>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
                 {t('选择适合您的字体大小。')}
             </p>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {fontSizes.map((size) => (
                     <motion.div
                         key={size.value}
@@ -37,18 +37,14 @@ export const FontSizeSettings: React.FC = () => {
                         }`}
                         onClick={() => handleSizeChange(size.value)}
                         whileTap={{scale: 0.96}}
-                        transition={{duration: 0.25, ease: 'easeInOut'}}
                     >
                         <span className="text-sm">{t(size.name)}</span>
                         <motion.span
                             className={`font-semibold ${
                                 size.value === 'sm' ? 'text-sm' :
-                                    size.value === 'base' ? 'text-base' :
-                                        size.value === 'lg' ? 'text-lg' :
-                                            'text-xl'
+                                size.value === 'base' ? 'text-base' :
+                                size.value === 'lg' ? 'text-lg' : 'text-xl'
                             }`}
-                            animate={{opacity: selectedSize === size.value ? 1 : 0.6}}
-                            transition={{duration: 0.2, ease: 'easeInOut'}}
                         >
                             {size.sample}
                         </motion.span>

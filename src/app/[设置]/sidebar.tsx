@@ -4,17 +4,19 @@ import {Paintbrush, Bell, Globe, Shield, Plug, HelpCircle} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import useTranslation from "@/hooks/useTranslation";
 import {useRouter, useSearchParams} from "next/navigation";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 interface SidebarProps {
     activeTab: string;
     setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+    isMobile?: boolean;
 }
 
-export const SettingsSidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab}) => {
+export const SettingsSidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab, isMobile}) => {
     const {t} = useTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // 定义设置侧边栏的选项
     const menuItems = [
@@ -35,8 +37,10 @@ export const SettingsSidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab
     }, [searchParams, setActiveTab]);
 
     return (
-        <div
-            className="p-2 w-[360px] flex flex-col border-r border-r-gray-100 dark:border-r-gray-900 bg-muted/30 py-6 px-2.5 space-x-1.5">
+        <div className={`h-full flex flex-col bg-muted/30 
+            ${isMobile ? 'pt-14' : 'py-6'} px-2.5
+            ${!isMobile && 'border-r border-r-gray-100 dark:border-r-gray-900'}`}
+        >
             <div className="mb-6 px-6 mt-5">
                 <h1 className="text-2xl font-semibold">{t("设置中心")}</h1>
                 <p className="text-sm-md text-muted-foreground mt-1.5">{t("管理应用偏好和设置")}</p>
@@ -50,8 +54,11 @@ export const SettingsSidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab
                         onClick={() => {
                             setActiveTab(item.id);
                             const currentSearchParams = new URLSearchParams(window.location.search);
-                            currentSearchParams.set('tab', item.id);  // 保留现有参数，更新 `tab`
+                            currentSearchParams.set('tab', item.id);
                             router.push(`${window.location.pathname}?${currentSearchParams.toString()}`);
+                            if (isMobile) {
+                                setIsMobileMenuOpen(false);
+                            }
                         }}
                     >
                         <item.icon className="mr-3 h-4 w-4"/>

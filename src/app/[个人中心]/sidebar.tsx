@@ -11,9 +11,10 @@ import useTranslation from "@/hooks/useTranslation";
 interface SidebarProps {
     activeTab: string;
     setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+    isMobile: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab}) => {
+export const Sidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab, isMobile}) => {
     const {t} = useTranslation();
     const {signOut} = useAuth();
     const [signOutTextKey, setSignOutTextKey] = useState("退出登录"); // 初始状态为退出登录
@@ -55,11 +56,15 @@ export const Sidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab}) => {
     };
 
     return (
-        <div
-            className="p-2 w-72 flex flex-col border-r border-r-gray-100 dark:border-r-gray-900 bg-muted/30 py-6 px-2.5 space-x-1.5">
+        <div className={`h-full flex flex-col bg-muted/30 
+            ${isMobile ? 'pt-14' : 'py-6'} px-2.5
+            ${!isMobile && 'border-r border-r-gray-100 dark:border-r-gray-900'}`}
+        >
             <div className="mb-6 px-6 mt-5">
                 <h1 className="text-2xl font-semibold">{t("个人中心")}</h1>
-                <p className="text-sm-md text-muted-foreground mt-1.5">{t("管理您的账户和偏好设置")}</p>
+                <p className="text-sm-md text-muted-foreground mt-1.5">
+                    {t("管理您的账户和偏好设置")}
+                </p>
             </div>
             <nav className="flex-grow space-y-2 px-1">
                 {menuItems.map((item) => (
@@ -74,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab}) => {
                     </Button>
                 ))}
             </nav>
-            <div className="mt-auto px-2">
+            <div className={`${isMobile ? '-translate-y-20 px-3' : 'mt-auto px-2'}`}>
                 <Button
                     variant="outline"
                     className="w-full justify-start"

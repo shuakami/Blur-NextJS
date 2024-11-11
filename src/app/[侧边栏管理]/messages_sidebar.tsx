@@ -84,8 +84,10 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConve
 
 
     if (!isSignedIn) {
-        return <UnauthenticatedSidebar onClose={onClose || (() => {
-        })}/>; // 用户未登录时显示提示
+        setTimeout(() => {
+            return <UnauthenticatedSidebar onClose={onClose || (() => {
+            })}/>; // 用户未登录时显示提示
+        }, 500);
     }
 
     const sidebarItems = groupConversationsByDate(conversations, t);

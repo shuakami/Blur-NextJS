@@ -94,14 +94,14 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, 
         }));
     }, [items]);
 
-    // 定义优雅的动画配置
+    // 动画配置
     const animationConfig = useMemo(() => ({
         initial: { height: 0 },
         animate: { height: "auto" },
         exit: { height: 0 },
         transition: { 
             duration: 0.55,
-            ease: [0.25, 0.8, 0.25, 1]  // 使用贝塞尔曲线实现更流畅的动画
+            ease: [0.25, 0.8, 0.25, 1]
         }
     }), []);
     
@@ -131,36 +131,46 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({onUpdateConversations, items, 
                 </div>
 
                 <div className="py-4 mt-2">
-                    {groupedItems.length > 0 ? (
-                        <AnimatePresence mode="wait">
-                            {groupedItems.map((group) => (
-                                <div key={group.label}>
-                                    <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
-                                        <span>{group.label}</span>
-                                    </div>
-                                    <motion.div
-                                        {...animationConfig}
-                                        className="overflow-hidden"
-                                    >
-                                        {group.children.map((subItem) => (
-                                            <SidebarItemComponent
-                                                key={subItem.id}
-                                                item={subItem}
-                                                level={0}
-                                                selectedItem={selectedItem}
-                                                onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
-                                                onUpdateConversations={onUpdateConversations || (() => {})}
-                                            />
-                                        ))}
-                                    </motion.div>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={groupedItems.length > 0 ? 'items' : 'no-items'}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                        >
+                            {groupedItems.length > 0 ? (
+                                <AnimatePresence mode="wait">
+                                    {groupedItems.map((group) => (
+                                        <div key={group.label}>
+                                            <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
+                                                <span>{group.label}</span>
+                                            </div>
+                                            <motion.div
+                                                {...animationConfig}
+                                                className="overflow-hidden"
+                                            >
+                                                {group.children.map((subItem) => (
+                                                    <SidebarItemComponent
+                                                        key={subItem.id}
+                                                        item={subItem}
+                                                        level={0}
+                                                        selectedItem={selectedItem}
+                                                        onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
+                                                        onUpdateConversations={onUpdateConversations || (() => {})}
+                                                    />
+                                                ))}
+                                            </motion.div>
+                                        </div>
+                                    ))}
+                                </AnimatePresence>
+                            ) : (
+                                <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
+                                    {t('没有对话')}
                                 </div>
-                            ))}
-                        </AnimatePresence>
-                    ) : (
-                        <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
-                            {t('没有对话')}
-                        </div>
-                    )}
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </ScrollArea>
 

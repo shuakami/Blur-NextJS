@@ -62,38 +62,39 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
         }
     }, [isEditing]);
 
-    // 修改确认删除处理函数
+    // 处理确认删除对话的逻辑
     const handleConfirmDelete = async () => {
+        // 检查对话ID是否存在
+        if (!item.id) return;
+        
+        // 关闭模态框
         setIsModalOpen(false);
-        if (item.id) {
-            try {
-                // 后台执行删除操作
-                await deleteConversation(item.id, user?.id || '');
-
-                // 如果删除的对话是当前选中的对话，立即跳转到首页
-                if (isSelected) {
-                    router.push('/');
-                }
-
-                // 立即从 UI 中移除
-                removeConversation(item.id);
-
-                toast({
-                    title: '操作成功',
-                    description: '对话已删除',
-                    variant: "success"
-                });
-
-            } catch (e) {
-                // 如果删除失败，再次刷新列表以恢复状态
-                onUpdateConversations();
-                
-                toast({
-                    title: '操作失败',
-                    description: '对话删除失败',
-                    variant: "destructive"
-                });
+        try {
+            // 删除指定的对话
+            await deleteConversation(item.id, user?.id || '');
+            
+            // 如果当前对话被选中，重定向到首页
+            if (isSelected) {
+                router.push('/');
             }
+            // 从会话列表中移除该对话
+            removeConversation(item.id);
+            
+            // 显示成功提示
+            toast({
+                title: '操作成功',
+                description: '对话已删除',
+                variant: "success"
+            });
+        } catch (e) {
+            // 更新会话列表
+            onUpdateConversations();
+            // 显示失败提示
+            toast({
+                title: '操作失败',
+                description: '对话删除失败',
+                variant: "destructive"
+            });
         }
     };
 
@@ -120,9 +121,12 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
         },
     ];
 
-    // 提交新的对话标题
+    // 提交新标题的处理函数
     const handleSubmitNewTitle = async () => {
-        if (!newTitle.trim()) {
+        // 去除标题两端的空格
+        const trimmedTitle = newTitle.trim();
+        // 检查标题和对话ID是否有效
+        if (!trimmedTitle || !item.id) {
             toast({
                 title: '操作失败',
                 description: '对话标题不能为空',
@@ -132,23 +136,20 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
         }
 
         try {
-            // 立即更新 UI
-            updateTitle(item.id!, newTitle);
+            // 更新本地状态中的标题
+            updateTitle(item.id, trimmedTitle);
+            // 更新服务器上的对话标题
+            await updateConversationTitle(item.id, trimmedTitle, user?.id || '');
+            // 结束编辑模式
             setIsEditing(false);
-
-            // 后台执行 API 请求
-            await updateConversationTitle(item.id!, newTitle, user?.id || '');
             
             toast({
                 title: '操作成功',
                 description: '对话标题已更新',
                 variant: "success"
             });
-
         } catch (e) {
-            // 如果 API 请求失败，回滚更改
             onUpdateConversations();
-            
             toast({
                 title: '操作失败',
                 description: '对话标题更新失败',
@@ -163,13 +164,8 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                 key={item.id}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
-                transition={{ 
-                    duration: 0.3,
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 30
-                }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
                 className="relative"
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}

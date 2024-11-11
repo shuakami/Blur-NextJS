@@ -10,6 +10,26 @@ export default function useVersionCheck() {
 
     const [mounted, setMounted] = useState(false);
 
+    //  // [ TEST ] 测试用：在页面加载的时候立即触发demo toast
+    // useEffect(() => {
+    //     toast({
+    //         title: "确认操作",
+    //         description: "您确定要执行此操作吗？",
+    //         acceptButton: {
+    //           label: "确认",
+    //           onClick: () => {
+    //             // 处理确认逻辑
+    //           }
+    //         },
+    //         quitButton: {
+    //           label: "取消",
+    //           onClick: () => {
+    //             // 处理取消逻辑
+    //           }
+    //         }
+    //       })
+    // }, [toast, t]);
+
     useEffect(() => {
         // 组件挂载后设置 mounted 为 true，确保组件已加载
         setMounted(true);
@@ -28,6 +48,7 @@ export default function useVersionCheck() {
             toast({
                 variant: 'info',
                 title: t('检测到新版本'),
+                duration: 7000,
                 description: t('请按Ctrl+F5强制刷新页面，或清除浏览器缓存，以更新到最新版本。'),
             });
             // 更新存储的版本号

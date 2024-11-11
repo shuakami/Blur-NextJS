@@ -3,155 +3,137 @@ const nextConfig = {
     // 编译优化
     swcMinify: true,
     compiler: {
-        removeConsole: process.env.NODE_ENV === 'production',
-        styledComponents: true,
+        removeConsole: {
+            exclude: ['error', 'warn'], // 保留错误和警告日志
+        },
     },
 
-    // 图片优化
+    // 图片优化 - 更精确的配置
     images: {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: '**',
+                hostname: '*.luoxiaohei.cn',
             },
             {
-                protocol: 'http',
-                hostname: '**',
+                protocol: 'https',
+                hostname: '*.sdjz.wiki',
             }
         ],
-        deviceSizes: [640, 768, 1024, 1280, 1920],
-        imageSizes: [16, 32, 48, 64, 96],
-        formats: ['image/webp', 'image/avif'],
-        minimumCacheTTL: 3600,
+        deviceSizes: [640, 750, 828, 1080, 1200, 1920], // 优化断点
+        imageSizes: [16, 32, 48, 64, 96, 128, 256], // 增加常用尺寸
+        formats: ['image/webp'], // 移除 avif，因为支持度还不够广泛
+        minimumCacheTTL: 60 * 60 * 24, // 24小时缓存
     },
 
-    // 实验性功能
+    // 实验性功能优化
     experimental: {
         optimizeCss: true,
-        turbo: {
-            rules: {
-                '*.svg': ['@svgr/webpack'],
-            },
-        },
+        // 移除 turbo.rules 因为 @svgr/webpack 已被移除
         scrollRestoration: true,
-        webVitalsAttribution: ['CLS', 'LCP'],
+        webVitalsAttribution: ['CLS', 'LCP', 'FID'], // 添加 FID 监控
         optimizePackageImports: [
             '@headlessui/react',
-            '@heroicons/react',
             'framer-motion',
             'react-markdown',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-label',
+            '@radix-ui/react-scroll-area',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-toast',
         ],
     },
 
-    // 基础 webpack 配置
+    // webpack 配置优化
     webpack: (config, { dev, isServer }) => {
         if (!isServer && !dev) {
-            config.optimization.splitChunks = {
-                chunks: 'all',
-                minSize: 20000,
-                maxSize: 244000,
-                cacheGroups: {
-                    vendor: {
-                        test: /[\\/]node_modules[\\/]/,
-                        name: 'vendors',
-                        priority: -10,
-                        reuseExistingChunk: true,
+            config.optimization = {
+                ...config.optimization,
+                splitChunks: {
+                    chunks: 'all',
+                    minSize: 20000,
+                    maxSize: 90000, // 减小chunk大小
+                    cacheGroups: {
+                        framework: {
+                            name: 'framework',
+                            chunks: 'all',
+                            test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types)[\\/]/,
+                            priority: 40,
+                            enforce: true,
+                        },
+                        commons: {
+                            name: 'commons',
+                            chunks: 'all',
+                            minChunks: 2,
+                            priority: 20,
+                        },
+                        lib: {
+                            test: /[\\/]node_modules[\\/]/,
+                            name(module) {
+                                const packageName = module.context.match(
+                                    /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+                                )[1];
+                                return `lib.${packageName.replace('@', '')}`;
+                            },
+                            priority: 10,
+                            minChunks: 1,
+                            reuseExistingChunk: true,
+                        },
                     },
+                },
+                runtimeChunk: {
+                    name: 'runtime',
                 },
             };
         }
 
-        config.resolve.alias = {
-            ...config.resolve.alias,
-            'highlight.js/lib/languages': new URL(
-                './node_modules/highlight.js/lib/languages',
-                import.meta.url
-            ).pathname,
-        };
-
         return config;
     },
 
-    // 缓存策略
+    // 安全头部优化
     async headers() {
         const isDev = process.env.NODE_ENV !== 'production';
+        const securityHeaders = {
+            production: {
+                'Content-Security-Policy': [
+                    "default-src 'self'",
+                    "script-src 'self' https://*.clerk.accounts.dev https://*.luoxiaohei.cn 'unsafe-inline'",
+                    "worker-src 'self' blob:",
+                    "style-src 'self' 'unsafe-inline'",
+                    "img-src * data:",
+                    "connect-src 'self' data: https://*.clerk.accounts.dev https://*.luoxiaohei.cn https://*.sdjz.wiki",
+                    "font-src 'self' https://fonts.gstatic.com",
+                    "upgrade-insecure-requests"
+                ].join('; '),
+                'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+                'X-Frame-Options': 'DENY',
+                'X-Content-Type-Options': 'nosniff',
+                'Referrer-Policy': 'strict-origin-when-cross-origin',
+                'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+                'X-DNS-Prefetch-Control': 'on',
+            },
+            development: {
+                'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:",
+            }
+        };
+
         return [
             {
-                source: '/:all*(svg|jpg|png|webp|avif|js|css)',
+                source: '/:all*(svg|jpg|png|webp|js|css)',
                 locale: false,
                 headers: [
                     {
                         key: 'Cache-Control',
                         value: isDev 
                             ? 'no-cache, no-store'
-                            : 'public, max-age=3600, stale-while-revalidate=86400'
+                            : 'public, max-age=31536000, immutable'
                     },
-                    {
-                        key: 'Content-Security-Policy',
-                        value: isDev
-                            ? "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data:; connect-src *; font-src *; frame-src *; worker-src * blob:;"
-                            : (
-                                "default-src 'self'; " +
-                                "script-src 'self' https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn 'unsafe-inline'" +
-                                " worker-src 'self' blob:; " +
-                                " style-src 'self' 'unsafe-inline'; " +
-                                " img-src * data:; " +
-                                " connect-src 'self' data: https://basilisk-86.clerk.accounts.dev https://settled-basilisk-86.clerk.accounts.dev https://blur.al001.luoxiaohei.cn https://clerk.luoxiaohei.cn https://accounts.luoxiaohei.cn https://blur-api.al001.sdjz.wiki;" +
-                                " font-src 'self' https://fonts.gstatic.com; " +
-                                " upgrade-insecure-requests;"
-                            )
-                    },
-                    {
-                        key: 'X-Frame-Options',
-                        value: 'DENY',
-                    },
-                    {
-                        key: 'X-Content-Type-Options',
-                        value: 'nosniff',
-                    },
-                    {
-                        key: 'Strict-Transport-Security',
-                        value: 'max-age=63072000; includeSubDomains; preload',
-                    },
-                    {
-                        key: 'Referrer-Policy',
-                        value: 'strict-origin-when-cross-origin',
-                    },
-                    {
-                        key: 'Permissions-Policy',
-                        value: 'geolocation=(), microphone=(), camera=()',
-                    },
-                    {
-                        key: 'Access-Control-Allow-Origin',
-                        value: 'https://blur.al001.luoxiaohei.cn',
-                    },
-                    {
-                        key: 'Access-Control-Allow-Methods',
-                        value: 'GET, POST, PUT, DELETE',
-                    },
-                    {
-                        key: 'Access-Control-Allow-Headers',
-                        value: 'Content-Type, Authorization',
-                    },
-                    {
-                        key: 'X-Powered-By',
-                        value: 'none',
-                    },
+                    ...Object.entries(isDev ? securityHeaders.development : securityHeaders.production)
+                        .map(([key, value]) => ({ key, value }))
                 ],
-            },
-            {
-                source: '/latest/meta-data/(.*)',
-                headers: [
-                    {
-                        key: 'X-Content-Type-Options',
-                        value: 'nosniff',
-                    },
-                    {
-                        key: 'Content-Security-Policy',
-                        value: "default-src 'none';",
-                    },
-                ],
-            },
+            }
         ];
     },
 
@@ -161,7 +143,7 @@ const nextConfig = {
     generateEtags: true,
     compress: true,
     productionBrowserSourceMaps: false,
-    staticPageGenerationTimeout: 120,
+    staticPageGenerationTimeout: 180,
 };
 
 export default nextConfig;

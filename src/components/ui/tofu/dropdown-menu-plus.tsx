@@ -153,7 +153,7 @@ const DropDownMenuPlus: FC<DropDownMenuPlusProps> = ({
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="p-2 sm:p-2 p-1">
+                <div className="sm:p-2 p-1">
                     {menuItems.map((item, index) => (
                         <React.Fragment key={item.id}>
                             {item.isSpecial && index > 0 && (

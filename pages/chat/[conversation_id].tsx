@@ -253,7 +253,7 @@ export default function ChatPage() {
 
                             {/* 底部输入框&版权 */}
                             <footer>
-                                <motion.div layout>
+                                <motion.div>
                                     <div className="flex flex-col items-center w-full bg-transparent">
                                         <div className="w-full max-w-4xl">
                                             <ChatInputWrapper/>

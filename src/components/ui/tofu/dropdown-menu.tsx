@@ -119,7 +119,7 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
                     exit="closed"
                     variants={menuVariants}
                     transition={{duration: 0.3, ease: 'easeInOut'}}
-                    className="fixed z-50 w-auto cursor-pointer backdrop-blur-md bg-white/80 dark:bg-gray-800/80 shadow-lg rounded-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
+                    className="fixed z-50 w-auto cursor-pointer backdrop-blur-md bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
                     style={{
                         position: strategy,
                         top: y ?? 0,
