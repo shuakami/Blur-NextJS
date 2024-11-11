@@ -1,3 +1,5 @@
+// [conversation_id].tsx
+
 "use client";
 
 import React, { useEffect, useState, Suspense, useMemo, useCallback } from 'react';
@@ -80,11 +82,10 @@ export default function ChatPage() {
 
     const modelSelectorStyle = useMemo(() => ({
         position: 'absolute' as const,
-        top: isMobile ? '1rem' : '16.7px',
         left: isMobile 
             ? '50%' 
             : isSidebarOpen 
-                ? '13.5rem' 
+                ? '14.55rem' 
                 : '6rem',
         transform: isMobile 
             ? 'translateX(-50%)' 
@@ -143,8 +144,8 @@ export default function ChatPage() {
         }
     }, [isLoaded, isClient, exists]);
 
-    if (!isFullyLoaded || !isLoaded) {
-        return <HomePageLoading/>;
+    if (!isLoaded) {
+        return null;
     }
     
     if (!isSignedIn) {
@@ -204,10 +205,10 @@ export default function ChatPage() {
                             }}
                         >
                             {/* 头部工具栏 */}
-                            <header className="flex justify-between items-center px-4 py-4 absolute top-0 left-0 w-full">
-                                <div className={`flex items-center ${isMobile ? '' : 'space-x-4'}`}>
+                            <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-[#212121] z-30">
+                                <div className="flex items-center gap-3 w-full">
                                     <motion.div
-                                        className={`absolute top-4 ${isMobile ? '' : 'left-4'} z-40`}
+                                        className="flex items-center z-40"
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ duration: 0.15 }}
@@ -216,24 +217,16 @@ export default function ChatPage() {
                                     </motion.div>
                                     <Suspense fallback={null}>
                                         <motion.div
-                                            className="absolute z-30 md:top-[16.7]"
+                                            className={`flex items-center ${isMobile ? 'flex-1 justify-center' : ''}`}
                                             style={modelSelectorStyle}
-                                            initial={false}
                                             animate={{
                                                 left: isMobile 
-                                                    ? '50%' 
-                                                    : isSidebarOpen 
-                                                        ? '13.5rem' 
-                                                        : '6rem',
-                                                transform: isMobile 
-                                                    ? 'translateX(-50%)' 
-                                                    : 'translateX(0)',
+                                                ? '50%' 
+                                                : isSidebarOpen 
+                                                    ? '14.55rem' 
+                                                    : '6rem',
                                             }}
-                                            transition={{
-                                                duration: 0.45,
-                                                ease: [0.25, 0.8, 0.25, 1],
-                                            }}
-                                        >
+                                       >
                                             <ModelSelector/>
                                         </motion.div>
                                     </Suspense>
@@ -241,7 +234,7 @@ export default function ChatPage() {
                             </header>
 
                             {/* 聊天内容 */}
-                            <section className="flex-1 overflow-auto w-full">
+                            <section className="flex-1 overflow-auto w-full pt-20 scroll-container"> 
                                 <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
                                     <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-custom-lg xl:max-w-custom-xl">
                                         <Suspense fallback={null}>

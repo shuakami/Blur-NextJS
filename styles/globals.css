@@ -41,26 +41,38 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Poppins';
-  src: url('/fonts/Poppins-Medium.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('/fonts/InterDisplay-Medium.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-}
-
 body {
-  font-family: -apple-system, Inter, Poppins, BlinkMacSystemFont, segoe ui, Oxygen, Ubuntu, Cantarell, open sans, helvetica neue, sans-serif;
+  font-family:
+    /* 中文字体 */
+    "PingFang SC",         /* iOS/macOS 简体中文 */
+    "Hiragino Sans GB",    /* macOS */
+    "Microsoft YaHei",     /* Windows */
+    "WenQuanYi Micro Hei", /* Linux */
+    "Noto Sans CJK SC",    /* 通用 */
+    /* 日文字体 */
+    "Hiragino Kaku Gothic Pro", /* macOS */
+    "Meiryo",                   /* Windows */
+    "Noto Sans JP",             /* 通用 */
+    /* 韩文字体 */
+    "Apple SD Gothic Neo", /* iOS/macOS */
+    "Malgun Gothic",       /* Windows */
+    "Noto Sans KR",        /* 通用 */
+    /* 英文字体 */
+    -apple-system,         /* iOS/macOS */
+    BlinkMacSystemFont,    /* macOS */
+    "Segoe UI",            /* Windows */
+    Roboto,                /* Android */
+    Oxygen,                /* Linux */
+    Ubuntu,                /* Linux */
+    Cantarell,             /* Linux */
+    "Open Sans",           /* 通用 */
+    "Helvetica Neue",      /* 通用 */
+    sans-serif;
   font-size: 18px;
   line-height: 1.6;
   word-break: break-word;
 }
+
 
 
 
@@ -69,6 +81,11 @@ body {
   color var(--transition-duration) var(--transition-timing-function),
   border-color var(--transition-duration) var(--transition-timing-function),
   box-shadow var(--transition-duration) var(--transition-timing-function);
+  scroll-behavior: smooth;
+  /* 字体平滑 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* 为所有受主题切换影响的元素添加过渡 */
@@ -82,10 +99,80 @@ body {
 :root {
   --transition-duration: 0.7s;
   --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  --font-sans-serif: HarmonyOS_Regular, "MiSans VF", "OPPO Sans", "SF Pro SC", "PingFang SC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Noto Sans SC", "Microsoft Yahei", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  --font-serif: "Noto Serif", 'Noto Serif SC', ui-serif, Georgia, STZhongsong, STSong, PMingLiu, SimSun, "WenQuanYi Bitmap Song", "Times New Roman", Times, serif;
-  --font-mono: ChineseFont, "Cascadia Code", "Source Code Pro", "Noto Sans Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-sans-serif: 
+    /* 中文字体 */
+    "PingFang SC", /* iOS/macOS 简体中文 */
+    "Hiragino Sans GB", /* macOS */
+    "Microsoft YaHei", /* Windows */
+    "WenQuanYi Micro Hei", /* Linux */
+    "Noto Sans CJK SC", /* 通用 */
+    /* 日文字体 */
+    "Hiragino Kaku Gothic Pro", /* macOS */
+    "Meiryo", /* Windows */
+    "Noto Sans JP", /* 通用 */
+    /* 韩文字体 */
+    "Apple SD Gothic Neo", /* iOS/macOS */
+    "Malgun Gothic", /* Windows */
+    "Noto Sans KR", /* 通用 */
+    /* 英文字体 */
+    "San Francisco", /* iOS/macOS */
+    "Segoe UI", /* Windows */
+    "Roboto", /* Android */
+    "Ubuntu", /* Ubuntu */
+    "Cantarell", /* Gnome */
+    "Noto Sans", /* 通用 */
+    /* 备用字体 */
+    Arial, 
+    sans-serif;
+  --font-serif: 
+    /* 中文衬线字体 */
+    "Songti SC", /* macOS */
+    "Microsoft YaHei", /* Windows */
+    "WenQuanYi Zen Hei", /* Linux */
+    "Noto Serif CJK SC", /* 通用 */
+    /* 日文衬线字体 */
+    "Hiragino Mincho Pro", /* macOS */
+    "MS PMincho", /* Windows */
+    "Noto Serif JP", /* 通用 */
+    /* 韩文衬线字体 */
+    "Apple SD Gothic Neo", /* iOS/macOS */
+    "Batang", /* Windows */
+    "Noto Serif KR", /* 通用 */
+    /* 英文字体 */
+    "Times New Roman", /* Windows */
+    "Georgia", /* 通用 */
+    "Serif", /* 通用 */
+    serif;
+  --font-mono: 
+    /* 等宽字体 */
+    "SF Mono", /* iOS/macOS */
+    "Consolas", /* Windows */
+    "Roboto Mono", /* Android */
+    "Ubuntu Mono", /* Ubuntu */
+    "Droid Sans Mono", /* 老版Android */
+    "Noto Sans Mono", /* 通用 */
+    "Courier New", /* 通用 */
+    monospace;
 }
+
+
+
+/* 全局 box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 图片优化 */
+img, iframe {
+  loading: lazy;
+  decoding: async;
+}
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+
 
 @layer base {
   :root {
@@ -487,4 +574,13 @@ html:hover::-webkit-scrollbar-track {
 
 .animate-category-appear {
   animation: categoryAppear 0.3s ease-out forwards;
+}
+
+
+/* page.tsx/[conversation_id].tsx | 滚动容器启用 GPU 加速 */
+.scroll-container {
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
 }

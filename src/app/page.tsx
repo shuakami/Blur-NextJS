@@ -78,7 +78,6 @@ const HomeContent = () => {
 
     const modelSelectorStyle = useMemo(() => ({
         position: 'absolute' as const,
-        top: isMobile ? '1rem' : '16.7px',
         left: isMobile 
             ? '50%' 
             : isSidebarOpen 
@@ -155,7 +154,7 @@ const HomeContent = () => {
                         </Suspense>
                     </motion.div>
 
-                    <Overlay isOpen={isSidebarOpen && isMobile} onClose={toggleSidebar} />
+                    <Overlay isOpen={isSidebarOpen && isMobile} onClose={toggleSidebar} zIndex={35} />
 
                     <motion.div
                         className="flex flex-col h-full overflow-hidden w-full"
@@ -170,10 +169,10 @@ const HomeContent = () => {
                             ease: [0.25, 0.8, 0.25, 1],
                         }}
                     >
-                        <div className="flex justify-between items-center px-4 py-4 absolute top-0 left-0 w-full">
-                            <div className={`flex items-center ${isMobile ? '' : 'space-x-4'}`}>
+                        <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-[#212121] z-30">
+                            <div className="flex items-center gap-3 w-full">
                                 <motion.div
-                                    className={`absolute top-4 ${isMobile ? '' : 'left-4'} z-40`}
+                                    className="flex items-center z-40"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.15 }}
@@ -182,38 +181,32 @@ const HomeContent = () => {
                                 </motion.div>
                                 <Suspense fallback={null}>
                                     <motion.div
-                                        className="absolute z-30 md:top-[16.7]"
+                                        className={`flex items-center ${isMobile ? 'flex-1 justify-center' : ''}`}
                                         style={modelSelectorStyle}
-                                        initial={false}
                                         animate={{
                                             left: isMobile 
                                                 ? '50%' 
                                                 : isSidebarOpen 
-                                                    ? '13.5rem' 
+                                                    ? '14.55rem' 
                                                     : '6rem',
-                                            transform: isMobile 
-                                                ? 'translateX(-50%)' 
-                                                : 'translateX(0)',
-                                        }}
-                                        transition={{
-                                            duration: 0.45,
-                                            ease: [0.25, 0.8, 0.25, 1],
                                         }}
                                     >
                                         <ModelSelector />
                                     </motion.div>
                                 </Suspense>
+                                <div className="ml-auto">
+                                    <Suspense fallback={null}>
+                                        <UserAvatar />
+                                    </Suspense>
+                                </div>
                             </div>
-                            <Suspense fallback={null}>
-                                <UserAvatar />
-                            </Suspense>
-                        </div>
+                        </header>
 
                         <AnimatePresence mode="wait">
                             {hasConversation ? (
                                 <motion.div 
                                     key="conversation"
-                                    className="flex-1 overflow-auto w-full mt-12"
+                                    className="flex-1 overflow-auto w-full pt-20 scroll-container"
                                     {...fadeInUpAnimation}
                                 >
                                     <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
@@ -227,7 +220,7 @@ const HomeContent = () => {
                             ) : (
                                 <motion.div 
                                     key="homepage"
-                                    className="flex justify-center items-center h-full"
+                                    className="flex justify-center items-center h-full pt-20"
                                     {...fadeInUpAnimation}
                                 >
                                     <Suspense fallback={null}>

@@ -144,7 +144,7 @@ const ModelSelector: FC = () => {
             <Button
                 ref={buttonRef}
                 variant="ghost"
-                className="flex items-center gap-1 rounded-lg py-1.5 px-3 text-[19px] font-semibold hover:bg-secondary"
+                className="flex items-center gap-1 rounded-lg text-lg font-semibold hover:bg-secondary"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
                 <span className="text-secondary-foreground">

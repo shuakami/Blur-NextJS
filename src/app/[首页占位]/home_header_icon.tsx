@@ -1,30 +1,21 @@
+// HomeHeaderIcon.tsx
+
 "use client";
 
-import React, {useState, useEffect, useRef} from 'react';
-import {Button} from "@/components/ui/button";
-import {SidebarOpenIcon, SquarePen} from "lucide-react";
-import {cn} from "@/lib/utils";
+import React, { useState, useEffect, useRef } from 'react';
+import { Button } from "@/components/ui/button";
+import { SidebarOpenIcon, SquarePen } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface HomeHeaderIconProps {
     isSidebarOpen: boolean;
     onOpen: () => void;
 }
 
-const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({isSidebarOpen, onOpen}) => {
-    const [mounted, setMounted] = useState(false);
+const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({ isSidebarOpen, onOpen }) => {
     const [isHidden, setIsHidden] = useState(isSidebarOpen);
     const timeoutRef = useRef<NodeJS.Timeout>();
 
-    useEffect(() => {
-        setMounted(true);
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-        };
-    }, []);
-
-    // 处理显示/隐藏状态
     useEffect(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -35,24 +26,25 @@ const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({isSidebarOpen, onOpen}) 
         } else {
             timeoutRef.current = setTimeout(() => {
                 setIsHidden(false);
-            }, 50);
+            }, 10);
         }
-    }, [isSidebarOpen]);
 
-    if (!mounted) return null;
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [isSidebarOpen]);
 
     return (
         <div
-            style={{ 
-                visibility: isHidden ? 'hidden' : 'visible',
-                position: 'fixed'
-            }}
             className={cn(
-                "top-4 left-4 z-50 flex items-center space-x-2",
+                "flex items-center",
                 "transform transition-all duration-200 ease-in-out",
-                isSidebarOpen 
-                    ? "opacity-0 -translate-x-5" 
-                    : "opacity-100 translate-x-0"
+                {
+                    "opacity-0 -translate-x-5 pointer-events-none": isHidden,
+                    "opacity-100 translate-x-0": !isHidden
+                }
             )}
         >
             <Button
@@ -60,12 +52,12 @@ const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({isSidebarOpen, onOpen}) 
                 className={cn(
                     "p-2 flex items-center justify-center rounded-md",
                     "transition-colors duration-200",
-                    "hover:bg-gray-50 dark:hover:bg-gray-850"
+                    "hover:bg-secondary"
                 )}
                 onClick={onOpen}
             >
                 <SidebarOpenIcon 
-                    className="w-[22px] h-[22px] text-gray-750 dark:text-gray-300
+                    className="w-[21px] h-[21px] text-gray-750 dark:text-gray-300
                              transition-transform duration-200"
                 />
             </Button>
@@ -75,13 +67,13 @@ const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({isSidebarOpen, onOpen}) 
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                    "hidden md:flex p-2 items-center justify-center rounded-md",
+                    "hidden md:flex items-center mx-1 rounded-md p-2",
                     "transition-colors duration-200",
-                    "hover:bg-gray-50 dark:hover:bg-gray-850"
+                    "hover:bg-secondary"
                 )}
             >
                 <SquarePen 
-                    className="w-[22px] h-[22px] text-gray-750 dark:text-gray-300
+                    className="w-[21px] h-[21px] text-gray-750 dark:text-gray-300
                              transition-transform duration-200"
                 />
             </a>
@@ -89,4 +81,4 @@ const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({isSidebarOpen, onOpen}) 
     );
 };
 
-export default React.memo(HomeHeaderIcon);
+export default HomeHeaderIcon;
