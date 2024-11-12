@@ -86,7 +86,6 @@ export const useImageZoom = ({
     }, [minScale, maxScale]);
 
     const handleWheel = useCallback((e: WheelEvent) => {
-        e.preventDefault();
         const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
         handleZoom(delta);
     }, [handleZoom, scaleStep]);
@@ -128,6 +127,9 @@ export const useImageZoom = ({
     useEffect(() => {
         if (!isOpen) return;
 
+        const element = document.body;
+        element.addEventListener('wheel', handleWheel, { passive: false });
+        
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!isOpen) return;
 
@@ -143,8 +145,11 @@ export const useImageZoom = ({
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, handleZoom, onClose, scaleStep]);
+        return () => {
+            element.removeEventListener('wheel', handleWheel);
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, handleWheel, handleZoom, onClose, scaleStep]);
 
     return {
         scale,
