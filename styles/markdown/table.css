@@ -1,103 +1,159 @@
-
 :root {
-    --table-border-color: rgba(0, 0, 0, 0.11);  /* 边框颜色为黑灰色 */
-    --table-border-color2: rgba(0, 0, 0, 0.11);  /* 边框颜色为黑灰色 */
-    --table-header-bg: rgba(0, 0, 0, 0.05);    /* 表头背景为浅灰 */
-    --table-text-color: #1a1a1a;               /* 深灰色文本 */
-    --table-cell-padding: 0.5rem;              /* 单元格内边距 */
-    --table-border-width: 1px;                 /* 边框宽度 */
-    --table-border-width2: 1px;                /* 边框宽度 */
-    --table-font-size: 0.875rem;               /* 字体大小 */
-    --table-line-height: 1.4;                  /* 行高 */
-    --table-max-width: 900px;                  /* 表格最大宽度 */
-    --table-border-radius: 0.3rem;             /* 微圆角设计 */
+    /* 复用全局颜色变量 */
+    --table-text: var(--text-color);
+    --table-header-text: var(--text-primary);
+    --table-border: var(--border-light);
+    --table-border-strong: var(--border-medium);
+    
+    /* 表格特有变量 */
+    --table-header-bg: rgba(0, 0, 0, 0.02);
+    --table-row-hover: rgba(0, 0, 0, 0.015);
+    --table-vertical-border: rgba(0, 0, 0, 0.06);
+    --table-cell-padding-y: 0.65rem;
+    --table-cell-padding-x: 1rem;
+    --table-header-font: 0.95rem;
+    --table-body-font: 0.925rem;
 }
 
 /* 表格基础样式 */
 .markdown-table {
     width: 100%;
-    max-width: var(--table-max-width); /* 控制表格最大宽度 */
-    border-collapse: collapse; /* 单一边框线 */
-    margin: 1.5rem auto; /* 垂直居中，并设置上下间距 */
-    font-size: var(--table-font-size); /* 设置字体大小 */
-    line-height: var(--table-line-height); /* 设置行高 */
-    border: var(--table-border-width) solid var(--table-border-color); /* 表格外边框 */
-    border-radius: var(--table-border-radius); /* 添加微圆角 */
-    overflow: hidden; /* 确保圆角效果在表格边缘生效 */
-    /* 添加整个表格的外边框 */
-    box-shadow: 0 0 0 var(--table-border-width2) var(--table-border-color2);
+    margin: var(--spacing-md) 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--table-body-font);
+    line-height: 1.5;
+    
+    /* 边框样式 */
+    border: 1px solid var(--table-border-strong);
+    border-radius: 0.5rem;
+    overflow: hidden;
 }
 
 /* 表头样式 */
 .table-header {
-    background-color: var(--table-header-bg);
+    padding: var(--table-cell-padding-y) var(--table-cell-padding-x);
+    background: var(--table-header-bg);
+    font-size: var(--table-header-font);
     font-weight: 600;
+    color: var(--table-header-text);
+    border-bottom: 1px solid var(--table-border-strong);
+    border-right: 1px solid var(--table-vertical-border);
     text-align: left;
-    padding: var(--table-cell-padding);
-    border: var(--table-border-width) solid var(--table-border-color); /* 表头单元格的边框 */
-    color: var(--table-text-color);
+    white-space: nowrap;
+}
+
+/* 最后一个表头单元格不需要右边框 */
+.table-header:last-child {
+    border-right: none;
 }
 
 /* 单元格样式 */
 .table-cell {
-    text-align: left;
-    padding: var(--table-cell-padding);
-    border: var(--table-border-width) solid var(--table-border-color); /* 单元格的边框 */
-    color: var(--table-text-color);
-    transition: background-color 0.2s ease;
-    border-radius: var(--table-border-radius); /* 微圆角单元格 */
+    padding: var(--table-cell-padding-y) var(--table-cell-padding-x);
+    color: var(--table-text);
+    border-bottom: 1px solid var(--table-border);
+    border-right: 1px solid var(--table-vertical-border);
+    transition: background-color 0.15s ease;
 }
 
-/* 去除 hover 背景颜色变化 */
-.markdown-table tr:hover .table-cell {
-    background-color: transparent;
+/* 最后一个单元格不需要右边框 */
+.table-cell:last-child {
+    border-right: none;
 }
 
-/* 响应式设计：小屏幕时表格适配 */
+/* 行悬停效果 */
+.markdown-table tr:hover td {
+    background-color: var(--table-row-hover);
+}
+
+/* 最后一行去掉底部边框 */
+.markdown-table tr:last-child .table-cell {
+    border-bottom: none;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
     .markdown-table {
-        width: 100%;
-        font-size: 0.8rem; /* 小屏幕下字体缩小 */
-        overflow-x: auto;  /* 确保表格内容不会超出屏幕 */
+        font-size: var(--table-body-font);
+        margin: var(--spacing-sm) 0;
     }
-
-    .table-cell, .table-header {
-        padding: 0.4rem; /* 小屏幕时减少内边距 */
+    
+    .table-header,
+    .table-cell {
+        padding: calc(var(--table-cell-padding-y) * 0.8) calc(var(--table-cell-padding-x) * 0.8);
+    }
+    
+    /* 处理表格溢出 */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --table-border-color: var(--border-color); /* 使用全局边框颜色 */
-        --table-header-bg: rgba(255, 255, 255, 0.05);   /* 表头背景为浅色 */
-        --table-text-color: var(--text-color);          /* 使用全局文本颜色 */
-        --table-border-color2: rgba(255, 255, 255, 0.1); /* 次级边框颜色 */
+        --table-header-bg: rgba(255, 255, 255, 0.03);
+        --table-row-hover: rgba(255, 255, 255, 0.02);
+        --table-border: rgba(255, 255, 255, 0.08);
+        --table-border-strong: rgba(255, 255, 255, 0.12);
+        --table-vertical-border: rgba(255, 255, 255, 0.06);
     }
-
+    
     .markdown-table {
-        border: var(--table-border-width) solid var(--table-border-color); /* 表格外边框 */
-        box-shadow: 0 0 0 var(--table-border-width2) var(--table-border-color2); /* 表格阴影 */
+        background: rgba(0, 0, 0, 0.2);
     }
-
+    
     .table-header {
-        background-color: rgba(255, 255, 255, 0.05); /* 表头背景 */
-        color: var(--table-text-color); /* 表头文字颜色 */
+        background: var(--table-header-bg);
+        border-bottom-color: var(--table-border-strong);
     }
-
+    
     .table-cell {
-        color: var(--table-text-color); /* 单元格文字颜色 */
-        border: var(--table-border-width) solid var(--table-border-color); /* 单元格边框 */
+        border-bottom-color: var(--table-border);
+    }
+}
+
+/* 打印样式优化 */
+@media print {
+    .markdown-table {
+        border-color: #000;
+        font-size: 10pt;
+    }
+    
+    .table-header {
+        background-color: #f5f5f5;
+        color: #000;
+        border-bottom-color: #000;
+    }
+    
+    .table-cell {
+        color: #000;
+        border-bottom-color: #ccc;
+    }
+    
+    /* 确保表格不会在页面中间断开 */
+    tr {
+        break-inside: avoid;
     }
 }
 
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
-    .markdown-table {
-        border-color: #000; /* 高对比度下使用纯黑色边框 */
+    :root {
+        --table-header-bg: #f0f0f0;
+        --table-border: #000;
+        --table-border-strong: #000;
     }
-
-    .table-header, .table-cell {
-        border-color: #000; /* 表头和单元格的边框颜色为黑色 */
+    
+    .markdown-table {
+        border-width: 2px;
+    }
+    
+    .table-header,
+    .table-cell {
+        border-width: 1px;
     }
 }

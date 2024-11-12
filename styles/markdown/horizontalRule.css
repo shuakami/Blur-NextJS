@@ -1,25 +1,45 @@
-
 :root {
-    --border-color: #e0e0e0;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --border-color: #404040;
-    }
+    /* 复用全局边框颜色变量 */
+    --hr-color: var(--border-medium);
+    --hr-margin-y: var(--spacing-lg);
 }
 
 .divider {
     border: none;
     height: 1px;
-    background-color: #e0e0e0;
-    margin: 1.5rem 0;
+    background-color: var(--hr-color);
+    margin: var(--hr-margin-y) 0;
+    width: 100%;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+    .divider {
+        margin: var(--spacing-md) 0;
+    }
 }
 
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
+    :root {
+        --hr-color: var(--border-medium);
+    }
+}
+
+/* 打印样式 */
+@media print {
     .divider {
-        background-color: var(--border-color); /* 使用全局边框颜色 */
-        opacity: 0.7; /* 降低透明度以弱化存在感 */
+        background-color: #000;
+        height: 0.5px;
+        margin: 1cm 0;
+        opacity: 0.5;
+    }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    .divider {
+        background-color: var(--text-primary);
+        height: 2px;
     }
 }

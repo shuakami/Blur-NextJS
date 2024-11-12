@@ -1,22 +1,23 @@
 :root {
     --list-marker-color: var(--text-tertiary);
-    --list-indent: 1.625em;
-    --list-nested-indent: 2.95em;
+    --list-indent: 1.75em;
+    --list-nested-indent: 2em;
     --item-spacing: 0.375rem;
-    --marker-text-gap: 0.3rem;
+    --marker-text-gap: 0.5em;
 }
 
 /* 基础列表样式 */
 .list-decimal,
 .list-disc {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin: var(--spacing-xs) 0;
+    margin-bottom: var(--spacing-md);
     padding-left: var(--list-indent);
 }
 
 /* 列表标记样式 */
 .list-decimal {
     list-style-type: decimal;
+    counter-reset: list-counter;
 }
 
 .list-disc {
@@ -25,27 +26,36 @@
 
 /* 列表项样式 */
 .list-item {
-    font-size: 1.0225rem;
+    font-size: 1rem;
     line-height: 1.75;
-    margin-bottom: var(--item-spacing);
-    padding-left: var(--marker-text-gap);
+    margin-bottom: 0.5rem;
     color: var(--text-color);
     font-weight: 400;
-    word-spacing: 0.02em;
+    word-spacing: 0.05em;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* 针对不同类型列表的特殊调整 */
+.list-disc .list-item {
+    margin-bottom: 0.4rem;
+}
+
+.list-decimal .list-item {
+    margin-bottom: 0.5rem;
+    padding-left: 0.4em;
+}
+
 /* 嵌套列表样式 */
 .list-item ul,
 .list-item ol {
+    margin: var(--spacing-xs) 0;
     padding-left: var(--list-nested-indent);
-    margin-left: calc(-1.25em);
 }
 
 .list-item ul {
-    list-style-type: disc;
+    list-style-type: circle;
 }
 
 .list-item ol {
@@ -55,17 +65,58 @@
 /* 深度嵌套列表的样式 */
 .list-item ul ul,
 .list-item ol ol {
-    margin-top: 0.5em;
-    padding-left: var(--list-nested-indent);
-    margin-left: calc(-1.25em);
+    margin: var(--spacing-xs) 0;
 }
 
 .list-item ul ul {
-    list-style-type: disc;
+    list-style-type: square;
 }
 
 .list-item ol ol {
     list-style-type: lower-roman;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+    :root {
+        --list-indent: 1.25em;
+        --list-nested-indent: 1.5em;
+    }
+    
+    .list-item {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0.45rem;
+    }
+}
+
+/* 打印样式优化 */
+@media print {
+    .list-decimal,
+    .list-disc {
+        margin: calc(var(--spacing-xs) * 0.5) 0;
+        margin-bottom: 0.25cm;
+    }
+    
+    .list-item {
+        font-size: 11pt;
+        line-height: 1.5;
+        break-inside: avoid;
+        -webkit-font-smoothing: none;
+        -moz-osx-font-smoothing: none;
+    }
+}
+
+/* 高对比度模式优化 */
+@media (prefers-contrast: high) {
+    .list-item {
+        font-weight: 500;
+    }
+    
+    .list-decimal::marker,
+    .list-disc::marker {
+        color: var(--text-primary);
+    }
 }
 
 /* 暗色模式支持 */
@@ -75,24 +126,10 @@
     }
 }
 
-/* 高对比度模式 */
-@media (prefers-contrast: high) {
-    .list-item {
-        font-weight: 700;
-    }
-}
-
 /* 针对高分辨率屏幕优化 */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     .text-body,
     .list-item {
         -webkit-font-smoothing: subpixel-antialiased;
-    }
-}
-
-/* 打印样式支持 */
-@media print {
-    .list-item {
-        font-size: 12pt;
     }
 }

@@ -1,11 +1,11 @@
+// ChatList.tsx
+
 import React, { memo, useCallback } from "react";
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import { ChatListProps, Message, ThoughtProcess } from "@/types/stream";
 import './chat_list.css';
-import ScrollDownButton from '@/components/ui/scroll-down-button';
-
-const ErrorMessage = React.lazy(() => import("./chat-list/ErrorMessage"));
+import ErrorMessage from "./chat-list/ErrorMessage"; // 直接导入，不使用懒加载
 
 // 消息项组件
 const MessageItem = memo(({ 
@@ -36,7 +36,6 @@ const MessageItem = memo(({
     if (isError) {
         return <ErrorMessage content={message.content} />;
     }
-
 
     return (
         <div className="flex flex-col w-full mt-14">
@@ -106,7 +105,6 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
                             isLastMessage={index === messages.length - 1}
                         />
                     ))}
-                        <ScrollDownButton/>
                 </div>
             </div>
         </div>

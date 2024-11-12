@@ -559,6 +559,7 @@ const config: Config = {
             }
           },
           transitionDuration: {
+            '400': '400ms',
             '550': '550ms',
             '650': '650ms',
           },

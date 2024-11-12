@@ -1,0 +1,153 @@
+/* 折叠器基础样式 */
+.markdown-details {
+    padding: 1rem 0.55rem;
+    margin: var(--spacing-md) 0;
+    border: 1px solid var(--border-light);
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+/* 折叠器标题样式 */
+.markdown-summary {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+/* 折叠器箭头样式 */
+.markdown-summary::marker,
+.markdown-summary::-webkit-details-marker {
+    display: none;
+}
+
+.markdown-summary::before {
+    content: '';
+    width: 1.25em;
+    height: 1.25em;
+    margin-right: 0.75em;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.75;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+}
+
+/* 展开状态样式 */
+.markdown-details[open] {
+    border-color: var(--border-light);
+}
+
+.markdown-details[open] .markdown-summary::before {
+    transform: rotate(90deg);
+    opacity: 1;
+}
+
+/* 内容区域样式 */
+.markdown-details > :not(summary) {
+    display: block;
+    padding: 0.75rem 1.25rem 1.25rem calc(3.25rem); 
+    color: var(--border-light);
+    line-height: 1.75;
+}
+
+/* 如果内容是纯文本，确保样式一致 */
+.markdown-details > summary ~ * {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* 如果内容是第一个元素，增加上边距 */
+.markdown-details > *:not(summary):first-of-type {
+    padding-top: 1.25rem;
+}
+
+/* 如果内容是最后一个元素，增加下边距 */
+.markdown-details > *:not(summary):last-of-type {
+    padding-bottom: 1.5rem;
+}
+
+.markdown-details[open] > *:not(summary) {
+    animation: details-show 0.3s ease-in-out;
+}
+
+.markdown-details:not([open]) > *:not(summary) {
+    animation: details-hide 0.3s ease-in-out;
+}
+
+/* 悬停效果 */
+.markdown-summary:hover {
+    color: var(--text-emphasis);
+}
+
+.markdown-summary:hover::before {
+    opacity: 1;
+}
+
+/* 动画效果 */
+@keyframes details-show {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5em);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes details-hide {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-0.5em);
+    }
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+    .markdown-details {
+        border-color: var(--border-medium);
+    }
+    
+    .markdown-details[open] {
+        border-color: var(--border-light);
+    }
+
+    .markdown-summary::before {
+        opacity: 0.75;
+        filter: invert(1);
+    }
+
+    .markdown-summary:hover::before {
+        opacity: 1;
+    }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .markdown-summary {
+        padding: 0.875rem 1rem;
+    }
+    
+    .markdown-details > *:not(summary) {
+        padding: 0.75rem 1rem 1rem;
+        margin-left: 1.75rem;  /* 移动端稍微缩小间距 */
+    }
+}
+
+/* 展开状态时添加margin-bottom */
+.markdown-details[open] .markdown-summary {
+    margin-bottom: 0.55rem;
+    margin-right: 0.5rem;
+}

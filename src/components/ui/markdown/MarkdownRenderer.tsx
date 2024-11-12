@@ -28,12 +28,17 @@ import {
 import {
   CodeBlockSkeleton,
   BlockMathSkeleton,
-  InlineMathSkeleton
+  InlineMathSkeleton,
+  ImageSkeleton
 } from './skeleton/skeleton';
+import { Blockquote } from './blockquote';
 
 // 动态导入
 const CodeBlock = dynamic(() => import("@/components/ui/markdown/code"), {
     loading: () => <CodeBlockSkeleton />
+});
+const Image = dynamic(() => import("@/components/ui/markdown/image").then(mod => mod.Image), {
+    loading: () => <ImageSkeleton />
 });
 const BlockMath = dynamic(() => import("@/components/ui/markdown/MathRenderer").then(mod => mod.BlockMath), {
     loading: () => <BlockMathSkeleton />
@@ -41,6 +46,14 @@ const BlockMath = dynamic(() => import("@/components/ui/markdown/MathRenderer").
 const InlineMath = dynamic(() => import("@/components/ui/markdown/MathRenderer").then(mod => mod.InlineMath), {
     loading: () => <InlineMathSkeleton />
 });
+const Details = dynamic(() => import("./details").then(mod => mod.Details), {
+    loading: () => null
+});
+const Summary = dynamic(() => import("./details").then(mod => mod.Summary), {
+    loading: () => null
+});
+
+
 
 // 轻量级的内联组件
 const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ children }) => (
@@ -79,6 +92,7 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
     p: ({ children, ...props }) => <Paragraph {...props}>{children}</Paragraph>,
     strong: ({ children, ...props }) => <Strong {...props}>{children}</Strong>,
     em: ({ children, ...props }) => <Emphasis {...props}>{children}</Emphasis>,
+    blockquote: ({ children, ...props }) => <Blockquote {...props}>{children}</Blockquote>,
 
     // 列表组件
     ul: ({ children, ...props }) => <UnorderedList {...props}>{children}</UnorderedList>,
@@ -87,6 +101,7 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
 
     // 链接和图片
     a: ({ children, ...props }) => <Link {...props}>{children}</Link>,
+    img: ({ src, alt, ...props }) => <Image src={src} alt={alt} {...props} />,
     
     // 代码块
     // @ts-ignore
@@ -113,6 +128,10 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
 
     // 其他基础组件
     hr: ({ ...props }) => <HorizontalRule {...props} />,
+
+    // 折叠器组件
+    details: ({ children, ...props }) => <Details {...props}>{children}</Details>,
+    summary: ({ children, ...props }) => <Summary {...props}>{children}</Summary>,
   }), []);
 
   return (

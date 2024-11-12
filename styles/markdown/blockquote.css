@@ -18,7 +18,7 @@
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     .blockquote {
-        border-left: 2px solid var(--dark-border-color); /* 使用全局边框颜色 */
+        border-left: 2px solid var(--border-light); /* 使用全局边框颜色 */
         color: var(--text-color); /* 确保文字颜色可读 */
     }
 }

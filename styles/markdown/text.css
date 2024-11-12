@@ -1,43 +1,55 @@
 :root {
-    /* 基础颜色变量 - 只使用黑白灰 */
-    --text-primary: #0c0c0c;
-    --text-color: #0c0c0c;        /* 主要文本，接近纯黑 */
-    --text-secondary: #404040;    /* 次要文本，深灰 */
-    --text-tertiary: #666666;     /* 第三级文本，中灰 */
-    --text-quaternary: #909090;   /* 第四级文本，浅灰 */
+    /* 基础字号 */
+    --base-size: 16px;
     
-    /* 强调色和背景 */
-    --emphasis-color: #0D0D0D;    /* 强调文本，纯黑 */
-    --background-color: hsla(0, 0%, 100%, .95);  /* 背景色，半透明白 */
+    /* 颜色系统 - 使用8421规则优化对比度 */
+    --text-primary: #262626;      /* 84% 黑，降低对比度 */
+    --text-color: #262626;        /* 主要文本 */
+    --text-secondary: #595959;    /* 65% 黑 */
+    --text-tertiary: #8c8c8c;     /* 45% 黑 */
+    --text-quaternary: #bfbfbf;   /* 25% 黑 */
     
-    /* 边框颜色 */
-    --border-light: rgba(0, 0, 0, .1);
-    --border-medium: rgba(0, 0, 0, .15);
+    /* 间距系统 */
+    --spacing-unit: 1rem;
+    --spacing-xs: calc(var(--spacing-unit) * 0.25);
+    --spacing-sm: calc(var(--spacing-unit) * 0.5);
+    --spacing-md: var(--spacing-unit);
+    --spacing-lg: calc(var(--spacing-unit) * 1.5);
+    
+    /* 其他变量保持不变 */
+    --emphasis-color: #171717;    /* 90% 黑 */
+    --background-color: hsla(0, 0%, 100%, .98);
+    --border-light: rgba(0, 0, 0, .08);
+    --border-medium: rgba(0, 0, 0, .12);
 }
 
 .text-body {
-    font-size: 1.0225rem; /* 统一字体大小 */
-    line-height: 1.8; /* 增加行高提高阅读舒适性 */
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin: var(--spacing-xs) 0;
+    margin-bottom: var(--spacing-md);
     color: var(--text-color);
-    text-justify: inter-word; /* 确保英文单词间距合理 */
+    width: 100%;
+    
+    /* 优化排版 */
+    text-align: justify;
+    text-justify: inter-ideograph;
+    hanging-punctuation: first allow-end;
+    
+    /* 字体特性优化 */
+    font-feature-settings: "palt" 1, "kern" 1;
     font-weight: 400;
-    word-spacing: 0.02em; /* 适当增加词间距，减小阅读负担 */
-    text-rendering: optimizeLegibility; /* 优化字体渲染 */
+    word-spacing: 0.05em;
+    
+    /* 优化渲染 */
+    text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* 针对高分辨率屏幕优化 */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .text-body {
-        -webkit-font-smoothing: subpixel-antialiased;
-    }
-}
-
+/* 文本变体样式优化 */
 .text-bold {
-    font-weight: 700;
+    font-weight: 600;  /* 降低加粗程度，提高可读性 */
     color: var(--emphasis-color);
 }
 
@@ -46,43 +58,69 @@
     color: var(--emphasis-color);
 }
 
-/* 添加暗色模式支持 */
+/* 暗色模式优化 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-primary: #fff;
-        --text-color: #e0e0e0;        /* 主要文本，浅灰白 */
-        --text-secondary: #b0b0b0;    /* 次要文本，浅灰 */
-        --text-tertiary: #808080;     /* 第三级文本，中灰 */
-        --text-quaternary: #666666;   /* 第四级文本，深灰 */
-        --emphasis-color: #ffffff;     /* 强调文本，纯白 */
-        --background-color: #212121;   /* 背景色，深灰黑 */
-        --border-light: rgba(255, 255, 255, .1);
-        --border-medium: rgba(255, 255, 255, .15);
+        --text-primary: #e6e6e6;      /* 90% 白 */
+        --text-color: #e6e6e6;        
+        --text-secondary: #bfbfbf;    /* 75% 白 */
+        --text-tertiary: #8c8c8c;     /* 55% 白 */
+        --text-quaternary: #595959;    /* 35% 白 */
+        --emphasis-color: #f5f5f5;     /* 96% 白 */
+        --background-color: #1a1a1a;   /* 10% 白 */
+        --border-light: rgba(255, 255, 255, .08);
+        --border-medium: rgba(255, 255, 255, .12);
     }
 }
 
-/* 响应式设计 */
+/* 响应式优化 */
+@media (max-width: 1200px) {
+    .text-body {
+        font-size: 1.025rem;
+    }
+}
+
 @media (max-width: 768px) {
     .text-body {
-        font-size: 1rem; /* 16px */
+        font-size: 1rem;
         line-height: 1.7;
-        letter-spacing: 0;
-        word-spacing: 0.03em;
+        text-align: left;
+        margin: calc(var(--spacing-xs) * 0.75) 0;
+        margin-bottom: var(--spacing-sm);
     }
 }
 
-/* 针对高分辨率屏幕优化 */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
     .text-body {
-        -webkit-font-smoothing: subpixel-antialiased;
+        transition: none;
     }
 }
-/* 添加打印样式 */
+
+/* 打印样式优化 */
 @media print {
     .text-body {
-        font-size: 12pt;
-        line-height: 1.6;
+        font-size: 11pt;
+        line-height: 1.5;
         color: #000;
+        width: 100%;
+        margin: calc(var(--spacing-xs) * 0.5) 0;
+        margin-bottom: 0.25cm;
+        text-align: justify;
+        
+        /* 禁用特效 */
+        -webkit-font-smoothing: none;
+        -moz-osx-font-smoothing: none;
+    }
+    
+    /* 避免在不适当的地方分页 */
+    h1, h2, h3, h4, h5, h6 {
+        break-after: avoid;
+    }
+    
+    /* 确保图片不会被分页 */
+    img {
+        break-inside: avoid;
     }
 }
 

@@ -1,81 +1,117 @@
-
-/* 任务列表容器 */
-.task-list-item-container {
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 0.4rem; /* 任务项之间的间距 */
-    cursor: pointer;
-    line-height: 1.4; /* 适合长时间阅读的行高 */
+/* TaskList 基础样式 - 继承自普通列表 */
+.task-list {
+    margin: var(--spacing-xs) 0;
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--list-indent);
+    list-style: none;  /* 移除默认列表样式 */
 }
 
-/* 复选框样式 */
-.task-list-item-checkbox {
-    appearance: none; /* 移除默认的复选框样式 */
-    width: 0.8rem; /* 复选框大小 */
-    height: 0.8rem;
-    border: 1px solid rgba(0, 0, 0, 0.4); /* 使用透明的黑色边框 */
-    border-radius: 0.15rem; /* 微小圆角，增强视觉效果 */
-    margin-right: 0.4rem; /* 与文本的距离 */
-    background-color: transparent; /* 初始状态无背景 */
+/* TaskList 项容器 */
+.task-list-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: var(--item-spacing);
+    padding-left: 0;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text-color);
+}
+
+/* 复选框基础样式 */
+.task-list-checkbox {
+    appearance: none;
     position: relative;
+    width: 1em;
+    height: 1em;
+    margin: 0.4em 0.6em 0 -1.6em;  /* 调整对齐和间距 */
+    border: 1.5px solid var(--text-tertiary);
+    border-radius: 0.25em;
+    background-color: var(--bg-primary);
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-/* 在选中状态下显示蓝色背景，并使用图标库中的白色勾 */
-.task-list-item-checkbox:checked {
-    background-color: #007BFF; /* 蓝色背景 */
-    border-color: #007BFF; /* 选中时的蓝色边框 */
+/* 复选框选中状态 */
+.task-list-checkbox:checked {
+    border-color: var(--link-color);
+    background-color: var(--link-color);
 }
 
-.task-list-item-checkbox:checked::before {
+/* 复选框选中时的勾号 */
+.task-list-checkbox:checked::after {
     content: '';
-    display: inline-block;
     position: absolute;
-    top: 50%;
+    top: 45%;
     left: 50%;
-    width: 0.5rem; /* 勾的大小 */
-    height: 0.5rem;
-    transform: translate(-50%, -50%);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-check'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-    background-size: cover;
+    width: 0.4em;
+    height: 0.2em;
+    border: 2px solid var(--bg-primary);
+    border-top: 0;
+    border-right: 0;
+    transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-/* 任务列表文本 */
-.task-list-item-text {
-    color: #333; /* 深灰色文本 */
-    font-size: 0.45rem; /* 较小的字体，适合长时间阅读 */
-    user-select: none; /* 禁止选择文本 */
-    margin-top: 0;
+/* 复选框悬停效果 */
+.task-list-checkbox:hover {
+    border-color: var(--link-hover);
 }
 
-/* 响应式设计：小屏幕时 */
-@media (max-width: 768px) {
-    .task-list-item-container {
-        margin-bottom: 0.3rem; /* 小屏幕下缩小间距 */
-    }
-
-    .task-list-item-checkbox {
-        width: 0.7rem;
-        height: 0.7rem; /* 小屏幕下略微缩小复选框 */
-    }
-
-    .task-list-item-text {
-        font-size: 0.7rem; /* 小屏幕下缩小文本字体 */
-    }
+.task-list-checkbox:checked:hover {
+    background-color: var(--link-hover);
 }
 
-/* 暗色模式 */
+/* 嵌套任务列表样式 */
+.task-list .task-list {
+    margin-top: var(--item-spacing);
+    padding-left: var(--list-nested-indent);
+}
+
+/* 暗色模式适配 */
 @media (prefers-color-scheme: dark) {
-    .task-list-item-checkbox {
-        border-color: rgba(255, 255, 255, 0.3); /* 边框颜色为浅灰 */
+    .task-list-checkbox {
+        border-color: var(--text-secondary);
+        background-color: var(--bg-secondary);
     }
-
-    .task-list-item-checkbox:checked {
-        background-color: var(--link-color); /* 使用全局链接颜色 */
-        border-color: var(--link-color); /* 使用全局链接颜色 */
+    
+    .task-list-checkbox:checked {
+        border-color: var(--link-color);
+        background-color: var(--link-color);
     }
+}
 
-    .task-list-item-text {
-        color: var(--text-color); /* 使用全局文字颜色 */
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .task-list-item {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    
+    .task-list-checkbox {
+        width: 0.9em;
+        height: 0.9em;
+    }
+}
+
+/* 打印样式优化 */
+@media print {
+    .task-list-item {
+        font-size: 11pt;
+        line-height: 1.5;
+        break-inside: avoid;
+    }
+    
+    .task-list-checkbox {
+        border-width: 1px;
+    }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    .task-list-checkbox {
+        border-width: 2px;
+    }
+    
+    .task-list-item {
+        font-weight: 500;
     }
 }

@@ -1,9 +1,13 @@
+// ScrollDownButton.tsx
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useChatContext } from '@/app/[上下文]/ChatContext';
 import { usePathname } from 'next/navigation';
 
 interface ScrollDownButtonProps {
     className?: string;
+    isSidebarOpen: boolean;
+    sidebarWidth: number;
 }
 
 // 在文件顶部添加类型声明
@@ -11,7 +15,7 @@ type ExtendedEventListenerOptions = EventListenerOptions & {
     passive?: boolean;
 };
 
-const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className }) => {
+const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSidebarOpen, sidebarWidth }) => {
     const { isStreaming } = useChatContext();
     const [show, setShow] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
@@ -246,20 +250,24 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className }) => {
         <button 
             onClick={handleClick}
             className={`
-                fixed z-50 left-1/2 -translate-x-1/2 bottom-[105px]
+                absolute z-50 bottom-[109px]
+                left-1/2 transform -translate-x-1/2
                 w-8 h-8 rounded-full 
                 bg-white dark:bg-gray-800
                 border border-gray-200 dark:border-gray-700 
-                shadow-lg 
                 flex items-center justify-center 
-                transition-all duration-200 
+                transition-all duration-400
                 hover:bg-gray-50 dark:hover:bg-gray-700 
-                hover:scale-105 hover:-translate-y-0.5
-                opacity-0 data-[show=true]:opacity-100
+                hover:scale-100 hover:-translate-y-0.5
+                opacity-0 pointer-events-none
+                ${show ? 'opacity-100 pointer-events-auto' : ''}
                 ${isScrolling ? 'animate-scroll-down' : ''}
                 ${className || ''}
             `}
-            data-show={show}
+            style={{
+                left: isSidebarOpen ? `calc(50% + ${sidebarWidth / 2}px)` : '50%',
+                transform: isSidebarOpen ? 'translateX(-50%)' : '-translate-x-1/2',
+            }}
             aria-label="滚动到底部"
         >
             <svg 

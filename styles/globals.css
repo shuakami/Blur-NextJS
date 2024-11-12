@@ -13,7 +13,7 @@
 @import 'markdown/strikethrough.css';
 @import 'markdown/footnote.css';
 @import 'markdown/emoji.css';
-
+@import 'markdown/details.css';
 
 .markdown-body {
   color: var(--text-color);

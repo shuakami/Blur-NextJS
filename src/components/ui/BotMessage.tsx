@@ -24,15 +24,16 @@ const BotMessage = memo(({
     thought
 }: BotMessageProps) => {
     return (
-        <div className="group relative flex max-w-full items-start gap-4">
-            <div className="pl-3 sm:pl-0">
-                <Avatar className="h-9 w-9 flex-shrink-0">
+        <div className="group relative flex w-full items-start">
+            {/* Avatar 容器 */}
+            <div className="flex-shrink-0 pl-3 sm:pl-0">
+                <Avatar className="h-9 w-9">
                     <MoonLogo className="relative p-1.5" />
                 </Avatar>
             </div>
 
-            <div className="flex flex-col gap-1.5 min-w-0 flex-1 pr-3 sm:pr-0">
-                {/* 思考流组件 */}
+            {/* 内容容器 - 移除右侧 padding */}
+            <div className="flex flex-col min-w-0 flex-1 gap-1.5 ml-4">
                 {thought && (
                     <Suspense fallback={null}>
                         <ThoughtStream
@@ -47,13 +48,13 @@ const BotMessage = memo(({
                     {isLoading && isLatestBotMessage ? (
                         <AnimatedShinyText darkMode={false} />
                     ) : (
-                        <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:my-3">
+                        <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 w-full">
                             <MarkdownRenderer content={content} />
                         </div>
                     )}
                 </Suspense>
 
-                {/* 工具栏 - hover时显示 */}
+                {/* 工具栏 */}
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 -ml-1 flex items-center">
                     <Suspense fallback={null}>
                         <MessageToolbar 

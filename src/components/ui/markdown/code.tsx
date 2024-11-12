@@ -102,7 +102,7 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code }) => {
     }
 
     return (
-        <div className="mb-3 relative group rounded-lg overflow-hidden bg-gray-50/45 dark:bg-gray-945
+        <div className="mb-2.5 relative group rounded-lg overflow-hidden bg-gray-50/45 dark:bg-gray-945
                       border border-gray-50 dark:border-gray-900/50">
             <div className="z-30 absolute top-2 right-3 flex items-center gap-1">
                 <div className="flex items-center gap-1 px-2 py-1 text-xs font-light bg-gray-50/45 dark:bg-gray-945
@@ -130,7 +130,7 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code }) => {
             </div>
 
             <div className="overflow-auto">
-                <pre className="!mt-0 pt-2.5 pb-3 px-4">
+                <pre className="!mt-0 pt-3 pb-3 px-4">
                     <code 
                         ref={codeRef}
                         className={`language-${detectedLanguage} hljs`}

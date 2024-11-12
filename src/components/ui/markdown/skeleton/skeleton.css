@@ -24,3 +24,29 @@
     animation: skeleton-fade-out 0.25s ease-out forwards;
   }
   
+
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  @keyframes loadingBar {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(300%);
+    }
+  }
+  
+  .skeleton-shine {
+    animation: shine 2s infinite;
+  }
+  
+  .animate-loading-bar {
+    animation: loadingBar 2s infinite linear;
+  }

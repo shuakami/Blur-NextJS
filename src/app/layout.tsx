@@ -81,15 +81,16 @@ const geistMono = localFont({
 const description = seoDescription;
 const keywords = seoKeywords.join(',');
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
     title: `Blur - Meet your mirror, your muse.`,
     description,
     keywords,
-    viewport: {
-      width: 'device-width',
-      initialScale: 1,
-      maximumScale: 1,
-    },
 };
 
 export default function RootLayout({

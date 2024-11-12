@@ -1,28 +1,25 @@
-// [conversation_id].tsx
-
 "use client";
 
-import React, { useEffect, useState, Suspense, useMemo, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy, memo } from 'react';
 import { useRouter } from 'next/router';
-import ChatInputWrapper from "@/components/ui/ChatInputWrapper";
 import { useUser } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
-import Cookies from "js-cookie";
 import { ChatProvider } from "@/app/[上下文]/ChatContext";
-import dynamic from 'next/dynamic';
 import { fetchHistory } from '@/app/[拉取历史]/fetch_history';
 import { useConversations } from '../../contexts/ConversationsContext';
 
-// 动态导入组件
-const MessagesSidebar = dynamic(() => import('@/app/[侧边栏管理]/messages_sidebar'), { ssr: false });
-const ChatList = dynamic(() => import('@/app/[消息显示]/chat_list'), { ssr: false });
-const HomePageLoading = dynamic(() => import("@/components/Loading/loading_converdation_page"), { ssr: false });
-const SimplifiedUnauthenticatedHomePage = dynamic(() => import("@/components/NoLogin/nologin_home"), { ssr: false });
-const Meta = dynamic(() => import("@/components/ui/Meta"), { ssr: false });
-const ModelSelector = dynamic(() => import("@/components/ui/model_selector").then(mod => mod.default), { ssr: false });
-const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
-const HomeHeaderIcon = dynamic(() => import('@/app/[首页占位]/home_header_icon').then(mod => mod.default), { ssr: false });
-const Overlay = dynamic(() => import('@/components/ui/overlay/index'), { ssr: false });
+import Cookies from "js-cookie";
+import ChatList from '@/app/[消息显示]/chat_list';
+
+const MessagesSidebar = lazy(() => import('@/app/[侧边栏管理]/messages_sidebar'));
+const ChatInputWrapper = lazy(() => import('@/components/ui/ChatInputWrapper'));
+const CText = lazy(() => import('@/app/copyright/ctext'));
+const SimplifiedUnauthenticatedHomePage = lazy(() => import("@/components/NoLogin/nologin_home"));
+const Meta = lazy(() => import("@/components/ui/Meta"));
+const ModelSelector = lazy(() => import("@/components/ui/model_selector"));
+const HomeHeaderIcon = lazy(() => import('@/app/[首页占位]/home_header_icon'));
+const Overlay = lazy(() => import('@/components/ui/overlay/index'));
+const ScrollDownButton = lazy(() => import('@/components/ui/scroll-down-button'));
 
 const SIDEBAR_WIDTH = 220;
 const MAX_RETRY_COUNT = 3;
@@ -52,6 +49,8 @@ const useWindowSize = () => {
 
     return width;
 };
+
+const MemoizedOverlay = memo(Overlay);
 
 export default function ChatPage() {
     const router = useRouter();
@@ -149,21 +148,26 @@ export default function ChatPage() {
     }
     
     if (!isSignedIn) {
-        return <SimplifiedUnauthenticatedHomePage/>;
+        return (
+            <Suspense fallback={null}>
+                <SimplifiedUnauthenticatedHomePage/>
+            </Suspense>
+        );
     }
 
     if (exists === false && isSignedIn) {
         router.replace('/');
-        return <HomePageLoading/>;
     }
 
     if (!conversation_id || typeof conversation_id !== 'string') {
-        return <HomePageLoading/>;
+        return null;
     }
 
     return (
         <ChatProvider initialConversationId={conversation_id}>
-            <Meta pageName={chat_title}/> 
+            <Suspense fallback={null}>
+                <Meta pageName={chat_title}/> 
+            </Suspense>
             <main className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
                 {isClient && (
                     <>
@@ -183,7 +187,7 @@ export default function ChatPage() {
 
                         {/* 侧边栏遮罩层（移动端Only） */}
                         <Suspense fallback={null}>
-                            <Overlay 
+                            <MemoizedOverlay 
                                 isOpen={isSidebarOpen && isMobile} 
                                 onClose={toggleSidebar}
                                 zIndex={35}
@@ -207,24 +211,19 @@ export default function ChatPage() {
                             {/* 头部工具栏 */}
                             <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-[#212121] z-30">
                                 <div className="flex items-center gap-3 w-full">
-                                    <motion.div
-                                        className="flex items-center z-40"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ duration: 0.15 }}
-                                    >
+                                    <Suspense fallback={null}>
                                         <HomeHeaderIcon isSidebarOpen={isSidebarOpen} onOpen={toggleSidebar}/>
-                                    </motion.div>
+                                    </Suspense>
                                     <Suspense fallback={null}>
                                         <motion.div
                                             className={`flex items-center ${isMobile ? 'flex-1 justify-center' : ''}`}
                                             style={modelSelectorStyle}
                                             animate={{
                                                 left: isMobile 
-                                                ? '50%' 
-                                                : isSidebarOpen 
-                                                    ? '14.55rem' 
-                                                    : '6rem',
+                                                    ? '50%' 
+                                                    : isSidebarOpen 
+                                                        ? '14.55rem' 
+                                                        : '6rem',
                                             }}
                                        >
                                             <ModelSelector/>
@@ -234,12 +233,10 @@ export default function ChatPage() {
                             </header>
 
                             {/* 聊天内容 */}
-                            <section className="flex-1 overflow-auto w-full pt-20 scroll-container"> 
+                            <section className="flex-1 overflow-auto w-full pt-12 scroll-container"> 
                                 <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
                                     <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-custom-lg xl:max-w-custom-xl">
-                                        <Suspense fallback={null}>
-                                            <ChatList />
-                                        </Suspense>
+                                        <ChatList />
                                     </div>
                                 </div>
                             </section>
@@ -249,7 +246,9 @@ export default function ChatPage() {
                                 <motion.div>
                                     <div className="flex flex-col items-center w-full bg-transparent">
                                         <div className="w-full max-w-4xl">
-                                            <ChatInputWrapper/>
+                                            <Suspense fallback={null}>
+                                                <ChatInputWrapper/>
+                                            </Suspense>
                                         </div>
                                         <motion.div 
                                             className="w-full"
@@ -258,11 +257,7 @@ export default function ChatPage() {
                                             exit={{ opacity: 0, height: 0 }}
                                             transition={{ duration: 0.3 }}
                                         >
-                                            <Suspense fallback={
-                                                <div className="h-[24px] flex items-center justify-center opacity-0">
-                                                    <div className="text-xs text-black/60 dark:text-[#b2b2b2]/90">占位文本</div>
-                                                </div>
-                                            }>
+                                            <Suspense fallback={null}>
                                                 <CText />
                                             </Suspense>
                                         </motion.div>
@@ -271,6 +266,11 @@ export default function ChatPage() {
                                 </motion.div>
                             </footer>
                         </motion.div>
+
+                        {/* 滚动按钮 */}
+                        <Suspense fallback={null}>
+                            <ScrollDownButton isSidebarOpen={isSidebarOpen} sidebarWidth={SIDEBAR_WIDTH} />
+                        </Suspense>
                     </>
                 )}
             </main>

@@ -1,13 +1,23 @@
-
 .emoji {
-    font-size: 1.2rem;
-    margin-right: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.2em;
+    line-height: 1;
+    vertical-align: -0.1em; /* 微调垂直对齐 */
+    margin: 0 0.25em;
+    user-select: none; /* 防止用户选中emoji */
 }
 
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     .emoji {
-        font-size: 1.3rem; /* 略微增大字体大小 */
-        margin-right: 0.3rem; /* 增加右边距 */
+        filter: brightness(1.1); /* 略微提高亮度 */
+    }
+}
+
+/* 打印模式 */
+@media print {
+    .emoji {
+        font-size: 1em;
     }
 }
