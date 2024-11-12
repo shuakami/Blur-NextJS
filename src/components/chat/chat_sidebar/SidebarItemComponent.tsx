@@ -20,6 +20,7 @@ import {toast} from "@/hooks/use-toast";
 import ConfirmModal from "@/components/ui/tofu/confirm-modal";
 import {useRouter} from 'next/navigation';
 import { useConversations } from '../../../../contexts/ConversationsContext';
+import Link from 'next/link';
 
 interface SidebarItemComponentProps {
     item: SidebarItem;
@@ -190,37 +191,49 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                            onClick={() => setIsEditing(false)}/>
                     </div>
                 ) : (
-                    <button
-                        ref={buttonRef}
-                        onClick={item.children ? toggleOpen : () => onSelect(item.id ?? '')}
-                        onMouseEnter={() => setHover(true)}
-                        onMouseLeave={() => setHover(false)}
-                        className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
-                            level > 0 ? 'pl-4' : ''
-                        } text-black dark:text-white ${
-                            isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
-                        }`}
+                    <Link 
+                        href={`/chat/${item.id}`} 
+                        prefetch={false}
                     >
-                        {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
-                        {item.children && (
-                            <span className="text-black dark:text-white">
-                                {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
-                            </span>
-                        )}
-                        <span className="text-sm flex-grow">{item.label}</span>
+                        <button
+                            ref={buttonRef}
+                            onClick={(e) => {
+                                if (item.children) {
+                                    e.preventDefault();
+                                    toggleOpen();
+                                } else {
+                                    onSelect(item.id ?? '');
+                                }
+                            }}
+                            onMouseEnter={() => setHover(true)}
+                            onMouseLeave={() => setHover(false)}
+                            className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
+                                level > 0 ? 'pl-4' : ''
+                            } text-black dark:text-white ${
+                                isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
+                            }`}
+                        >
+                            {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
+                            {item.children && (
+                                <span className="text-black dark:text-white">
+                                    {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
+                                </span>
+                            )}
+                            <span className="text-sm flex-grow">{item.label}</span>
 
-                        {(isSelected || hover) && (
-                            <span
-                                className="ml-auto"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setMenuOpen(!menuOpen);
-                                }}
-                            >
-                                <MoreHorizontal size={16} className="text-black dark:text-white"/>
-                            </span>
-                        )}
-                    </button>
+                            {(isSelected || hover) && (
+                                <span
+                                    className="ml-auto"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setMenuOpen(!menuOpen);
+                                    }}
+                                >
+                                    <MoreHorizontal size={16} className="text-black dark:text-white"/>
+                                </span>
+                            )}
+                        </button>
+                    </Link>
                 )}
             </div>
 
