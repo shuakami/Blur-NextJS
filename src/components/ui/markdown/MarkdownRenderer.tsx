@@ -138,7 +138,7 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
   }), []);
 
   return (
-    <div className={`markdown-body result-streaming`}>
+    <div className={`markdown-body ${isStreaming ? 'result-streaming' : ''}`}>
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
         rehypePlugins={rehypePlugins}
