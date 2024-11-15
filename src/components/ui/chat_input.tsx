@@ -3,7 +3,7 @@ import useTranslation from '@/hooks/useTranslation';
 import { useChatContext } from '@/app/[上下文]/ChatContext';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import debounce from 'lodash';
+import { debounce } from 'lodash';
 
 interface ChatInputProps {
     onSend: (message: string) => void;
@@ -17,6 +17,9 @@ const MIN_HEIGHT = 40;
 const DEFAULT_MAX_LENGTH = 10000;
 const THRESHOLD_RATIO = 0.8;
 const DRAFT_KEY = 'chat_input_draft';
+
+// 添加一个标记来追踪 toast 是否已显示
+let toastShown = false;
 
 // 优化后的发送按钮组件
 const SendButton = React.memo(({ 
@@ -97,18 +100,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
         textarea.style.height = `${newHeight}px`;
     }, [maxHeight]);
 
-    // 添加初始化检查和恢复逻辑
+    // 优化初始化检查和恢复逻辑
     useEffect(() => {
+        if (toastShown) return; // 防止重复显示
+
         try {
             const savedDraft = localStorage.getItem(DRAFT_KEY);
-            if (savedDraft && savedDraft.trim()) {
+            if (savedDraft?.trim()) {
+                toastShown = true;
                 toast({
+                    id: 'draft-message', // 添加唯一 ID
                     title: '发现未发送的消息',
                     description: '是否要恢复上次未发送的内容？',
                     action: (
                         <ToastAction altText="恢复" onClick={() => {
                             setMessage(savedDraft);
                             localStorage.removeItem(DRAFT_KEY);
+                            toastShown = false;
                         }}>
                             恢复
                         </ToastAction>
@@ -118,23 +126,44 @@ const ChatInput: React.FC<ChatInputProps> = ({
         } catch (error) {
             console.error('读取草稿失败:', error);
         }
+
+        // 组件卸载时重置标记
+        return () => {
+            toastShown = false;
+        };
     }, []);
 
-    // 自动保存草稿的防抖处理
-    const debouncedSave = useCallback(
-        debounce((text: string) => {
-            try {
-                if (text.trim()) {
-                    localStorage.setItem(DRAFT_KEY, text);
-                } else {
+    // 优化自动保存草稿
+    const debouncedSave = useMemo(
+        () =>
+            debounce((text: string) => {
+                // 如果正在发送消息，不保存草稿
+                if (isSending) return;
+                
+                if (!text.trim()) {
                     localStorage.removeItem(DRAFT_KEY);
+                    return;
                 }
-            } catch (error) {
-                console.error('保存草稿失败:', error);
-            }
-        }, 1000),
-        []
+
+                // 只有当内容变化时才存储
+                const currentDraft = localStorage.getItem(DRAFT_KEY);
+                if (currentDraft !== text) {
+                    try {
+                        localStorage.setItem(DRAFT_KEY, text);
+                    } catch (error) {
+                        console.error('保存草稿失败:', error);
+                    }
+                }
+            }, 1000),
+        [isSending]
     );
+
+    // 在组件卸载时取消待处理的防抖操作
+    useEffect(() => {
+        return () => {
+            debouncedSave.cancel();
+        };
+    }, [debouncedSave]);
 
     // 修改 handleMessageChange
     const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -146,7 +175,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     }, [maxLength, updateHeight, debouncedSave]);
 
-    // 修改 handleSend
+    // 优化 handleSend
     const handleSend = useCallback(async () => {
         if (!message.trim() || isSending) return;
         
@@ -155,6 +184,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             await onSend(message);
             setMessage('');
             localStorage.removeItem(DRAFT_KEY);
+            toastShown = false; // 重置 toast 标记
             if (textareaRef.current) {
                 textareaRef.current.style.height = `${INITIAL_HEIGHT}px`;
             }

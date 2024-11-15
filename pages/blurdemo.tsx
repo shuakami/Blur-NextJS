@@ -39,34 +39,6 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
     },
     {
         type: 'bot',
-        content: `喜欢就好~ (Wink)`,
-        avatarUrl: 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix',
-        plugin_status: 'calling',
-        plugin_name: 'test',
-        plugin_id: '1'
-    },
-    {
-        type: 'bot',
-        content: 'latex: $$\\int_0^\\infty e^{-x^2}dx=\\frac{\\sqrt{\\pi}}{2}$$',
-        avatarUrl: 'https://github.com/shuakami.png',
-        plugin_status: 'response',
-        plugin_response: {
-            plugin_id: 1,
-            plugin_name: 'test',
-            data: JSON.stringify({
-                data: {
-                    message: '这是一个测试插件返回内容',
-                    timestamp: new Date().toISOString(),
-                    status: 'success'
-                },
-                code: 200,
-                success: true
-            }),
-            status: 'success'
-        }
-    },
-    {
-        type: 'bot',
         content: '这是机器人的回复内容',
         thought: {
             titles: ['分析问题...', '思考方案...', '整理答案...'],
@@ -79,7 +51,10 @@ dayjs().format('MMMM D, YYYY'); // 比如说：2024年9月18日
             isAnimating: true,
             duration: 9
         },
-        error: '这是一个错误消息'
+        error: {
+            code: 400,
+            message: '这是一个错误消息'
+        }
     }
 ];
 
