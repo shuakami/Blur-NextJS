@@ -17,7 +17,7 @@ export const ImageDialog: React.FC<ImageDialogProps> = ({
     src,
     alt,
     isOpen,
-    onClose
+    onClose,
 }) => {
     const {
         scale,
@@ -47,7 +47,7 @@ export const ImageDialog: React.FC<ImageDialogProps> = ({
 
     const handleDownload = async () => {
         if (!currentImage) return;
-        await downloadImage(currentImage, alt);
+        await downloadImage(currentImage.src, alt);
     };
 
     return (
@@ -117,7 +117,7 @@ export const ImageDialog: React.FC<ImageDialogProps> = ({
                     onMouseLeave={handleMouseUp}
                 >
                     <img
-                        src={currentImage}
+                        src={currentImage?.element?.src || currentImage?.src}
                         alt={alt}
                         className={cn(
                             'max-w-[95vw] max-h-[95vh] rounded-md object-contain select-none transition-transform',

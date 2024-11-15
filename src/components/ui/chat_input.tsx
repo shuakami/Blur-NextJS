@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import useTranslation from '@/hooks/useTranslation';
 import { useChatContext } from '@/app/[上下文]/ChatContext';
+import { toast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
+import debounce from 'lodash';
 
 interface ChatInputProps {
     onSend: (message: string) => void;
@@ -13,6 +16,7 @@ const INITIAL_HEIGHT = 40;
 const MIN_HEIGHT = 40;
 const DEFAULT_MAX_LENGTH = 10000;
 const THRESHOLD_RATIO = 0.8;
+const DRAFT_KEY = 'chat_input_draft';
 
 // 优化后的发送按钮组件
 const SendButton = React.memo(({ 
@@ -93,14 +97,56 @@ const ChatInput: React.FC<ChatInputProps> = ({
         textarea.style.height = `${newHeight}px`;
     }, [maxHeight]);
 
+    // 添加初始化检查和恢复逻辑
+    useEffect(() => {
+        try {
+            const savedDraft = localStorage.getItem(DRAFT_KEY);
+            if (savedDraft && savedDraft.trim()) {
+                toast({
+                    title: '发现未发送的消息',
+                    description: '是否要恢复上次未发送的内容？',
+                    action: (
+                        <ToastAction altText="恢复" onClick={() => {
+                            setMessage(savedDraft);
+                            localStorage.removeItem(DRAFT_KEY);
+                        }}>
+                            恢复
+                        </ToastAction>
+                    ),
+                });
+            }
+        } catch (error) {
+            console.error('读取草稿失败:', error);
+        }
+    }, []);
+
+    // 自动保存草稿的防抖处理
+    const debouncedSave = useCallback(
+        debounce((text: string) => {
+            try {
+                if (text.trim()) {
+                    localStorage.setItem(DRAFT_KEY, text);
+                } else {
+                    localStorage.removeItem(DRAFT_KEY);
+                }
+            } catch (error) {
+                console.error('保存草稿失败:', error);
+            }
+        }, 1000),
+        []
+    );
+
+    // 修改 handleMessageChange
     const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newMessage = e.target.value;
         if (newMessage.length <= maxLength) {
             setMessage(newMessage);
             requestAnimationFrame(updateHeight);
+            debouncedSave(newMessage);
         }
-    }, [maxLength, updateHeight]);
+    }, [maxLength, updateHeight, debouncedSave]);
 
+    // 修改 handleSend
     const handleSend = useCallback(async () => {
         if (!message.trim() || isSending) return;
         
@@ -108,6 +154,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         try {
             await onSend(message);
             setMessage('');
+            localStorage.removeItem(DRAFT_KEY);
             if (textareaRef.current) {
                 textareaRef.current.style.height = `${INITIAL_HEIGHT}px`;
             }

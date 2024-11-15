@@ -95,22 +95,42 @@ export const fetchHistoryAPI = async ({
 };
 
 // 格式化消息的辅助函数
-export const formatMessages = (apiMessages: APIMessage[], userImageUrl?: string): UIMessage[] => {
-    return apiMessages.map((msg: APIMessage): UIMessage => ({
-        message_id: msg.message_id,
-        content: msg.content,
-        timestamp: msg.timestamp,
-        status: msg.status,
-        parent_id: msg.parent_id,
-        children_ids: msg.children_ids,
-        version: msg.version,
-        modified_count: msg.modified_count,
-        type: msg.role === 'assistant' ? 'bot' : 'user',
-        avatarUrl: msg.role === 'assistant' 
-            ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' 
-            : userImageUrl || '',
-        isStreaming: false
-    }));
+export const formatMessages = (apiMessages: APIMessage[], userImageUrl?: string): Message[] => {
+    return apiMessages.map((msg: APIMessage): Message => {
+        // 基础消息属性
+        const baseMessage = {
+            message_id: msg.message_id,
+            content: msg.content,
+            timestamp: msg.timestamp,
+            status: msg.status,
+            parent_id: msg.parent_id,
+            children_ids: msg.children_ids,
+            version: msg.version,
+            modified_count: msg.modified_count,
+            type: msg.role === 'assistant' ? 'bot' : 'user',
+            avatarUrl: msg.role === 'assistant' 
+                ? 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix' 
+                : userImageUrl || '',
+            isStreaming: false,
+        } as Message;
+
+        // 如果是用户消息，直接返回
+        if (msg.role === 'user') {
+            return baseMessage;
+        }
+
+        // 对于 bot 消息，添加临时字段用于插件处理
+        if (msg.role === 'assistant') {
+            return {
+                ...baseMessage,
+                // 添加临时字段，这些字段会在 HistoryPluginHandler 处理后被移除
+                _temp_plugin_responses: msg.plugin_responses,
+                _temp_more_content: msg.more_content
+            };
+        }
+
+        return baseMessage;
+    });
 };
 
 // 创建用户消息的辅助函数

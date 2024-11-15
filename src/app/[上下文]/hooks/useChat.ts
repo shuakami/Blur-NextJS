@@ -30,6 +30,9 @@ const useChat = (initialConversationId?: string) => {
     const userId = user?.id;
     const userImageUrl = user?.imageUrl;
 
+    // 添加一个标志来追踪是否是新对话
+    const isNewChat = useRef(false);
+
     // 添加消息
     const addMessage = useCallback((message: Message) => {
         addMessageHandler(message, dispatch);
@@ -80,10 +83,33 @@ const useChat = (initialConversationId?: string) => {
         }
     }, [initialConversationId, state.conversationId]);
 
-    // 初始加载历史消息和重载触发
+    // 修改初始加载历史消息和重载触发的逻辑
     useEffect(() => {
-        fetchAndSetHistory();
-    }, [fetchAndSetHistory, state.reloadConversationsCounter]);
+        // 只在以下条件下获取历史记录：
+        // 1. 不是新对话
+        // 2. 有对话ID
+        // 3. 不是正在发送消息
+        if (!isNewChat.current && state.conversationId && !state.isStreaming) {
+            fetchAndSetHistory();
+        }
+    }, [fetchAndSetHistory, state.reloadConversationsCounter, state.conversationId, state.isStreaming]);
+
+    // 监听 conversationId 变化
+    useEffect(() => {
+        // 如果是首次设置 conversationId，标记为新对话
+        if (!state.conversationId && initialConversationId) {
+            isNewChat.current = false;
+        } else if (state.newConversationId) {
+            isNewChat.current = true;
+        }
+    }, [state.conversationId, initialConversationId, state.newConversationId]);
+
+    // 添加重置方法
+    const resetChatState = useCallback(() => {
+        dispatch({ type: 'CLEAR_MESSAGES' });
+        dispatch({ type: 'SET_CONVERSATION_ID', payload: null });
+        isNewChat.current = true;
+    }, []);
 
     // 使用 useMemo 记忆化返回的对象
     const memoizedChat = useMemo(() => ({
@@ -99,6 +125,7 @@ const useChat = (initialConversationId?: string) => {
         isStreaming: state.isStreaming,
         stopStreaming,
         conversationId: state.conversationId,
+        resetChatState, // 添加重置方法到返回值中
     }), [
         state.messages,
         sendMessage,
@@ -112,6 +139,7 @@ const useChat = (initialConversationId?: string) => {
         state.isStreaming,
         stopStreaming,
         state.conversationId,
+        resetChatState,
     ]);
 
     return memoizedChat;

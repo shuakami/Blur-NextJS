@@ -19,6 +19,19 @@
   color: var(--text-color);
 }
 
+.markdown-body.result-streaming > :not(ol):not(ul):not(pre):not(div):last-child::after,
+.markdown-body.result-streaming > pre:last-child code::after {
+  content: "●";
+  font-size: 30px;
+  font-family: Circle, system-ui, sans-serif;
+  line-height: normal;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+  display: inline-block;
+  color: #ffffff;
+  z-index: 1000;
+  transform: translateY(-3.8px);
+}
 
 .message-user {
   background-color: #F4F4F4;
@@ -74,7 +87,33 @@ body {
 }
 
 
+@font-face {
+  font-family: 'Alibaba PuHuiTi';
+  src: url('/fonts/Alibaba-PuHuiTi-Heavy.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
 
+@font-face {
+  font-family: 'Source Han Serif';
+  src: url('/fonts/SiYuanSong-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter Display';
+  src: url('/fonts/InterDisplay-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
 
 body {
   transition: background-color var(--transition-duration) var(--transition-timing-function),

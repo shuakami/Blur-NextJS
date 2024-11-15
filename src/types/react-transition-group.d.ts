@@ -9,3 +9,5 @@ declare module 'lodash';
 declare module 'react-katex';
 declare module 'lodash-es';
 declare module 'unist';
+declare module 'colorthief';
+declare module 'html2canvas';

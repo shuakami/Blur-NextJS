@@ -39,7 +39,7 @@ export default function Custom404() {
                     <div className="flex justify-center space-x-4">
                         <Button
                             variant="default"
-                            onClick={() => router.push('/')}
+                            onClick={() => router.push('/?new=true')}
                             className="bg-blue-500 hover:bg-blue-600 text-white"
                         >
                             {t("返回首页")}

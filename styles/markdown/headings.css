@@ -1,7 +1,7 @@
 :root {
-    --heading-color-dark: #24292e;
+    --heading-color-dark: #1a1a1a;
     --heading-color-light: #2f3437;
-    --heading-accent: #0d1117;
+    --heading-accent: #1a1a1a;
 }
 
 /* H1: 主标题 */
@@ -72,7 +72,7 @@
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --heading-color-dark: #e1e4e8;
+        --heading-color-dark: #e6e6e6;
         --heading-color-light: #c9d1d9;
         --heading-accent: #f0f6fc;
     }

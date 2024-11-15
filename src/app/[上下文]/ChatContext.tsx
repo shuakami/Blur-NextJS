@@ -17,6 +17,7 @@ interface ChatContextProps {
     isStreaming?: boolean; // 是否正在流式传输
     stopStreaming?: () => void; // 停止流式传输
     conversationId?: string | null; // 暴露 conversationId
+    resetChatState: () => void; // 添加重置方法
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);

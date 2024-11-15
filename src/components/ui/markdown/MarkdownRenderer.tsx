@@ -1,3 +1,4 @@
+// components/ui/markdown/MarkdownRenderer.tsx
 "use client";
 import React, { useMemo, memo } from 'react';
 import dynamic from 'next/dynamic';
@@ -8,6 +9,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import type { Components } from 'react-markdown';
 import remarkCodePreserver from "@/components/ui/markdown/pig/code";
+
 
 // 基础文本组件
 import { Paragraph, Strong, Emphasis } from './text';
@@ -32,6 +34,7 @@ import {
   ImageSkeleton
 } from './skeleton/skeleton';
 import { Blockquote } from './blockquote';
+import { useChatContext } from '@/app/[上下文]/ChatContext';
 
 // 动态导入
 const CodeBlock = dynamic(() => import("@/components/ui/markdown/code"), {
@@ -53,8 +56,6 @@ const Summary = dynamic(() => import("./details").then(mod => mod.Summary), {
     loading: () => null
 });
 
-
-
 // 轻量级的内联组件
 const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ children }) => (
   <code className="inline-code">{children}</code>
@@ -68,17 +69,19 @@ const rehypePlugins = [rehypeKatex, rehypeRaw];
 const MathBlock = memo(({ children }: { children: React.ReactNode }) => {
     const value = String(children).trim();
     return <BlockMath>{value}</BlockMath>;
-  });
-  MathBlock.displayName = 'MathBlock';
-  
-  const InlineMathBlock = memo(({ children }: { children: React.ReactNode }) => {
+});
+MathBlock.displayName = 'MathBlock';
+
+const InlineMathBlock = memo(({ children }: { children: React.ReactNode }) => {
     const value = String(children).trim();
     return <InlineMath>{value}</InlineMath>;
-  });
-  InlineMathBlock.displayName = 'InlineMathBlock';
-  
+});
+InlineMathBlock.displayName = 'InlineMathBlock';
 
 export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }) => {
+
+  const { isStreaming } = useChatContext();
+
   const components = useMemo<Components>(() => ({
     // 标题组件
     h1: ({ children, ...props }) => <Heading1 {...props}>{children}</Heading1>,
@@ -135,7 +138,7 @@ export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }
   }), []);
 
   return (
-    <div className="markdown-body">
+    <div className={`markdown-body result-streaming`}>
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
         rehypePlugins={rehypePlugins}

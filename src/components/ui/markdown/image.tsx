@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { ImageOff, ZoomIn } from 'lucide-react';
-import { downloadImage } from '@/lib/image/download';
 import { useImageZoom } from '@/hooks/useImageZoom';
 import { useImageNavigation } from '@/hooks/useImageNavigation';
 import dynamic from 'next/dynamic';
@@ -45,6 +44,8 @@ export const Image: React.FC<ImageProps> = ({
         onReset: resetImageState
     });
 
+    const imageRef = useRef<HTMLImageElement | null>(null);
+
     useEffect(() => {
         if (!src) return;
         
@@ -78,8 +79,8 @@ export const Image: React.FC<ImageProps> = ({
         };
     }, [src, priority]);
 
-
-    if (!src || error) {
+    // 只在没有 src 时显示错误状态
+    if (!src) {
         return (
             <div className="my-4 w-full h-48 bg-muted/30 dark:bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/25 dark:border-muted-foreground/20 backdrop-blur-sm">
                 <ImageOff 
@@ -87,9 +88,8 @@ export const Image: React.FC<ImageProps> = ({
                     strokeWidth={1.5}
                 />
                 <div className="flex flex-col items-center gap-1">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">图片加载失败</span>
-                    <span className="text-xs text-gray-600/70 dark:text-gray-300/60">
-                        {error ? `请检查图片链接是否有效 (ERROR: ${src})` : '未找到图片资源 (ERROR: 404)'}
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                        未找到图片资源
                     </span>
                 </div>
             </div>
@@ -114,6 +114,7 @@ export const Image: React.FC<ImageProps> = ({
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <NextImage
+                    ref={imageRef}
                     src={src}
                     alt={alt}
                     width={0}
@@ -129,12 +130,13 @@ export const Image: React.FC<ImageProps> = ({
                     priority={priority}
                     quality={75}
                     loading={priority ? 'eager' : 'lazy'}
-                    onLoadingComplete={() => {
+                    onLoad={() => {
                         requestAnimationFrame(() => {
                             setIsLoading(false);
                         });
                     }}
                     onError={() => setError(true)}
+                    referrerPolicy="no-referrer"
                     {...props}
                 />
                 <div className={cn(

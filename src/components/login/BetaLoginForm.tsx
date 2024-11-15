@@ -22,7 +22,7 @@ export default function BetaLoginForm() {
         email,
         password,
         onSuccess: () => {
-            router.push("/").catch((err) => {
+            router.push("/?new=true").catch((err) => {
                 console.error("路由跳转失败：", err);
             }); // 处理 router.push 的 Promise
         },

@@ -61,7 +61,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
     }, []);
 
     const handleNewChat = () => {
-        router.push('/');
+        router.push('/?new=true');
     };
 
     // 分组逻辑

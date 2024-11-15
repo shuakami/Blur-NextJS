@@ -9,8 +9,8 @@
 /* 基础列表样式 */
 .list-decimal,
 .list-disc {
-    margin: var(--spacing-xs) 0;
-    margin-bottom: var(--spacing-md);
+    margin: 1rem 0;
+    margin-bottom: 1rem;
     padding-left: var(--list-indent);
 }
 
@@ -27,23 +27,16 @@
 /* 列表项样式 */
 .list-item {
     font-size: 1rem;
-    line-height: 1.75;
-    margin-bottom: 0.5rem;
+    line-height: 1.8;
+    margin-bottom: 0.3rem;
     color: var(--text-color);
     font-weight: 400;
-    word-spacing: 0.05em;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* 针对不同类型列表的特殊调整 */
-.list-disc .list-item {
-    margin-bottom: 0.4rem;
-}
-
 .list-decimal .list-item {
-    margin-bottom: 0.5rem;
     padding-left: 0.4em;
 }
 
@@ -85,8 +78,8 @@
     
     .list-item {
         font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 0.45rem;
+        line-height: var(--mixed-line-height);
+        margin-bottom: 0.35rem;
     }
 }
 

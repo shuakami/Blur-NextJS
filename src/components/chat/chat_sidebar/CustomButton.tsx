@@ -18,6 +18,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({ label, href = '#', selected
                 selected ? 'bg-[#e0e0e0] dark:bg-[#333333]' : 'hover:bg-[#f0f0f0] dark:hover:bg-[#1e1e1e]'
             }`}
             onClick={onClick}
+            prefetch={false}
         >
             <span className="flex-grow">{label}</span>
         </Link>

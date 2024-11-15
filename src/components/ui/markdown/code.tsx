@@ -33,25 +33,28 @@ async function loadLanguage(language: string): Promise<void> {
 
 interface CodeBlockProps {
     code: string;
+    forceRenderBlock?: boolean; // 可选，强制要求BlockCode渲染，不渲染行间
 }
 
-const CodeBlock: React.FC<CodeBlockProps> = memo(({ code }) => {
+const CodeBlock: React.FC<CodeBlockProps> = memo(({ code , forceRenderBlock=false }) => {
 
     const [copied, setCopied] = useState(false);
     const [highlightedCode, setHighlightedCode] = useState(code);
     const [detectedLanguage, setDetectedLanguage] = useState('plaintext');
     const codeRef = useRef<HTMLElement>(null);
     
-    // 修改内联代码的判断逻辑
-    const isInlineCode = useCallback((content: string) => {
-        return !content.includes('\n') && content.length <= 100;
+    // 内联代码的判断逻辑
+    const isInlineCode = useCallback((content: unknown) => {
+        const contentStr = String(content);
+        return !contentStr.includes('\n') && contentStr.length <= 100;
     }, []);
     
     // 自动检测语言
-    const detectLanguage = useCallback((content: string, declaredLang: string): string => {
+    const detectLanguage = useCallback((content: unknown, declaredLang: string): string => {
+        const contentStr = String(content);
         if (declaredLang && declaredLang !== 'plaintext') return declaredLang;
         
-        const result = hljs.highlightAuto(content, [
+        const result = hljs.highlightAuto(contentStr, [
             'javascript', 'typescript', 'python', 'java', 
             'cpp', 'c', 'css', 'html', 'xml', 'json',
             'bash', 'shell', 'yaml', 'markdown'
@@ -96,6 +99,12 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code }) => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
+
+    if (forceRenderBlock) {
+        return <pre className="text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words">
+            <code className={`language-javascript hljs`} dangerouslySetInnerHTML={{ __html: highlightedCode }} />
+        </pre>;
+    }
 
     if (isInlineCode(code)) {
         return <code className="inline-code">{code}</code>;

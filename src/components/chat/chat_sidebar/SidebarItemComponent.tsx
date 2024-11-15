@@ -76,7 +76,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
             
             // 如果当前对话被选中，重定向到首页
             if (isSelected) {
-                router.push('/');
+                router.push('/?new=true');
             }
             // 从会话列表中移除该对话
             removeConversation(item.id);
@@ -194,6 +194,12 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                     <Link 
                         href={`/chat/${item.id}`} 
                         prefetch={false}
+                        onClick={(e) => {
+                            // 如果点击的是更多按钮或其子元素，阻止 Link 的导航
+                            if ((e.target as HTMLElement).closest('.more-options-button')) {
+                                e.preventDefault();
+                            }
+                        }}
                     >
                         <button
                             ref={buttonRef}
@@ -223,8 +229,9 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
 
                             {(isSelected || hover) && (
                                 <span
-                                    className="ml-auto"
+                                    className="ml-auto more-options-button"
                                     onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         setMenuOpen(!menuOpen);
                                     }}

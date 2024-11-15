@@ -37,7 +37,7 @@ const PersonalCenter: React.FC<PersonalCenterProps> = ({isOpen, onClose}) => {
 
     // 如果用户未登录，跳回去首页
     if (!isSignedIn) {
-        router.push("/");
+        router.push('/?new=true');
         return null;
     }
 

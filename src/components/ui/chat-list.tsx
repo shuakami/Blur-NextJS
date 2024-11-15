@@ -5,7 +5,6 @@ import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import { ChatListProps, Message, ThoughtProcess } from "@/types/stream";
 import './chat_list.css';
-import ErrorMessage from "./chat-list/ErrorMessage"; // 直接导入，不使用懒加载
 
 // 消息项组件
 const MessageItem = memo(({ 
@@ -30,12 +29,8 @@ const MessageItem = memo(({
 }) => {
     
     const isBot = message.type === 'bot';
-    const isError = message.type === 'error';
     const isEditing = message.id === editingId;
 
-    if (isError) {
-        return <ErrorMessage content={message.content} />;
-    }
 
     return (
         <div className="flex flex-col w-full mt-14">
@@ -46,6 +41,7 @@ const MessageItem = memo(({
                         isLoading={isLoading}
                         isLatestBotMessage={isLastMessage}
                         thought={message.thought}
+                        error={message.error}
                     />
                 </div>
             ) : (

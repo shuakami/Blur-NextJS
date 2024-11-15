@@ -3,6 +3,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 /**
  * 用于图像导航的属性接口
  */
+interface ImageInfo {
+    src: string;
+    element: HTMLImageElement | null;
+}
+
 interface UseImageNavigationProps {
     initialSrc?: string;
     onReset?: () => void;
@@ -13,33 +18,33 @@ interface UseImageNavigationProps {
  */
 interface UseImageNavigationReturn {
     currentImageIndex: number;
-    allImages: string[];
+    allImages: ImageInfo[];
     handleNavigate: (direction: 'prev' | 'next') => void;
-    currentImage: string | undefined;
+    currentImage: ImageInfo | undefined;
     hasMultipleImages: boolean;
 }
 
 /**
  * 获取所有图片的函数
- * @returns {string[]} 所有图片的源地址
+ * @returns {ImageInfo[]} 所有图片的源地址
  */
-const getAllImages = (): string[] => {
-    const images = document.querySelectorAll('img');
+const getAllImages = (): ImageInfo[] => {
+    const images = document.querySelectorAll('img[data-original-src]');
     return Array.from(images)
-        .map(img => {
-            const originalSrc = img.getAttribute('data-original-src') || img.getAttribute('src');
-            return originalSrc || '';
-        })
-        .filter(src => src && !src.includes('img.clerk.com'));
+        .map(img => ({
+            src: img.getAttribute('data-original-src') || img.getAttribute('src') || '',
+            element: img as HTMLImageElement
+        }))
+        .filter(({src}) => src && !src.includes('img.clerk.com'));
 };
 
 export const useImageNavigation = ({ 
     initialSrc, 
     onReset 
 }: UseImageNavigationProps): UseImageNavigationReturn => {
-    const initialImagesRef = useRef<string[]>([]);
+    const initialImagesRef = useRef<ImageInfo[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
-    const [allImages, setAllImages] = useState<string[]>([]);
+    const [allImages, setAllImages] = useState<ImageInfo[]>([]);
 
     useEffect(() => {
         if (initialSrc && initialImagesRef.current.length === 0) {
@@ -47,9 +52,9 @@ export const useImageNavigation = ({
             initialImagesRef.current = images;
             setAllImages(images);
 
-            const index = images.findIndex(imgSrc => 
-                imgSrc === initialSrc || 
-                imgSrc.includes(encodeURIComponent(initialSrc))
+            const index = images.findIndex(img => 
+                img.src === initialSrc || 
+                img.src.includes(encodeURIComponent(initialSrc))
             );
             setCurrentImageIndex(index >= 0 ? index : 0);
         }
@@ -73,6 +78,26 @@ export const useImageNavigation = ({
 
     const currentImage = allImages[currentImageIndex];
     const hasMultipleImages = allImages.length > 1;
+
+    useEffect(() => {
+        // 预加载前后的图片
+        const preloadImages = () => {
+            const prevIndex = currentImageIndex > 0 ? currentImageIndex - 1 : allImages.length - 1;
+            const nextIndex = currentImageIndex < allImages.length - 1 ? currentImageIndex + 1 : 0;
+
+            [prevIndex, nextIndex].forEach(index => {
+                const imgInfo = allImages[index];
+                if (!imgInfo?.element) {
+                    const img = new Image();
+                    img.src = imgInfo.src;
+                }
+            });
+        };
+
+        if (hasMultipleImages) {
+            preloadImages();
+        }
+    }, [currentImageIndex, allImages, hasMultipleImages]);
 
     return {
         currentImageIndex,

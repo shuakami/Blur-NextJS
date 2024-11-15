@@ -34,6 +34,7 @@ const useSendMessage = ({
     const abortControllerRef = useRef<AbortController | null>(null);
     const currentBotMessageIdRef = useRef<string | null>(null); // 存储当前流式传输的机器人消息ID
     const currentBotContentRef = useRef<string>(''); // 存储当前机器人消息的内容
+    const lastPluginCallRef = useRef<{ id: number, name: string } | null>(null);
 
     const sendMessage = useCallback(async (message: string, inputConversationId?: string) => {
         const activeConversationId = inputConversationId || state.conversationId;
@@ -78,15 +79,89 @@ const useSendMessage = ({
                     currentConversationId = initialResponse.conversation_id;
                     if (!state.conversationId) {
                         dispatch({ type: 'SET_CONVERSATION_ID', payload: currentConversationId });
+                        dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: currentConversationId });
                     }
                 },
                 onChunk: (chunk) => {
-                    if (chunk.content) {
+                    dispatch({ type: 'SET_LOADING', payload: false });
+
+                    // 1. 更新 chunk 错误处理
+                    if (chunk.status === 'error' && chunk.error) {
+                        if (currentBotMessageIdRef.current) {
+                            dispatch({
+                                type: 'UPDATE_MESSAGE',
+                                payload: {
+                                    message_id: currentBotMessageIdRef.current,
+                                    updates: {
+                                        error: {
+                                            code: chunk.error.code,
+                                            message: chunk.error.message
+                                        },
+                                        isStreaming: false
+                                    }
+                                }
+                            });
+                        }
+                        dispatch({ type: 'SET_IS_STREAMING', payload: false });
                         dispatch({ type: 'SET_LOADING', payload: false });
+                        return;
+                    }
 
-                        // 累积内容到 currentBotContentRef
+                    // 处理插件的流式检测
+                    const result = dialogProcessor.processStreamChunk({
+                        content: JSON.stringify(chunk),
+                        currentFullContent: currentBotContentRef.current,
+                        isFirstChunk: currentBotContentRef.current === '',
+                        isFinalChunk: chunk.is_final_chunk
+                    });
+
+                    if (result?.updates && result.shouldUpdateCurrentBot && currentBotMessageIdRef.current) {
+                        let content = currentBotContentRef.current;
+                        
+                        // 处理插件响应状态
+                        if (result.updates.plugin_status === 'response' && lastPluginCallRef.current) {
+                            // 移除对应的 calling 标记
+                            const callMarker = `<plugin-data>{"status":"calling","plugin_id":${lastPluginCallRef.current.id},"plugin_name":"${lastPluginCallRef.current.name}"}</plugin-data>`;
+                            content = content.replace(callMarker, '');
+                            lastPluginCallRef.current = null;
+                        }
+                        
+                        // 处理插件调用状态
+                        if (result.updates.plugin_status === 'calling') {
+                            lastPluginCallRef.current = {
+                                id: result.updates.plugin_id!,
+                                name: result.updates.plugin_name!
+                            };
+                        }
+
+                        // 添加新的插件标记
+                        const pluginInfo = {
+                            status: result.updates.plugin_status,
+                            plugin_id: result.updates.plugin_id,
+                            plugin_name: result.updates.plugin_name,
+                            plugin_response: result.updates.plugin_response
+                        };
+                        
+                        const pluginMarker = `<plugin-data>${JSON.stringify(pluginInfo)}</plugin-data>`;
+                        content += pluginMarker;
+                        currentBotContentRef.current = content;
+                        
+                        dispatch({
+                            type: 'UPDATE_MESSAGE',
+                            payload: {
+                                message_id: currentBotMessageIdRef.current,
+                                updates: {
+                                    ...result.updates,
+                                    content
+                                }
+                            }
+                        });
+                    }
+
+                    // 只有在有 content 时才更新消息内容
+                    if (chunk.content) {
                         currentBotContentRef.current += chunk.content;
-
+                        
                         if (currentBotMessageIdRef.current) {
                             dispatch({
                                 type: 'UPDATE_MESSAGE',
@@ -126,7 +201,21 @@ const useSendMessage = ({
                 },
                 onError: (error) => {
                     console.error(t('后端错误:'), error);
-                    addMessage(dialogProcessor.createErrorMessage(t('抱歉，发送消息失败。')));
+                    if (currentBotMessageIdRef.current) {
+                        dispatch({
+                            type: 'UPDATE_MESSAGE',
+                            payload: {
+                                message_id: currentBotMessageIdRef.current,
+                                updates: {
+                                    error: {
+                                        code: error.code || 500,
+                                        message: error.message || t('抱歉，发送消息失败。')
+                                    },
+                                    isStreaming: false
+                                }
+                            }
+                        });
+                    }
                     dispatch({ type: 'SET_IS_STREAMING', payload: false });
                     dispatch({ type: 'SET_LOADING', payload: false });
                     currentBotMessageIdRef.current = null;
@@ -134,9 +223,23 @@ const useSendMessage = ({
                 },
                 signal: abortController.signal
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error(t('发送消息失败:'), error);
-            addMessage(dialogProcessor.createErrorMessage(t('抱歉，发送消息失败。')));
+            if (currentBotMessageIdRef.current) {
+                dispatch({
+                    type: 'UPDATE_MESSAGE',
+                    payload: {
+                        message_id: currentBotMessageIdRef.current,
+                        updates: {
+                            error: {
+                                code: error.code || 500,
+                                message: error.message || t('抱歉，发送消息失败。')
+                            },
+                            isStreaming: false
+                        }
+                    }
+                });
+            }
             dispatch({ type: 'SET_IS_STREAMING', payload: false });
             dispatch({ type: 'SET_LOADING', payload: false });
             currentBotMessageIdRef.current = null;

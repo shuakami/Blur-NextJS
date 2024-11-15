@@ -85,10 +85,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
         if (lang === language) return; // 避免重复设置
         setLanguageState(lang);
         Cookies.set('NEXT_LOCALE', lang, {expires: 365});
-
-        // 构造新的 URL 路径，将语言代码添加到路径前
-        const newPath = `/${lang}${pathname ? pathname : ''}`;
-        router.push(newPath);
     }, [language, pathname, router]);
 
 

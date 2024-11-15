@@ -510,7 +510,8 @@ const config: Config = {
         animation: {
             'shiny-text': 'shiny-text 8s infinite',
             'sweep': 'sweep 3s ease-in-out',
-            'slideIn': 'slideIn 0.2s ease-out'
+            'slideIn': 'slideIn 0.2s ease-out',
+            'blink': 'blink 1s infinite'
           },
           keyframes: {
             'shiny-text': {
@@ -520,6 +521,10 @@ const config: Config = {
               '30%, 60%': {
                 'background-position': 'calc(100% + var(--shiny-width)) 0'
               }
+            },
+            blink: {
+              '0%, 100%': { opacity: '0' },
+              '50%': { opacity: '1' }
             },
             slideIn: {
               '0%': { transform: 'translateY(10px)', opacity: '0' },

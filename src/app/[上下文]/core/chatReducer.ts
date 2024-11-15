@@ -167,7 +167,14 @@ export type Action =
      * @param {string} payload.message_id - 要更新的消息ID
      * @param {Partial<Message>} payload.updates - 要更新的消息字段
      */
-    | { type: 'UPDATE_MESSAGE'; payload: { message_id: string | undefined; updates: Partial<Message> } };
+    | { type: 'UPDATE_MESSAGE'; payload: { message_id: string | undefined; updates: Partial<Message> } }
+
+    /**
+     * 设置新对话ID动作
+     * @description 设置新创建的对话ID
+     * @param {string} payload - 新的对话ID
+     */
+    | { type: 'SET_NEW_CONVERSATION_ID'; payload: string };
 
 /**
  * 聊天状态更新器
@@ -285,6 +292,17 @@ export const chatReducer = (state: ChatState, action: Action): ChatState => {
                 messages: state.messages.map(msg =>
                     msg.message_id === action.payload.message_id ? { ...msg, ...action.payload.updates } : msg
                 )
+            };
+
+        /**
+         * 设置新对话ID
+         * @param {string} action.payload - 新对话ID
+         * @returns {ChatState} 更新后的状态，包含新对话ID
+         */
+        case 'SET_NEW_CONVERSATION_ID':
+            return {
+                ...state,
+                newConversationId: action.payload
             };
 
         default:

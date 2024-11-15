@@ -65,7 +65,7 @@ export default function Custom500() {
                         </Button>
                         <Button
                             variant="outline"
-                            onClick={() => router.push('/')}
+                            onClick={() => router.push('/?new=true')}
                             className="border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-gray-700"
                         >
                             {t("返回首页")}

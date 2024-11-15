@@ -24,7 +24,7 @@ export default function UnauthenticatedSidebar({onClose}: UnauthenticatedSidebar
     };
 
     const onNewChat = () => {
-        router.push('/');
+        router.push('/?new=true');
     };
 
     return (

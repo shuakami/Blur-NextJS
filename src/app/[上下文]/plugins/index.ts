@@ -1,14 +1,7 @@
-// src/app/[上下文]/plugins/index.ts
+import dialogProcessor from '../core/DialogProcessor';
+import PluginStateHandler from './PluginStateHandler';
+import HistoryPluginHandler from './HistoryPluginHandler';
 
-// import dialogProcessor from '../core/DialogProcessor';
-// import CopyrightPlugin from './CopyrightPlugin';
-
-// 插件注册
-// dialogProcessor.registerPlugin({
-//     onCreateBotMessage: (message) => {
-//         return message;
-//     }
-// });
-
-// 注释掉独立的插件注册
-// dialogProcessor.registerPlugin(CopyrightPlugin);
+// 注册插件处理器
+dialogProcessor.registerPlugin(PluginStateHandler);
+dialogProcessor.registerPlugin(HistoryPluginHandler);

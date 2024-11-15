@@ -1,8 +1,13 @@
+// components/ChatComponent/BotMessage.tsx
 import React, { memo, lazy, Suspense } from "react";
 import { ThoughtProcess } from "@/types/stream";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
 import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
+import PluginCallingMessage from "./LLM/PluginCallingMessage";
+import PluginResponseMessage from "./LLM/PluginResponseMessage";
+import ErrorMessage from "./chat-list/ErrorMessage";
+
 
 // 懒加载组件
 const AnimatedShinyText = lazy(() => import("./animated-shiny-text"));
@@ -14,6 +19,10 @@ interface BotMessageProps {
     isLoading?: boolean;
     isLatestBotMessage: boolean;
     thought?: ThoughtProcess;
+    error?: {
+        code: number;
+        message: string;
+    };
 }
 
 // Bot 消息组件
@@ -21,8 +30,13 @@ const BotMessage = memo(({
     content, 
     isLoading, 
     isLatestBotMessage,
-    thought
+    thought,
+    error
 }: BotMessageProps) => {
+
+    // 将内容按插件标记分割，使用新的正则表达式
+    const parts = content.split(/(<plugin-data>.*?<\/plugin-data>)/s);
+    
     return (
         <div className="group relative flex w-full items-start">
             {/* Avatar 容器 */}
@@ -32,7 +46,7 @@ const BotMessage = memo(({
                 </Avatar>
             </div>
 
-            {/* 内容容器 - 移除右侧 padding */}
+            {/* 内容容器 */}
             <div className="flex flex-col min-w-0 flex-1 gap-1.5 ml-4">
                 {thought && (
                     <Suspense fallback={null}>
@@ -46,10 +60,48 @@ const BotMessage = memo(({
 
                 <Suspense fallback={null}>
                     {isLoading && isLatestBotMessage ? (
-                        <AnimatedShinyText darkMode={false} />
+                        <div className="flex items-center">
+                            <AnimatedShinyText darkMode={false} />
+                        </div>
                     ) : (
                         <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 w-full">
-                            <MarkdownRenderer content={content} />
+                            {parts.map((part, index) => {
+                                if (part.startsWith('<plugin-data>')) {
+                                    try {
+                                        // 提取插件数据
+                                        const pluginInfo = JSON.parse(
+                                            part.replace('<plugin-data>', '').replace('</plugin-data>', '')
+                                        );
+                                        
+                                        if (pluginInfo.status === 'calling') {
+                                            return (
+                                                <PluginCallingMessage
+                                                    key={index}
+                                                    content={content}
+                                                    plugin_id={pluginInfo.plugin_id?.toString()}
+                                                    plugin_name={pluginInfo.plugin_name}
+                                                />
+                                            );
+                                        }
+                                        
+                                        if (pluginInfo.status === 'response') {
+                                            return (
+                                                <PluginResponseMessage
+                                                    key={index}
+                                                    content={content}
+                                                    plugin_response={pluginInfo.plugin_response}
+                                                />
+                                            );
+                                        }
+                                    } catch (e) {
+                                        console.error('解析插件数据失败:', e);
+                                    }
+                                    return null;
+                                }
+                                
+                                return <MarkdownRenderer key={index} content={part} />;
+                            })}
+                            {error && <ErrorMessage error={error} />}
                         </div>
                     )}
                 </Suspense>
@@ -72,4 +124,4 @@ const BotMessage = memo(({
 });
 
 BotMessage.displayName = 'BotMessage';
-export default BotMessage; 
+export default BotMessage;

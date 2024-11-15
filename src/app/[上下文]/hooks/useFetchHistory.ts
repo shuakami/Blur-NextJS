@@ -5,6 +5,7 @@ import { fetchHistoryAPI, formatMessages } from '../api/chatAPI';
 import dialogProcessor from '../core/DialogProcessor';
 import { Dispatch } from 'react';
 import { Action } from '../core/chatReducer';
+import HistoryPluginHandler from '../plugins/HistoryPluginHandler';
 
 interface UseFetchHistoryProps {
     state: any;

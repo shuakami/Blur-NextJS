@@ -15,6 +15,8 @@ interface BaseMessage {
 // API消息接口
 export interface APIMessage extends BaseMessage {
     role: 'system' | 'user' | 'assistant';
+    plugin_responses?: PluginResponse[];
+    more_content?: MoreContent[];
 }
 
 // UI消息接口
@@ -39,6 +41,11 @@ export interface StreamChunk {
     is_final_chunk: boolean;
     metadata: {
         timestamp: number;
+    };
+    status?: string;
+    error?: {
+        code: number;
+        message: string;
     };
 }
 
@@ -86,6 +93,27 @@ export interface Message {
     edit_version?: number;
     original_message_id?: string;
     thought?: ThoughtProcess;
+    
+    // 插件
+    plugin_id?: number;
+    plugin_name?: string;
+    plugin_status?: 'calling' | 'response';
+    plugin_response?: {
+        plugin_id: number;
+        plugin_name: string;
+        data: any;
+        status: string;
+    };
+
+    // 临时插件（ HistoryPluginHandler ）
+    _temp_plugin_responses?: PluginResponse[];
+    _temp_more_content?: MoreContent[];
+
+    // 报错 （UseSendMessage）
+    error?: {
+        code: number;
+        message: string;
+    };
 }
 
 export interface ThoughtProcess {
@@ -128,4 +156,19 @@ export interface ChatListProps {
     messages: Message[];
     demo?: boolean;
     onEditMessage?: (id: string, newContent: string) => Promise<void>;
+}
+
+export interface PluginResponse {
+    call_instance_id: string;
+    plugin_id: string;
+    plugin_name: string;
+    data: any;
+    timestamp: number;
+}
+
+export interface MoreContent {
+    index: number;
+    timestamp: number;
+    content: string;
+    related_call_instance_id: string;
 }

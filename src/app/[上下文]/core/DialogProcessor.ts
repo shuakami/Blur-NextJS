@@ -9,6 +9,16 @@ export interface DialogProcessorPlugin {
     onCreateBotMessage?: (message: Partial<Message>) => Partial<Message>;
     onCreateErrorMessage?: (message: Partial<Message>) => Partial<Message>;
     onUpdateMessage?: (message: Message) => Message;
+    onStreamChunk?: (chunk: {
+        content: string,
+        currentFullContent: string,
+        isFirstChunk: boolean,
+        isFinalChunk: boolean
+    }) => {
+        updates?: Partial<Message>;
+        shouldUpdateCurrentBot?: boolean;
+        continueProcessing?: boolean;
+    };
 }
 
 // DialogProcessor 类
@@ -86,6 +96,32 @@ export class DialogProcessor {
             }
         });
         return message;
+    }
+
+    // 添加处理流式块的方法
+    processStreamChunk(chunk: {
+        content: string,
+        currentFullContent: string,
+        isFirstChunk: boolean,
+        isFinalChunk: boolean
+    }): { updates?: Partial<Message>; shouldUpdateCurrentBot?: boolean } | null {
+        for (const plugin of this.plugins) {
+            if (plugin.onStreamChunk) {
+                const result = plugin.onStreamChunk(chunk);
+                
+                if (result.updates) {
+                    return {
+                        updates: result.updates,
+                        shouldUpdateCurrentBot: result.shouldUpdateCurrentBot
+                    };
+                }
+                
+                if (result.continueProcessing === false) {
+                    break;
+                }
+            }
+        }
+        return null;
     }
 }
 
