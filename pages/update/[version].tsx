@@ -9,6 +9,7 @@ import { BreadcrumbWithCustomSeparator } from "@/components/ui/tofu/Breadcrumb";
 import { ReadingTime } from "@/components/ui/tofu/ReadingTime";
 import TableOfContents from "@/components/ui/tofu/TableOfContents";
 import { countNonTextElements, extractPlainText } from "@/lib/contentUtils";
+import { ChatProvider } from '@/app/[上下文]/ChatContext';
 
 interface UpdatePageProps {
     content: string;
@@ -84,51 +85,53 @@ const UpdatePage: React.FC<UpdatePageProps> = ({ content, plainText, version, ti
     ];
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="container-fluid px-4 py-8 md:px-8 flex flex-col lg:flex-row">
-                {/* 左侧边栏 - 在大屏幕上显示，在小屏幕上隐藏 */}
-                <div className="hidden lg:block flex-shrink-0">
-                    <div className="sticky top-24">
-                        <DocsSidebar
-                            searchPlaceholder="搜索文档..."
-                            specialButtons={specialButtons}
-                            navItems={navItems}
-                        />
+        <ChatProvider>
+            <div className="min-h-screen bg-white">
+                <div className="container-fluid px-4 py-8 md:px-8 flex flex-col lg:flex-row">
+                    {/* 左侧边栏 - 在大屏幕上显示，在小屏幕上隐藏 */}
+                    <div className="hidden lg:block flex-shrink-0">
+                        <div className="sticky top-24">
+                            <DocsSidebar
+                                searchPlaceholder="搜索文档..."
+                                specialButtons={specialButtons}
+                                navItems={navItems}
+                            />
+                        </div>
+                    </div>
+
+                    {/* 主内容和右侧目录树的容器 */}
+                    <div className="flex-grow flex lg:ml-8">
+                        {/* 主内容区域 */}
+                        <main className="flex-1 p-6 bg-white rounded-lg mt-6 md:mt-16 max-w-full lg:max-w-[70%]">
+                            {/* 面包屑和阅读时间布局 */}
+                            <div className="flex justify-between items-center mb-6">
+                                <BreadcrumbWithCustomSeparator
+                                    items={[
+                                        {label: 'Docs', href: '/docs'},
+                                        {label: 'UpdateLog', href: '/docs/update'},
+                                        {label: title},
+                                    ]}
+                                />
+                                <ReadingTime text={plainText} nonTextElementsCount={nonTextElementsCount}/>
+                            </div>
+
+                            {/* Markdown 内容 */}
+                            <MarkdownRenderer content={content}/>
+                        </main>
+
+                        {/* 右侧目录树 - 在大屏幕上固定，在小屏幕上可隐藏 */}
+                        <aside className="hidden lg:block w-64 ml-8 flex-shrink-0">
+                            <div
+                                className="sticky top-24"
+                                style={{height: 'calc(100vh - 6rem)', overflowY: 'auto', overflowX: 'hidden'}}
+                            >
+                                <TableOfContents content={content}/>
+                            </div>
+                        </aside>
                     </div>
                 </div>
-
-                {/* 主内容和右侧目录树的容器 */}
-                <div className="flex-grow flex lg:ml-8">
-                    {/* 主内容区域 */}
-                    <main className="flex-1 p-6 bg-white rounded-lg mt-6 md:mt-16 max-w-full lg:max-w-[70%]">
-                        {/* 面包屑和阅读时间布局 */}
-                        <div className="flex justify-between items-center mb-6">
-                            <BreadcrumbWithCustomSeparator
-                                items={[
-                                    {label: 'Docs', href: '/docs'},
-                                    {label: 'UpdateLog', href: '/docs/update'},
-                                    {label: title},
-                                ]}
-                            />
-                            <ReadingTime text={plainText} nonTextElementsCount={nonTextElementsCount}/>
-                        </div>
-
-                        {/* Markdown 内容 */}
-                        <MarkdownRenderer content={content}/>
-                    </main>
-
-                    {/* 右侧目录树 - 在大屏幕上固定，在小屏幕上可隐藏 */}
-                    <aside className="hidden lg:block w-64 ml-8 flex-shrink-0">
-                        <div
-                            className="sticky top-24"
-                            style={{height: 'calc(100vh - 6rem)', overflowY: 'auto', overflowX: 'hidden'}}
-                        >
-                            <TableOfContents content={content}/>
-                        </div>
-                    </aside>
-                </div>
             </div>
-        </div>
+        </ChatProvider>
     );
 };
 
