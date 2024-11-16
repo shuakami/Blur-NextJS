@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useThemeContext } from '@/theme/ThemeContext';
+import { useTheme } from 'next-themes';
 
 interface NotificationOptions {
   title: string;
@@ -13,7 +13,7 @@ interface NotificationOptions {
 }
 
 export const useNotification = () => {
-  const { theme } = useThemeContext();
+  const { resolvedTheme } = useTheme();
   const notificationsRef = useRef<Map<string, Notification>>(new Map());
 
   // 清理旧通知
@@ -29,11 +29,11 @@ export const useNotification = () => {
 
   // 获取通知图标
   const getNotificationIcon = useCallback(() => {
-    // 根据主题返回不同的图标
-    return theme === 'dark' 
-      ? '/notification-icon-dark.png' 
+    // 使用 resolvedTheme 判断主题
+    return resolvedTheme === 'dark'
+      ? '/notification-icon-dark.png'
       : '/notification-icon-light.png';
-  }, [theme]);
+  }, [resolvedTheme]);
 
   // 请求权限
   const requestPermission = useCallback(async () => {
