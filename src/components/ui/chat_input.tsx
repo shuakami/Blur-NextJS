@@ -109,7 +109,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             if (savedDraft?.trim()) {
                 toastShown = true;
                 toast({
-                    id: 'draft-message', // 添加唯一 ID
                     title: '发现未发送的消息',
                     description: '是否要恢复上次未发送的内容？',
                     action: (
