@@ -155,19 +155,20 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     <span>{group.label}</span>
                 </div>
                 <div>
-                    {group.children.map((subItem, itemIndex) => (
-                            <SidebarItemComponent
-                                item={subItem}
-                                level={0}
-                                selectedItem={selectedItem}
-                                onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
-                                onUpdateConversations={onUpdateConversations || (() => {})}
-                            />
+                    {group.children.map((subItem) => (
+                        <SidebarItemComponent
+                            key={subItem.id}
+                            item={subItem}
+                            level={0}
+                            selectedItem={selectedItem}
+                            onSelect={() => handleSelectItem(subItem.id ?? '', subItem.href)}
+                            onUpdateConversations={onUpdateConversations || (() => {})}
+                        />
                     ))}
                 </div>
             </motion.div>
         ))
-    ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations]);
+    ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations, itemVariants]);
 
     return (
         <div
