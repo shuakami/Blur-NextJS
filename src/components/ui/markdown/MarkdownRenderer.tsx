@@ -34,7 +34,6 @@ import {
   ImageSkeleton
 } from './skeleton/skeleton';
 import { Blockquote } from './blockquote';
-import { useChatContext } from '@/app/[上下文]/ChatContext';
 
 // 动态导入
 const CodeBlock = dynamic(() => import("@/components/ui/markdown/code"), {
@@ -78,9 +77,10 @@ const InlineMathBlock = memo(({ children }: { children: React.ReactNode }) => {
 });
 InlineMathBlock.displayName = 'InlineMathBlock';
 
-export const MarkdownRenderer: React.FC<{ content: string }> = memo(({ content }) => {
-
-  const { isStreaming } = useChatContext();
+export const MarkdownRenderer: React.FC<{ 
+    content: string;
+    isStreaming?: boolean;
+}> = memo(({ content, isStreaming = false }) => {
 
   const components = useMemo<Components>(() => ({
     // 标题组件

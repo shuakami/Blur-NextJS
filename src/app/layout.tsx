@@ -9,7 +9,6 @@ import {ThemeProvider} from "@/components/ui/theme-provider";
 import {OptimizedClerkProvider} from "@/components/providers/OptimizedClerkProvider";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
-import { MotionConfig } from "framer-motion";
 
 // 动态导入非关键组件
 const SpeedInsights = dynamic(

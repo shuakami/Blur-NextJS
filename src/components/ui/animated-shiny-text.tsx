@@ -17,16 +17,15 @@ const Placeholder: React.FC<PlaceholderProps> = ({className, darkMode = false, c
         
         const interval = setInterval(() => {
             setStage(prev => 1 - prev);
-        }, 3000);
+        }, 2450);
         
         return () => clearInterval(interval);
     }, [isHovered]);
 
     const styles = {
         color: isHovered 
-            ? (darkMode ? 'lightgray' : '#555')
-            : (darkMode ? 'gray' : 'rgba(136,136,136,0.85)'),
-        '--sweep-color': darkMode ? 'white' : 'black'
+            ? (darkMode ? '#A0A0A0' : '#555')
+            : (darkMode ? '#808080' : 'rgba(136,136,136,0.85)')
     } as React.CSSProperties;
 
     return (
@@ -37,12 +36,13 @@ const Placeholder: React.FC<PlaceholderProps> = ({className, darkMode = false, c
             onMouseLeave={() => setIsHovered(false)}
         >
             <motion.span
-                className="transition-all duration-300"
+                className={`text`}
+                data-sweep-color={darkMode ? 'dark' : 'light'}
                 animate={{
                     opacity: 1,
                     y: 0,
                 }}
-                style={{
+                initial={{
                     opacity: 0,
                     y: 10,
                 }}

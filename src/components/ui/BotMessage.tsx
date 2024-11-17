@@ -7,12 +7,19 @@ import MoonLogo from "../../../pages/logo";
 import PluginCallingMessage from "./LLM/PluginCallingMessage";
 import PluginResponseMessage from "./LLM/PluginResponseMessage";
 import ErrorMessage from "./chat-list/ErrorMessage";
+import { useChatContext } from "@/app/[上下文]/ChatContext";
 
 
 // 懒加载组件
-const AnimatedShinyText = lazy(() => import("./animated-shiny-text"));
-const ThoughtStream = lazy(() => import("./chat/ThoughtStream").then(module => ({ default: module.ThoughtStream })));
-const MessageToolbar = lazy(() => import("./message-toolbar").then(module => ({ default: module.MessageToolbar })));
+const AnimatedShinyText = lazy(() => import("./animated-shiny-text").catch(() => {
+    return { default: () => null };
+}));
+const ThoughtStream = lazy(() => import("./chat/ThoughtStream").then(module => ({ default: module.ThoughtStream })).catch(() => {
+    return { default: () => null };
+}));
+const MessageToolbar = lazy(() => import("./message-toolbar").then(module => ({ default: module.MessageToolbar })).catch(() => {
+    return { default: () => <div></div> };
+}));
 
 interface BotMessageProps {
     content: string;
@@ -33,6 +40,8 @@ const BotMessage = memo(({
     thought,
     error
 }: BotMessageProps) => {
+
+    const { isStreaming } = useChatContext();
 
     // 将内容按插件标记分割，使用新的正则表达式
     const parts = content.split(/(<plugin-data>.*?<\/plugin-data>)/s);
@@ -60,7 +69,7 @@ const BotMessage = memo(({
 
                 <Suspense fallback={null}>
                     {isLoading && isLatestBotMessage ? (
-                        <div className="flex items-center">
+                        <div className="flex items-start">
                             <AnimatedShinyText darkMode={false} />
                         </div>
                     ) : (
@@ -99,7 +108,11 @@ const BotMessage = memo(({
                                     return null;
                                 }
                                 
-                                return <MarkdownRenderer key={index} content={part} />;
+                                return <MarkdownRenderer 
+                                    key={index} 
+                                    content={part} 
+                                    isStreaming={isStreaming && isLatestBotMessage}
+                                />;
                             })}
                             {error && <ErrorMessage error={error} />}
                         </div>

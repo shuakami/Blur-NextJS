@@ -39,16 +39,17 @@ export interface StreamChunk {
     chunk_index: number;
     content: string;
     is_final_chunk: boolean;
-    metadata: {
-        timestamp: number;
-    };
-    status?: string;
+    code?: number;
+    message?: string;
+    details?: string;
+    metadata?: any;
+    status?: 'error';
     error?: {
         code: number;
         message: string;
+        details?: string;
     };
 }
-
 export interface FinalInfo {
     isComplete?: boolean;
     total_tokens: number;
@@ -72,6 +73,8 @@ export interface SendMessageResponse {
     error: string | null;
     chat_title?: string;
 }
+
+export type MessageStatus = 'pending' | 'sent' | 'failed' | 'retrying';
 
 export interface Message {
     id?: string;
@@ -114,6 +117,10 @@ export interface Message {
         code: number;
         message: string;
     };
+
+    // 添加消息发送状态相关字段
+    sendStatus?: MessageStatus;
+    retryCount?: number;
 }
 
 export interface ThoughtProcess {
@@ -171,4 +178,10 @@ export interface MoreContent {
     timestamp: number;
     content: string;
     related_call_instance_id: string;
+}
+
+// 状态的消息类型
+export interface MessageWithStatus extends Message {
+    sendStatus: MessageStatus;
+    retryCount: number;
 }

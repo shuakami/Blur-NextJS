@@ -90,16 +90,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         Math.max(200, Math.min(window.innerHeight * 0.25, 400)),
     []);
 
-    const updateHeight = useCallback(() => {
-        if (!textareaRef.current) return;
-        
-        const textarea = textareaRef.current;
-        textarea.style.height = 'auto';
-        const scrollHeight = Math.max(MIN_HEIGHT, textarea.scrollHeight);
-        const newHeight = Math.min(scrollHeight, maxHeight);
-        textarea.style.height = `${newHeight}px`;
-    }, [maxHeight]);
-
     // 优化初始化检查和恢复逻辑
     useEffect(() => {
         if (toastShown) return; // 防止重复显示
@@ -164,15 +154,50 @@ const ChatInput: React.FC<ChatInputProps> = ({
         };
     }, [debouncedSave]);
 
-    // 修改 handleMessageChange
+    // 使用 ResizeObserver 替代手动计算高度
+    useEffect(() => {
+        if (!textareaRef.current) return;
+        
+        const textarea = textareaRef.current;
+        
+        // 初始化样式
+        textarea.style.height = `${INITIAL_HEIGHT}px`;
+        textarea.style.overflowY = 'hidden';
+        
+        const resizeObserver = new ResizeObserver(() => {
+            if (textarea.scrollHeight <= maxHeight) {
+                textarea.style.overflowY = 'hidden';
+            } else {
+                textarea.style.overflowY = 'auto';
+            }
+        });
+        
+        resizeObserver.observe(textarea);
+        
+        return () => resizeObserver.disconnect();
+    }, [maxHeight]);
+
+    // 简化的消息处理函数
     const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const newMessage = e.target.value;
+        const textarea = e.target;
+        const newMessage = textarea.value;
+        
         if (newMessage.length <= maxLength) {
             setMessage(newMessage);
-            requestAnimationFrame(updateHeight);
-            debouncedSave(newMessage);
+            
+            // 直接调整高度，不使用额外的 div
+            textarea.style.height = 'auto';
+            const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+            textarea.style.height = `${newHeight}px`;
+            
+            // 使用 requestIdleCallback 处理草稿保存
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => debouncedSave(newMessage));
+            } else {
+                setTimeout(() => debouncedSave(newMessage), 1000);
+            }
         }
-    }, [maxLength, updateHeight, debouncedSave]);
+    }, [maxLength, maxHeight, debouncedSave]);
 
     // 优化 handleSend
     const handleSend = useCallback(async () => {
@@ -201,35 +226,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     }, [handleSend]);
 
-    // 使用 ResizeObserver 监听窗口变化
-    useEffect(() => {
-        const resizeObserver = new ResizeObserver(() => {
-            updateHeight();
-        });
-        
-        if (textareaRef.current) {
-            resizeObserver.observe(textareaRef.current);
-        }
-
-        return () => resizeObserver.disconnect();
-    }, [updateHeight]);
-
-    // 使用 useEffect 调整高度
-    useEffect(() => {
-        updateHeight();
-    }, [message, updateHeight]);
-
     const showCounter = message.length > maxLength * THRESHOLD_RATIO;
 
     return (
         <div className="max-w-3xl mx-auto px-4">
             <div className="relative flex w-full items-center">
                 <div className="group relative flex w-full flex-col">
-                    <div 
-                        className="flex w-full items-end gap-1.5 rounded-[26px] p-2 
+                    <div className="flex w-full items-end gap-1.5 rounded-[26px] p-2 
                                   bg-[#f4f4f4] dark:bg-[#2a2a2a] 
-                                  transition-colors duration-200"
-                    >
+                                  transition-colors duration-200">
                         <div className="flex min-w-0 flex-1 flex-col pl-4">
                             <textarea
                                 ref={textareaRef}
@@ -244,10 +249,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                          placeholder:text-gray-500 dark:placeholder:text-gray-400
                                          focus:outline-none
                                          scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600
-                                         scrollbar-track-transparent"
+                                         scrollbar-track-transparent
+                                         transition-none" // 禁用所有过渡动画
                                 style={{
-                                    height: `${INITIAL_HEIGHT}px`,
-                                    overflowY: 'hidden'
+                                    minHeight: `${MIN_HEIGHT}px`,
+                                    maxHeight: `${maxHeight}px`
                                 }}
                             />
                         </div>

@@ -1,4 +1,4 @@
-import { Message } from '@/types/stream';
+import { Message, MessageStatus } from '@/types/stream';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -162,19 +162,43 @@ export type Action =
 
     /**
      * 更新消息动作
-     * @description 更新指定消息的内容
+     * @description 更新指定消息的内容和状态
      * @param {Object} payload - 更新信息
      * @param {string} payload.message_id - 要更新的消息ID
-     * @param {Partial<Message>} payload.updates - 要更新的消息字段
+     * @param {Partial<Message & { sendStatus?: MessageStatus }>} payload.updates - 要更新的消息字段
      */
-    | { type: 'UPDATE_MESSAGE'; payload: { message_id: string | undefined; updates: Partial<Message> } }
+    | { 
+        type: 'UPDATE_MESSAGE'; 
+        payload: { 
+            message_id: string | undefined; 
+            updates: Partial<Message & { 
+                sendStatus?: MessageStatus;
+                retryCount?: number;
+            }> 
+        } 
+    }
 
     /**
      * 设置新对话ID动作
      * @description 设置新创建的对话ID
      * @param {string} payload - 新的对话ID
      */
-    | { type: 'SET_NEW_CONVERSATION_ID'; payload: string };
+    | { type: 'SET_NEW_CONVERSATION_ID'; payload: string }
+
+    /**
+     * 清除失败消息动作
+     * @description 清除失败的消息
+     * @param {Object} payload - 清除信息
+     * @param {string} payload.userMessageId - 用户消息ID
+     * @param {string} payload.botMessageId - 机器人消息ID
+     */
+    | { 
+        type: 'CLEAR_FAILED_MESSAGES'; 
+        payload: {
+            userMessageId?: string;
+            botMessageId?: string;
+        }
+    };
 
 /**
  * 聊天状态更新器
@@ -303,6 +327,22 @@ export const chatReducer = (state: ChatState, action: Action): ChatState => {
             return {
                 ...state,
                 newConversationId: action.payload
+            };
+
+        /**
+         * 清除失败消息
+         * @param {Object} action.payload - 清除信息
+         * @param {string} action.payload.userMessageId - 用户消息ID
+         * @param {string} action.payload.botMessageId - 机器人消息ID
+         * @returns {ChatState} 更新后的状态，包含清除失败消息后的消息列表。
+         */
+        case 'CLEAR_FAILED_MESSAGES':
+            return {
+                ...state,
+                messages: state.messages.filter(msg => 
+                    msg.message_id !== action.payload.userMessageId && 
+                    msg.message_id !== action.payload.botMessageId
+                )
             };
 
         default:

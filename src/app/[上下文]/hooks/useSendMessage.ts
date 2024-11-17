@@ -7,6 +7,11 @@ import { Message } from '@/types/stream';
 import dialogProcessor from '../core/DialogProcessor';
 import { Dispatch } from 'react';
 import { Action } from '../core/chatReducer';
+import { 
+    MessageWithStatus, 
+    RetryableMessage,
+    createMessageWithStatus 
+} from '../core/messageStatus';
 
 interface UseSendMessageProps {
     state: any;
@@ -16,7 +21,6 @@ interface UseSendMessageProps {
     t: (key: string) => string;
     userId?: string;
     userImageUrl?: string;
-    // 保留 messagesRef 以防其他用途
     messagesRef: React.MutableRefObject<Message[]>;
 }
 
@@ -32,28 +36,64 @@ const useSendMessage = ({
 }: UseSendMessageProps) => {
     const { getToken } = useAuth();
     const abortControllerRef = useRef<AbortController | null>(null);
-    const currentBotMessageIdRef = useRef<string | null>(null); // 存储当前流式传输的机器人消息ID
-    const currentBotContentRef = useRef<string>(''); // 存储当前机器人消息的内容
+    const currentBotMessageIdRef = useRef<string | null>(null);
+    const currentBotContentRef = useRef<string>('');
     const lastPluginCallRef = useRef<{ id: number, name: string } | null>(null);
 
-    const sendMessage = useCallback(async (message: string, inputConversationId?: string) => {
-        const activeConversationId = inputConversationId || state.conversationId;
-
+    // 核心发送消息逻辑
+    const sendMessageCore = useCallback(async (
+        message: string,
+        inputConversationId?: string,
+        retryCount: number = 0,
+        existingUserMessage?: MessageWithStatus,
+        existingBotMessage?: MessageWithStatus
+    ) => {
         if (!userId) {
             addMessage(dialogProcessor.createErrorMessage(t('无法发送消息，用户未登录或未授权。')));
             return;
         }
 
-        const userMessage = dialogProcessor.createUserMessage(message, userImageUrl);
-        const botMessage = dialogProcessor.createBotMessage();
+        const activeConversationId = inputConversationId || state.conversationId;
 
-        // 添加用户消息和机器人消息
-        addMessage(userMessage);
-        addMessage(botMessage);
+        let userMessage: MessageWithStatus;
+        let botMessage: MessageWithStatus;
 
-        // 捕获当前机器人消息的ID和初始化内容
-        const botMessageId = botMessage.message_id;
-        currentBotMessageIdRef.current = botMessageId || null;
+        if (retryCount > 0 && existingUserMessage && existingBotMessage) {
+            // 更新现有消息的状态为 'pending'，清除之前的错误
+            userMessage = { ...existingUserMessage, sendStatus: 'pending', error: undefined };
+            botMessage = { ...existingBotMessage, sendStatus: 'pending', error: undefined, content: '' };
+
+            dispatch({
+                type: 'UPDATE_MESSAGE',
+                payload: {
+                    message_id: userMessage.message_id,
+                    updates: { sendStatus: 'pending', error: undefined }
+                }
+            });
+
+            dispatch({
+                type: 'UPDATE_MESSAGE',
+                payload: {
+                    message_id: botMessage.message_id,
+                    updates: { sendStatus: 'pending', error: undefined, content: '' }
+                }
+            });
+        } else {
+            // 创建新的用户和机器人消息
+            userMessage = createMessageWithStatus(
+                dialogProcessor.createUserMessage(message, userImageUrl),
+                'pending'
+            );
+            botMessage = createMessageWithStatus(
+                dialogProcessor.createBotMessage(),
+                'pending'
+            );
+
+            addMessage(userMessage as Message);
+            addMessage(botMessage as Message);
+        }
+
+        currentBotMessageIdRef.current = botMessage.message_id || null;
         currentBotContentRef.current = botMessage.content || '';
 
         dispatch({ type: 'SET_LOADING', payload: true });
@@ -81,29 +121,45 @@ const useSendMessage = ({
                         dispatch({ type: 'SET_CONVERSATION_ID', payload: currentConversationId });
                         dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: currentConversationId });
                     }
+                    
+                    // 更新用户消息状态为已发送
+                    if (userMessage.message_id) {
+                        dispatch({
+                            type: 'UPDATE_MESSAGE',
+                            payload: {
+                                message_id: userMessage.message_id,
+                                updates: { sendStatus: 'sent' }
+                            }
+                        });
+                    }
                 },
                 onChunk: (chunk) => {
                     dispatch({ type: 'SET_LOADING', payload: false });
 
-                    // 1. 更新 chunk 错误处理
-                    if (chunk.status === 'error' && chunk.error) {
+                    // 增强错误识别逻辑
+                    if ((chunk.status === 'error' && chunk.error) || (chunk.code && chunk.code >= 400)) {
+                        console.error('检测到错误的 chunk:', chunk);
                         if (currentBotMessageIdRef.current) {
+                            const errorDetails = {
+                                code: chunk.code || 500,
+                                message: chunk.message || t('抱歉，发送消息失败。')
+                            };
                             dispatch({
                                 type: 'UPDATE_MESSAGE',
                                 payload: {
                                     message_id: currentBotMessageIdRef.current,
                                     updates: {
-                                        error: {
-                                            code: chunk.error.code,
-                                            message: chunk.error.message
-                                        },
-                                        isStreaming: false
+                                        error: errorDetails,
+                                        isStreaming: false,
+                                        sendStatus: 'failed'
                                     }
                                 }
                             });
                         }
                         dispatch({ type: 'SET_IS_STREAMING', payload: false });
                         dispatch({ type: 'SET_LOADING', payload: false });
+
+                        // 直接返回，不继续处理
                         return;
                     }
 
@@ -200,50 +256,15 @@ const useSendMessage = ({
                     console.log('最终信息:', finalInfo);
                 },
                 onError: (error) => {
-                    console.error(t('后端错误:'), error);
-                    if (currentBotMessageIdRef.current) {
-                        dispatch({
-                            type: 'UPDATE_MESSAGE',
-                            payload: {
-                                message_id: currentBotMessageIdRef.current,
-                                updates: {
-                                    error: {
-                                        code: error.code || 500,
-                                        message: error.message || t('抱歉，发送消息失败。')
-                                    },
-                                    isStreaming: false
-                                }
-                            }
-                        });
-                    }
-                    dispatch({ type: 'SET_IS_STREAMING', payload: false });
-                    dispatch({ type: 'SET_LOADING', payload: false });
-                    currentBotMessageIdRef.current = null;
-                    currentBotContentRef.current = '';
+                    console.error('onError 被调用:', error);
+                    handleMessageError(error, userMessage, botMessage, retryCount);
                 },
                 signal: abortController.signal
             });
+
+            // 成功发送后，无需操作
         } catch (error: any) {
-            console.error(t('发送消息失败:'), error);
-            if (currentBotMessageIdRef.current) {
-                dispatch({
-                    type: 'UPDATE_MESSAGE',
-                    payload: {
-                        message_id: currentBotMessageIdRef.current,
-                        updates: {
-                            error: {
-                                code: error.code || 500,
-                                message: error.message || t('抱歉，发送消息失败。')
-                            },
-                            isStreaming: false
-                        }
-                    }
-                });
-            }
-            dispatch({ type: 'SET_IS_STREAMING', payload: false });
-            dispatch({ type: 'SET_LOADING', payload: false });
-            currentBotMessageIdRef.current = null;
-            currentBotContentRef.current = '';
+            handleMessageError(error, userMessage, botMessage, retryCount);
         } finally {
             abortControllerRef.current = null;
         }
@@ -256,8 +277,112 @@ const useSendMessage = ({
         getToken,
         dispatch,
         triggerConversationsReload,
-        // 移除 messagesRef 作为依赖，避免闭包捕获问题
     ]);
+
+    // 错误处理函数
+    const handleMessageError = useCallback((
+        error: any,
+        userMessage: MessageWithStatus,
+        botMessage: MessageWithStatus,
+        retryCount: number
+    ) => {
+        console.error(t('发送消息失败:'), error);
+
+        const errorDetails = {
+            code: error.code || 500,
+            message: error.message || t('抱歉，发送消息失败。')
+        };
+
+        // 更新用户消息状态为 'failed'
+        if (userMessage.message_id) {
+            dispatch({
+                type: 'UPDATE_MESSAGE',
+                payload: {
+                    message_id: userMessage.message_id,
+                    updates: { 
+                        sendStatus: 'failed',
+                        error: errorDetails
+                    }
+                }
+            });
+        }
+
+        // 更新机器人消息状态为 'failed'
+        if (botMessage.message_id) {
+            dispatch({
+                type: 'UPDATE_MESSAGE',
+                payload: {
+                    message_id: botMessage.message_id,
+                    updates: { 
+                        sendStatus: 'failed',
+                        error: errorDetails,
+                        isStreaming: false
+                    }
+                }
+            });
+        }
+
+        dispatch({ type: 'SET_IS_STREAMING', payload: false });
+        dispatch({ type: 'SET_LOADING', payload: false });
+        currentBotMessageIdRef.current = null;
+        currentBotContentRef.current = '';
+    }, [dispatch, t]);
+
+    // 重试消息
+    const retryMessage = useCallback(async (messageId: string) => {
+        console.log(`尝试重试消息: ${messageId}`);
+        // 找到需要重试的用户消息
+        const messageIndex = messagesRef.current.findIndex(msg => msg.message_id === messageId && msg.sendStatus === 'failed' && msg.type === 'user');
+        if (messageIndex === -1) {
+            console.log(`消息 ${messageId} 无法重试，因为未找到可重试的消息`);
+            return;
+        }
+
+        const userMessage = messagesRef.current[messageIndex];
+        const botMessage = messagesRef.current[messageIndex + 1] && messagesRef.current[messageIndex + 1].type === 'bot' ? messagesRef.current[messageIndex + 1] : undefined;
+
+        try {
+            if (botMessage) {
+                await sendMessageCore(userMessage.content, state.conversationId, 1, userMessage as MessageWithStatus, botMessage as MessageWithStatus);
+            } else {
+                // 如果找不到对应的机器人消息，可能需要手动创建或处理
+                await sendMessageCore(userMessage.content, state.conversationId, 1, userMessage as MessageWithStatus, undefined);
+            }
+
+            console.log(`消息 ${messageId} 重试成功.`);
+        } catch (error) {
+            console.error('重试失败:', error);
+            handleMessageError(error, userMessage as MessageWithStatus, botMessage as MessageWithStatus, 1);
+        }
+    }, [sendMessageCore, state.conversationId, dispatch, handleMessageError, messagesRef]);
+
+    // 公开的发送消息接口
+    const sendMessage = useCallback((message: string, inputConversationId?: string) => {
+        return sendMessageCore(message, inputConversationId, 0);
+    }, [sendMessageCore]);
+
+    // 获取失败的消息
+    const getFailedMessages = useCallback((): RetryableMessage[] => {
+        const failedMessages: RetryableMessage[] = [];
+        
+        messagesRef.current.forEach((msg, index) => {
+            if (msg.sendStatus === 'failed' && msg.type === 'user') {
+                const botMessage = messagesRef.current[index + 1];
+                failedMessages.push({
+                    message_id: msg.message_id || '',
+                    type: msg.type,
+                    content: msg.content,
+                    sendStatus: msg.sendStatus || 'failed',
+                    retryCount: msg.retryCount || 0,
+                    error: msg.error,
+                    userMessage: msg,
+                    botMessage: botMessage?.type === 'bot' ? botMessage : undefined
+                });
+            }
+        });
+        
+        return failedMessages;
+    }, [messagesRef]);
 
     const stopStreaming = useCallback(async () => {
         if (!state.conversationId || !userId) {
@@ -296,7 +421,12 @@ const useSendMessage = ({
         }
     }, [state.conversationId, userId, dispatch]);
 
-    return { sendMessage, stopStreaming };
+    return { 
+        sendMessage, 
+        stopStreaming,
+        retryMessage,
+        getFailedMessages
+    };
 };
 
 export default useSendMessage;

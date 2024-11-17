@@ -7,12 +7,7 @@ import {useUser} from '@clerk/nextjs';
 import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
 import {useConversations} from "../../../contexts/ConversationsContext";
 import useTranslation from "@/hooks/useTranslation";
-
-interface Conversation {
-    conversation_id: string;
-    chat_title: string | null;
-    timestamp: number;
-}
+import {Conversation} from './types';
 
 // 对话按日期分组
 const groupConversationsByDate = (conversations: Conversation[], t: (key: string) => string) => {
@@ -41,47 +36,61 @@ const groupConversationsByDate = (conversations: Conversation[], t: (key: string
 
 interface MessagesSidebarProps {
     onClose?: () => void;
-    onUpdateConversations?: (loadConversations: () => void) => void; // 新增: 用于暴露加载函数
+    onUpdateConversations?: (loadConversations: () => void) => void;
 }
 
 const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConversations}) => {
     const {t} = useTranslation();
-    const {isSignedIn, user, isLoaded} = useUser(); // 获取用户登录状态和用户信息
-    const {conversations, setConversations} = useConversations(); // 使用 ConversationsContext
+    const {isSignedIn, user, isLoaded} = useUser();
+    const {conversations, setConversations} = useConversations();
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [offset, setOffset] = useState<number>(0);
+    const [hasMore, setHasMore] = useState<boolean>(true);
+    const LIMIT = 20;
 
-    // 使用 useCallback 确保 loadConversations 稳定
-    const loadConversations = useCallback(async () => {
-        if (!user?.id) {
-            setError(t('用户信息未加载'));
-            return;
-        }
+    // 修改加载函数支持分页
+    const loadConversations = useCallback(async (isInitial: boolean = false) => {
+        if (!user?.id || loading || (!isInitial && !hasMore)) return;
 
         setLoading(true);
         try {
-            const data = await fetchConversations(user.id); // 使用真实的用户 ID
-            setConversations(data); // 将对话列表存储到 Context 中
+            const currentOffset = isInitial ? 0 : offset;
+            const { conversations: newConversations, hasMore: moreAvailable } = 
+                await fetchConversations(user.id, {
+                    limit: LIMIT,
+                    offset: currentOffset
+                });
+            
+            if (isInitial) {
+                setConversations(newConversations);
+            } else {
+                setConversations(prev => {
+                    // 防止重复数据
+                    const existingIds = new Set(prev.map(c => c.conversation_id));
+                    const uniqueNewConversations = newConversations.filter(
+                        c => !existingIds.has(c.conversation_id)
+                    );
+                    return [...prev, ...uniqueNewConversations];
+                });
+            }
+            
+            setHasMore(moreAvailable);
+            setOffset(currentOffset + newConversations.length);
         } catch (err) {
             setError(t('无法加载对话列表'));
+            console.error('Load conversations error:', err);
         } finally {
             setLoading(false);
         }
-    }, [user?.id, setConversations, t]);
+    }, [user?.id, offset, loading, hasMore, setConversations, t]);
 
-    // 向父组件暴露加载函数
-    useEffect(() => {
-        if (onUpdateConversations) {
-            onUpdateConversations(loadConversations);
-        }
-    }, [onUpdateConversations, loadConversations]);
-
+    // 初始加载
     useEffect(() => {
         if (isSignedIn && user?.id) {
-            loadConversations(); // 当用户ID存在且已登录时加载对话列表
+            loadConversations(true);
         }
-    }, [isSignedIn, user?.id, loadConversations]);
-
+    }, [isSignedIn, user?.id]);
 
     if (!isSignedIn) {
         setTimeout(() => {
@@ -99,8 +108,15 @@ const MessagesSidebar: React.FC<MessagesSidebarProps> = ({onClose, onUpdateConve
     };
 
     return (
-        <ChatSidebar items={sidebarItems} user={userInfo} onClose={onClose || (() => {
-        })} onUpdateConversations={loadConversations}/>
+        <ChatSidebar 
+            items={sidebarItems} 
+            user={userInfo} 
+            onClose={onClose || (() => {})} 
+            onUpdateConversations={() => loadConversations(true)}
+            onLoadMore={() => loadConversations(false)}
+            hasMore={hasMore}
+            loading={loading}
+        />
     );
 };
 

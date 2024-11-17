@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { Message } from '@/types/stream';
 import useChat from './hooks/useChat';
+import { RetryableMessage } from './core/messageStatus';
 
 interface ChatContextProps {
     messages: Message[];
@@ -18,6 +19,8 @@ interface ChatContextProps {
     stopStreaming?: () => void; // 停止流式传输
     conversationId?: string | null; // 暴露 conversationId
     resetChatState: () => void; // 添加重置方法
+    retryMessage: (messageId: string) => Promise<void>;
+    getFailedMessages: () => RetryableMessage[];
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -29,7 +32,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversa
     const chat = useChat(initialConversationId);
 
     // 使用 useMemo 记忆化 context value，避免不必要的重新渲染
-    const contextValue = useMemo(() => chat, [chat]);
+    const contextValue = useMemo(() => ({
+        ...chat,
+        retryMessage: chat.retryMessage,
+        getFailedMessages: chat.getFailedMessages,
+    }), [chat]);
 
     return (
         <ChatContext.Provider value={contextValue}>

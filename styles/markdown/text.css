@@ -1,6 +1,6 @@
 :root {
     /* 基础字号 */
-    --base-size: 16px;
+    --base-size: 1rem;
     
     /* 颜色系统 */
     --text-primary: #0d0d0d; 
@@ -8,6 +8,7 @@
     --text-secondary: #363636;    /* 79% 黑 */
     --text-tertiary: #666666;     /* 60% 黑 */
     --text-quaternary: #999999;   /* 40% 黑 */
+
     /* 间距系统 */
     --spacing-unit: 1rem;
     --spacing-xs: calc(var(--spacing-unit) * 0.25);
@@ -15,8 +16,9 @@
     --spacing-md: var(--spacing-unit);
     --spacing-lg: calc(var(--spacing-unit) * 1.5);
     
-    --emphasis-color: #0D0D0D;
-    --background-color: #ffffff;   /* 纯白背景 */
+    /* 强调色 */
+    --emphasis-color: #0d0d0d;
+    --background-color: #ffffff;
     --border-light: rgba(0, 0, 0, .08);
     --border-medium: rgba(0, 0, 0, .12);
     
@@ -31,10 +33,15 @@
 }
 
 .text-body {
+    /* 基础字号 */
+    font-size: var(--base-size);
     line-height: var(--mixed-line-height);
     margin: 0.5rem 0;
     color: var(--text-color);
     width: 100%;
+
+    /* 优化渲染 */
+    will-change: transform;
     
     /* 优化中英文混排 */
     letter-spacing: var(--cjk-letter-spacing);
@@ -42,7 +49,7 @@
     
     /* 添加中文特定优化 */
     font-feature-settings: "palt" 1, "kern" 1, "pwid" 1;
-    
+
     /* 优化渲染 */
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -57,6 +64,7 @@
     color: var(--emphasis-color);
 }
 
+/* 斜体 */
 .text-italic {
     font-style: italic;
     color: var(--emphasis-color);
@@ -87,6 +95,7 @@
         font-size: 1.025rem;
     }
 }
+
 
 @media (max-width: 768px) {
     :root {
@@ -138,7 +147,7 @@
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     .text-body {
         -webkit-font-smoothing: subpixel-antialiased;
-        text-rendering: geometricPrecision;     /* 更精确的文本渲染 */
+        text-rendering: geometricPrecision;
     }
 }
 

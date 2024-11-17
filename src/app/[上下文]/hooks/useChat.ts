@@ -44,7 +44,12 @@ const useChat = (initialConversationId?: string) => {
     }, []);
 
     // 使用自定义 Hooks
-    const { sendMessage, stopStreaming } = useSendMessage({
+    const { 
+        sendMessage, 
+        stopStreaming, 
+        retryMessage,
+        getFailedMessages
+    } = useSendMessage({
         state,
         dispatch,
         addMessage,
@@ -125,7 +130,9 @@ const useChat = (initialConversationId?: string) => {
         isStreaming: state.isStreaming,
         stopStreaming,
         conversationId: state.conversationId,
-        resetChatState, // 添加重置方法到返回值中
+        resetChatState, // 重置
+        retryMessage,        // 重试
+        getFailedMessages,   // 获取失败消息方法
     }), [
         state.messages,
         sendMessage,
@@ -140,6 +147,8 @@ const useChat = (initialConversationId?: string) => {
         stopStreaming,
         state.conversationId,
         resetChatState,
+        retryMessage,
+        getFailedMessages,
     ]);
 
     return memoizedChat;

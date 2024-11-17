@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Cookies from 'js-cookie';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import Meta from '@/components/ui/Meta';
-
 const MessagesSidebar = React.lazy(() => import('@/app/[侧边栏管理]/messages_sidebar'));
 const ChatInputWrapper = React.lazy(() => import('@/components/ui/ChatInputWrapper'));
 const ChatList = React.lazy(() => import('@/app/[消息显示]/chat_list'));
@@ -122,9 +121,9 @@ const animations = {
 export default function Home() {
     return (
         <ConversationsProvider>
-            <ChatProvider>
-                <HomeContent />
-            </ChatProvider>
+                <ChatProvider>
+                    <HomeContent />
+                </ChatProvider>
         </ConversationsProvider>
     );
 }

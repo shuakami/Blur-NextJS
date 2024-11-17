@@ -19,8 +19,8 @@
   color: var(--text-color);
 }
 
-.markdown-body.result-streaming > :not(ol):not(ul):not(pre):not(div):last-child::after,
-.markdown-body.result-streaming > pre:last-child code::after {
+.markdown-body.result-streaming:last-child > :not(ol):not(ul):not(pre):not(div):last-child::after,
+.markdown-body.result-streaming:last-child > pre:last-child code::after {
   content: "●";
   font-size: 30px;
   font-family: Circle, system-ui, sans-serif;
@@ -28,10 +28,11 @@
   vertical-align: middle;
   margin-left: 0.25rem;
   display: inline-block;
-  color: #ffffff;
+  color: var(--text-color);
   z-index: 1000;
   transform: translateY(-3.8px);
 }
+
 
 .message-user {
   background-color: #F4F4F4;
@@ -622,4 +623,13 @@ html:hover::-webkit-scrollbar-track {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-overflow-scrolling: touch;
+}
+
+@keyframes typewriter {
+  from {
+      visibility: hidden;
+  }
+  to {
+      visibility: visible;
+  }
 }

@@ -2,11 +2,20 @@
     --heading-color-dark: #1a1a1a;
     --heading-color-light: #2f3437;
     --heading-accent: #1a1a1a;
+    
+    --heading-base-size: 1rem;
+    
+    --h1-size: calc(2.296 * var(--heading-base-size));
+    --h2-size: calc(1.68 * var(--heading-base-size));
+    --h3-size: calc(1.5 * var(--heading-base-size));
+    --h4-size: calc(1.18 * var(--heading-base-size));
+    --h5-size: calc(1.0625 * var(--heading-base-size));
+    --h6-size: calc(1 * var(--heading-base-size));
 }
 
 /* H1: 主标题 */
 .text-heading1 {
-    font-size: 2.05em;
+    font-size: var(--h1-size);
     font-weight:800;
     line-height: 2.25rem;
     margin-top: 0.2rem;
@@ -17,7 +26,7 @@
 
 /* H2: 次级标题 */
 .text-heading2 {
-    font-size: 1.5rem;
+    font-size: var(--h2-size);
     font-weight: 600;
     line-height: 1.6;
     margin-top: 2rem;
@@ -28,28 +37,27 @@
 
 /* H3: 段落标题 */
 .text-heading3 {
-    font-size: 1.25rem;
+    font-size: var(--h3-size);
     font-weight: 600;
     line-height: 1.6;
-    margin-bottom: 0.5rem;
-    margin-top: 1rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
     color: var(--heading-color-dark);
 }
 
 /* H4: 小节标题 */
 .text-heading4 {
-    font-size: 1.125rem;
+    font-size: var(--h4-size);
     font-weight: 600;
     line-height: 1.6;
     margin-top: 1rem;
-    margin-bottom: 0.75rem;
     color: var(--heading-color-dark);
     letter-spacing: -0.008em;
 }
 
 /* H5: 细节标题 */
 .text-heading5 {
-    font-size: 1.0625rem;
+    font-size: var(--h5-size);
     font-weight: 600;
     line-height: 1.6;
     margin-top: 1rem;
@@ -60,7 +68,7 @@
 
 /* H6: 最小标题 */
 .text-heading6 {
-    font-size: 1rem;
+    font-size: var(--h6-size);
     font-weight: 600;
     line-height: 1.6;
     margin-top: 1rem;
