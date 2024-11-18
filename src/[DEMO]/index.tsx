@@ -135,13 +135,16 @@ const DemoCard = memo(({ demo, onClick }: { demo: DemoComponent; onClick: () => 
       onMouseEnter={handleMouseEnter}
       onClick={onClick}
       className={`
-        group relative rounded-lg p-6
-        bg-white dark:bg-gray-900
-        transition-all duration-200 cursor-pointer
-        border border-gray-200 dark:border-gray-800
-        min-h-[200px] flex flex-col
-        hover:shadow-lg dark:hover:shadow-gray-900
+        group relative rounded-xl p-8
+        bg-white/50 dark:bg-gray-900/50
+        backdrop-blur-sm
+        transition-all duration-300
+        cursor-pointer
+        border border-gray-200/60 dark:border-gray-800/60
+        min-h-[240px] flex flex-col
+        hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50
         hover:border-gray-300 dark:hover:border-gray-700
+        hover:translate-y-[-2px]
       `}
     >
       <div className="relative flex-1 flex flex-col">
@@ -231,13 +234,13 @@ export default function DemoPage() {
   if (demo) return renderDemo()
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-6xl mx-auto min-h-screen flex flex-col px-6">
-        <header className="py-16">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-50 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
+      <div className="max-w-7xl mx-auto min-h-screen flex flex-col px-8">
+        <header className="py-20">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-50 dark:to-gray-300 bg-clip-text text-transparent mb-6">
             组件演示
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl">
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl leading-relaxed">
             探索我们精心设计的组件库，每个组件都经过优化以提供最佳的用户体验。
           </p>
           {process.env.NODE_ENV === 'production' && (
@@ -248,16 +251,16 @@ export default function DemoPage() {
         </header>
 
         <main className="flex-1">
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">
+          <div className="mb-12">
+            <h2 className="text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-50 dark:to-gray-300 bg-clip-text text-transparent">
               所有组件
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-gray-600 dark:text-gray-400 mt-3">
               选择一个组件开始探索
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-20">
             {demoComponents.map((demo) => (
               <DemoCard
                 key={demo.id}
@@ -268,7 +271,7 @@ export default function DemoPage() {
           </div>
         </main>
 
-        <footer className="py-8 border-t border-gray-200 dark:border-gray-800">
+        <footer className="py-10 border-t border-gray-200/60 dark:border-gray-800/60">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <span className="font-light tracking-wide">Powered by</span>

@@ -68,7 +68,7 @@ const VariantCard = memo(({
       
       <div className="flex items-center justify-between">
         <code className="text-xs text-gray-600 dark:text-gray-400 font-mono">
-          variant="{variant.variant}"
+          variant=&quot;{variant.variant}&quot;
         </code>
         <Button
           variant="ghost"
@@ -99,7 +99,6 @@ const CodePreviewDialog = memo(({
     try {
       return generateCode(variant.component)
     } catch (error) {
-      console.error('Error generating code:', error)
       return '// Error generating code preview'
     }
   }, [variant])
@@ -153,7 +152,7 @@ const CodePreviewDialog = memo(({
 
         <div className="text-sm text-gray-500 dark:text-gray-400">
           <span className="font-medium text-gray-900 dark:text-gray-100">变体：</span>
-          <code className="ml-1 font-mono">variant="{variant.variant}"</code>
+          <code className="ml-1 font-mono">variant=&quot;{variant.variant}&quot;</code>
         </div>
       </DialogContent>
     </Dialog>
