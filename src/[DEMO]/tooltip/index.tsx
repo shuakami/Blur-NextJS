@@ -183,7 +183,7 @@ export default function TooltipShowcase() {
                         {/* 标题区域 */}
                         <div>
                           <h3 className="font-medium text-zinc-900 dark:text-zinc-100 truncate leading-none mb-1.5">
-                            If I Ain't Got You
+                             If I Ain&apos;t Got You
                           </h3>
                           <p className="text-sm text-zinc-500 dark:text-zinc-400 truncate leading-none">
                             Alicia Keys
