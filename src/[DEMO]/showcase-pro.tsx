@@ -55,7 +55,7 @@ const VariantItem = memo(({ variant }: { variant: ShowcaseVariant }) => (
         )}
       </div>
       <code className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-        variant="{variant.variant}"
+        variant=&quot;{variant.variant}&quot;
       </code>
     </div>
     <div className="px-4">
