@@ -4,11 +4,21 @@ const config: Config = {
     mode: 'jit',
     darkMode: ["class"],
     content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+        ...(process.env.NODE_ENV === 'production' 
+            ? [
+                "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+                "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+                "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+              ]
+            : [
+                "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+                "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+                "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+                "./src/[DEMO]/**/*.{js,ts,jsx,tsx,mdx}",
+                "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+              ]
+        ),
+    ],
   theme: {
       colors: {
           black: {
@@ -72,16 +82,29 @@ const config: Config = {
               '1000': '#000000'
           },
           neutral: {
-              50: '#fafafa',
-              100: '#f5f5f5',
-              200: '#e5e5e5',
-              300: '#d4d4d4',
-              400: '#a3a3a3',
-              500: '#737373',
-              600: '#525252',
-              700: '#404040',
-              800: '#262626',
-              900: '#171717',
+              '50': '#fafafa',
+              '100': '#f5f5f5',
+              '200': '#e5e5e5',
+              '300': '#d4d4d4',
+              '400': '#a3a3a3',
+              '500': '#737373',
+              '600': '#525252',
+              '700': '#404040',
+              '800': '#262626',
+              '900': '#171717',
+          },
+          slate: {
+            '50': '#f8fafc',
+            '100': '#f1f5f9',
+            '200': '#e2e8f0',
+            '300': '#cbd5e1',
+            '400': '#94a3b8',
+            '500': '#64748b',
+            '600': '#475569',
+            '700': '#334155',
+            '800': '#1e293b',
+            '900': '#0f172a',
+            '950': '#020617',
           },
           red: {
               '50': '#fff1f1',
@@ -96,19 +119,32 @@ const config: Config = {
               '900': '#881337'
           },
           rose: {
-            50: '#fff1f2',
-            100: '#ffe4e6',
-            200: '#fecdd3',
-            300: '#fda4af',
-            400: '#fb7185',
-            500: '#f43f5e',
-            600: '#e11d48',
-            700: '#be123c',
-            800: '#9f1239',
-            900: '#881337',
+            '50': '#fff1f2',
+            '100': '#ffe4e6',
+            '200': '#fecdd3',
+            '300': '#fda4af',
+            '400': '#fb7185',
+            '500': '#f43f5e',
+            '600': '#e11d48',
+            '700': '#be123c',
+            '800': '#9f1239',
+            '900': '#881337',
         },
-          yellow: {
-              '50': '#fffbeb',
+        zinc: {
+            '50': '#fafafa',
+            '100': '#f4f4f5',
+            '200': '#e4e4e7',
+            '300': '#d4d4d8',
+            '400': '#a1a1aa',
+            '500': '#71717a',
+            '600': '#52525b',
+            '700': '#3f3f46',
+            '800': '#27272a',
+            '900': '#18181b',
+            '950': '#09090b',
+        },
+        yellow: {
+            '50': '#fffbeb',
               '100': '#fef3c7',
               '200': '#fde68a',
               '300': '#fcd34d',
@@ -178,6 +214,18 @@ const config: Config = {
               '700': '#be185d',
               '800': '#9d174d',
               '900': '#831843'
+          },
+          violet: {
+              '50': '#f5f3ff',
+              '100': '#ede9fe',
+              '200': '#ddd6fe',
+              '300': '#c4b5fd',
+              '400': '#a78bfa',
+              '500': '#8b5cf6',
+              '600': '#7c3aed',
+              '700': '#6d28d9',
+              '800': '#5b21b6',
+              '900': '#4c1d95'
           },
           orange: {
               '50': '#fff7ed',
@@ -520,12 +568,34 @@ const config: Config = {
             golden: '0.618rem'
         },
         animation: {
+            'gradient': 'gradient 3s ease infinite',
             'shiny-text': 'shiny-text 8s infinite',
             'sweep': 'sweep 3s ease-in-out',
             'slideIn': 'slideIn 0.2s ease-out',
-            'blink': 'blink 1s infinite'
+            'blink': 'blink 1s infinite',
+            'slideInDown': 'slideInDown 0.4s ease-out forwards',
+            'fadeIn': 'fadeIn 0.3s ease-out forwards',
+            'stagger': 'fadeIn 0.5s ease-out forwards var(--animation-delay, 0s)'
           },
           keyframes: {
+            slideInDown: {
+              '0%': { 
+                opacity: '0',
+                transform: 'translateY(-10px)'
+              },
+              '100%': { 
+                opacity: '1',
+                transform: 'translateY(0)'
+              }
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            gradient: {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+            },
             'shiny-text': {
               '0%, 90%, 100%': {
                 'background-position': 'calc(-100% - var(--shiny-width)) 0'

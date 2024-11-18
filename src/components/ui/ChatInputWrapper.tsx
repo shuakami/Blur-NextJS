@@ -60,7 +60,7 @@ const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) =
                             px-4 py-2 rounded-full bg-black text-base
                             text-white dark:text-black dark:bg-white bg-opacity-90
                             ${isRetrying 
-                                ? 'dark:bg-white hover:bg-gray-200 bg-black hover:bg-gray-900 cursor-not-allowed' 
+                                ? 'dark:bg-white hover:bg-gray-200 bg-black cursor-not-allowed' 
                                 : 'dark:bg-white bg-black hover:bg-gray-900 dark:hover:bg-gray-200'
                             }
                             transition-colors duration-200

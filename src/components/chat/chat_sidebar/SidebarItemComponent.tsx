@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, memo, useCallback, useMemo} from 'react';
 import {
     ChevronRight,
     ChevronDown,
@@ -10,7 +10,6 @@ import {
     PencilLine,
     MessageCircleX,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import {SidebarItem} from './types';
 import CustomButton from './CustomButton';
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
@@ -22,6 +21,15 @@ import {useRouter} from 'next/navigation';
 import { useConversations } from '../../../../contexts/ConversationsContext';
 import Link from 'next/link';
 
+const TRANSITION_CLASSES = {
+    enter: 'transition-[height] duration-200 ease-out',
+    enterFrom: 'h-0',
+    enterTo: 'h-auto',
+    leave: 'transition-[height] duration-200 ease-in',
+    leaveFrom: 'h-auto',
+    leaveTo: 'h-0'
+};
+
 interface SidebarItemComponentProps {
     item: SidebarItem;
     level: number;
@@ -30,13 +38,14 @@ interface SidebarItemComponentProps {
     onUpdateConversations: () => void; // 新增: 用于刷新侧边栏数据
 }
 
-const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
-                                                                       item,
-                                                                       level,
-                                                                       selectedItem,
-                                                                       onSelect,
-                                                                       onUpdateConversations
-                                                                   }) => {
+// 使用 memo 优化组件
+const SidebarItemComponent = memo<SidebarItemComponentProps>(({
+    item,
+    level,
+    selectedItem,
+    onSelect,
+    onUpdateConversations
+}) => {
     const {user} = useUser(); // 获取用户 ID
     const router = useRouter(); // 用于导航
     const [isOpen, setIsOpen] = useState<boolean>(true);
@@ -48,13 +57,13 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // 控制模态框的打开状态
     const { removeConversation, updateConversationTitle: updateTitle } = useConversations();
 
-    const toggleOpen = () => setIsOpen(!isOpen);
+    const toggleOpen = useCallback(() => setIsOpen(!isOpen), [isOpen]);
     const isSelected = selectedItem === item.id;
 
-    const buttonRef = useRef<HTMLButtonElement>(null); // 创建 referenceElement 的 ref
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
     // 处理菜单关闭
-    const handleCloseMenu = () => setMenuOpen(false);
+    const handleCloseMenu = useCallback(() => setMenuOpen(false), []);
 
     // 自动聚焦
     useEffect(() => {
@@ -63,9 +72,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
         }
     }, [isEditing]);
 
-    // 处理确认删除对话的逻辑
-    const handleConfirmDelete = async () => {
-        // 检查对话ID是否存在
+    const handleConfirmDelete = useCallback(async () => {
         if (!item.id) return;
         
         // 关闭模态框
@@ -97,17 +104,16 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                 variant: "destructive"
             });
         }
-    };
+    }, [item.id, user?.id, isSelected, router, removeConversation, onUpdateConversations]);
 
-    // 菜单项
-    const menuItems = [
+    const menuItems = useMemo(() => [
         {
             id: 'update-title',
             text: '更改对话标题',
             icon: PencilLine,
             onClick: () => {
-                setIsEditing(true); // 开启编辑模式
-                setMenuOpen(false); // 关闭菜单
+                setIsEditing(true);
+                setMenuOpen(false);
             },
         },
         {
@@ -116,15 +122,14 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
             icon: MessageCircleX,
             isDanger: true,
             onClick: () => {
-                setIsModalOpen(true); // 打开模态框确认
-                setMenuOpen(false); // 关闭菜单
+                setIsModalOpen(true);
+                setMenuOpen(false);
             },
         },
-    ];
+    ], []);
 
     // 提交新标题的处理函数
-    const handleSubmitNewTitle = async () => {
-        // 去除标题两端的空格
+    const handleSubmitNewTitle = useCallback(async () => {
         const trimmedTitle = newTitle.trim();
         // 检查标题和对话ID是否有效
         if (!trimmedTitle || !item.id) {
@@ -157,7 +162,31 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                 variant: "destructive"
             });
         }
-    };
+    }, [newTitle, item.id, updateTitle, user?.id, onUpdateConversations]);
+
+    // 优化子项渲染
+    const renderChildren = useCallback(() => (
+        item.children?.map((child) => (
+            <div key={child.id}>
+                {child.children ? (
+                    <SidebarItemComponent
+                        item={child}
+                        level={level + 1}
+                        selectedItem={selectedItem}
+                        onSelect={onSelect}
+                        onUpdateConversations={onUpdateConversations}
+                    />
+                ) : (
+                    <CustomButton
+                        label={child.label}
+                        href={child.href}
+                        selected={selectedItem === child.label}
+                        onClick={() => onSelect(child.label)}
+                    />
+                )}
+            </div>
+        ))
+    ), [item.children, level, selectedItem, onSelect, onUpdateConversations]);
 
     return (
         <div className="relative">
@@ -169,6 +198,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                 message={`您确定要删除 "${item.label}" 吗?`}
             />
             
+            {/* 编辑模式或显示模式 */}
             <div className="flex items-center">
                 {isEditing ? (
                     <div className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}>
@@ -195,7 +225,6 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                         href={`/chat/${item.id}`} 
                         prefetch={false}
                         onClick={(e) => {
-                            // 如果点击的是更多按钮或其子元素，阻止 Link 的导航
                             if ((e.target as HTMLElement).closest('.more-options-button')) {
                                 e.preventDefault();
                             }
@@ -244,6 +273,7 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                 )}
             </div>
 
+            {/* 下拉菜单 */}
             {menuOpen && (
                 <DropDownMenu 
                     isOpen={menuOpen} 
@@ -254,37 +284,20 @@ const SidebarItemComponent: React.FC<SidebarItemComponentProps> = ({
                 />
             )}
 
+            {/* 子项渲染 */}
             {item.children && (
-                <motion.div
-                    animate={{ height: isOpen ? 'auto' : 0 }}
-                    initial={false}
-                    transition={{ duration: 0.2 }}
-                    className="ml-1 overflow-hidden"
+                <div
+                    className={`ml-1 overflow-hidden ${TRANSITION_CLASSES.enter} ${
+                        isOpen ? TRANSITION_CLASSES.enterTo : TRANSITION_CLASSES.enterFrom
+                    }`}
                 >
-                    {item.children.map((child) => (
-                        <div key={child.id}>
-                            {child.children ? (
-                                <SidebarItemComponent
-                                    item={child}
-                                    level={level + 1}
-                                    selectedItem={selectedItem}
-                                    onSelect={onSelect}
-                                    onUpdateConversations={onUpdateConversations}
-                                />
-                            ) : (
-                                <CustomButton
-                                    label={child.label}
-                                    href={child.href}
-                                    selected={selectedItem === child.label}
-                                    onClick={() => onSelect(child.label)}
-                                />
-                            )}
-                        </div>
-                    ))}
-                </motion.div>
+                    {isOpen && renderChildren()}
+                </div>
             )}
         </div>
     );
-};
+});
+
+SidebarItemComponent.displayName = 'SidebarItemComponent';
 
 export default SidebarItemComponent;

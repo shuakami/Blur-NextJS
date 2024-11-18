@@ -20,6 +20,15 @@ const PluginResponseMessage: React.FC<PluginResponseMessageProps> = ({
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
+    // 格式化插件数据为字符串
+    const formatPluginData = (data: any) => {
+        try {
+            return JSON.stringify(data, null, 2);
+        } catch (e) {
+            return '数据格式化失败';
+        }
+    };
+
     return (
         <div className="flex flex-col min-w-0 flex-1 gap-1.5">
             <motion.div 
@@ -70,7 +79,11 @@ const PluginResponseMessage: React.FC<PluginResponseMessageProps> = ({
                         "p-4 transition-transform duration-150",
                         isExpanded ? "translate-y-0" : "translate-y-1"
                     )}>
-                        <CodeBlock code={plugin_response?.data} forceRenderBlock={true} />
+                        <CodeBlock 
+                            code={formatPluginData(plugin_response?.data)} 
+                            language="json"
+                            forceRenderBlock={true} 
+                        />
                     </div>
                 </motion.div>
             </motion.div>

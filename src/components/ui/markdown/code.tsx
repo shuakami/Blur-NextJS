@@ -33,11 +33,11 @@ async function loadLanguage(language: string): Promise<void> {
 
 interface CodeBlockProps {
     code: string;
-    forceRenderBlock?: boolean; // 可选，强制要求BlockCode渲染，不渲染行间
+    forceRenderBlock?: boolean;
+    language?: string;  // 新增：强制指定语言
 }
 
-const CodeBlock: React.FC<CodeBlockProps> = memo(({ code , forceRenderBlock=false }) => {
-
+const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = false, language }) => {
     const [copied, setCopied] = useState(false);
     const [highlightedCode, setHighlightedCode] = useState(code);
     const [detectedLanguage, setDetectedLanguage] = useState('plaintext');
@@ -51,17 +51,20 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code , forceRenderBlock=fals
     
     // 自动检测语言
     const detectLanguage = useCallback((content: unknown, declaredLang: string): string => {
+        // 如果指定了强制语言，直接使用
+        if (language) return language;
+        
         const contentStr = String(content);
         if (declaredLang && declaredLang !== 'plaintext') return declaredLang;
         
         const result = hljs.highlightAuto(contentStr, [
             'javascript', 'typescript', 'python', 'java', 
             'cpp', 'c', 'css', 'html', 'xml', 'json',
-            'bash', 'shell', 'yaml', 'markdown'
+            'bash', 'shell', 'yaml', 'markdown', 'tsx'
         ]);
         
         return result.language || 'plaintext';
-    }, []);
+    }, [language]);
     
     // 使用节流的高亮函数
     const highlightCode = useCallback(
@@ -102,7 +105,10 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code , forceRenderBlock=fals
 
     if (forceRenderBlock) {
         return <pre className="text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words">
-            <code className={`language-javascript hljs`} dangerouslySetInnerHTML={{ __html: highlightedCode }} />
+            <code 
+                className={`language-${language || 'javascript'} hljs`} 
+                dangerouslySetInnerHTML={{ __html: highlightedCode }} 
+            />
         </pre>;
     }
 

@@ -1,5 +1,6 @@
-import Error500 from "@/app/error";
+import DemoPage from "@/[DEMO]"
 
 export default function BlurDemo() {
-    return <Error500 />;
+  return <DemoPage />
 }
+

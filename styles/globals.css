@@ -633,3 +633,27 @@ html:hover::-webkit-scrollbar-track {
       visibility: visible;
   }
 }
+
+
+/* Toast.tsx | Cyberpunk定制提示 闪烁文字 */
+@keyframes glitch {
+  0% {
+    text-shadow: -2px 0 #ff00c1, 2px 2px #0000ff;
+  }
+  25% {
+    text-shadow: 2px 0 #ff00c1, -2px -2px #0000ff;
+  }
+  50% {
+    text-shadow: -2px 0 #ff00c1, 2px 2px #0000ff;
+  }
+  75% {
+    text-shadow: 2px 0 #ff00c1, -2px -2px #0000ff;
+  }
+  100% {
+    text-shadow: -2px 0 #ff00c1, 2px 2px #0000ff;
+  }
+}
+
+.glitch-text {
+  animation: glitch 4s infinite;
+}

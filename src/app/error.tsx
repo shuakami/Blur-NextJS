@@ -242,7 +242,7 @@ const handleUploadLog = async () => {
         const errorLog = {
             // 基本错误信息
             error: debugInfo.error,
-            stack: debugInfo.stack,
+            stack: debugInfo.stack?.slice(0, 200),
             
             // 环境信息
             url: debugInfo.url,
@@ -577,7 +577,7 @@ const handleUploadLog = async () => {
                                                  transition-colors">
                                     Stack Trace
                                 </summary>
-                                <pre className="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded 
+                                <pre className="max-h-[200px] overflow-y-auto mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded 
                                               border border-gray-100 dark:border-gray-800 
                                               overflow-x-auto text-[10px] leading-4">
                                     <code className="text-gray-600 dark:text-gray-300">

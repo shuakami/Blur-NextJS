@@ -6,7 +6,7 @@ interface LoadingDotsProps {
     text?: string;
 }
 
-export const LoadingDots: React.FC<LoadingDotsProps> = ({ 
+const LoadingDots: React.FC<LoadingDotsProps> = ({ 
     size = 'md',
     showText = false, 
     text = '正在加载'
@@ -47,3 +47,6 @@ export const LoadingDots: React.FC<LoadingDotsProps> = ({
         </div>
     );
 };
+
+
+export default LoadingDots;
