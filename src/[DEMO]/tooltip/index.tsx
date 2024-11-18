@@ -173,7 +173,7 @@ export default function TooltipShowcase() {
                       <div className="w-[68px] h-[68px] rounded-md overflow-hidden flex-shrink-0">
                         <img 
                           src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/43/5d/ac/435dacc4-4dba-c413-57f9-82a9b83617a6/196922930041_Cover.jpg/208x208bb.webp"
-                          alt="If I Ain't Got You - Album Cover"
+                          alt="If I Ain&apos;t Got You - Album Cover"
                           className="w-full h-full object-cover"
                         />
                       </div>
