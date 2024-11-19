@@ -39,16 +39,16 @@ type CustomLanguageFactory = () => Promise<CustomLanguageDefinition | Language>;
 // 自定义语言映射
 const CUSTOM_LANGUAGES: Record<string, CustomLanguageFactory> = {
     'batch': async () => {
-        const module = await import('./batchLanguage');
-        return module.default(hljs);
+        const batchLang = await import('./batchLanguage');
+        return batchLang.default(hljs);
     },
     'tsx': async () => {
-        const module = await import('./tsxLanguage');
-        return module.default(hljs);
+        const tsxLang = await import('./tsxLanguage');
+        return tsxLang.default(hljs);
     },
     'html': async () => {
-        const module = await import('./htmlLanguage');
-        return module.default(hljs);
+        const htmlLang = await import('./htmlLanguage');
+        return htmlLang.default(hljs);
     }
 };
 
