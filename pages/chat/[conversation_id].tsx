@@ -248,12 +248,12 @@ const ChatPage = memo(() => {
                                             <ChatInputWrapper />
                                         </Suspense>
                                     </div>
-                                    <div className="w-full mt-2">
+                                    <div className="w-full">
                                         <Suspense fallback={null}>
                                             <CText />
                                         </Suspense>
                                     </div>
-                                    <div className="mb-3" />
+                                    <div className="mb-2" />
                                 </div>
                             </footer>
                         </motion.div>

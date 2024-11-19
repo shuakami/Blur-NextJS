@@ -26,21 +26,30 @@ export const COMMON_LANGUAGES = [
 // 语言包缓存
 const languageCache = new Map<string, string>();
 
-// 自定义语言定义接口
 interface CustomLanguageDefinition extends Partial<LanguageDetail> {
     name: string;
     aliases?: string[];
     async?: boolean;
     process?: () => Promise<Language>;
-    contains: any[];
+    contains?: any[];
     [key: string]: any;
 }
+type CustomLanguageFactory = () => Promise<CustomLanguageDefinition | Language>;
 
 // 自定义语言映射
-const CUSTOM_LANGUAGES: Record<string, CustomLanguageDefinition | (() => CustomLanguageDefinition)> = {
-    'batch': () => require('./batchLanguage').default(hljs),
-    'tsx': () => require('./tsxLanguage').default(hljs),
-    'html': () => require('./htmlLanguage').default(hljs)
+const CUSTOM_LANGUAGES: Record<string, CustomLanguageFactory> = {
+    'batch': async () => {
+        const module = await import('./batchLanguage');
+        return module.default(hljs);
+    },
+    'tsx': async () => {
+        const module = await import('./tsxLanguage');
+        return module.default(hljs);
+    },
+    'html': async () => {
+        const module = await import('./htmlLanguage');
+        return module.default(hljs);
+    }
 };
 
 /**
@@ -95,20 +104,18 @@ export async function loadLanguageWithRetry(language: string): Promise<void> {
             // 自定义语言处理
             if (language in CUSTOM_LANGUAGES) {
                 const customLangFactory = CUSTOM_LANGUAGES[language];
-                const customLang = typeof customLangFactory === 'function' 
-                    ? customLangFactory()
-                    : customLangFactory;
+                const langDefinition = await customLangFactory();
 
-                if (customLang.async && customLang.process) {
-                    const processedLang = await customLang.process();
+                if ('async' in langDefinition && langDefinition.async && 'process' in langDefinition && langDefinition.process) {
+                    const processedLang = await langDefinition.process();
                     hljs.registerLanguage(language, () => processedLang);
                 } else {
-                    hljs.registerLanguage(language, () => customLang as Language);
+                    hljs.registerLanguage(language, () => langDefinition as Language);
                 }
                 
                 loadedLanguages.add(language);
-                if (customLang.aliases) {
-                    customLang.aliases.forEach(alias => loadedLanguages.add(alias));
+                if ('aliases' in langDefinition && langDefinition.aliases) {
+                    langDefinition.aliases.forEach(alias => loadedLanguages.add(alias));
                 }
                 return;
             }
