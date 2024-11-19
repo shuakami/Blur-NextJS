@@ -35,7 +35,7 @@ interface SidebarItemComponentProps {
     level: number;
     selectedItem: string | null;
     onSelect: (label: string) => void;
-    onUpdateConversations: () => void; // 新增: 用于刷新侧边栏数据
+    onUpdateConversations: () => void; // 刷新侧边栏数据
 }
 
 // 使用 memo 优化组件

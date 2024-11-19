@@ -87,35 +87,6 @@ body {
   word-break: break-word;
 }
 
-
-@font-face {
-  font-family: 'Alibaba PuHuiTi';
-  src: url('/fonts/Alibaba-PuHuiTi-Heavy.woff2') format('woff2');
-  font-weight: 800;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Source Han Serif';
-  src: url('/fonts/SiYuanSong-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter Display';
-  src: url('/fonts/InterDisplay-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Poppins';
-  src: url('/fonts/Poppins-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
-
 body {
   transition: background-color var(--transition-duration) var(--transition-timing-function),
   color var(--transition-duration) var(--transition-timing-function),

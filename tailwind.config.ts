@@ -575,7 +575,7 @@ const config: Config = {
             'blink': 'blink 1s infinite',
             'slideInDown': 'slideInDown 0.4s ease-out forwards',
             'fadeIn': 'fadeIn 0.3s ease-out forwards',
-            'stagger': 'fadeIn 0.5s ease-out forwards var(--animation-delay, 0s)'
+            'stagger': 'fadeIn 0.5s ease-out forwards var(--animation-delay, 0s)',
           },
           keyframes: {
             slideInDown: {

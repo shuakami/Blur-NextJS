@@ -1,6 +1,6 @@
 import { useTheme } from "next-themes"
 import { useState, useEffect, useMemo, useCallback, memo } from "react"
-import { Check, Copy, Moon, Sun, ArrowLeft, Code } from "lucide-react"
+import { Check, Copy, Moon, Sun, ArrowLeft, Code, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,17 +16,27 @@ import CodeBlock from "@/components/ui/markdown/code"
 const NavItem = memo(({ 
   id, 
   name, 
-  description 
+  description,
+  onClick 
 }: { 
-  id: string; 
-  name: string; 
-  description?: string 
+  id: string
+  name: string
+  description?: string
+  onClick?: () => void
 }) => (
   <a
     href={`#${id}`}
     className="group flex flex-col px-4 py-3 rounded-lg
       hover:bg-gray-100 dark:hover:bg-gray-900
       transition-colors duration-200"
+    onClick={(e) => {
+      // 防止默认的锚点跳转行为
+      e.preventDefault()
+      // 平滑滚动到目标位置
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+      // 触发关闭导航栏回调
+      onClick?.()
+    }}
   >
     <span className="text-gray-900 dark:text-gray-100 font-medium">
       {name}
@@ -164,6 +174,7 @@ export default function Showcase({ title, categories }: ShowcaseProps) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [selectedVariant, setSelectedVariant] = useState<ShowcaseVariant | null>(null)
+  const [isNavOpen, setIsNavOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -175,36 +186,74 @@ export default function Showcase({ title, categories }: ShowcaseProps) {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-6xl px-6 py-6">
-        <header className="mb-16">
-          <div className="flex items-center justify-between mt-12">
+      <div className="mx-auto max-w-md md:max-w-6xl px-4 sm:px-6 py-6">
+        <header className="mb-8 sm:mb-16">
+          <div className="flex items-center justify-between mt-6 sm:mt-12">
             <div className="flex items-center gap-4">
               <Link href="/blurdemo">
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
-                  <ArrowLeft className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full">
+                  <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
                 {title}
               </h1>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="h-10 w-10 rounded-full"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-[1.2rem] w-[1.2rem]" />
-              ) : (
-                <Moon className="h-[1.2rem] w-[1.2rem]" />
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsNavOpen(!isNavOpen)}
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full md:hidden"
+              >
+                <Menu className="h-[1.2rem] w-[1.2rem]" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full"
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-[1.2rem] w-[1.2rem]" />
+                ) : (
+                  <Moon className="h-[1.2rem] w-[1.2rem]" />
+                )}
+              </Button>
+            </div>
           </div>
         </header>
 
-        <div className="flex gap-12">
-          <div className="w-64 flex-shrink-0">
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+          <div className={`
+            md:hidden fixed inset-0 z-50 bg-white dark:bg-gray-950
+            transform transition-transform duration-300
+            ${isNavOpen ? 'translate-x-0' : '-translate-x-full'}
+          `}>
+            <div className="p-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsNavOpen(false)}
+                className="mb-4"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+              <nav className="space-y-1">
+                {categories.map((category) => (
+                  <NavItem
+                    key={category.id}
+                    id={category.id}
+                    name={category.name}
+                    description={category.description}
+                    onClick={() => setIsNavOpen(false)}
+                  />
+                ))}
+              </nav>
+            </div>
+          </div>
+
+          <div className="hidden md:block w-64 flex-shrink-0">
             <nav className="fixed w-64 space-y-1">
               {categories.map((category) => (
                 <NavItem
@@ -217,10 +266,10 @@ export default function Showcase({ title, categories }: ShowcaseProps) {
             </nav>
           </div>
 
-          <div className="flex-1 space-y-16">
+          <div className="flex-1 space-y-12 md:space-y-16">
             {categories.map((category) => (
               <section key={category.id} id={category.id}>
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-8">
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6 sm:mb-8">
                   {category.name}
                 </h2>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

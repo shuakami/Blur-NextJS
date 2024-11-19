@@ -17,7 +17,7 @@ const Placeholder: React.FC<PlaceholderProps> = ({className, darkMode = false, c
         
         const interval = setInterval(() => {
             setStage(prev => 1 - prev);
-        }, 2450);
+        }, 3500);
         
         return () => clearInterval(interval);
     }, [isHovered]);

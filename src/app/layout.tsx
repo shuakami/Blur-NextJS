@@ -2,81 +2,63 @@
 
 import type { Metadata } from "next";
 import dynamic from 'next/dynamic';
-import { Inter } from 'next/font/google';
-import localFont from "next/font/local";
 import "../../styles/globals.css";
 import {ThemeProvider} from "@/components/ui/theme-provider";
 import {OptimizedClerkProvider} from "@/components/providers/OptimizedClerkProvider";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
 
-// 动态导入非关键组件
 const SpeedInsights = dynamic(
   () => import('@vercel/speed-insights/next').then(mod => mod.SpeedInsights),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 const Analytics = dynamic(
   () => import('@vercel/analytics/react').then(mod => mod.Analytics),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 const ClientVersionCheck = dynamic(
   () => import('@/components/ClientVersionCheck'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 const Toaster = dynamic(
   () => import('@/components/ui/toaster').then(mod => mod.Toaster),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
 const GlobalErrorHandler = dynamic(
   () => import('@/api/GlobalErrorHandler'),
-  { ssr: false }
+  { ssr: false, loading: () => null }
 );
 
-// 延迟加载的 Providers
 const LanguageProvider = dynamic(
-  () => import('@/components/LanguageProvider').then(mod => mod.LanguageProvider)
+  () => import('@/components/LanguageProvider').then(mod => mod.LanguageProvider),
+  { loading: () => null }
 );
 
 const ApiClientProvider = dynamic(
-  () => import('@/api/ApiClientProvider').then(mod => mod.ApiClientProvider)
+  () => import('@/api/ApiClientProvider').then(mod => mod.ApiClientProvider),
+  { loading: () => null }
 );
 
 const ModelProvider = dynamic(
-  () => import('@/components/ui/model_selector').then(mod => mod.ModelProvider)
+  () => import('@/components/ui/model_selector').then(mod => mod.ModelProvider),
+  { loading: () => null }
 );
 
 const LXHThemeProvider = dynamic(
-  () => import('@/theme/ThemeContext').then(mod => mod.LXHThemeProvider)
+  () => import('@/theme/ThemeContext').then(mod => mod.LXHThemeProvider),
+  { loading: () => null }
 );
 
-// Google Fonts
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
+const TooltipProvider = dynamic(
+  () => import('@/components/ui/tooltip').then(mod => mod.TooltipProvider),
+  { loading: () => null }
+);
 
-// 本地字体使用 preload
-const geistSans = localFont({
-    src: "./fonts/GeistVF.woff",
-    variable: "--font-geist-sans",
-    weight: "100 900",
-    preload: true,
-    display: 'swap',
-});
-
-const geistMono = localFont({
-    src: "./fonts/GeistMonoVF.woff",
-    variable: "--font-geist-mono",
-    weight: "100 900",
-    preload: true,
-    display: 'swap',
-});
-
+// SEO
 const description = seoDescription;
 const keywords = seoKeywords.join(',');
 
@@ -84,13 +66,39 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' }
+  ],
 };
 
 export const metadata: Metadata = {
     title: `Blur - Meet your mirror, your muse.`,
     description,
     keywords,
+    openGraph: {
+        title: 'Blur - Meet your mirror, your muse.',
+        description,
+        type: 'website',
+    },
 };
+
+const NonCriticalUI = dynamic(() => 
+  Promise.resolve().then(() => {
+    const NonCriticalUI = ({ children }: { children: React.ReactNode }) => (
+      <>
+        <ClientVersionCheck />
+        <Toaster />
+        <GlobalErrorHandler />
+        <SpeedInsights />
+        <Analytics />
+        {children}
+      </>
+    );
+    return { default: NonCriticalUI };
+  }),
+  { ssr: false, loading: () => null }
+);
 
 export default function RootLayout({
     children,
@@ -100,9 +108,7 @@ export default function RootLayout({
     return (
         <OptimizedClerkProvider>
             <html lang="en">
-            <body
-                className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
-            >
+            <body className="antialiased">
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
@@ -113,14 +119,14 @@ export default function RootLayout({
                         <ModelProvider>
                             <ApiClientProvider>
                                 <LanguageProvider>
-                                    <main>
-                                        {children}
-                                    </main>
-                                    <ClientVersionCheck />
-                                    <Toaster />
-                                    <GlobalErrorHandler />
-                                    <SpeedInsights />
-                                    <Analytics />
+                                    <TooltipProvider>
+                                        <main>
+                                            {children}
+                                        </main>
+                                        <NonCriticalUI>
+                                            {null}
+                                        </NonCriticalUI>
+                                    </TooltipProvider>
                                 </LanguageProvider>
                             </ApiClientProvider>
                         </ModelProvider>

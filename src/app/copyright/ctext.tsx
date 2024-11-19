@@ -6,15 +6,9 @@ import useTranslation from "@/hooks/useTranslation";
 import Cookies from 'js-cookie';
 import {useThemeContext} from "@/theme/ThemeContext";
 
-
 const UpdateModal = dynamic(() => import("@/components/UpdateModal"), {
     ssr: false,
     loading: () => null
-});
-
-const BlurAnimatedWrapper = dynamic(() => import('@/components/Animations/blur_text'), {
-    ssr: false,
-    loading: () => <div className="min-h-[24px]" />
 });
 
 // 提取版本检查逻辑
@@ -109,7 +103,7 @@ const CText: React.FC = () => {
     );
 
     return (
-        <BlurAnimatedWrapper>
+        <>
             {content}
             {isUpdateModalOpen && (
                 <UpdateModal 
@@ -117,7 +111,7 @@ const CText: React.FC = () => {
                     onClose={handleCloseModal} 
                 />
             )}
-        </BlurAnimatedWrapper>
+        </>
     );
 };
 

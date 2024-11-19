@@ -1,6 +1,6 @@
 import { useTheme } from "next-themes"
 import { useState, useEffect, memo, useCallback } from "react"
-import { Moon, Sun, ArrowLeft } from "lucide-react"
+import { Moon, Sun, ArrowLeft, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ShowcaseProps, ShowcaseVariant } from "./utils"
@@ -85,9 +85,58 @@ const ThemeToggle = memo(({ theme, onToggle }: {
 ))
 ThemeToggle.displayName = 'ThemeToggle'
 
+// 添加移动端侧边栏组件
+const MobileSidebar = memo(({ 
+  isOpen, 
+  onClose, 
+  categories, 
+  activeCategory, 
+  onCategoryChange 
+}: { 
+  isOpen: boolean
+  onClose: () => void
+  categories: ShowcaseProps['categories']
+  activeCategory: string
+  onCategoryChange: (id: string) => void
+}) => (
+  <div className={`
+    md:hidden fixed inset-0 z-50 bg-white dark:bg-gray-950
+    transform transition-transform duration-300
+    ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+  `}>
+    <div className="p-4">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onClose}
+        className="mb-4"
+      >
+        <X className="h-5 w-5" />
+      </Button>
+      <nav className="space-y-1">
+        {categories.map((category) => (
+          <SidebarButton
+            key={category.id}
+            id={category.id}
+            name={category.name}
+            description={category.description}
+            isActive={activeCategory === category.id}
+            onClick={(id) => {
+              onCategoryChange(id)
+              onClose()
+            }}
+          />
+        ))}
+      </nav>
+    </div>
+  </div>
+))
+MobileSidebar.displayName = 'MobileSidebar'
+
 export default function ShowcasePro({ title, categories }: ShowcaseProps) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [isNavOpen, setIsNavOpen] = useState(false) // 添加导航开关状态
   
   // 初始化活动分类
   const [activeCategory, setActiveCategory] = useState(() => {
@@ -131,28 +180,51 @@ export default function ShowcasePro({ title, categories }: ShowcaseProps) {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-7xl px-6 py-6">
+      <div className="mx-auto max-w-md md:max-w-7xl px-4 sm:px-6 py-6">
         {/* Header */}
         <header className="mb-8">
-          <div className="flex items-center justify-between mt-12">
+          <div className="flex items-center justify-between mt-6 sm:mt-12">
             <div className="flex items-center gap-4">
               <Link href="/blurdemo">
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
-                  <ArrowLeft className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full">
+                  <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
                 {title}
               </h1>
             </div>
-            <ThemeToggle theme={theme} onToggle={handleThemeToggle} />
+            <div className="flex items-center gap-2">
+              {/* 添加移动端菜单按钮 */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsNavOpen(true)}
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full md:hidden"
+              >
+                <Menu className="h-[1.2rem] w-[1.2rem]" />
+              </Button>
+              <ThemeToggle 
+                theme={theme} 
+                onToggle={handleThemeToggle} 
+              />
+            </div>
           </div>
         </header>
 
+        {/* 移动端侧边栏 */}
+        <MobileSidebar
+          isOpen={isNavOpen}
+          onClose={() => setIsNavOpen(false)}
+          categories={categories}
+          activeCategory={activeCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+
         {/* Main Content */}
         <div className="flex gap-8">
-          {/* Sidebar */}
-          <div className="w-64 flex-shrink-0">
+          {/* 桌面端侧边栏 */}
+          <div className="hidden md:block w-64 flex-shrink-0">
             <nav className="fixed w-64 space-y-1">
               {categories.map((category) => (
                 <SidebarButton
@@ -169,11 +241,11 @@ export default function ShowcasePro({ title, categories }: ShowcaseProps) {
 
           {/* Content Area */}
           <div className="flex-1 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-            <div className="p-8">
+            <div className="p-4 sm:p-8">
               {categories.map((category) => (
                 <div 
                   key={category.id}
-                  className={`${activeCategory === category.id ? 'block' : 'hidden'} space-y-12`}
+                  className={`${activeCategory === category.id ? 'block' : 'hidden'} space-y-8 sm:space-y-12`}
                 >
                   {category.variants.map((variant) => (
                     <VariantItem key={variant.variant} variant={variant} />

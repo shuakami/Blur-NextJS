@@ -78,8 +78,8 @@ const demoComponents: DemoComponent[] = [
   },
   {
     id: 'dialog',
-    name: '对话框组件',
-    description: '展示不同类型的对话框',
+    name: '模态框组件',
+    description: '展示不同类型的模态框',
     component: DialogShowcase,
     icon: '💬',
     bgColor: 'bg-gradient-to-br from-green-500 to-yellow-400',
@@ -135,13 +135,13 @@ const DemoCard = memo(({ demo, onClick }: { demo: DemoComponent; onClick: () => 
       onMouseEnter={handleMouseEnter}
       onClick={onClick}
       className={`
-        group relative rounded-xl p-8
+        group relative rounded-xl p-4 sm:p-8
         bg-white/50 dark:bg-gray-900/50
         backdrop-blur-sm
         transition-all duration-300
         cursor-pointer
         border border-gray-200/60 dark:border-gray-800/60
-        min-h-[240px] flex flex-col
+        min-h-[200px] sm:min-h-[240px] flex flex-col
         hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50
         hover:border-gray-300 dark:hover:border-gray-700
         hover:translate-y-[-2px]
@@ -235,13 +235,13 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
-      <div className="max-w-7xl mx-auto min-h-screen flex flex-col px-8">
-        <header className="py-20">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-50 dark:to-gray-300 bg-clip-text text-transparent mb-6">
-            组件演示
+      <div className="max-w-md md:max-w-7xl mx-auto min-h-screen flex flex-col px-3 sm:px-6 md:px-8">
+        <header className="py-8 sm:py-16">
+          <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-50 dark:to-gray-300 bg-clip-text text-transparent mb-3 sm:mb-4">
+            Blur Design
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl leading-relaxed">
-            探索我们精心设计的组件库，每个组件都经过优化以提供最佳的用户体验。
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
+            现代、直观且高度可定制的组件库，为您的应用提供优雅的设计解决方案
           </p>
           {process.env.NODE_ENV === 'production' && (
             <p className="text-red-500">
@@ -251,16 +251,13 @@ export default function DemoPage() {
         </header>
 
         <main className="flex-1">
-          <div className="mb-12">
-            <h2 className="text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-50 dark:to-gray-300 bg-clip-text text-transparent">
-              所有组件
+          <div className="mb-6 sm:mb-10">
+            <h2 className="text-lg sm:text-2xl font-medium text-gray-900 dark:text-gray-100">
+              组件列表
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-3">
-              选择一个组件开始探索
-            </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-20">
+          <div className="grid gap-3 sm:gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-12 sm:mb-20">
             {demoComponents.map((demo) => (
               <DemoCard
                 key={demo.id}
@@ -271,7 +268,7 @@ export default function DemoPage() {
           </div>
         </main>
 
-        <footer className="py-10 border-t border-gray-200/60 dark:border-gray-800/60">
+        <footer className="py-6 sm:py-10 border-t border-gray-200/60 dark:border-gray-800/60">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <span className="font-light tracking-wide">Powered by</span>

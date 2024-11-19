@@ -28,6 +28,8 @@ const LANGUAGE_ALIASES: Record<string, string> = {
     'cmd': 'batch',
     'powershell': 'powershell',
     'ps1': 'powershell',
+    'psm1': 'powershell',
+    'batch': 'batch',
 
     // 配置文件
     'yml': 'yaml',

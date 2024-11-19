@@ -92,11 +92,31 @@ const ChatSidebar = memo<ChatSidebarProps>(({
         return () => observer.disconnect();
     }, [loadingRef, hasMore, loading, onLoadMore]);
 
-    const handleSelectItem = useCallback((id: string, href?: string) => {
-        setSelectedItem(id);
-        if (href) router.push(href);
-    }, [router]);
+    // 提取 conversationId 的逻辑
+    const getConversationIdFromPath = useCallback((path: string) => {
+        const parts = path.split('/');
+        return parts[parts.length - 1] || null;
+    }, []);
 
+    // 根据路径更新选中状态
+    useEffect(() => {
+        if (!pathname) return;
+        
+        const conversationId = getConversationIdFromPath(pathname);
+        if (conversationId !== selectedItem) {
+            setSelectedItem(conversationId);
+        }
+    }, [pathname, selectedItem, getConversationIdFromPath]);
+
+    // 选择对话
+    const handleSelectItem = useCallback((id: string, href?: string) => {
+        if (id !== selectedItem) {
+            setSelectedItem(id);
+        }
+        if (href) router.push(href);
+    }, [router, selectedItem]);
+    
+    // 新建对话
     const handleNewChat = useCallback(() => {
         router.push('/?new=true');
     }, [router]);
@@ -114,46 +134,40 @@ const ChatSidebar = memo<ChatSidebarProps>(({
         });
 
         return Array.from(map.entries()).map(([label, children]) => ({
-            label,
-            children,
-        }));
-    }, [items]);
+                label,
+                children,
+            }));
+        }, [items]);
 
-    // 对话列表
-    const renderGroupItems = useMemo(() => (
-        groupedItems.map((group, index) => (
-            <div 
-                key={group.label} 
-                className={ANIMATION_CLASSES.container}
-                style={{ 
-                    '--animation-delay': `${index * 0.1}s`
-                } as React.CSSProperties}
-            >
-                <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2 animate-fadeIn">
-                    {group.label}
-                </div>
-                <div>
-                    {group.children.map((item, itemIndex) => (
-                        <div 
-                            key={item.id}
-                            className={ANIMATION_CLASSES.item}
-                            style={{ 
-                                '--animation-delay': `${(index * 0.1) + (itemIndex * 0.05)}s`
-                            } as React.CSSProperties}
-                        >
+        // 对话列表
+        const renderGroupItems = useMemo(() => (
+            groupedItems.map((group, index) => (
+                <div 
+                    key={group.label} 
+                    className={ANIMATION_CLASSES.container}
+                    style={{ 
+                        '--animation-delay': `${index * 0.1}s`
+                    } as React.CSSProperties}
+                >
+                    <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2 animate-fadeIn">
+                        {group.label}
+                    </div>
+                    <div>
+                        {group.children.map((item) => (
                             <SidebarItemComponent
+                                key={item.id}
                                 item={item}
                                 level={0}
                                 selectedItem={selectedItem}
                                 onSelect={() => handleSelectItem(item.id ?? '', item.href)}
                                 onUpdateConversations={onUpdateConversations || (() => {})}
                             />
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
-        ))
-    ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations]);
+            ))
+        ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations]);
+
 
     return (
         <div className={cn(
@@ -182,9 +196,9 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                 </div>
 
                 {/* 对话列表区域 */}
-                <div className="py-4 mt-2">
+                <div className="py-4 mt-2 relative">
                     {groupedItems.length > 0 ? (
-                        <div className="space-y-2 overflow-hidden">
+                        <div className="space-y-2">
                             {renderGroupItems}
                             {(loading || hasMore) && (
                                 <div 

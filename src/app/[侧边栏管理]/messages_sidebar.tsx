@@ -8,6 +8,7 @@ import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
 import {useConversations} from "../../../contexts/ConversationsContext";
 import useTranslation from "@/hooks/useTranslation";
 import type {Conversation} from './types';
+import LoadingDots from '@/components/ui/loading-dots';
 
 // 日期分组函数
 const groupConversationsByDate = (conversations: Conversation[], t: (key: string) => string) => {
@@ -119,8 +120,15 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({onClose, onUpdateConversati
         status: 'Test#AL1_0001',
     }), [user?.imageUrl, user?.fullName, t]);
 
-    // 未登录判断移到这里
-    if (!isSignedIn) {
+    if (!isLoaded) {
+        return (
+            <div className="w-full h-full flex items-center justify-center">
+               <LoadingDots />
+            </div>
+        );
+    }
+
+    if (isLoaded && !isSignedIn) {
         return <UnauthenticatedSidebar onClose={onClose || (() => {})} />;
     }
 

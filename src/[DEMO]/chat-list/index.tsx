@@ -402,6 +402,22 @@ const thoughtMessages: Message[] = [
     status: "active",
     thought: {
       content: "1. 分析问题复杂度\n2. 准备通俗易懂的类比\n3. 组织专业术语解释",
+      isAnimating: false,
+      duration: 3000
+    }
+  }
+]
+
+const thoughtMessagesLoading: Message[] = [
+  {
+    id: 'thought-msg-001',
+    message_id: 'thought-msg-001',
+    type: 'bot',
+    content: '正在思考...',
+    timestamp: Date.now(),
+    status: 'active',
+    thought: {
+      content: "> 1. 分析问题复杂度，确保我们理解问题的核心，\n> 2. 准备通俗易懂的类比，以便更好地传达概念，\n> 3. 组织专业术语解释，使其更具逻辑性和条理性，\n> 4. 结合实际案例，帮助加深理解，\n> 5. 反复推敲，确保每个细节都清晰明了。",
       isAnimating: true,
       duration: 3000
     }
@@ -577,6 +593,17 @@ function Welcome() {
         <div className="w-full">
           <ChatList 
             messages={thoughtMessages}
+            onEditMessage={handleEditMessage}
+          />
+        </div>
+      )
+    ]),
+
+    createCategory("thoughts_loading", "思考过程（加载中）", "展示思考过程动画", [
+      createVariant("Thought Process Loading", "thought-loading", "展示思考过程动画",
+        <div className="w-full">
+          <ChatList 
+            messages={thoughtMessagesLoading}
             onEditMessage={handleEditMessage}
           />
         </div>

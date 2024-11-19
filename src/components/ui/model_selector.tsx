@@ -42,68 +42,72 @@ const models: Model[] = [
     },
 ];
 
-// 创建 Model Context，用于全局管理模型状态
 const ModelContext = createContext<{
     selectedModel: Model;
     setSelectedModel: (model: Model) => void;
 } | undefined>(undefined);
 
-// ModelProvider 组件：包裹组件，用于提供全局的模型状态
 export const ModelProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
     const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
+    const isInitialMount = useRef(true);
 
-    // 更新 URL 和 Cookie 的函数移到这里，并确保只在必要时更新
     const updateModelInUrlAndCookie = (model: Model) => {
         if (typeof window !== "undefined") {
-            const url = new URL(window.location.href);
-            const currentModal = url.searchParams.get('modal');
             const newModal = `${model.name}-${model.version}`;
             
-            // 只在值真正改变时才更新
+            // 更新 Cookie
+            const currentCookie = Cookies.get('selectedModel');
+            if (currentCookie !== newModal) {
+                Cookies.set('selectedModel', newModal);
+            }
+
+            // 更新 URL，但不触发重新渲染
+            const url = new URL(window.location.href);
+            const currentModal = url.searchParams.get('modal');
             if (currentModal !== newModal) {
                 url.searchParams.set('modal', newModal);
-                window.history.replaceState({}, '', url);
-                Cookies.set('selectedModel', newModal);
+                window.history.replaceState({}, '', url.toString());
             }
         }
     };
 
-    // 包装 setSelectedModel 以同步更新 URL 和 Cookie
-    const handleModelChange = (model: Model) => {
-        setSelectedModel(model);
-        updateModelInUrlAndCookie(model);
-    };
-
+    // 初始化时获取模型
     useEffect(() => {
-        if (typeof window !== "undefined") {
+        if (!isInitialMount.current) return;
+        
+        const initializeModel = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const modalFromUrl = urlParams.get("modal");
             const cookieModel = Cookies.get("selectedModel");
 
             let modelToSet = models[0];
+            const findModel = (name: string, version: string) => 
+                models.find(model => model.name === name && model.version === version);
 
             if (modalFromUrl) {
                 const [name, version] = modalFromUrl.split("-");
-                const matchedModel = models.find(
-                    (model) => model.name === name && model.version === version
-                );
-                if (matchedModel) {
-                    modelToSet = matchedModel;
-                }
+                modelToSet = findModel(name, version) || modelToSet;
             } else if (cookieModel) {
                 const [name, version] = cookieModel.split("-");
-                const matchedModel = models.find(
-                    (model) => model.name === name && model.version === version
-                );
-                if (matchedModel) {
-                    modelToSet = matchedModel;
-                }
+                modelToSet = findModel(name, version) || modelToSet;
             }
 
-            // 使用新的处理函数
-            handleModelChange(modelToSet);
-        }
+            setSelectedModel(modelToSet);
+            // 仅在初始化时更新 URL 和 Cookie
+            if (modelToSet !== models[0]) {
+                updateModelInUrlAndCookie(modelToSet);
+            }
+        };
+
+        initializeModel();
+        isInitialMount.current = false;
     }, []);
+
+    // 处理模型变更
+    const handleModelChange = (model: Model) => {
+        setSelectedModel(model);
+        updateModelInUrlAndCookie(model);
+    };
 
     return (
         <ModelContext.Provider value={{ selectedModel, setSelectedModel: handleModelChange }}>
@@ -112,7 +116,7 @@ export const ModelProvider: FC<{ children: React.ReactNode }> = ({ children }) =
     );
 };
 
-// 自定义 Hook，用于全局获取当前的模型
+// Hook - 用于全局获取当前的模型
 export const useModel = () => {
     const context = useContext(ModelContext);
     if (!context) {

@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import Cookies from 'js-cookie';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import Meta from '@/components/ui/Meta';
+import { SHARED_ANIMATIONS } from '@/lib/animations/config';
 
 // 动态导入
 const MessagesSidebar = dynamic(() => import('@/app/[侧边栏管理]/messages_sidebar'), {
@@ -74,32 +75,6 @@ const useWindowSize = () => {
     }, []);
 
     return windowSize;
-};
-
-// 动画配置
-const animations = {
-    sidebar: {
-        type: "spring",
-        stiffness: 150,
-        damping: 25,
-        mass: 0.8,
-        duration: 0.7
-    },
-    homepageExit: {
-        initial: { opacity: 1, y: 0 },
-        exit: { 
-            opacity: 0,
-            y: -60,
-            transition: {
-                opacity: { duration: 0.3, ease: "easeOut" },
-                y: { 
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                }
-            }
-        }
-    }
 };
 
 // 遮罩层
@@ -218,13 +193,13 @@ const HomeContent = memo(() => {
             <div className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
                 {/* 侧边栏 */}
                 <motion.div
-                    className="h-full z-40 fixed top-0 left-0"
-                    style={{ 
-                        width: SIDEBAR_WIDTH,
-                        transform: `translateX(${isSidebarOpen ? 0 : -SIDEBAR_WIDTH}px)`
+                    className="fixed top-0 left-0 h-full z-40"
+                    style={{ width: SIDEBAR_WIDTH }}
+                    initial={false}
+                    animate={{
+                        x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH,
                     }}
-                    animate={{ x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH }}
-                    transition={animations.sidebar}
+                    transition={SHARED_ANIMATIONS.sidebar}
                 >
                     <Suspense fallback={null}>
                         <MessagesSidebar onClose={toggleSidebar} />
@@ -244,7 +219,7 @@ const HomeContent = memo(() => {
                     animate={{
                         marginLeft: isSidebarOpen && !isMobile ? SIDEBAR_WIDTH : 0,
                     }}
-                    transition={animations.sidebar}
+                    transition={SHARED_ANIMATIONS.sidebar}
                 >
                     {/* 头部工具栏 */}
                     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-[#212121] z-30">
@@ -295,7 +270,7 @@ const HomeContent = memo(() => {
                         <motion.div 
                             key="homepage"
                             className="flex justify-center items-center h-full"
-                            {...animations.homepageExit}
+                            {...SHARED_ANIMATIONS.homepageExit}
                         >
                             <HomepageContent 
                                 onFirstMessage={() => setHasConversation(true)}

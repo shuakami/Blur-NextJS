@@ -72,6 +72,7 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.0.3",
     "@types/mdast": "^4.0.4",
     "@types/node": "22.9.0",
     "@types/react": "^18",

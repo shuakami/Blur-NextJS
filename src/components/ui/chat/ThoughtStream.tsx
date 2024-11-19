@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { MarkdownRenderer } from '../markdown/MarkdownRenderer';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
+import '@/components/ui/ThoughtStream.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ThoughtStreamProps {
     duration: number;
@@ -16,6 +19,7 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [currentTitle, setCurrentTitle] = useState<string>('Thinking');
+    const { theme } = useTheme();
 
     // 使用 useMemo 提取标题，避免重复计算
     const extractedTitle = useMemo(() => {
@@ -39,43 +43,61 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
         }
     }, [extractedTitle, currentTitle]);
 
+    const variants = {
+        expanded: {
+            height: "auto",
+            transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                mass: 0.8,
+            }
+        },
+        collapsed: {
+            height: 0,
+            transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                mass: 0.8,
+            }
+        }
+    };
+
     return (
         <div>
             <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full group flex items-center gap-2 text-gray-650 dark:text-gray-300 hover:dark:text-gray-750 hover:text-gray-800 h-8 my-1.5 relative transition-colors"
+                className="w-full group flex items-center gap-2 text-gray-650 dark:text-gray-300 hover:dark:text-gray-750 hover:text-gray-800 h-8 my-1.5 relative"
             >
                 <div className="flex items-center gap-1 overflow-hidden">
-                    <span
-                        className={cn(
-                            "relative transition-all duration-200 transform",
-                            isAnimating && "shine-effect",
-                            // 使用CSS控制动画效果
-                            "animate-slideIn"
-                        )}
-                    >
+                    <span className={cn("relative", isAnimating && "shine-effect")} data-theme={theme}>
                         {isAnimating ? currentTitle : `Thought for ${duration} seconds`}
                     </span>
-                    <span className="transition-transform duration-200">
-                        {isExpanded ? (
-                            <ChevronUp className="w-5 h-5" />
-                        ) : (
-                            <ChevronDown className="w-5 h-5" />
-                        )}
-                    </span>
+                    <motion.span
+                        animate={{ rotate: isExpanded ? 180 : 0 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    >
+                        <ChevronDown className="w-5 h-5" />
+                    </motion.span>
                 </div>
             </button>
 
-            <div 
-                className={cn(
-                    "overflow-hidden transition-all duration-200",
-                    isExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div
+                        variants={variants}
+                        initial="collapsed"
+                        animate="expanded"
+                        exit="collapsed"
+                        className="overflow-hidden"
+                    >
+                        <div className="mb-2">
+                            <MarkdownRenderer content={content} />
+                        </div>
+                    </motion.div>
                 )}
-            >
-                <div className="mb-2">
-                    <MarkdownRenderer content={content} />
-                </div>
-            </div>
+            </AnimatePresence>
         </div>
     );
 }; 

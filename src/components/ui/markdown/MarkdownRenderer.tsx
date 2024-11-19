@@ -112,12 +112,30 @@ export const MarkdownRenderer: React.FC<{
       if (inline) {
         return <InlineCode {...props}>{children}</InlineCode>;
       }
-      const codeContent = String(children)
+
+      const codeContent = String(children);
+      
+      // 检测代码块语言
+      let language: string | undefined;
+      const codeBlockMatch = codeContent.match(/^```([\w-]*)\n/);
+      if (codeBlockMatch) {
+        language = codeBlockMatch[1] || undefined;
+      } else if (className) {
+        // 从 className 中提取语言 (格式如 "language-javascript")
+        const langMatch = className.match(/language-([\w-]*)/);
+        language = langMatch?.[1];
+      }
+      
+      // 清理代码内容
+      const cleanedCode = codeContent
         .replace(/\n$/, '')
         .replace(/^```[\w-]*\n/, '')
         .replace(/```$/, '');
       
-      return <CodeBlock code={codeContent} />;
+      return <CodeBlock 
+        code={cleanedCode} 
+        language={language}
+      />;
     },
 
     // 表格组件

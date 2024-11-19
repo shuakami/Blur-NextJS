@@ -3,45 +3,34 @@ import hljs from 'highlight.js';
 import { throttle } from 'lodash';
 import { Check, Copy, Terminal } from 'lucide-react';
 import LANGUAGE_ALIASES from './languageAliases';
+import { loadLanguageWithRetry, preloadCommonLanguages } from './Languages/languageLoader';
 import '../../../../styles/code/luoxiaohei.css';
 
-const loadedLanguages = new Set(['plaintext']);
-
-async function loadLanguage(language: string): Promise<void> {
-    if (loadedLanguages.has(language)) return;
-    
-    try {
-        const normalizedLang = LANGUAGE_ALIASES[language] || language;
-        
-        if (normalizedLang === 'batch') {
-            const { default: batchLanguage } = await import('./Languages/batchLanguage');
-            hljs.registerLanguage('batch', batchLanguage);
-        } else if (normalizedLang === 'tsx') {
-            const { default: tsxLanguage } = await import('./Languages/tsxLanguage');
-            hljs.registerLanguage('tsx', tsxLanguage);
-        } else {
-            const languageModule = await import('highlight.js/lib/languages/' + normalizedLang);
-            hljs.registerLanguage(normalizedLang, languageModule.default);
-        }
-        
-        loadedLanguages.add(language);
-        loadedLanguages.add(normalizedLang);
-    } catch (error) {
-        console.warn(`Failed to load language ${language}:`, error);
+// 将 hljs 设置为全局变量
+declare global {
+    interface Window {
+        hljs: typeof hljs;
     }
 }
 
 interface CodeBlockProps {
     code: string;
-    forceRenderBlock?: boolean;
-    language?: string;  // 新增：强制指定语言
+    forceRenderBlock?: boolean; // 强制渲染代码块
+    language?: string; // 强制指定语言
 }
 
 const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = false, language }) => {
+
     const [copied, setCopied] = useState(false);
     const [highlightedCode, setHighlightedCode] = useState(code);
     const [detectedLanguage, setDetectedLanguage] = useState('plaintext');
+    const [isLoading, setIsLoading] = useState(false);
     const codeRef = useRef<HTMLElement>(null);
+    
+    // 预加载常用语言
+    useEffect(() => {
+        preloadCommonLanguages();
+    }, []);
     
     // 内联代码的判断逻辑
     const isInlineCode = useCallback((content: unknown) => {
@@ -55,26 +44,32 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
         if (language) return language;
         
         const contentStr = String(content);
-        if (declaredLang && declaredLang !== 'plaintext') return declaredLang;
-        
-        const result = hljs.highlightAuto(contentStr, [
+        if (declaredLang && declaredLang !== 'plaintext') {
+            // 处理别名
+            return LANGUAGE_ALIASES[declaredLang] || declaredLang;
+        }
+        const detectionLanguages = [
             'javascript', 'typescript', 'python', 'java', 
             'cpp', 'c', 'css', 'html', 'xml', 'json',
-            'bash', 'shell', 'yaml', 'markdown', 'tsx'
-        ]);
+            'bash', 'shell', 'yaml', 'markdown', 'tsx',
+            'powershell', 'batch', 'bat', 'cmd'
+        ];
+        
+        const result = hljs.highlightAuto(contentStr, detectionLanguages);
         
         return result.language || 'plaintext';
     }, [language]);
     
-    // 使用节流的高亮函数
+    // 高亮函数
     const highlightCode = useCallback(
         throttle(async (rawCode: string) => {
             if (!isInlineCode(rawCode) && rawCode.trim().length > 0) {
+                setIsLoading(true);
                 try {
                     const detectedLang = detectLanguage(rawCode, 'plaintext');
                     const normalizedLang = LANGUAGE_ALIASES[detectedLang] || detectedLang;
                     
-                    await loadLanguage(normalizedLang);
+                    await loadLanguageWithRetry(normalizedLang);
                     setDetectedLanguage(normalizedLang);
                     
                     const highlighted = hljs.highlight(rawCode, {
@@ -85,6 +80,8 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
                 } catch (error) {
                     console.error('Highlight failed:', error);
                     setHighlightedCode(rawCode);
+                } finally {
+                    setIsLoading(false);
                 }
             } else {
                 setHighlightedCode(rawCode);
@@ -102,6 +99,13 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
+
+    // 在组件加载时设置 hljs
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            window.hljs = hljs;
+        }
+    }, []);
 
     if (forceRenderBlock) {
         return <pre className="text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words">
@@ -124,7 +128,7 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
                              text-gray-450 hover:text-gray-600 dark:text-gray-500
                               dark:hover:text-gray-300 select-none hover:bg-gray-80 dark:hover:bg-gray-940
                               transition-colors duration-200 rounded-md">
-                    <Terminal size={14} />
+                    <Terminal size={14} className={isLoading ? 'animate-spin' : ''} />
                     {detectedLanguage}
                 </div>
 

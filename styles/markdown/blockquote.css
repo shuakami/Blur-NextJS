@@ -1,4 +1,3 @@
-
 .blockquote {
     border-left: 2px solid #e4e2e2; /* 边框颜色 */
     margin: 0.9rem 0 !important; /* 使用 margin 让上下边框稍微长一点 */
@@ -18,8 +17,8 @@
 /* 暗色模式 */
 @media (prefers-color-scheme: dark) {
     .blockquote {
-        border-left: 2px solid var(--border-light); /* 使用全局边框颜色 */
-        color: var(--text-color); /* 确保文字颜色可读 */
+        border-left: 2px solid #4a4a4a;
+        color: var(--text-color);
     }
 }
 
