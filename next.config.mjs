@@ -14,10 +14,6 @@ const nextConfig = {
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production',
         styledComponents: true,
-        emotion: false,
-        reactRemoveProperties: process.env.NODE_ENV === 'production' ? {
-            properties: ['^data-test', '^data-cy']
-        } : false,
     },
 
     // 图片优化
@@ -36,9 +32,6 @@ const nextConfig = {
         imageSizes: [16, 32, 48, 64, 96],
         formats: ['image/webp', 'image/avif'],
         minimumCacheTTL: 3600,
-        unoptimized: false,
-        dangerouslyAllowSVG: true,
-        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     },
 
     // 实验性功能
@@ -74,8 +67,6 @@ const nextConfig = {
                         reuseExistingChunk: true,
                     },
                 },
-                maxInitialRequests: 25,
-                maxAsyncRequests: 25,
             };
         }
         return config;
@@ -208,39 +199,6 @@ const nextConfig = {
     compress: true,
     productionBrowserSourceMaps: false,
     staticPageGenerationTimeout: 120,
-    
-    transpilePackages: [
-        '@headlessui/react',
-        '@heroicons/react',
-        'framer-motion',
-        'react-markdown'
-    ], 
-    
-    trailingSlash: false,
-
-    pageExtensions: ['tsx', 'ts', 'jsx', 'js', 'mdx'],
-    
-    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-        if (!isServer && !dev) {
-            config.optimization.splitChunks = {
-                ...nextConfig.webpack(config, { dev, isServer }).optimization.splitChunks,
-                maxInitialRequests: 25,
-                maxAsyncRequests: 25,
-            };
-
-            config.plugins.push(
-                new webpack.AutomaticPrefetchPlugin()
-            );
-        }
-
-        // 优化模块解析
-        config.resolve.fallback = {
-            ...config.resolve.fallback,
-            fs: false, // 禁用 Node.js 核心模块在客户端的使用
-        };
-
-        return config;
-    },
 };
 
 // 导出时包装配置
