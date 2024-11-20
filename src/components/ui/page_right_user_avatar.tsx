@@ -88,7 +88,7 @@ const UserAvatar = memo(() => {
                 newUrl.searchParams.set(key, value);
             }
         });
-        router.push(newUrl.toString());
+        router.push(newUrl.toString() as any);
     }, [router]);
 
     // 模态框处理器

@@ -113,12 +113,14 @@ const ChatSidebar = memo<ChatSidebarProps>(({
         if (id !== selectedItem) {
             setSelectedItem(id);
         }
-        if (href) router.push(href);
+        if (href) {
+            router.push(href as any);
+        }
     }, [router, selectedItem]);
     
     // 新建对话
     const handleNewChat = useCallback(() => {
-        router.push('/?new=true');
+        router.push('/?new=true' as any);
     }, [router]);
 
     // 分组逻辑

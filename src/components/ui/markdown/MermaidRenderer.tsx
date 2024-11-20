@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, memo, useState } from 'react';
 import mermaid from 'mermaid';
 import { useTheme } from 'next-themes';
-import LoadingDots from '../loading-dots';
 import { ClipboardIcon, CheckIcon, DownloadIcon, ImageIcon, FileCode } from 'lucide-react';
 import { ColorScheme, getThemeVariables} from './mermaid-themes';
 import { exportDiagram } from './mermaid-export';
@@ -428,7 +427,7 @@ export const MermaidRenderer = memo<MermaidRendererProps>(({ chart, className = 
                     w-full mx-auto overflow-hidden
                     bg-white dark:bg-zinc-800/95
                     border border-gray-200/80 dark:border-white/[0.15]
-                    rounded-md ${loading ? 'min-h-[120px]' : ''}
+                    rounded-md ${loading ? 'min-h-[400px]' : ''}
                     ${className}
                 `}
             >

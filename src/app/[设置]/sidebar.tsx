@@ -55,7 +55,9 @@ export const SettingsSidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab
                             setActiveTab(item.id);
                             const currentSearchParams = new URLSearchParams(window.location.search);
                             currentSearchParams.set('tab', item.id);
-                            router.push(`${window.location.pathname}?${currentSearchParams.toString()}`);
+                            router.push(
+                                `${window.location.pathname}?${currentSearchParams.toString()}` as any
+                            );
                             if (isMobile) {
                                 setIsMobileMenuOpen(false);
                             }
