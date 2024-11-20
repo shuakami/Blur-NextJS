@@ -1,139 +1,173 @@
 "use client";
 
-import {useUser, useAuth} from "@clerk/nextjs";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {useEffect, useState, useRef} from "react";
-import {useRouter, useSearchParams} from "next/navigation";
-import SettingsModal from "@/app/[设置]/settings_modal";
+import React, { useEffect, useState, useRef, useCallback, memo } from 'react';
+import { useUser, useAuth } from "@clerk/nextjs";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
-import PersonalCenter from "@/app/[个人中心]";
-import {LogOut, SettingsIcon, UserRound} from "lucide-react";
+import dynamic from 'next/dynamic';
+import { LogOut, SettingsIcon, UserRound } from "lucide-react";
 
+// 模态框组件
+const SettingsModal = dynamic(() => import("@/app/[设置]/settings_modal"), {
+    loading: () => null,
+    ssr: false
+});
+const PersonalCenter = dynamic(() => import("@/app/[个人中心]"), {
+    loading: () => null,
+    ssr: false
+});
 
-export default function UserAvatar() {
-    const {user} = useUser();
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false); // 控制设置模态框的状态
-    const [isMenuOpen, setIsMenuOpen] = useState(false); // 控制下拉菜单的状态
-    const [isAccountSettingsOpen, setIsAccountSettingsOpen] = useState(false);
-    const avatarRef = useRef<HTMLButtonElement>(null); // 用于 DropDownMenu 定位
+// 菜单项
+const createMenuItems = (handlers: {
+    openSettings: () => void,
+    openAccountSettings: () => void,
+    signOut: () => void,
+    closeMenu: () => void
+}) => [
+    {
+        id: "settings",
+        text: "设置",
+        icon: SettingsIcon,
+        onClick: () => {
+            handlers.closeMenu();
+            handlers.openSettings();
+        },
+    },
+    {
+        id: "account",
+        text: "账户设置",
+        icon: UserRound,
+        onClick: () => {
+            handlers.closeMenu();
+            handlers.openAccountSettings();
+        },
+    },
+    {
+        id: "logout",
+        text: "退出登录",
+        icon: LogOut,
+        onClick: () => {
+            handlers.closeMenu();
+            handlers.signOut();
+        },
+        isDanger: true,
+        isSpecial: true
+    },
+];
+
+const UserAvatar = memo(() => {
+    const { user } = useUser();
+    const { signOut } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const {signOut} = useAuth();
+    const avatarRef = useRef<HTMLButtonElement>(null);
+    
+    const [modals, setModals] = useState({
+        settings: false,
+        account: false,
+        menu: false
+    });
 
-    // 获取用户头像的 URL，如果没有则为 null
-    const avatarUrl = user?.imageUrl;
-
-    // 当 URL 包含 `?settings=open` 时，打开设置模态框 / 包含 `?account=open` 时，打开账户设置模态框
+    // URL 参数处理
     useEffect(() => {
-        if (searchParams?.get("settings") === "open") {
-            openSettings();
-        }
-        if (searchParams?.get("account") === "open") {
-            openAccountSettings();
-        }
+        setModals(prev => ({
+            ...prev,
+            settings: searchParams?.get("settings") === "open",
+            account: searchParams?.get("account") === "open"
+        }));
     }, [searchParams]);
 
-    // 打开设置模态框并将 `?settings=open` 添加到 URL
-    const openSettings = () => {
-        setIsSettingsOpen(true);
-        const currentSearchParams = new URLSearchParams(window.location.search);
-        currentSearchParams.set("settings", "open");
-        router.push(`${window.location.pathname}?${currentSearchParams.toString()}`);
-    };
-
-    // 关闭设置模态框并从 URL 中移除所有参数
-    const closeSettings = () => {
-        setIsSettingsOpen(false);
+    // URL 更新处理器
+    const updateURL = useCallback((params: { [key: string]: string | null }) => {
         const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete("account");
-        newUrl.searchParams.delete("tab");
-        newUrl.searchParams.delete("settings");
+        Object.entries(params).forEach(([key, value]) => {
+            if (value === null) {
+                newUrl.searchParams.delete(key);
+            } else {
+                newUrl.searchParams.set(key, value);
+            }
+        });
         router.push(newUrl.toString());
+    }, [router]);
+
+    // 模态框处理器
+    const modalHandlers = {
+        openSettings: useCallback(() => {
+            setModals(prev => ({ ...prev, settings: true }));
+            updateURL({ settings: "open" });
+        }, [updateURL]),
+
+        closeSettings: useCallback(() => {
+            setModals(prev => ({ ...prev, settings: false }));
+            updateURL({ settings: null, account: null, tab: null });
+        }, [updateURL]),
+
+        openAccountSettings: useCallback(() => {
+            setModals(prev => ({ ...prev, account: true }));
+            updateURL({ account: "open" });
+        }, [updateURL]),
+
+        closeAccountSettings: useCallback(() => {
+            setModals(prev => ({ ...prev, account: false }));
+            updateURL({ account: null, tab: null, settings: null });
+        }, [updateURL])
     };
 
-
-    // 打开账户设置模态框
-    const openAccountSettings = () => {
-        setIsAccountSettingsOpen(true);
-        const currentSearchParams = new URLSearchParams(window.location.search);
-        currentSearchParams.set("account", "open");
-        router.push(`${window.location.pathname}?${currentSearchParams.toString()}`);
-    };
-
-    const closeAccountSettings = () => {
-        setIsAccountSettingsOpen(false);
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete("account");
-        newUrl.searchParams.delete("tab");
-        newUrl.searchParams.delete("settings");
-        router.push(newUrl.toString());
-    };
-
-    // 菜单项
-    const menuItems = [
-        {
-            id: "settings",
-            text: "设置",
-            icon: SettingsIcon,
-            onClick: () => {
-                setIsMenuOpen(false);
-                setIsAccountSettingsOpen(false)
-                openSettings(); // 打开设置模态框
-            },
-        },
-        {
-            id: "account",
-            text: "账户设置",
-            icon: UserRound,
-            onClick: () => {
-                setIsMenuOpen(false);
-                setIsAccountSettingsOpen(false)
-                openAccountSettings();
-            },
-        },
-        {
-            id: "logout",
-            text: "退出登录",
-            icon: LogOut,
-            onClick: () => {
-                setIsMenuOpen(false);
-                setIsAccountSettingsOpen(false)
-                signOut();
-            },
-            isDanger: true,
-            isSpecial: true
-        },
-    ];
+    // 菜单项配置
+    const menuItems = createMenuItems({
+        openSettings: modalHandlers.openSettings,
+        openAccountSettings: modalHandlers.openAccountSettings,
+        signOut,
+        closeMenu: () => setModals(prev => ({ ...prev, menu: false }))
+    });
 
     return (
         <>
-            {/* 用户头像，点击时打开下拉菜单 */}
-
-            <Avatar ref={avatarRef} onClick={() => setIsMenuOpen(true)}>
-                {avatarUrl ? (
-                    <AvatarImage src={avatarUrl} alt="User avatar" className="h-9 w-9 cursor-pointer
-                    hover:ring-[3px] hover:ring-gray-250 dark:hover:ring-gray-850/70
-                    transition-all duration-200 ease-in-out rounded-full"/>
+            <Avatar 
+                ref={avatarRef} 
+                onClick={() => setModals(prev => ({ ...prev, menu: true }))}
+            >
+                {user?.imageUrl ? (
+                    <AvatarImage 
+                        src={user.imageUrl} 
+                        alt="User avatar" 
+                        className="h-9 w-9 cursor-pointer hover:ring-[3px] hover:ring-gray-250 
+                                 dark:hover:ring-gray-850/70 transition-all duration-200 
+                                 ease-in-out rounded-full"
+                    />
                 ) : (
-                    <AvatarFallback className="cursor-pointer">NL</AvatarFallback>
+                    <AvatarFallback className="cursor-pointer">
+                        {user?.fullName?.[0] || 'NL'}
+                    </AvatarFallback>
                 )}
             </Avatar>
 
-
-            {/* 下拉菜单 */}
             <DropDownMenu
-                referenceElement={avatarRef.current} // 定位菜单到头像旁边
-                isOpen={isMenuOpen}
+                referenceElement={avatarRef.current}
+                isOpen={modals.menu}
                 menuItems={menuItems}
-                placement={'bottom'}
-                onClose={() => setIsMenuOpen(false)} // 点击外部区域关闭菜单
+                placement="bottom"
+                onClose={() => setModals(prev => ({ ...prev, menu: false }))}
             />
 
-            {/* 设置模态框 */}
-            <SettingsModal isOpen={isSettingsOpen} onClose={closeSettings}/>
+            {modals.settings && (
+                <SettingsModal 
+                    isOpen={modals.settings} 
+                    onClose={modalHandlers.closeSettings}
+                />
+            )}
 
-            {/* 账户设置模态框 */}
-            <PersonalCenter isOpen={isAccountSettingsOpen} onClose={closeAccountSettings}/>
+            {modals.account && (
+                <PersonalCenter 
+                    isOpen={modals.account} 
+                    onClose={modalHandlers.closeAccountSettings}
+                />
+            )}
         </>
     );
-}
+});
+
+UserAvatar.displayName = 'UserAvatar';
+
+export default UserAvatar;

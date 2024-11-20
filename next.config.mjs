@@ -50,6 +50,7 @@ const nextConfig = {
             'framer-motion',
             'react-markdown',
         ],
+        typedRoutes: true,
     },
 
     // 基础 webpack 配置

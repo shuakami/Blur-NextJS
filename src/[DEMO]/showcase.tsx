@@ -190,7 +190,7 @@ export default function Showcase({ title, categories }: ShowcaseProps) {
         <header className="mb-8 sm:mb-16">
           <div className="flex items-center justify-between mt-6 sm:mt-12">
             <div className="flex items-center gap-4">
-              <Link href="/blurdemo">
+              <Link href={{ pathname: '/blurdemo' }}>
                 <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full">
                   <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>

@@ -1,4 +1,3 @@
-// components/ui/markdown/MarkdownRenderer.tsx
 "use client";
 import React, { useMemo, memo } from 'react';
 import dynamic from 'next/dynamic';
@@ -9,7 +8,6 @@ import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import type { Components } from 'react-markdown';
 import remarkCodePreserver from "@/components/ui/markdown/pig/code";
-
 
 // 基础文本组件
 import { Paragraph, Strong, Emphasis } from './text';
@@ -35,47 +33,107 @@ import {
 } from './skeleton/skeleton';
 import { Blockquote } from './blockquote';
 
-// 动态导入
+// 动态导入组件
 const CodeBlock = dynamic(() => import("@/components/ui/markdown/code"), {
     loading: () => <CodeBlockSkeleton />
 });
 const Image = dynamic(() => import("@/components/ui/markdown/image").then(mod => mod.Image), {
     loading: () => <ImageSkeleton />
 });
-const BlockMath = dynamic(() => import("@/components/ui/markdown/MathRenderer").then(mod => mod.BlockMath), {
-    loading: () => <BlockMathSkeleton />
+const MathBlock = dynamic(() => import("@/components/ui/markdown/MathBlock"), {
+  loading: () => <BlockMathSkeleton />
 });
-const InlineMath = dynamic(() => import("@/components/ui/markdown/MathRenderer").then(mod => mod.InlineMath), {
-    loading: () => <InlineMathSkeleton />
-});
-const Details = dynamic(() => import("./details").then(mod => mod.Details), {
-    loading: () => null
-});
-const Summary = dynamic(() => import("./details").then(mod => mod.Summary), {
-    loading: () => null
+const InlineMathBlock = dynamic(() => import("@/components/ui/markdown/InlineMathBlock"), {
+  loading: () => <InlineMathSkeleton />
 });
 
-// 轻量级的内联组件
+// 添加类型定义
+type DetailsType = React.FC<React.PropsWithChildren<React.HTMLAttributes<HTMLDetailsElement>>>;
+type SummaryType = React.FC<React.PropsWithChildren<React.HTMLAttributes<HTMLElement>>>;
+
+// 修改动态导入的类型断言
+const Details = dynamic(() => 
+  import("./details").then(mod => mod.Details as DetailsType), {
+    loading: () => null
+}) as DetailsType;
+
+const Summary = dynamic(() => 
+  import("./details").then(mod => mod.Summary as SummaryType), {
+    loading: () => null
+}) as SummaryType;
+
+const MermaidRenderer = dynamic(() => import('./MermaidRenderer').then(mod => mod.default), {
+  loading: () => null
+});
+
+const HeadingOne = ({ children, ...props }: any) => <Heading1 {...props}>{children}</Heading1>;
+const HeadingTwo = ({ children, ...props }: any) => <Heading2 {...props}>{children}</Heading2>;
+const HeadingThree = ({ children, ...props }: any) => <Heading3 {...props}>{children}</Heading3>;
+const HeadingFour = ({ children, ...props }: any) => <Heading4 {...props}>{children}</Heading4>;
+const HeadingFive = ({ children, ...props }: any) => <Heading5 {...props}>{children}</Heading5>;
+const HeadingSix = ({ children, ...props }: any) => <Heading6 {...props}>{children}</Heading6>;
+
+const ParagraphComponent = ({ children, ...props }: any) => <Paragraph {...props}>{children}</Paragraph>;
+const StrongComponent = ({ children, ...props }: any) => <Strong {...props}>{children}</Strong>;
+const EmphasisComponent = ({ children, ...props }: any) => <Emphasis {...props}>{children}</Emphasis>;
+const BlockquoteComponent = ({ children, ...props }: any) => <Blockquote {...props}>{children}</Blockquote>;
+
+const UnorderedListComponent = ({ children, ...props }: any) => <UnorderedList {...props}>{children}</UnorderedList>;
+const OrderedListComponent = ({ children, ...props }: any) => <OrderedList {...props}>{children}</OrderedList>;
+const ListItemComponent = ({ children, ...props }: any) => <ListItem {...props}>{children}</ListItem>;
+
+const LinkComponent = ({ children, ...props }: any) => <Link {...props}>{children}</Link>;
+const ImageComponent = ({ src, alt, ...props }: any) => <Image src={src} alt={alt} {...props} />;
+
+const TableComponent = ({ children, ...props }: any) => <Table {...props}>{children}</Table>;
+const TableHeaderComponent = ({ children, ...props }: any) => <TableHeader {...props}>{children}</TableHeader>;
+const TableCellComponent = ({ children, ...props }: any) => <TableCell {...props}>{children}</TableCell>;
+
+const HorizontalRuleComponent = (props: any) => <HorizontalRule {...props} />;
+
+// 内联组件
 const InlineCode = memo<React.PropsWithChildren<Record<string, unknown>>>(({ children }) => (
   <code className="inline-code">{children}</code>
 ));
 InlineCode.displayName = 'InlineCode';
 
+const CodeComponent = ({ inline, className, children, ...props }: any) => {
+  if (inline) {
+    return <InlineCode {...props}>{children}</InlineCode>;
+  }
+
+  const codeContent = String(children);
+  
+  if (className === 'language-mermaid' || codeContent.trim().startsWith('```mermaid')) {
+    const cleanedMermaid = codeContent
+      .replace(/^```mermaid\n/, '')
+      .replace(/```$/, '')
+      .trim();
+    return <MermaidRenderer chart={cleanedMermaid} />;
+  }
+
+  let language: string | undefined;
+  const codeBlockMatch = codeContent.match(/^```([\w-]*)\n/);
+  if (codeBlockMatch) {
+    language = codeBlockMatch[1] || undefined;
+  } else if (className) {
+    const langMatch = className.match(/language-([\w-]*)/);
+    language = langMatch?.[1];
+  }
+  
+  const cleanedCode = codeContent
+    .replace(/\n$/, '')
+    .replace(/^```[\w-]*\n/, '')
+    .replace(/```$/, '');
+  
+  return <CodeBlock 
+    code={cleanedCode} 
+    language={language}
+  />;
+};
+
 const remarkPlugins = [remarkGfm, remarkMath, remarkCodePreserver];
 const rehypePlugins = [rehypeKatex, rehypeRaw];
-
-// 数学公式组件包装器
-const MathBlock = memo(({ children }: { children: React.ReactNode }) => {
-    const value = String(children).trim();
-    return <BlockMath>{value}</BlockMath>;
-});
-MathBlock.displayName = 'MathBlock';
-
-const InlineMathBlock = memo(({ children }: { children: React.ReactNode }) => {
-    const value = String(children).trim();
-    return <InlineMath>{value}</InlineMath>;
-});
-InlineMathBlock.displayName = 'InlineMathBlock';
 
 export const MarkdownRenderer: React.FC<{ 
     content: string;
@@ -83,76 +141,38 @@ export const MarkdownRenderer: React.FC<{
 }> = memo(({ content, isStreaming = false }) => {
 
   const components = useMemo<Components>(() => ({
-    // 标题组件
-    h1: ({ children, ...props }) => <Heading1 {...props}>{children}</Heading1>,
-    h2: ({ children, ...props }) => <Heading2 {...props}>{children}</Heading2>,
-    h3: ({ children, ...props }) => <Heading3 {...props}>{children}</Heading3>,
-    h4: ({ children, ...props }) => <Heading4 {...props}>{children}</Heading4>,
-    h5: ({ children, ...props }) => <Heading5 {...props}>{children}</Heading5>,
-    h6: ({ children, ...props }) => <Heading6 {...props}>{children}</Heading6>,
+    h1: HeadingOne,
+    h2: HeadingTwo,
+    h3: HeadingThree,
+    h4: HeadingFour,
+    h5: HeadingFive,
+    h6: HeadingSix,
 
-    // 基础文本组件
-    p: ({ children, ...props }) => <Paragraph {...props}>{children}</Paragraph>,
-    strong: ({ children, ...props }) => <Strong {...props}>{children}</Strong>,
-    em: ({ children, ...props }) => <Emphasis {...props}>{children}</Emphasis>,
-    blockquote: ({ children, ...props }) => <Blockquote {...props}>{children}</Blockquote>,
+    p: ParagraphComponent,
+    strong: StrongComponent,
+    em: EmphasisComponent,
+    blockquote: BlockquoteComponent,
 
-    // 列表组件
-    ul: ({ children, ...props }) => <UnorderedList {...props}>{children}</UnorderedList>,
-    ol: ({ children, ...props }) => <OrderedList {...props}>{children}</OrderedList>,
-    li: ({ children, ...props }) => <ListItem {...props}>{children}</ListItem>,
+    ul: UnorderedListComponent,
+    ol: OrderedListComponent,
+    li: ListItemComponent,
 
-    // 链接和图片
-    a: ({ children, ...props }) => <Link {...props}>{children}</Link>,
-    img: ({ src, alt, ...props }) => <Image src={src} alt={alt} {...props} />,
+    a: LinkComponent,
+    img: ImageComponent,
     
-    // 代码块
-    // @ts-ignore
-    code: ({ inline, className, children, ...props }) => {
-      if (inline) {
-        return <InlineCode {...props}>{children}</InlineCode>;
-      }
+    code: CodeComponent,
 
-      const codeContent = String(children);
-      
-      // 检测代码块语言
-      let language: string | undefined;
-      const codeBlockMatch = codeContent.match(/^```([\w-]*)\n/);
-      if (codeBlockMatch) {
-        language = codeBlockMatch[1] || undefined;
-      } else if (className) {
-        // 从 className 中提取语言 (格式如 "language-javascript")
-        const langMatch = className.match(/language-([\w-]*)/);
-        language = langMatch?.[1];
-      }
-      
-      // 清理代码内容
-      const cleanedCode = codeContent
-        .replace(/\n$/, '')
-        .replace(/^```[\w-]*\n/, '')
-        .replace(/```$/, '');
-      
-      return <CodeBlock 
-        code={cleanedCode} 
-        language={language}
-      />;
-    },
+    table: TableComponent,
+    th: TableHeaderComponent,
+    td: TableCellComponent,
 
-    // 表格组件
-    table: ({ children, ...props }) => <Table {...props}>{children}</Table>,
-    th: ({ children, ...props }) => <TableHeader {...props}>{children}</TableHeader>,
-    td: ({ children, ...props }) => <TableCell {...props}>{children}</TableCell>,
-
-    // 数学公式组件
     math: MathBlock,
     inlineMath: InlineMathBlock,
 
-    // 其他基础组件
-    hr: ({ ...props }) => <HorizontalRule {...props} />,
+    hr: HorizontalRuleComponent,
 
-    // 折叠器组件
-    details: ({ children, ...props }) => <Details {...props}>{children}</Details>,
-    summary: ({ children, ...props }) => <Summary {...props}>{children}</Summary>,
+    details: Details as any,
+    summary: Summary as any,
   }), []);
 
   return (

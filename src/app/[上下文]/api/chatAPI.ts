@@ -1,7 +1,7 @@
 import { sendMessage as sendMessageAPIBase } from '@/app/[消息发送]/send_message';
 import { stopStream as stopStreamAPIBase } from '@/app/[对话管理]/stop_stream';
 import { fetchHistory as fetchHistoryBase } from "@/app/[拉取历史]/fetch_history";
-import { SendMessageResponse, StreamChunk, FinalInfo, APIMessage, Message, UIMessage } from '@/types/stream';
+import { SendMessageResponse, StreamChunk, FinalInfo, APIMessage, Message } from '@/types/stream';
 
 // 发送消息的参数接口
 interface SendMessageParams {

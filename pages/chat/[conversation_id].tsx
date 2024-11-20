@@ -1,23 +1,18 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy, memo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy, memo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@clerk/nextjs';
 import { ChatProvider } from "@/app/[上下文]/ChatContext";
 import { fetchHistory } from '@/app/[拉取历史]/fetch_history';
 import { useConversations } from '../../contexts/ConversationsContext';
-import Cookies from "js-cookie";
-import ChatList from '@/app/[消息显示]/chat_list';
-import LoadingDots from '@/components/ui/loading-dots';
-import NoConversationFound from '@/components/chat/NoConversationFound';
 import { SHARED_ANIMATIONS } from '@/lib/animations/config';
 import { motion } from 'framer-motion';
+import Cookies from "js-cookie";
+import ChatList from '@/app/[消息显示]/chat_list';
+import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
+import NoConversationFound from '@/components/chat/NoConversationFound';
 
-const MessagesSidebar = lazy(() => 
-    import('@/app/[侧边栏管理]/messages_sidebar').then(mod => ({
-        default: memo(mod.default)
-    }))
-);
 const ChatInputWrapper = lazy(() => 
     import('@/components/ui/ChatInputWrapper').then(mod => ({
         default: memo(mod.default)
@@ -77,7 +72,7 @@ const ChatPage = memo(() => {
     const { conversation_id } = router.query;
     const { conversations } = useConversations();
     const { isSignedIn, isLoaded, user } = useUser();
-    
+
     const [state, setState] = useState({
         exists: null as boolean | null,
         isFullyLoaded: false,
@@ -149,23 +144,18 @@ const ChatPage = memo(() => {
         checkConversationExists();
     }, [conversation_id, isSignedIn, isLoaded, user?.id, state.retryCount]);
 
-    if (!isLoaded) {
-        return <div className="w-full h-screen flex items-center justify-center">
-            <LoadingDots />
-        </div>;
-    }
-
     if (state.exists === false) {
         return <NoConversationFound />;
     }
 
-    if (!isSignedIn) {
+    if (!isSignedIn && isLoaded) {
         return (
             <Suspense fallback={null}>
                 <SimplifiedUnauthenticatedHomePage />
             </Suspense>
         );
     }
+    
 
     return (
         <ChatProvider initialConversationId={Array.isArray(conversation_id) ? conversation_id[0] : conversation_id}>

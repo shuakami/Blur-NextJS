@@ -222,8 +222,10 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                     </div>
                 ) : (
                     <Link 
-                        href={`/chat/${item.id}`} 
+                        href={{ pathname: `/chat/${item.id}` }}
                         prefetch={false}
+                        scroll={true}
+                        replace={true}
                         onClick={(e) => {
                             if ((e.target as HTMLElement).closest('.more-options-button')) {
                                 e.preventDefault();

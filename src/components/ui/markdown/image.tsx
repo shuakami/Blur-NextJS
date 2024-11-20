@@ -100,7 +100,7 @@ export const Image: React.FC<ImageProps> = ({
         <>
             <div 
                 className={cn(
-                    'relative w-full overflow-hidden my-4',
+                    'relative w-full overflow-hidden my-4 group',
                     isLoading ? 'animate-pulse bg-muted dark:bg-muted/20' : 'bg-transparent',
                     !isLoading && 'cursor-zoom-in',
                     className
@@ -110,8 +110,6 @@ export const Image: React.FC<ImageProps> = ({
                     aspectRatio: aspectRatio ? `${aspectRatio}` : 'auto',
                 }}
                 onClick={() => setIsOpen(true)}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
             >
                 <NextImage
                     ref={imageRef}
@@ -122,9 +120,8 @@ export const Image: React.FC<ImageProps> = ({
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     className={cn(
                         'w-full h-auto object-contain rounded-xl',
-                        'transform transition-all duration-300',
+                        'transition-transform duration-300',
                         isLoading ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100',
-                        'hover:opacity-90'
                     )}
                     data-original-src={src}
                     priority={priority}
@@ -139,11 +136,9 @@ export const Image: React.FC<ImageProps> = ({
                     referrerPolicy="no-referrer"
                     {...props}
                 />
-                <div className={cn(
-                    'absolute inset-0 flex items-center justify-center bg-black/10 dark:bg-black/20 transition-opacity duration-300',
-                    isHovered ? 'opacity-100' : 'opacity-0'
-                )}>
-                    <ZoomIn className="w-8 h-8 text-white drop-shadow-lg" />
+                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-200" />
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <ZoomIn className="w-8 h-8 text-white drop-shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 </div>
             </div>
 

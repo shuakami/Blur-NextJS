@@ -9,13 +9,10 @@ import dynamic from 'next/dynamic';
 import Cookies from 'js-cookie';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import Meta from '@/components/ui/Meta';
+import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
 import { SHARED_ANIMATIONS } from '@/lib/animations/config';
 
 // 动态导入
-const MessagesSidebar = dynamic(() => import('@/app/[侧边栏管理]/messages_sidebar'), {
-  ssr: false,
-  loading: () => null
-});
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), {
   ssr: false,
   loading: () => null
@@ -180,6 +177,20 @@ const HomeContent = memo(() => {
         preloadComponents();
     }, [mounted]);
 
+    // URL监听
+    useEffect(() => {
+        if (!mounted) return;
+        
+        const isNewChat = searchParams?.get('new') === 'true';
+        if (isNewChat) {
+            resetChatState();
+            setHasConversation(false); // 重置对话状态
+            // 清除 URL 参数
+            const newUrl = pathname;
+            window.history.replaceState({}, '', newUrl);
+        }
+    }, [searchParams, pathname, mounted, resetChatState]);
+
     if (!mounted) {
         return null;
     }
@@ -201,9 +212,7 @@ const HomeContent = memo(() => {
                     }}
                     transition={SHARED_ANIMATIONS.sidebar}
                 >
-                    <Suspense fallback={null}>
                         <MessagesSidebar onClose={toggleSidebar} />
-                    </Suspense>
                 </motion.div>
 
                 {isSidebarOpen && isMobile && (

@@ -60,7 +60,7 @@ export default function BetaLoginForm() {
                         />
                         <p className="text-[#acaba9] dark:text-[#8c8c8c] text-xs mt-2">
                             {t("拥有内测资格和账号的用户可抢先体验最新功能。")} &nbsp;
-                            <Link href="/forgot-account" className="text-blue-500/80">
+                            <Link href={{ pathname: '/forgot-account' }} className="text-blue-500/80">
                                 {t("忘记了你的账号？")}
                             </Link>
                         </p>
@@ -96,7 +96,7 @@ export default function BetaLoginForm() {
                         />
                         <p className="text-[#acaba9] dark:text-[#8c8c8c] text-xs mt-2">
                             {t("继续输入密码以登录。")} &nbsp;
-                            <Link href="/forgot-password" className="text-blue-500/80">
+                            <Link href={{ pathname: '/forgot-password' }} className="text-blue-500/80">
                                 {t("忘记了你的密码？")}
                             </Link>
                         </p>

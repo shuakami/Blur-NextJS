@@ -1,67 +1,73 @@
-// ScrollDownButton.tsx
-
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useChatContext } from '@/app/[上下文]/ChatContext';
 import { usePathname } from 'next/navigation';
 
 interface ScrollDownButtonProps {
-    className?: string;
-    isSidebarOpen: boolean;
-    sidebarWidth: number;
+    className?: string; // 自定义类名
+    isSidebarOpen: boolean; // 侧边栏是否打开
+    sidebarWidth: number; // 侧边栏宽度
 }
 
-// 在文件顶部添加类型声明
+// 扩展事件监听选项
 type ExtendedEventListenerOptions = EventListenerOptions & {
-    passive?: boolean;
+    passive?: boolean; // 被动监听
 };
 
-const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSidebarOpen, sidebarWidth }) => {
-    const { isStreaming } = useChatContext();
-    const [show, setShow] = useState(false);
-    const [isScrolling, setIsScrolling] = useState(false);
-    const lastScrollY = useRef(0);
-    const animationFrame = useRef<number>();
-    const autoScrollTimeout = useRef<NodeJS.Timeout>();
-    const initialScrollTimeout = useRef<NodeJS.Timeout>();
-    const isProgrammaticScroll = useRef(false); // 标识是否为程序化滚动
+// 缓动动画
+const easeInOutQuad = (t: number): number => {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+};
 
-    const userInteractionHandler = useRef<() => void>();
+// 滚动到底部按钮组件
+const ScrollDownButton: React.FC<ScrollDownButtonProps> = memo(({ className, isSidebarOpen, sidebarWidth }) => {
+    const { isStreaming } = useChatContext(); // 获取聊天上下文
+    const [show, setShow] = useState(false); // 控制按钮显示
+    const [isScrolling, setIsScrolling] = useState(false); // 控制滚动状态
+    
+    // 合并相关的 ref
+    const scrollState = useRef({
+        lastScrollY: 0,
+        animationFrame: 0,
+        autoScrollTimeout: undefined as NodeJS.Timeout | undefined,
+        initialScrollTimeout: undefined as NodeJS.Timeout | undefined,
+        isProgrammaticScroll: false,
+        userInteractionHandler: undefined as (() => void) | undefined,
+    });
 
     const pathname = usePathname();
     const lastPathRef = useRef(pathname);
 
+    // 检查按钮是否显示
     const checkShouldShow = useCallback((container: Element) => {
         const currentScrollY = container.scrollTop;
-        const scrollHeight = container.scrollHeight;
-        const clientHeight = container.clientHeight;
+        const { scrollHeight, clientHeight } = container;
         
         const hasScrollSpace = scrollHeight > clientHeight + 100;
         const isNotAtBottom = currentScrollY < scrollHeight - clientHeight - 50;
         
         setShow(hasScrollSpace && isNotAtBottom);
-        lastScrollY.current = currentScrollY;
+        scrollState.current.lastScrollY = currentScrollY;
     }, []);
 
-    const easeInOutQuad = (t: number): number => {
-        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    };
-
+    // 取消滚动
     const cancelScroll = useCallback(() => {
-        if (animationFrame.current) {
-            cancelAnimationFrame(animationFrame.current);
-            animationFrame.current = undefined;
+        const state = scrollState.current;
+        if (state.animationFrame) {
+            cancelAnimationFrame(state.animationFrame);
+            state.animationFrame = 0;
         }
         setIsScrolling(false);
-        isProgrammaticScroll.current = false;
-        if (userInteractionHandler.current) {
-            const handler = userInteractionHandler.current;
+        state.isProgrammaticScroll = false;
+        if (state.userInteractionHandler) {
+            const handler = state.userInteractionHandler;
             window.removeEventListener('wheel', handler);
             window.removeEventListener('touchstart', handler);
             window.removeEventListener('keydown', handler);
-            userInteractionHandler.current = undefined;
+            state.userInteractionHandler = undefined;
         }
     }, []);
 
+    // 平滑滚动
     const smoothScroll = useCallback((
         container: Element,
         start: number,
@@ -69,8 +75,9 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
         duration: number,
         isAutoScroll: boolean = false
     ) => {
+        const state = scrollState.current;
         setIsScrolling(true);
-        isProgrammaticScroll.current = true; // 设置为程序化滚动
+        state.isProgrammaticScroll = true;
         const startTime = performance.now();
 
         const animate = (currentTime: number) => {
@@ -82,24 +89,24 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
             
             container.scrollTop = currentPosition;
             
-            if (progress < 1 && !isProgrammaticScroll.current) {
+            if (progress < 1 && !state.isProgrammaticScroll) {
                 setIsScrolling(false);
-                animationFrame.current = undefined;
+                state.animationFrame = 0;
                 return;
             }
 
             if (progress < 1) {
-                animationFrame.current = requestAnimationFrame(animate);
+                state.animationFrame = requestAnimationFrame(animate);
             } else {
                 setIsScrolling(false);
-                isProgrammaticScroll.current = false; // 重置程序化滚动标志
-                animationFrame.current = undefined;
-                if (userInteractionHandler.current) {
-                    const handler = userInteractionHandler.current;
+                state.isProgrammaticScroll = false;
+                state.animationFrame = 0;
+                if (state.userInteractionHandler) {
+                    const handler = state.userInteractionHandler;
                     window.removeEventListener('wheel', handler);
                     window.removeEventListener('touchstart', handler);
                     window.removeEventListener('keydown', handler);
-                    userInteractionHandler.current = undefined;
+                    state.userInteractionHandler = undefined;
                 }
             }
         };
@@ -108,24 +115,20 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
             cancelScroll();
         };
 
-        userInteractionHandler.current = handleUserInteraction;
+        state.userInteractionHandler = handleUserInteraction;
 
-        window.addEventListener('wheel', handleUserInteraction, { 
-            passive: true 
-        } as ExtendedEventListenerOptions);
-        window.addEventListener('touchstart', handleUserInteraction, { 
-            passive: true 
-        } as ExtendedEventListenerOptions);
-        window.addEventListener('keydown', handleUserInteraction, { 
-            passive: true 
-        } as ExtendedEventListenerOptions);
+        const listenerOptions = { passive: true } as ExtendedEventListenerOptions;
+        window.addEventListener('wheel', handleUserInteraction, listenerOptions);
+        window.addEventListener('touchstart', handleUserInteraction, listenerOptions);
+        window.addEventListener('keydown', handleUserInteraction, listenerOptions);
 
-        if (animationFrame.current) {
-            cancelAnimationFrame(animationFrame.current);
+        if (state.animationFrame) {
+            cancelAnimationFrame(state.animationFrame);
         }
-        animationFrame.current = requestAnimationFrame(animate);
+        state.animationFrame = requestAnimationFrame(animate);
     }, [cancelScroll]);
 
+    // 滚动到底部
     const scrollToBottom = useCallback((container: Element, isAuto: boolean = false) => {
         const currentPosition = container.scrollTop;
         const targetPosition = container.scrollHeight - container.clientHeight;
@@ -133,29 +136,18 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
         
         if (distance <= 0) return;
 
-        let duration;
-        if (isStreaming) {
-            // 流式状态下使用适中的滚动速度
-            duration = Math.min(Math.max(300, distance / 3), 1000);
-        } else {
-            // 普通状态下使用正常滚动速度
-            duration = Math.min(Math.max(300, distance / 3), 700);
-        }
+        const duration = isStreaming
+            ? Math.min(Math.max(300, distance / 3), 1000)
+            : Math.min(Math.max(300, distance / 3), 700);
 
-        smoothScroll(container, currentPosition, targetPosition, duration, isAuto);
+        smoothScroll(container, currentPosition, targetPosition, duration, isAuto); // 执行平滑滚动
     }, [smoothScroll, isStreaming]);
 
+    // 判断是否需要滚动到底部
     const shouldScrollToBottom = useCallback((container: Element) => {
-        // 检查是否有足够的滚动空间
         const hasEnoughScrollSpace = container.scrollHeight > container.clientHeight + 100;
-        
-        // 检查是否在顶部或接近顶部
         const isNearTop = container.scrollTop < 100;
-        
-        // 检查路径是否发生变化
         const pathChanged = lastPathRef.current !== pathname;
-        
-        // 更新上次路径
         lastPathRef.current = pathname;
         
         return hasEnoughScrollSpace && (isNearTop || pathChanged);
@@ -165,49 +157,49 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
         const scrollContainer = document.querySelector('section.flex-1.overflow-auto');
         if (!scrollContainer) return;
 
-        // 初始加载或路径变化时的滚动处理
-        initialScrollTimeout.current = setTimeout(() => {
+        const state = scrollState.current;
+
+        state.initialScrollTimeout = setTimeout(() => {
             if (shouldScrollToBottom(scrollContainer)) {
                 scrollToBottom(scrollContainer);
+                setTimeout(() => scrollToBottom(scrollContainer), 300);
             }
-        }, 800);
+        }, 1200);
 
+        // 处理滚动事件
         const handleScroll = () => {
             if (!scrollContainer) return;
-
             checkShouldShow(scrollContainer);
 
-            // 在流式状态下，如果用户在底部或接近底部，继续自动滚动
             if (isStreaming) {
                 const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-                // 增加判断范围，使其更容易触发自动滚动
                 const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
                 
-                if (isNearBottom || scrollTop === 0) { // 添加对顶部位置的判断
-                    if (autoScrollTimeout.current) {
-                        clearTimeout(autoScrollTimeout.current);
+                if (isNearBottom || scrollTop === 0) {
+                    if (state.autoScrollTimeout) {
+                        clearTimeout(state.autoScrollTimeout);
                     }
-                    autoScrollTimeout.current = setTimeout(() => {
+                    state.autoScrollTimeout = setTimeout(() => {
                         scrollToBottom(scrollContainer, true);
-                    }, 100); // 减少延迟时间
+                    }, 100);
                 }
             }
         };
 
+        // 处理内容变化
         const handleContentChange = () => {
-            if (!isStreaming) return;
+            if (!isStreaming) return; // 如果不在流式状态则返回
             
             const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
             const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
             
-            // 如果用户在底部或未滚动，则自动滚动
             if (isNearBottom || scrollTop === 0) {
-                if (autoScrollTimeout.current) {
-                    clearTimeout(autoScrollTimeout.current);
+                if (state.autoScrollTimeout) {
+                    clearTimeout(state.autoScrollTimeout);
                 }
-                autoScrollTimeout.current = setTimeout(() => {
+                state.autoScrollTimeout = setTimeout(() => {
                     scrollToBottom(scrollContainer, true);
-                }, 100); // 减少延迟时间
+                }, 100);
             }
         };
 
@@ -218,33 +210,40 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
             characterData: true
         });
 
-        // 添加即时的内容变化检查
+        // 流式自动划
         if (isStreaming) {
             handleContentChange();
         }
 
-        scrollContainer.addEventListener('scroll', handleScroll);
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
         checkShouldShow(scrollContainer);
 
         return () => {
             scrollContainer.removeEventListener('scroll', handleScroll);
             observer.disconnect();
             cancelScroll();
-            if (autoScrollTimeout.current) {
-                clearTimeout(autoScrollTimeout.current);
+            if (state.autoScrollTimeout) {
+                clearTimeout(state.autoScrollTimeout);
             }
-            if (initialScrollTimeout.current) {
-                clearTimeout(initialScrollTimeout.current);
+            if (state.initialScrollTimeout) {
+                clearTimeout(state.initialScrollTimeout);
             }
         };
     }, [checkShouldShow, scrollToBottom, isStreaming, cancelScroll, shouldScrollToBottom, pathname]);
 
+    // 处理按钮点击事件
     const handleClick = useCallback(() => {
         const scrollContainer = document.querySelector('section.flex-1.overflow-auto');
-        if (!scrollContainer) return;
-
-        scrollToBottom(scrollContainer);
+        if (scrollContainer) {
+            scrollToBottom(scrollContainer);
+        }
     }, [scrollToBottom]);
+
+    // 按钮样式
+    const buttonStyle = {
+        left: isSidebarOpen ? `calc(50% + ${sidebarWidth / 2}px)` : '50%',
+        transform: isSidebarOpen ? 'translateX(-50%)' : '-translate-x-1/2',
+    };
 
     return (
         <button 
@@ -264,10 +263,7 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
                 ${isScrolling ? 'animate-scroll-down' : ''}
                 ${className || ''}
             `}
-            style={{
-                left: isSidebarOpen ? `calc(50% + ${sidebarWidth / 2}px)` : '50%',
-                transform: isSidebarOpen ? 'translateX(-50%)' : '-translate-x-1/2',
-            }}
+            style={buttonStyle}
             aria-label="滚动到底部"
         >
             <svg 
@@ -291,6 +287,8 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({ className, isSideba
             </svg>
         </button>
     );
-};
+});
+
+ScrollDownButton.displayName = 'ScrollDownButton';
 
 export default ScrollDownButton;

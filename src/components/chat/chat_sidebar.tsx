@@ -168,6 +168,51 @@ const ChatSidebar = memo<ChatSidebarProps>(({
             ))
         ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations]);
 
+    const renderContent = useCallback(() => {
+        // 有数据时显示列表
+        if (items.length > 0) {
+            return (
+                <div className="space-y-2">
+                    {renderGroupItems}
+                    {(loading || hasMore) && (
+                        <div 
+                            ref={setLoadingRef} 
+                            className="mt-4 mb-6 flex justify-center"
+                        >
+                            {loading ? (
+                                <LoadingDots size="md" />
+                            ) : (
+                                <div className="text-xs text-black/50 dark:text-white/50">
+                                    {t('继续浏览')}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // 加载中或无数据
+        return (
+            <div className="flex flex-col items-center justify-center h-[200px]">
+                {loading ? (
+                    <LoadingDots size="sm" />
+                ) : (
+                    <div className="flex flex-col items-center gap-4 px-4">
+                        <Stars size={24} className="text-black/40 dark:text-white/40" />
+                        <div className="text-center">
+                            <p className="text-sm text-black/50 dark:text-white/50">
+                                {t('没有对话')}
+                            </p>
+                            <p className="text-xs text-black/30 dark:text-white/30 mt-1">
+                                {t('点击右上角按钮开始新对话')}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }, [items.length, loading, hasMore, renderGroupItems, loadingRef, t]);
 
     return (
         <div className={cn(
@@ -197,49 +242,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
 
                 {/* 对话列表区域 */}
                 <div className="py-4 mt-2 relative">
-                    {groupedItems.length > 0 ? (
-                        <div className="space-y-2">
-                            {renderGroupItems}
-                            {(loading || hasMore) && (
-                                <div 
-                                    ref={setLoadingRef} 
-                                    className={cn(
-                                        "mt-4 mb-6 transition-all duration-300",
-                                        loading ? "h-20" : "h-12",
-                                        "animate-fadeIn"
-                                    )}
-                                >
-                                    <div className="flex justify-center">
-                                        {loading ? (
-                                            <LoadingDots size="md" />
-                                        ) : (
-                                            <div className="text-xs text-black/50 dark:text-white/50 animate-fadeIn">
-                                                {t('继续浏览')}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-[200px] px-4 animate-fadeIn">
-                            {loading ? (
-                                <LoadingDots size="sm" />
-                            ) : (
-                                <div className="flex flex-col items-center gap-4">
-                                    <Stars size={24} className="text-black/40 dark:text-white/40" />
-                                    <div className="text-center">
-                                        <p className="text-sm text-black/50 dark:text-white/50">
-                                            {t('没有对话')}
-                                        </p>
-                                        <p className="text-xs text-black/30 dark:text-white/30 mt-1">
-                                            {t('点击右上角按钮开始新对话')}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                    {renderContent()}
                 </div>
             </ScrollArea>
 
