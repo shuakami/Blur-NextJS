@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import Meta from '@/components/ui/Meta';
 import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
+import ConnectionStatus from '../ui/ConnectionStatus';
 
 // 动态导入非关键组件
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
@@ -165,6 +166,9 @@ export function SharedChatLayout({
                             <div className="mb-3"/>
                         </div>
                     ))}
+
+                    {/* 连接状态 */}
+                    <ConnectionStatus />
                 </div>
 
                 <ScrollDownButton
