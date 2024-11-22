@@ -192,6 +192,7 @@ export class ConnectionManager extends EventEmitter {
     private handleError(error: ConnectionError, source: 'heartbeat' | 'sync') {
         // 检查是否是明确的网络错误
         const isNetworkError = error.code === 'ERR_INTERNET_DISCONNECTED' || 
+                               error.code === 'ERR_CONNECTION_REFUSED' ||
                               error.code === 'ERR_NETWORK' ||
                               error.code === 'NETWORK_ERROR';
 
