@@ -1,77 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { MessageCircle, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
 
-const AgentIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
+// Nextjs延迟导入
+const MarkdownRenderer = dynamic(() => import('../../ui/markdown/MarkdownRenderer'), { ssr: false });
 
-const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => (
-    <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
-);
+interface AgentData {
+  type: 'agent';
+  call_instance_id: string;
+  agent_id: string;
+  agent_name: string;
+  data: string;
+  status: string;
+  timestamp: number;
+}
 
+interface AgentProps {
+  data: AgentData;
+}
 
-const AgentCard: React.FC<{ agentName: string; content: string }> = ({ agentName, content }) => {
-    const [status, setStatus] = useState<string>('receiving');
-    const [displayContent, setDisplayContent] = useState<string>('');
+export function Agent({ data }: AgentProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-    useEffect(() => {
-        setStatus('receiving');
-        setDisplayContent('');
+  const variants = {
+    expanded: {
+      height: "auto",
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        mass: 0.8,
+      }
+    },
+    collapsed: {
+      height: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        mass: 0.8,
+      }
+    }
+  };
 
-        setTimeout(() => {
-            setStatus('processing');
+  const contentParagraphs = typeof data?.data === 'string' 
+    ? data.data.split('\n\n')
+    : [];
 
-            let currentContent = '';
-            const interval = setInterval(() => {
-                if (currentContent.length < content.length) {
-                    currentContent += content[currentContent.length];
-                    setDisplayContent(currentContent);
-                } else {
-                    clearInterval(interval);
-                    setStatus('completed');
-                }
-            }, 50);
-        }, 1000);
-    }, [content]);
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-md w-full"
-        >
-            <div className="flex items-center space-x-2 p-3 bg-gray-50 border-b border-gray-200">
-                <AgentIcon />
-                <h3 className="text-sm font-medium text-gray-700">{agentName}</h3>
-                <div className="flex-grow" />
-                {status === 'receiving' && <MessageCircle className="text-blue-500 animate-pulse" size={16} />}
-                {status === 'processing' && <div className="w-4 h-4 border-t-2 border-blue-500 rounded-full animate-spin" />}
-                {status === 'completed' && <Check className="text-green-500" size={16} />}
-                <span className="text-xs text-gray-500">
-          {status === 'receiving' ? 'Receiving' : status === 'processing' ? 'Processing' : 'Completed'}
-        </span>
-            </div>
-            <div className="p-3">
-                <MarkdownRenderer content={displayContent} />
-            </div>
-        </motion.div>
-    );
-};
-
-export default function AgentInteraction() {
-    return (
-        <div className="flex justify-center items-start p-4 min-h-screen bg-gray-100">
-            <AgentCard
-                agentName="Research Assistant"
-                content="Analyzing the given topic...\n\n1. Identified key aspects\n2. Searching relevant databases\n3. Compiling information\n\nResults: The assessment criteria for individual health and sports performance include...[content continues]"
-            />
+  return (
+    <div>
+      <button 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="group flex items-center gap-2 h-8"
+      >
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-[18px] h-[18px] text-yellow-700 dark:text-yellow-500" />
+          <span className="font-medium text-base bg-gradient-to-r from-yellow-800 to-yellow-700 dark:from-yellow-600 dark:to-yellow-500 text-transparent bg-clip-text">
+            {data?.agent_name || 'Agent'}
+          </span>
+          <motion.span
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="text-yellow-700/70 dark:text-yellow-500/70"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </motion.span>
         </div>
-    );
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            variants={variants}
+            initial="collapsed"
+            animate="expanded"
+            exit="collapsed"
+            className="overflow-hidden"
+          >
+            <div className="blockquote">
+              {contentParagraphs.map((paragraph, index) => (
+                paragraph && (
+                  <MarkdownRenderer key={index} content={paragraph} />
+                )
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }

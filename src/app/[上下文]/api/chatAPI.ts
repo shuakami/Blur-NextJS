@@ -119,13 +119,19 @@ export const formatMessages = (apiMessages: APIMessage[], userImageUrl?: string)
             return baseMessage;
         }
 
-        // 对于 bot 消息，添加临时字段用于插件处理
+        // 对于 bot 消息，添加临时字段用于插件和 Agent 处理
         if (msg.role === 'assistant') {
+            console.log('格式化消息:', {
+                messageId: msg.message_id,
+                agentResponses: msg.agent_responses,
+                moreContent: msg.more_content
+            });
+
             return {
                 ...baseMessage,
-                // 添加临时字段，这些字段会在 HistoryPluginHandler 处理后被移除
-                _temp_plugin_responses: msg.plugin_responses,
-                _temp_more_content: msg.more_content
+                _temp_plugin_responses: msg.plugin_responses || [],
+                _temp_more_content: msg.more_content || [],  // 确保传递 more_content
+                _temp_agent_responses: msg.agent_responses || []
             };
         }
 

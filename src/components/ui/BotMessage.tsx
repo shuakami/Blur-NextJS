@@ -5,6 +5,7 @@ import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
 import { useChatContext } from "@/app/[上下文]/ChatContext";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
+import { Agent } from './LLM/agent';
 
 
 // 懒加载非关键组件
@@ -30,7 +31,8 @@ const MessageToolbar = lazy(() =>
 const PluginComponents = {
     PluginCallingMessage: lazy(() => import("./LLM/PluginCallingMessage")),
     PluginResponseMessage: lazy(() => import("./LLM/PluginResponseMessage")),
-    ErrorMessage: lazy(() => import("./chat-list/ErrorMessage"))
+    ErrorMessage: lazy(() => import("./chat-list/ErrorMessage")),
+    Agent: lazy(() => import("./LLM/agent").then(mod => ({ default: mod.Agent })))
 };
 
 interface BotMessageProps {
@@ -58,12 +60,32 @@ const renderPluginContent = (part: string, index: number) => {
             : PluginComponents.PluginResponseMessage;
 
         return (
-            <Suspense key={index} fallback={<div className="animate-pulse h-4 bg-gray-200 rounded w-1/2" />}>
+            <Suspense key={index} fallback={null}>
                 <PluginComponent {...pluginInfo} />
             </Suspense>
         );
     } catch (e) {
         console.error('Plugin data parsing failed:', e);
+        return null;
+    }
+};
+
+// agent 数据处理函数
+const renderAgentContent = (part: string, index: number) => {
+    if (!part.startsWith('<agent-data>')) return null;
+    
+    try {
+        const agentInfo = JSON.parse(
+            part.replace('<agent-data>', '').replace('</agent-data>', '')
+        );
+        
+        return (
+            <Suspense key={index} fallback={null}>
+                <Agent data={agentInfo} />
+            </Suspense>
+        );
+    } catch (e) {
+        console.error('Agent data parsing failed:', e);
         return null;
     }
 };
@@ -78,8 +100,8 @@ const BotMessage = memo(({
 }: BotMessageProps) => {
     const { isStreaming } = useChatContext();
 
-    // 将内容按插件标记分割，使用新的正则表达式
-    const parts = content.split(/(<plugin-data>.*?<\/plugin-data>)/s);
+    // 将内容按 plugin 和 agent 标记分割
+    const parts = content.split(/(<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>)/s);
     
     return (
         <div className="group relative flex w-full items-start">
@@ -109,15 +131,21 @@ const BotMessage = memo(({
                         </Suspense>
                     ) : (
                         <>
-                            {parts.map((part, index) => 
-                                part.startsWith('<plugin-data>') 
-                                    ? renderPluginContent(part, index)
-                                    : <MarkdownRenderer 
+                            {parts.map((part, index) => {
+                                if (part.startsWith('<plugin-data>')) {
+                                    return renderPluginContent(part, index);
+                                }
+                                if (part.startsWith('<agent-data>')) {
+                                    return renderAgentContent(part, index);
+                                }
+                                return (
+                                    <MarkdownRenderer 
                                         key={index} 
                                         content={part} 
                                         isStreaming={isStreaming && isLatestBotMessage}
                                     />
-                            )}
+                                );
+                            })}
                             {error && (
                                 <Suspense fallback={<div className="animate-pulse h-4 bg-gray-200 rounded w-1/4" />}>
                                     <PluginComponents.ErrorMessage error={error} />

@@ -1,10 +1,13 @@
 // ChatList.tsx
 
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useRef, useEffect } from "react";
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import { ChatListProps, Message, ThoughtProcess } from "@/types/stream";
 import './chat_list.css';
+import { usePathname } from 'next/navigation';
+import { useChatContext } from "@/app/[上下文]/ChatContext";
+
 
 // 消息项组件
 const MessageItem = memo(({ 
@@ -63,11 +66,73 @@ MessageItem.displayName = 'MessageItem';
 
 // 主组件
 export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: ChatListProps) => {
-
-    // 打印messages
-    console.log('ChatList messages:', messages);
-
     const [editingId, setEditingId] = React.useState<string | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname();
+    const lastPathRef = useRef(pathname);
+    const { isStreaming } = useChatContext();
+    const userInteractedRef = useRef(false);
+    const lastScrollTime = useRef(0);
+
+    useEffect(() => {
+        if (messages.length === 0) return;
+        
+        const scrollContainer = document.querySelector('.flex-1.overflow-auto.w-full.pt-12');
+        if (!scrollContainer) return;
+
+        const isPathChanged = lastPathRef.current !== pathname;
+        lastPathRef.current = pathname;
+
+        // 使用防抖处理滚动事件
+        const handleScroll = () => {
+            const now = Date.now();
+            if (now - lastScrollTime.current < 50) return; // 50ms 节流
+            lastScrollTime.current = now;
+
+            const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+            const isAtBottom = scrollHeight - scrollTop - clientHeight < 10;
+            
+            if (isAtBottom) {
+                userInteractedRef.current = false;
+            }
+        };
+
+        // 简化用户交互处理
+        const handleUserInteraction = (e: Event) => {
+            if (!e.isTrusted) return;
+            userInteractedRef.current = true;
+        };
+
+        // 使用事件委托减少事件监听器数量
+        const handleInteractions = (e: Event) => {
+            if (e.type === 'scroll') {
+                handleScroll();
+            } else {
+                handleUserInteraction(e);
+            }
+        };
+
+        scrollContainer.addEventListener('scroll', handleInteractions, { passive: true });
+        scrollContainer.addEventListener('wheel', handleInteractions, { passive: true });
+        scrollContainer.addEventListener('touchstart', handleInteractions, { passive: true });
+
+        // 只在必要时滚动
+        if (isPathChanged || !userInteractedRef.current || (isStreaming && !userInteractedRef.current)) {
+            requestAnimationFrame(() => {
+                if (isPathChanged) {
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+                } else {
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        }
+
+        return () => {
+            scrollContainer.removeEventListener('scroll', handleInteractions);
+            scrollContainer.removeEventListener('wheel', handleInteractions);
+            scrollContainer.removeEventListener('touchstart', handleInteractions);
+        };
+    }, [messages, pathname, isStreaming]);
 
     const handleEdit = useCallback(async (id: string, newContent: string) => {
         if (onEditMessage) {
@@ -101,6 +166,7 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
                             isLastMessage={index === messages.length - 1}
                         />
                     ))}
+                    <div ref={messagesEndRef} className="h-1" />
                 </div>
             </div>
         </div>

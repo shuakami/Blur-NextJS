@@ -7,6 +7,8 @@ import {ThemeProvider} from "@/components/ui/theme-provider";
 import {OptimizedClerkProvider} from "@/components/providers/OptimizedClerkProvider";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
+import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 const SpeedInsights = dynamic(
   () => import('@vercel/speed-insights/next').then(mod => mod.SpeedInsights),
@@ -99,6 +101,8 @@ const NonCriticalUI = dynamic(() =>
   }),
   { ssr: false, loading: () => null }
 );
+
+
 
 export default function RootLayout({
     children,

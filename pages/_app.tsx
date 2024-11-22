@@ -146,6 +146,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         };
     }, [router]);
 
+
     const providedContent = useMemo(() => (
         <ClerkProvider {...pageProps}>
             <ThemeProvider 

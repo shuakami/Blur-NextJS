@@ -12,6 +12,7 @@ import {
     RetryableMessage,
     createMessageWithStatus 
 } from '../core/messageStatus';
+import { StreamMessageHandler } from '../core/StreamMessageHandler';
 
 interface UseSendMessageProps {
     state: any;
@@ -36,9 +37,7 @@ const useSendMessage = ({
 }: UseSendMessageProps) => {
     const { getToken } = useAuth();
     const abortControllerRef = useRef<AbortController | null>(null);
-    const currentBotMessageIdRef = useRef<string | null>(null);
-    const currentBotContentRef = useRef<string>('');
-    const lastPluginCallRef = useRef<{ id: number, name: string } | null>(null);
+    const streamHandler = useRef<StreamMessageHandler>(new StreamMessageHandler(dispatch));
 
     // 核心发送消息逻辑
     const sendMessageCore = useCallback(async (
@@ -59,7 +58,6 @@ const useSendMessage = ({
         let botMessage: MessageWithStatus;
 
         if (retryCount > 0 && existingUserMessage && existingBotMessage) {
-            // 更新现有消息的状态为 'pending'，清除之前的错误
             userMessage = { ...existingUserMessage, sendStatus: 'pending', error: undefined };
             botMessage = { ...existingBotMessage, sendStatus: 'pending', error: undefined, content: '' };
 
@@ -79,7 +77,6 @@ const useSendMessage = ({
                 }
             });
         } else {
-            // 创建新的用户和机器人消息
             userMessage = createMessageWithStatus(
                 dialogProcessor.createUserMessage(message, userImageUrl),
                 'pending'
@@ -93,8 +90,8 @@ const useSendMessage = ({
             addMessage(botMessage as Message);
         }
 
-        currentBotMessageIdRef.current = botMessage.message_id || null;
-        currentBotContentRef.current = botMessage.content || '';
+        streamHandler.current.setCurrentBotMessageId(botMessage.message_id || null);
+        streamHandler.current.setCurrentBotContent(botMessage.content || '');
 
         dispatch({ type: 'SET_LOADING', payload: true });
         dispatch({ type: 'SET_IS_STREAMING', payload: true });
@@ -122,7 +119,6 @@ const useSendMessage = ({
                         dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: currentConversationId });
                     }
                     
-                    // 更新用户消息状态为已发送
                     if (userMessage.message_id) {
                         dispatch({
                             type: 'UPDATE_MESSAGE',
@@ -136,10 +132,10 @@ const useSendMessage = ({
                 onChunk: (chunk) => {
                     dispatch({ type: 'SET_LOADING', payload: false });
 
-                    // 增强错误识别逻辑
                     if ((chunk.status === 'error' && chunk.error) || (chunk.code && chunk.code >= 400)) {
                         console.error('检测到错误的 chunk:', chunk);
-                        if (currentBotMessageIdRef.current) {
+                        const currentBotMessageId = streamHandler.current.getCurrentBotMessageId();
+                        if (currentBotMessageId) {
                             const errorDetails = {
                                 code: chunk.code || 500,
                                 message: chunk.message || t('抱歉，发送消息失败。')
@@ -147,7 +143,7 @@ const useSendMessage = ({
                             dispatch({
                                 type: 'UPDATE_MESSAGE',
                                 payload: {
-                                    message_id: currentBotMessageIdRef.current,
+                                    message_id: currentBotMessageId,
                                     updates: {
                                         error: errorDetails,
                                         isStreaming: false,
@@ -158,85 +154,18 @@ const useSendMessage = ({
                         }
                         dispatch({ type: 'SET_IS_STREAMING', payload: false });
                         dispatch({ type: 'SET_LOADING', payload: false });
-
-                        // 直接返回，不继续处理
                         return;
                     }
 
-                    // 处理插件的流式检测
-                    const result = dialogProcessor.processStreamChunk({
-                        content: JSON.stringify(chunk),
-                        currentFullContent: currentBotContentRef.current,
-                        isFirstChunk: currentBotContentRef.current === '',
-                        isFinalChunk: chunk.is_final_chunk
-                    });
-
-                    if (result?.updates && result.shouldUpdateCurrentBot && currentBotMessageIdRef.current) {
-                        let content = currentBotContentRef.current;
-                        
-                        // 处理插件响应状态
-                        if (result.updates.plugin_status === 'response' && lastPluginCallRef.current) {
-                            // 移除对应的 calling 标记
-                            const callMarker = `<plugin-data>{"status":"calling","plugin_id":${lastPluginCallRef.current.id},"plugin_name":"${lastPluginCallRef.current.name}"}</plugin-data>`;
-                            content = content.replace(callMarker, '');
-                            lastPluginCallRef.current = null;
-                        }
-                        
-                        // 处理插件调用状态
-                        if (result.updates.plugin_status === 'calling') {
-                            lastPluginCallRef.current = {
-                                id: result.updates.plugin_id!,
-                                name: result.updates.plugin_name!
-                            };
-                        }
-
-                        // 添加新的插件标记
-                        const pluginInfo = {
-                            status: result.updates.plugin_status,
-                            plugin_id: result.updates.plugin_id,
-                            plugin_name: result.updates.plugin_name,
-                            plugin_response: result.updates.plugin_response
-                        };
-                        
-                        const pluginMarker = `<plugin-data>${JSON.stringify(pluginInfo)}</plugin-data>`;
-                        content += pluginMarker;
-                        currentBotContentRef.current = content;
-                        
-                        dispatch({
-                            type: 'UPDATE_MESSAGE',
-                            payload: {
-                                message_id: currentBotMessageIdRef.current,
-                                updates: {
-                                    ...result.updates,
-                                    content
-                                }
-                            }
-                        });
-                    }
-
-                    // 只有在有 content 时才更新消息内容
-                    if (chunk.content) {
-                        currentBotContentRef.current += chunk.content;
-                        
-                        if (currentBotMessageIdRef.current) {
-                            dispatch({
-                                type: 'UPDATE_MESSAGE',
-                                payload: {
-                                    message_id: currentBotMessageIdRef.current,
-                                    updates: {
-                                        content: currentBotContentRef.current
-                                    }
-                                }
-                            });
-                        }
-                    }
+                    streamHandler.current.handleStreamChunk(chunk);
 
                     if (chunk.is_final_chunk) {
-                        if (currentBotMessageIdRef.current) {
+                        const currentBotMessageId = streamHandler.current.getCurrentBotMessageId();
+                        if (currentBotMessageId) {
                             dispatch({
                                 type: 'UPDATE_MESSAGE',
                                 payload: {
-                                    message_id: currentBotMessageIdRef.current,
+                                    message_id: currentBotMessageId,
                                     updates: { isStreaming: false }
                                 }
                             });
@@ -244,12 +173,9 @@ const useSendMessage = ({
 
                         dispatch({ type: 'RESET_NEW_CONVERSATION_ID' });
                         dispatch({ type: 'SET_IS_STREAMING', payload: false });
-                        console.log('SET_IS_STREAMING', false);
                         triggerConversationsReload();
 
-                        // 重置 refs
-                        currentBotMessageIdRef.current = null;
-                        currentBotContentRef.current = '';
+                        streamHandler.current.resetState();
                     }
                 },
                 onFinalInfo: (finalInfo) => {
@@ -262,7 +188,6 @@ const useSendMessage = ({
                 signal: abortController.signal
             });
 
-            // 成功发送后，无需操作
         } catch (error: any) {
             handleMessageError(error, userMessage, botMessage, retryCount);
         } finally {
@@ -324,8 +249,6 @@ const useSendMessage = ({
 
         dispatch({ type: 'SET_IS_STREAMING', payload: false });
         dispatch({ type: 'SET_LOADING', payload: false });
-        currentBotMessageIdRef.current = null;
-        currentBotContentRef.current = '';
     }, [dispatch, t]);
 
     // 重试消息
@@ -390,7 +313,7 @@ const useSendMessage = ({
             return;
         }
 
-        const botMessageId = currentBotMessageIdRef.current;
+        const botMessageId = streamHandler.current.getCurrentBotMessageId();
 
         if (!botMessageId) {
             console.error('无法停止流式传输，未找到正在 streaming 的消息');
@@ -413,9 +336,7 @@ const useSendMessage = ({
                 }
             });
 
-            // 重置 refs
-            currentBotMessageIdRef.current = null;
-            currentBotContentRef.current = '';
+            streamHandler.current.resetState();
         } catch (error) {
             console.error('停止流式传输失败:', error);
         }

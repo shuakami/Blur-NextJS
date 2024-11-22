@@ -4,7 +4,6 @@ import { Message } from '@/types/stream';
 const PluginStateHandler = {
     onStreamChunk: ({ content, currentFullContent, isFirstChunk, isFinalChunk }: { content: string, currentFullContent: string, isFirstChunk: boolean, isFinalChunk: boolean }) => {
         try {
-            // 尝试解析 chunk
             const chunk = JSON.parse(content);
             let updates: Partial<Message> | null = null;
 
@@ -15,16 +14,18 @@ const PluginStateHandler = {
                 updates = {
                     plugin_id: chunk.plugin_id,
                     plugin_name: chunk.plugin_name,
-                    plugin_status: 'calling'
+                    plugin_status: 'calling',
+                    call_index: chunk.call_index
                 };
                 console.log('插件调用状态更新:', updates);
             }
             
-            // 处理插件响应状态 - 当有 plugin_response 时
+            // 处理插件响应状态
             if (chunk.plugin_response) {
                 updates = {
                     plugin_response: chunk.plugin_response,
-                    plugin_status: 'response'
+                    plugin_status: 'response',
+                    call_index: chunk.call_index
                 };
                 console.log('插件响应状态更新:', updates);
             }

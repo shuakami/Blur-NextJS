@@ -5,7 +5,6 @@ import { fetchHistoryAPI, formatMessages } from '../api/chatAPI';
 import dialogProcessor from '../core/DialogProcessor';
 import { Dispatch } from 'react';
 import { Action } from '../core/chatReducer';
-import HistoryPluginHandler from '../plugins/HistoryPluginHandler';
 
 interface UseFetchHistoryProps {
     state: any;
@@ -31,7 +30,7 @@ const useFetchHistory = ({
             const history = await fetchHistoryAPI({
                 userId,
                 conversationId: state.conversationId,
-                limit: 10,
+                limit: 30,
                 offset: state.offset,
             });
 

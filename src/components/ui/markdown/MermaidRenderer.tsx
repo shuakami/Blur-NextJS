@@ -7,7 +7,8 @@ import { ClipboardIcon, CheckIcon, DownloadIcon, ImageIcon, FileCode } from 'luc
 import { ColorScheme, getThemeVariables} from './mermaid-themes';
 import { exportDiagram } from './mermaid-export';
 import { useChatContext } from "@/app/[上下文]/ChatContext";
-
+import { MenuItem, MenuItems, MenuSeparator } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 interface MermaidRendererProps {
     chart: string;
@@ -25,7 +26,7 @@ const preprocessChart = (chartContent: string): string => {
         // 为流程图添加方向和大小限制
         return chartContent.replace(
             /^(graph|flowchart)\s+(TD|LR|RL|BT)/,
-            '$1 TD\n    %% 强制自适应大小\n    %%{init: {"flowchart": {"nodeSpacing": 30, "rankSpacing": 30, "width": "100%", "height": "auto"}} }%%'
+            '$1 TD\n    %% 强制自适应大小\n    %%{init: {"flowchart": {"nodeSpacing": 30, "rankSpacing": 30, "width": "100%", "height": "auto" }} }%%'
         );
     }
 
@@ -46,7 +47,6 @@ const preprocessChart = (chartContent: string): string => {
 export const lightThemeVariables = {
     // 基础颜色
     background: '#ffffff',
-    fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
     fontSize: '13px',
     
     // 主要颜色
@@ -100,7 +100,6 @@ export const lightThemeVariables = {
 export const darkThemeVariables = {
     // 基础颜色
     background: '#18181b',
-    fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
     fontSize: '13px',
     
     // 主要颜色
@@ -158,7 +157,6 @@ mermaid.initialize({
     
     themeVariables: {
         // 基础颜色
-        fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
         primaryColor: '#ffffff',
         primaryTextColor: '#334155',
         primaryBorderColor: '#94a3b8',  // 更深的边框色
@@ -304,6 +302,24 @@ const sanitizeChart = (chartContent: string): string => {
     }
 };
 
+type MenuStyles = {
+  menu: string;
+  item: string;
+  itemHover: string;
+  separator: string;
+  shortcut: string;
+  itemIcon: string;
+};
+
+const dropdownStyles: MenuStyles = {
+    menu: "min-w-[220px] bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border-gray-200/60 dark:border-white/[0.1]",
+    item: "text-gray-600 dark:text-gray-300 text-[13px]",
+    itemHover: "hover:bg-gray-70 dark:hover:bg-gray-800",
+    separator: "bg-gray-200/70 dark:bg-white/[0.08] my-1.5",
+    shortcut: "text-gray-500 dark:text-gray-400 text-[12px]",
+    itemIcon: "w-3.5 h-3.5"
+};
+
 export const MermaidRenderer = memo<MermaidRendererProps>(({ chart, className = '' }) => {
     const { theme } = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -315,6 +331,8 @@ export const MermaidRenderer = memo<MermaidRendererProps>(({ chart, className = 
     const exportMenuRef = useRef<HTMLDivElement>(null);
     const [selectedColorScheme, setSelectedColorScheme] = useState<ColorScheme>('system');
     const { isStreaming } = useChatContext();
+    const [isExportOpen, setIsExportOpen] = useState(false);
+    const exportButtonRef = useRef<HTMLButtonElement>(null);
 
     // 更新渲染函数
     const renderChart = async () => {
@@ -445,122 +463,87 @@ export const MermaidRenderer = memo<MermaidRendererProps>(({ chart, className = 
                     </button>
                     
                     {/* 导出按钮和菜单 */}
-                    <div className="relative">
-                        <button
-                            onClick={() => setShowExportMenu(!showExportMenu)}
-                            className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-white/80 dark:bg-black/50 hover:bg-white dark:hover:bg-black/80 border border-gray-200/50 dark:border-white/[0.1] transition-colors"
-                            title="导出图表"
-                        >
-                            <DownloadIcon className="w-4 h-4" />
-                        </button>
-                        
-                        {showExportMenu && (
-                            <div 
-                                ref={exportMenuRef}
-                                className="absolute right-0 mt-1.5 w-64 max-h-[calc(100vh-100px)] overflow-y-auto bg-white dark:bg-zinc-900/95 rounded-lg shadow-lg ring-1 ring-gray-200/40 dark:ring-white/10 backdrop-blur-sm divide-y divide-gray-200/50 dark:divide-white/[0.08]"
-                            >
-                                {/* 配色选项 */}
-                                <div className="p-2">
-                                    <div className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                        配色方案
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-1">
-                                        <button
-                                            onClick={() => handleThemeChange('light')}
-                                            className={`px-3 py-1.5 text-xs rounded-md transition-colors flex items-center gap-2 ${
-                                                selectedColorScheme === 'light' 
-                                                    ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' 
-                                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                            }`}
-                                        >
-                                            <div className="w-3 h-3 rounded-full bg-gray-100 ring-1 ring-gray-300" />
-                                            浅色
-                                        </button>
-                                        <button
-                                            onClick={() => handleThemeChange('dark')}
-                                            className={`px-3 py-1.5 text-xs rounded-md transition-colors flex items-center gap-2 ${
-                                                selectedColorScheme === 'dark' 
-                                                    ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' 
-                                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                            }`}
-                                        >
-                                            <div className="w-3 h-3 rounded-full bg-zinc-800 ring-1 ring-zinc-700" />
-                                            深色
-                                        </button>
-                                        <button
-                                            onClick={() => handleThemeChange('spring')}
-                                            className={`px-3 py-1.5 text-xs rounded-md transition-colors flex items-center gap-2 ${
-                                                selectedColorScheme === 'spring' 
-                                                    ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' 
-                                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                            }`}
-                                        >
-                                            <div className="w-3 h-3 rounded-full bg-green-100 ring-1 ring-green-200" />
-                                            薄荷绿
-                                        </button>
-                                        <button
-                                            onClick={() => handleThemeChange('royal')}
-                                            className={`px-3 py-1.5 text-xs rounded-md transition-colors flex items-center gap-2 ${
-                                                selectedColorScheme === 'royal' 
-                                                    ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' 
-                                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                            }`}
-                                        >
-                                            <div className="w-3 h-3 rounded-full bg-purple-100 ring-1 ring-purple-200" />
-                                            优雅紫
-                                        </button>
-                                        <button
-                                            onClick={() => handleThemeChange('ocean')}
-                                            className={`px-3 py-1.5 text-xs rounded-md transition-colors flex items-center gap-2 ${
-                                                selectedColorScheme === 'ocean' 
-                                                    ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' 
-                                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                            }`}
-                                        >
-                                            <div className="w-3 h-3 rounded-full bg-blue-100 ring-1 ring-blue-200" />
-                                            海洋蓝
-                                        </button>
-                                        <button
-                                            onClick={() => handleThemeChange('system')}
-                                            className={`px-3 py-1.5 text-xs rounded-md transition-colors flex items-center gap-2 ${
-                                                selectedColorScheme === 'system' 
-                                                    ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' 
-                                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                            }`}
-                                        >
-                                            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-gray-100 to-zinc-800 ring-1 ring-gray-300" />
-                                            跟随系统
-                                        </button>
-                                    </div>
-                                </div>
+                    <button
+                        ref={exportButtonRef}
+                        onClick={() => setIsExportOpen(true)}
+                        className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 bg-white/80 dark:bg-black/50 hover:bg-white dark:hover:bg-black/80 border border-gray-200/50 dark:border-white/[0.1] transition-colors"
+                        title="导出图表"
+                    >
+                        <DownloadIcon className="w-4 h-4" />
+                    </button>
 
-                                {/* 导出选项 */}
-                                <div className="p-1 z-50">
-                                    <button
-                                        onClick={() => exportDiagram(svgRef.current!, 'svg', selectedColorScheme, chart)}
-                                        className="w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/[0.08] rounded-md flex items-center gap-2 transition-colors"
-                                    >
-                                        <FileCode className="w-4 h-4 opacity-70" />
-                                        导出为 SVG
-                                    </button>
-                                    <button
-                                        onClick={() => exportDiagram(svgRef.current!, 'png', selectedColorScheme, chart)}
-                                        className="w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/[0.08] rounded-md flex items-center gap-2 transition-colors"
-                                    >
-                                        <ImageIcon className="w-4 h-4 opacity-70" />
-                                        导出为 PNG
-                                    </button>
-                                    <button
-                                        onClick={() => exportDiagram(svgRef.current!, 'json', selectedColorScheme, chart)}
-                                        className="w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-white/[0.08] rounded-md flex items-center gap-2 transition-colors"
-                                    >
-                                        <FileCode className="w-4 h-4 opacity-70" />
-                                        导出为 JSON
-                                    </button>
-                                </div>
+                    <MenuItems
+                        isOpen={isExportOpen}
+                        onClose={() => setIsExportOpen(false)}
+                        referenceElement={exportButtonRef.current}
+                        styles={dropdownStyles}
+                    >
+                        {/* 配色选项 */}
+                        <div className="px-3 pt-2 pb-1.5">
+                            <div className="text-[13px] text-gray-900/70 dark:text-gray-100/70">
+                                配色方案
                             </div>
-                        )}
-                    </div>
+                        </div>
+                        <div className="px-1.5 pb-1 grid grid-cols-2 gap-1">
+                            {[
+                                { id: 'light' as ColorScheme, name: '浅色', color: 'bg-gray-100' },
+                                { id: 'dark' as ColorScheme, name: '深色', color: 'bg-zinc-800' },
+                                { id: 'spring' as ColorScheme, name: '薄荷绿', color: 'bg-green-100' },
+                                { id: 'royal' as ColorScheme, name: '优雅紫', color: 'bg-purple-100' },
+                                { id: 'ocean' as ColorScheme, name: '海洋蓝', color: 'bg-blue-100' },
+                                { id: 'system' as ColorScheme, name: '跟随系统', color: 'bg-gradient-to-r from-gray-100 to-zinc-800' }
+                            ].map(theme => (
+                                <button
+                                    key={theme.id}
+                                    onClick={() => handleThemeChange(theme.id)}
+                                    className={cn(
+                                        "flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] transition-colors",
+                                        "text-gray-600 dark:text-gray-300",
+                                        selectedColorScheme === theme.id
+                                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                            : "hover:bg-gray-70 dark:hover:bg-gray-800/70"
+                                    )}
+                                >
+                                    <div className={cn(
+                                        "w-2.5 h-2.5 rounded-full shrink-0",
+                                        "ring-1 ring-black/[0.08] dark:ring-white/[0.08]",
+                                        theme.color
+                                    )} />
+                                    <span className="truncate leading-none">{theme.name}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        <MenuSeparator />
+
+                        {/* 导出选项 */}
+                        <div className="p-1">
+                            <MenuItem
+                                icon={FileCode}
+                                onClick={() => exportDiagram(svgRef.current!, 'svg', selectedColorScheme, chart)}
+                                styles={dropdownStyles}
+                                className="py-1"
+                            >
+                                导出为 SVG
+                            </MenuItem>
+                            <MenuItem
+                                icon={ImageIcon}
+                                styles={dropdownStyles}
+                                onClick={() => exportDiagram(svgRef.current!, 'png', selectedColorScheme, chart)}
+                                className="py-1"
+                            >
+                                导出为 PNG
+                            </MenuItem>
+                            <MenuItem
+                                icon={FileCode}
+                                styles={dropdownStyles}
+                                onClick={() => exportDiagram(svgRef.current!, 'json', selectedColorScheme, chart)}
+                                className="py-1"
+                            >
+                                导出为 JSON
+                            </MenuItem>
+                        </div>
+                    </MenuItems>
                 </div>
 
                 {error && !isStreaming && (

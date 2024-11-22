@@ -1,321 +1,116 @@
 "use client";
 
-import React, { useEffect, useState, Suspense, useMemo, useCallback, memo } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { ChatProvider, useChatContext } from '@/app/[上下文]/ChatContext';
 import { ConversationsProvider } from "../../contexts/ConversationsContext";
-import { motion, LazyMotion, domAnimation } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import Cookies from 'js-cookie';
 import HomepageContent from "@/app/[首页占位]/home-content";
-import Meta from '@/components/ui/Meta';
-import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
-import { SHARED_ANIMATIONS } from '@/lib/animations/config';
+import { SharedChatLayout } from '@/components/layouts/SharedChatLayout';
 
-// 动态导入
-const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), {
-  ssr: false,
-  loading: () => null
-});
-const ChatList = dynamic(() => import('@/app/[消息显示]/chat_list'), {
-  ssr: false,
-  loading: () => null
-});
-const UserAvatar = dynamic(() => import('@/components/ui/page_right_user_avatar'), {
-  ssr: false,
-  loading: () => null
-});
-const ModelSelector = dynamic(() => import('@/components/ui/model_selector'), {
-  ssr: false,
-  loading: () => null
-});
-const CText = dynamic(() => import('@/app/copyright/ctext'), {
-  ssr: false,
-  loading: () => null
-});
-const HomeHeaderIcon = dynamic(() => import('./[首页占位]/home_header_icon'), {
-  ssr: false,
-  loading: () => null
-});
-const Overlay = dynamic(() => import('@/components/ui/overlay/index'), {
-  ssr: false,
-  loading: () => null
-});
-const ScrollDownButton = dynamic(() => import('@/components/ui/scroll-down-button'), {
-  ssr: false,
-  loading: () => null
-});
+// 动态导入非关键组件
+const ChatList = dynamic(() => import('@/app/[消息显示]/chat_list'), { ssr: false });
+const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
+const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
 
-const SIDEBAR_WIDTH = 220;
-
-// 优化窗口大小监听
-const useWindowSize = () => {
-    const [windowSize, setWindowSize] = useState<{width: number; height: number}>({
-        width: 0,
-        height: 0
-    });
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const handleResize = () => {
-                setWindowSize({
-                    width: window.innerWidth,
-                    height: window.innerHeight,
-                });
-            };
-
-            handleResize();
-
-            window.addEventListener('resize', handleResize);
-            return () => window.removeEventListener('resize', handleResize);
-        }
-    }, []);
-
-    return windowSize;
-};
-
-// 遮罩层
-const MemoizedOverlay = memo(Overlay);
-
-// 优化主页面组件
-const Home = memo(function Home() {
-    return (
-        <LazyMotion features={domAnimation}>
-            <ConversationsProvider>
-                <ChatProvider>
-                    <HomeContent />
-                </ChatProvider>
-            </ConversationsProvider>
-        </LazyMotion>
-    );
-});
-
-// 优化 HomeContent 组件
-const HomeContent = memo(() => {
-    const router = useRouter();
+function HomeContent() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { newConversationId, resetNewConversationId, resetChatState } = useChatContext();
+    
     const [hasConversation, setHasConversation] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const windowSize = useWindowSize();
     const [chatTitle, setChatTitle] = useState<string | null>(null);
-    const [mounted, setMounted] = useState(false);
+    const eventListenerRef = useRef<(event: Event) => void>();
 
+    // 处理新对话
     useEffect(() => {
-        setMounted(true);
-        const storedState = Cookies.get('isSidebarOpen');
-        setIsSidebarOpen(storedState === 'true');
-    }, []);
-
-    const isMobile = useMemo(() => {
-        if (!mounted) return false;
-        return windowSize.width < 768;
-    }, [windowSize.width, mounted]);
-
-    const modelSelectorStyle = useMemo(() => ({
-        position: 'absolute' as const,
-        left: isMobile 
-            ? '50%' 
-            : isSidebarOpen 
-                ? '13.5rem' 
-                : '6rem',
-        transform: isMobile 
-            ? 'translateX(-50%)' 
-            : 'translateX(0)',
-    }), [isMobile, isSidebarOpen]);
-
-    const toggleSidebar = useCallback(() => {
-        setIsSidebarOpen(prev => {
-            const newState = !prev;
-            Cookies.set('isSidebarOpen', newState.toString(), { expires: 7 });
-            return newState;
-        });
-    }, []);
-
-    useEffect(() => {
-        if (!mounted || !newConversationId) return;
+        if (!newConversationId) return;
 
         const handleNewConversation = (event: CustomEvent) => {
-            const { chat_title } = event.detail;
-            setChatTitle(chat_title);
+            setChatTitle(event.detail.chat_title);
         };
 
-        window.addEventListener('addConversation', handleNewConversation as EventListener);
+        eventListenerRef.current = handleNewConversation as (event: Event) => void;
+        window?.addEventListener('addConversation', eventListenerRef.current);
         
-        const updateUrl = () => {
-            window.history.pushState(
-                { conversationId: newConversationId },
-                '',
-                `/chat/${newConversationId}`
-            );
-            setHasConversation(true);
-            resetNewConversationId();
-        };
-
-        updateUrl();
+        const url = `/chat/${newConversationId}`;
+        window?.history.pushState({ conversationId: newConversationId }, '', url);
+        
+        setHasConversation(true);
+        resetNewConversationId();
 
         return () => {
-            window.removeEventListener('addConversation', handleNewConversation as EventListener);
-        };
-    }, [newConversationId, resetNewConversationId, mounted]);
-
-    useEffect(() => {
-        if (!mounted) return;
-
-        const preloadComponents = async () => {
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(async () => {
-                    await Promise.all([
-                        import('@/app/[侧边栏管理]/messages_sidebar'),
-                        import('@/components/ui/ChatInputWrapper'),
-                        import('@/app/[消息显示]/chat_list')
-                    ]);
-                });
+            if (eventListenerRef.current) {
+                window?.removeEventListener('addConversation', eventListenerRef.current);
             }
         };
-        preloadComponents();
-    }, [mounted]);
+    }, [newConversationId, resetNewConversationId]);
 
-    // URL监听
+    // URL 监听
     useEffect(() => {
-        if (!mounted) return;
-        
-        const isNewChat = searchParams?.get('new') === 'true';
-        if (isNewChat) {
+        if (searchParams?.get('new') === 'true') {
             resetChatState();
-            setHasConversation(false); // 重置对话状态
-            // 清除 URL 参数
-            const newUrl = pathname;
-            window.history.replaceState({}, '', newUrl);
+            setHasConversation(false);
+            window?.history.replaceState({}, '', pathname);
         }
-    }, [searchParams, pathname, mounted, resetChatState]);
+    }, [searchParams, pathname, resetChatState]);
 
-    if (!mounted) {
-        return null;
-    }
+    // 渲染主内容
+    const renderMainContent = useCallback(() => {
+        if (hasConversation) {
+            return (
+                <div className="flex-1 overflow-auto w-full pt-12">
+                    <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
+                        <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]">
+                            <ChatList />
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        return (
+            <div className="flex justify-center items-center h-full">
+                <HomepageContent 
+                    onFirstMessage={() => setHasConversation(true)}
+                />
+            </div>
+        );
+    }, [hasConversation]);
+
+    // 渲染底部内容
+    const renderBottomContent = useCallback(() => {
+        if (!hasConversation) return null;
+        return (
+            <div className="flex flex-col items-center w-full bg-transparent">
+                <div className="w-full max-w-4xl">
+                    <ChatInputWrapper 
+                        onFirstMessage={() => setHasConversation(true)} 
+                    />
+                </div>
+                <CText />
+                <div className="mb-3"/>
+            </div>
+        );
+    }, [hasConversation]);
 
     return (
-        <>
-            <Meta 
-                pageName={chatTitle || undefined}
-                pageDescription={hasConversation ? "Chat" : undefined}
-            />
-            <div className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
-                {/* 侧边栏 */}
-                <motion.div
-                    className="fixed top-0 left-0 h-full z-40"
-                    style={{ width: SIDEBAR_WIDTH }}
-                    initial={false}
-                    animate={{
-                        x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH,
-                    }}
-                    transition={SHARED_ANIMATIONS.sidebar}
-                >
-                        <MessagesSidebar onClose={toggleSidebar} />
-                </motion.div>
-
-                {isSidebarOpen && isMobile && (
-                    <MemoizedOverlay isOpen={isSidebarOpen} onClose={toggleSidebar} />
-                )}
-
-                {/* 主内容区域 */}
-                <motion.div
-                    className="flex flex-col h-full overflow-hidden w-full"
-                    initial={{
-                        marginLeft: isSidebarOpen && !isMobile ? SIDEBAR_WIDTH : 0,
-                    }}
-                    animate={{
-                        marginLeft: isSidebarOpen && !isMobile ? SIDEBAR_WIDTH : 0,
-                    }}
-                    transition={SHARED_ANIMATIONS.sidebar}
-                >
-                    {/* 头部工具栏 */}
-                    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-[#212121] z-30">
-                        <div className="flex items-center gap-3 w-full">
-                            <Suspense fallback={null}>
-                                <HomeHeaderIcon isSidebarOpen={isSidebarOpen} onOpen={toggleSidebar}/>
-                            </Suspense>
-                            <Suspense fallback={null}>
-                                <motion.div
-                                    className={`flex items-center ${isMobile ? 'flex-1 justify-center' : ''}`}
-                                    style={modelSelectorStyle}
-                                    animate={{
-                                        left: isMobile 
-                                            ? '50%' 
-                                            : isSidebarOpen 
-                                                ? '14.55rem' 
-                                                : '6rem',
-                                    }}
-                                >
-                                    <ModelSelector />
-                                </motion.div>
-                            </Suspense>
-                            <div className="ml-auto">
-                                <Suspense fallback={null}>
-                                    <UserAvatar />
-                                </Suspense>
-                            </div>
-                        </div>
-                    </header>
-
-                    {/* 聊天内容 */}
-                    {hasConversation ? (
-                        <div 
-                            key="chat-container"
-                            className="flex-1 overflow-auto w-full pt-12 scroll-container"
-                        >
-                            <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
-                                <div 
-                                    className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]"
-                                >
-                                    <Suspense fallback={null}>
-                                        <ChatList />
-                                    </Suspense>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <motion.div 
-                            key="homepage"
-                            className="flex justify-center items-center h-full"
-                            {...SHARED_ANIMATIONS.homepageExit}
-                        >
-                            <HomepageContent 
-                                onFirstMessage={() => setHasConversation(true)}
-                            />
-                        </motion.div>
-                    )}
-
-                    {/* 底部输入框区域 */}
-                    {hasConversation && (
-                        <div className="flex flex-col items-center w-full bg-transparent">
-                            <div className="w-full max-w-4xl">
-                                <Suspense fallback={null}>
-                                    <ChatInputWrapper 
-                                        onFirstMessage={() => setHasConversation(true)} 
-                                    />
-                                </Suspense>
-                            </div>
-                            <div>
-                                <Suspense fallback={null}>
-                                    <CText />
-                                </Suspense>
-                            </div>
-                            <div className="mb-3"/>
-                        </div>
-                    )}
-                </motion.div>
-
-                {/* 滚动按钮 */}
-                <Suspense fallback={null}>
-                    <ScrollDownButton isSidebarOpen={isSidebarOpen} sidebarWidth={SIDEBAR_WIDTH} />
-                </Suspense>
-            </div>
-        </>
+        <SharedChatLayout
+            title={chatTitle || undefined}
+            description={hasConversation ? "Chat" : undefined}
+            hasConversation={hasConversation}
+            showAvatar={true}
+            renderMainContent={renderMainContent}
+            renderBottomContent={renderBottomContent}
+        />
     );
-});
+}
 
-HomeContent.displayName = 'HomeContent';
-
-export default Home;
+export default function Home() {
+    return (
+        <ConversationsProvider>
+            <ChatProvider>
+                <HomeContent />
+            </ChatProvider>
+        </ConversationsProvider>
+    );
+}

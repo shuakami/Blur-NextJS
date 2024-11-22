@@ -34,6 +34,9 @@ const ChatListShowcase = dynamic(() => import('@/[DEMO]/chat-list'), {
 const TooltipShowcase = dynamic(() => import('@/[DEMO]/tooltip'), {
   loading: () => <ComponentLoader name="Tooltip" />
 })
+const DropdownMenuShowcase = dynamic(() => import('@/[DEMO]/dropdown-menu'), {
+  loading: () => <ComponentLoader name="DropdownMenu" />
+})
 
 // 加载占位组件
 function ComponentLoader({ name }: { name: string }) {
@@ -109,6 +112,15 @@ const demoComponents: DemoComponent[] = [
     description: '展示不同类型的提示',
     component: TooltipShowcase,
     icon: '👓',
+    bgColor: 'bg-gradient-to-br from-blue-500 to-purple-400',
+    category: 'UI 基础组件'
+  },
+  {
+    id: 'dropdown-menu',
+    name: '下拉菜单组件',
+    description: '展示不同类型的下拉菜单',
+    component: DropdownMenuShowcase,
+    icon: '🔄',
     bgColor: 'bg-gradient-to-br from-blue-500 to-purple-400',
     category: 'UI 基础组件'
   }

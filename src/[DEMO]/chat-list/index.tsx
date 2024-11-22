@@ -5,6 +5,7 @@ import { useState } from "react"
 import { ChatProvider } from "@/app/[上下文]/ChatContext"
 import ShowcasePro from "../showcase-pro"
 import { Button } from "@/components/ui/button"
+import { Agent } from "@/components/ui/LLM/agent"
 
 // 基础对话示例
 const basicMessages: Message[] = [
@@ -408,6 +409,7 @@ const thoughtMessages: Message[] = [
   }
 ]
 
+// 思考过程（加载中）
 const thoughtMessagesLoading: Message[] = [
   {
     id: 'thought-msg-001',
@@ -466,6 +468,97 @@ const errorMessages: Message[] = [
     }
   }
 ]
+
+// Agent 响应示例
+const agentResponseMessages: Message[] = [
+  // 用户消息保持不变
+  {
+    id: "agent-msg-001",
+    message_id: "agent-msg-001", 
+    type: "user",
+    content: "帮我分析一下这段 Python 代码的性能问题：\n```python\ndef find_duplicates(lst):\n    duplicates = []\n    for i in lst:\n        if lst.count(i) > 1 and i not in duplicates:\n            duplicates.append(i)\n    return duplicates\n```",
+    timestamp: Date.now(),
+    status: "active",
+  },
+  // 修改 agent 数据格式
+  {
+    id: "agent-msg-002",
+    message_id: "agent-msg-002",
+    type: "bot",
+    content: `让我调用代码分析助手来检查这段代码。
+
+<agent-data>
+{
+  "type": "agent",
+  "call_instance_id": "code-review-001",
+  "agent_id": "code_analyzer", 
+  "agent_name": "代码分析助手",
+  "data": "正在分析代码的时间复杂度和性能瓶颈...",
+  "status": "running",
+  "timestamp": 1732185949
+}
+</agent-data>`,
+    timestamp: Date.now() + 1000,
+    status: "active",
+  },
+  {
+    id: "agent-msg-003",
+    message_id: "agent-msg-003",
+    type: "bot",
+    content: `分析完成。
+
+<agent-data>
+{
+  "type": "agent",
+  "call_instance_id": "code-review-001",
+  "agent_id": "code_analyzer",
+  "agent_name": "代码分析助手",
+  "data": "代码分析结果：\\n\\n时间复杂度：O(n^2)\\n空间复杂度：O(n)\\n\\n主要问题：\\n1. 使用 lst.count() 导致嵌套循环\\n2. 重复元素检查效率低下\\n\\n建议改进：\\n1. 使用 set 或 dict 优化查找\\n2. 单次遍历完成统计",
+  "status": "success",
+  "timestamp": 1732185950
+}
+</agent-data>
+
+我发现这段代码存在性能问题，让我调用优化助手生成优化后的代码。
+
+<agent-data>
+{
+  "type": "agent",
+  "call_instance_id": "code-optimize-001",
+  "agent_id": "code_optimizer",
+  "agent_name": "代码优化助手",
+  "data": "正在生成优化后的代码...",
+  "status": "running",
+  "timestamp": 1732185951
+}
+</agent-data>`,
+    timestamp: Date.now() + 2000,
+    status: "active",
+  },
+  {
+    id: "agent-msg-004",
+    message_id: "agent-msg-004",
+    type: "bot",
+    content: `这是优化后的代码版本：
+
+<agent-data>
+{
+  "type": "agent",
+  "call_instance_id": "code-optimize-001",
+  "agent_id": "code_optimizer",
+  "agent_name": "代码优化助手",
+  "data": "优化后的代码：\\n\\n\`\`\`python\\ndef find_duplicates(lst):\\n    seen = {}\\n    duplicates = []\\n    for num in lst:\\n        seen[num] = seen.get(num, 0) + 1\\n        if seen[num] == 2:\\n            duplicates.append(num)\\n    return duplicates\\n\`\`\`\\n\\n改进说明：\\n1. 使用字典记录元素出现次数\\n2. 单次遍历完成统计\\n3. 时间复杂度优化至 O(n)",
+  "status": "success",
+  "timestamp": 1732185952
+}
+</agent-data>
+
+优化后的代码使用字典来记录元素出现次数，将时间复杂度从 O(n²) 降低到了 O(n)。需要我解释具体的优化细节吗？`,
+    timestamp: Date.now() + 3000,
+    status: "active",
+  }
+]
+
 
 export default function ChatListShowcase() {
   const [streamContent, setStreamContent] = useState("")
@@ -540,7 +633,7 @@ function Welcome() {
       )
     ]),
 
-    createCategory("plugins_calling", "插件功能（调用中）", "展示插件的调用过程", [
+    createCategory("plugins", "插件功能", "展示插件的调用和响应过程", [
       createVariant("Plugin Calling", "plugin-calling", "插件调用中状态",
         <div className="w-full">
           <ChatList 
@@ -548,14 +641,23 @@ function Welcome() {
             onEditMessage={handleEditMessage}
           />
         </div>
-      )
-    ]),
-    
-    createCategory("plugins_response", "插件功能（响应）", "展示插件的响应过程", [
+      ),
       createVariant("Plugin Response", "plugin-response", "插件响应结果",
         <div className="w-full">
           <ChatList 
             messages={pluginResponseBotMessages}
+            onEditMessage={handleEditMessage}
+          />
+        </div>
+      )
+    ]),
+
+
+    createCategory("agents", "Agent 协作", "展示 Agent 的调用和响应过程", [
+      createVariant("Agent Response", "agent-response", "Agent 响应示例",
+        <div className="w-full">
+          <ChatList 
+            messages={agentResponseMessages}
             onEditMessage={handleEditMessage}
           />
         </div>
@@ -596,10 +698,7 @@ function Welcome() {
             onEditMessage={handleEditMessage}
           />
         </div>
-      )
-    ]),
-
-    createCategory("thoughts_loading", "思考过程（加载中）", "展示思考过程动画", [
+      ),
       createVariant("Thought Process Loading", "thought-loading", "展示思考过程动画",
         <div className="w-full">
           <ChatList 
@@ -631,7 +730,9 @@ function Welcome() {
           />
         </div>
       )
-    ])
+    ]),
+
+
   ]
 
   return (

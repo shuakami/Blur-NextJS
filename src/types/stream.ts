@@ -17,6 +17,7 @@ export interface APIMessage extends BaseMessage {
     role: 'system' | 'user' | 'assistant';
     plugin_responses?: PluginResponse[];
     more_content?: MoreContent[];
+    agent_responses?: AgentResponse[];
 }
 
 // UI消息接口
@@ -48,6 +49,26 @@ export interface StreamChunk {
         code: number;
         message: string;
         details?: string;
+    };
+    agent_response?: AgentResponse;
+    
+    // 插件相关字段
+    plugin_id?: number;
+    plugin_name?: string;
+    call_index?: number;
+    plugin_response?: {
+        call_instance_id: string;
+        plugin_id: number;
+        plugin_name: string;
+        data: string;
+        timestamp: number;
+        add_context?: boolean;
+        plugin_list?: boolean;
+        display_order: number;
+        related_to: {
+            type: string;
+            id: string;
+        }
     };
 }
 export interface FinalInfo {
@@ -97,10 +118,11 @@ export interface Message {
     original_message_id?: string;
     thought?: ThoughtProcess;
     
-    // 插件
+    // 插件相关字段
     plugin_id?: number;
     plugin_name?: string;
     plugin_status?: 'calling' | 'response';
+    call_index?: number;
     plugin_response?: {
         plugin_id: number;
         plugin_name: string;
@@ -108,9 +130,10 @@ export interface Message {
         status: string;
     };
 
-    // 临时插件（ HistoryPluginHandler ）
+    // 临时字段
     _temp_plugin_responses?: PluginResponse[];
     _temp_more_content?: MoreContent[];
+    _temp_agent_responses?: AgentResponse[];
 
     // 报错 （UseSendMessage）
     error?: {
@@ -121,6 +144,19 @@ export interface Message {
     // 添加消息发送状态相关字段
     sendStatus?: MessageStatus;
     retryCount?: number;
+
+    // 新增 Agent 相关字段
+    agent_id?: string;
+    agent_name?: string;
+    agent_status?: 'calling' | 'response';
+    agent_response?: {
+        call_instance_id: string;
+        agent_id: string;
+        agent_name: string;
+        data: any;
+        status: string;
+        timestamp: number;
+    };
 }
 
 export interface ThoughtProcess {
@@ -184,4 +220,14 @@ export interface MoreContent {
 export interface MessageWithStatus extends Message {
     sendStatus: MessageStatus;
     retryCount: number;
+}
+
+// Agent 相关的接口
+export interface AgentResponse {
+    call_instance_id: string;
+    agent_id: string;
+    agent_name: string;
+    data: any;
+    timestamp: number;
+    status: string;
 }

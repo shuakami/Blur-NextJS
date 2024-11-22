@@ -125,10 +125,11 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
                         top: y ?? 0,
                         left: x ?? 0,
                         minWidth: '250px',
+                        maxHeight: 'calc(100vh - 20px)',
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="p-2">
+                    <div className="p-2 overflow-y-auto max-h-full">
                         {menuItems.map((item, index) => (
                             <React.Fragment key={item.id}>
                                 {item.isSpecial && index > 0 && (
