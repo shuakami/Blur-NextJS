@@ -90,6 +90,30 @@ const renderAgentContent = (part: string, index: number) => {
     }
 };
 
+// 添加 thinking 数据处理函数
+const renderThinkingContent = (part: string, index: number, isLatestBotMessage: boolean, isStreaming: boolean) => {
+    if (!part.startsWith('<thinking>')) return null;
+    
+    try {
+        const thoughtContent = part
+            .replace('<thinking>', '')
+            .replace('</thinking>', '');
+        
+        return (
+            <Suspense key={index} fallback={null}>
+                <ThoughtStream
+                    duration={0}
+                    content={thoughtContent}
+                    isAnimating={isStreaming && isLatestBotMessage}
+                />
+            </Suspense>
+        );
+    } catch (e) {
+        console.error('Thinking data parsing failed:', e);
+        return null;
+    }
+};
+
 // Bot 消息组件
 const BotMessage = memo(({ 
     content, 
@@ -100,8 +124,8 @@ const BotMessage = memo(({
 }: BotMessageProps) => {
     const { isStreaming } = useChatContext();
 
-    // 将内容按 plugin 和 agent 标记分割
-    const parts = content.split(/(<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>)/s);
+    // 分割正则表达式，支持 plugin-data / agent-data / thinking 标记
+    const parts = content.split(/(<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s);
     
     return (
         <div className="group relative flex w-full items-start">
@@ -113,7 +137,7 @@ const BotMessage = memo(({
             </div>
 
             {/* 内容容器 */}
-            <div className="flex flex-col min-w-0 flex-1 gap-1.5 ml-4">
+            <div className="flex flex-col min-w-0 flex-1 gap-1.5 ml-4 markdown">
                 {thought && (
                     <Suspense fallback={null}>
                         <ThoughtStream
@@ -124,7 +148,7 @@ const BotMessage = memo(({
                     </Suspense>
                 )}
 
-                <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 w-full">
+                <div className="markdown prose w-full break-words dark:prose-invert light">
                     {isLoading && isLatestBotMessage ? (
                         <Suspense fallback={<div className="animate-pulse h-4 bg-gray-200 rounded w-1/2" />}>
                             <AnimatedShinyText darkMode={false} />
@@ -137,6 +161,9 @@ const BotMessage = memo(({
                                 }
                                 if (part.startsWith('<agent-data>')) {
                                     return renderAgentContent(part, index);
+                                }
+                                if (part.startsWith('<thinking>')) {
+                                    return renderThinkingContent(part, index, isLatestBotMessage, isStreaming || false);
                                 }
                                 return (
                                     <MarkdownRenderer 

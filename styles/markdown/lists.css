@@ -2,16 +2,18 @@
     --list-marker-color: var(--text-tertiary);
     --list-indent: 1.75em;
     --list-nested-indent: 2em;
-    --item-spacing: 0.375rem;
+    --item-spacing: 0.4rem;
     --marker-text-gap: 0.5em;
+}
+
+.dark {
+    --list-marker-color: var(--text-secondary);
 }
 
 /* 基础列表样式 */
 .list-decimal,
 .list-disc {
-    margin: 1rem 0;
-    margin-bottom: 1rem;
-    padding-left: var(--list-indent);
+    margin: 0.35rem 1.5rem;
 }
 
 /* 列表标记样式 */
@@ -27,8 +29,8 @@
 /* 列表项样式 */
 .list-item {
     font-size: 1rem;
-    line-height: 1.8;
-    margin-bottom: 0.3rem;
+    line-height: 1.9;
+    margin-bottom: 0.4rem;
     color: var(--text-color);
     font-weight: 400;
     text-rendering: optimizeLegibility;
@@ -43,7 +45,7 @@
 /* 嵌套列表样式 */
 .list-item ul,
 .list-item ol {
-    margin: var(--spacing-xs) 0;
+    margin: 0.6rem 0;
     padding-left: var(--list-nested-indent);
 }
 
@@ -78,8 +80,10 @@
     
     .list-item {
         font-size: 0.95rem;
-        line-height: var(--mixed-line-height);
+        line-height: 1.75;
         margin-bottom: 0.35rem;
+        padding-top: 0.08rem;
+        padding-bottom: 0.08rem;
     }
 }
 
@@ -109,13 +113,6 @@
     .list-decimal::marker,
     .list-disc::marker {
         color: var(--text-primary);
-    }
-}
-
-/* 暗色模式支持 */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --list-marker-color: var(--text-secondary);
     }
 }
 

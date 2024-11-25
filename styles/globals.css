@@ -1,4 +1,5 @@
 /* Markdown */
+@import 'theme.css';
 
 @import 'markdown/table.css';
 @import 'markdown/headings.css';
@@ -19,6 +20,10 @@
   color: var(--text-color);
 }
 
+.markdown {
+  max-width: unset;
+}
+
 .markdown-body.result-streaming:last-child > :not(ol):not(ul):not(pre):not(div):last-child::after,
 .markdown-body.result-streaming:last-child > pre:last-child code::after {
   content: "●";
@@ -35,18 +40,11 @@
 
 
 .message-user {
-  background-color: #F4F4F4;
+  background-color: rgb(var(--message-user-bg));
+  color: rgb(var(--message-user-text));
   position: relative;
-  color: #000;
-  white-space: pre-wrap; /* 保留空格和换行符 */
-  word-break: break-word; /* 长单词换行 */
-}
-
-@media (prefers-color-scheme: dark) {
-  .message-user {
-    background-color: #2F2F2F;
-    color: #fff;
-  }
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Design System */
@@ -343,7 +341,7 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(115, 115, 115, 0.2);
+  background-color: rgba(var(--scrollbar-thumb), var(--scrollbar-thumb-alpha));
   border-radius: 999px;
   transition: background-color 0.2s ease;
 }
@@ -352,23 +350,10 @@ img {
   background: transparent;
 }
 
-/* 暗色模式适配 */
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-}
-
 /* Firefox 适配 */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(115, 115, 115, 0.2) transparent;
-}
-
-@media (prefers-color-scheme: dark) {
-  * {
-    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-  }
+  scrollbar-color: rgba(var(--scrollbar-thumb), var(--scrollbar-thumb-alpha)) transparent;
 }
 
 /* 自定义滚动条类 */
@@ -379,7 +364,7 @@ img {
   }
   
   &::-webkit-scrollbar-thumb {
-    @apply bg-gray-200/20 dark:bg-white/10;
+    background-color: rgba(var(--scrollbar-thumb), var(--scrollbar-thumb-alpha));
     border-radius: 999px;
   }
   
@@ -600,4 +585,11 @@ html, body {
   animation: glitch 4s infinite;
 }
 
+*:focus {
+  outline: none !important;
+}
 
+/* 或者更具体地针对命令面板 */
+[cmdk-root] *:focus {
+  outline: none !important;
+}

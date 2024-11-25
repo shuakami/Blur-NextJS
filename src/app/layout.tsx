@@ -7,8 +7,7 @@ import {ThemeProvider} from "@/components/ui/theme-provider";
 import {OptimizedClerkProvider} from "@/components/providers/OptimizedClerkProvider";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+
 
 const SpeedInsights = dynamic(
   () => import('@vercel/speed-insights/next').then(mod => mod.SpeedInsights),
@@ -57,6 +56,11 @@ const LXHThemeProvider = dynamic(
 
 const TooltipProvider = dynamic(
   () => import('@/components/ui/tooltip').then(mod => mod.TooltipProvider),
+  { loading: () => null }
+);
+
+const ShortcutProvider = dynamic(
+  () => import('@/providers/ShortcutProvider').then(mod => mod.ShortcutProvider),
   { loading: () => null }
 );
 
@@ -112,31 +116,33 @@ export default function RootLayout({
     return (
         <OptimizedClerkProvider>
             <html lang="en">
-            <body className="antialiased">
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                    <LXHThemeProvider>
-                        <ModelProvider>
-                            <ApiClientProvider>
-                                <LanguageProvider>
-                                    <TooltipProvider>
-                                        <main>
-                                            {children}
-                                        </main>
-                                        <NonCriticalUI>
-                                            {null}
-                                        </NonCriticalUI>
-                                    </TooltipProvider>
-                                </LanguageProvider>
-                            </ApiClientProvider>
-                        </ModelProvider>
-                    </LXHThemeProvider>
-                </ThemeProvider>
-            </body>
+                <body className="antialiased">
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="system"
+                        enableSystem
+                        disableTransitionOnChange
+                    >
+                        <LXHThemeProvider>
+                            <ModelProvider>
+                                <ApiClientProvider>
+                                    <LanguageProvider>
+                                        <TooltipProvider>
+                                            <ShortcutProvider>
+                                                <main>
+                                                    {children}
+                                                </main>
+                                                <NonCriticalUI>
+                                                    {null}
+                                                </NonCriticalUI>
+                                            </ShortcutProvider>
+                                        </TooltipProvider>
+                                    </LanguageProvider>
+                                </ApiClientProvider>
+                            </ModelProvider>
+                        </LXHThemeProvider>
+                    </ThemeProvider>
+                </body>
             </html>
         </OptimizedClerkProvider>
     );

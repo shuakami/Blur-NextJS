@@ -20,6 +20,8 @@ import ConfirmModal from "@/components/ui/tofu/confirm-modal";
 import {useRouter} from 'next/navigation';
 import { useConversations } from '../../../../contexts/ConversationsContext';
 import Link from 'next/link';
+import { useShortcutManager } from '@/providers/ShortcutProvider'
+import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts'
 
 const TRANSITION_CLASSES = {
     enter: 'transition-[height] duration-200 ease-out',
@@ -56,6 +58,7 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
     const inputRef = useRef<HTMLInputElement>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // 控制模态框的打开状态
     const { removeConversation, updateConversationTitle: updateTitle } = useConversations();
+    const shortcutManager = useShortcutManager()
 
     const toggleOpen = useCallback(() => setIsOpen(!isOpen), [isOpen]);
     const isSelected = selectedItem === item.id;
@@ -187,6 +190,23 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
             </div>
         ))
     ), [item.children, level, selectedItem, onSelect, onUpdateConversations]);
+
+    // 注册快捷键
+    useEffect(() => {
+        if (isSelected && item.id) {  // 只在当前对话被选中时注册快捷键
+            shortcutManager.register({
+                command: 'DELETE_CHAT',
+                key: SHORTCUTS.DELETE_CHAT,
+                description: SHORTCUT_DESCRIPTIONS.DELETE_CHAT,
+                handler: () => setIsModalOpen(true),  // 打开删除确认框
+                condition: () => document.activeElement?.tagName !== 'INPUT'  // 不在输入状态时生效
+            })
+
+            return () => {
+                shortcutManager.unregister('DELETE_CHAT')
+            }
+        }
+    }, [isSelected, item.id, shortcutManager])
 
     return (
         <div className="relative">

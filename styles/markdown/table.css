@@ -15,6 +15,14 @@
     --table-body-font: 0.925rem;
 }
 
+.dark {
+    --table-header-bg: rgba(255, 255, 255, 0.03);
+    --table-row-hover: rgba(255, 255, 255, 0.02);
+    --table-border: rgba(255, 255, 255, 0.08);
+    --table-border-strong: rgba(255, 255, 255, 0.12);
+    --table-vertical-border: rgba(255, 255, 255, 0.06);
+}
+
 /* 表格基础样式 */
 .markdown-table {
     width: 100%;
@@ -23,11 +31,14 @@
     border-spacing: 0;
     font-size: var(--table-body-font);
     line-height: 1.5;
-    
-    /* 边框样式 */
     border: 1px solid var(--table-border-strong);
     border-radius: 0.5rem;
     overflow: hidden;
+    background: transparent;
+}
+
+.dark .markdown-table {
+    background: rgba(0, 0, 0, 0.2);
 }
 
 /* 表头样式 */
@@ -43,7 +54,6 @@
     white-space: nowrap;
 }
 
-/* 最后一个表头单元格不需要右边框 */
 .table-header:last-child {
     border-right: none;
 }
@@ -57,7 +67,6 @@
     transition: background-color 0.15s ease;
 }
 
-/* 最后一个单元格不需要右边框 */
 .table-cell:last-child {
     border-right: none;
 }
@@ -84,35 +93,10 @@
         padding: calc(var(--table-cell-padding-y) * 0.8) calc(var(--table-cell-padding-x) * 0.8);
     }
     
-    /* 处理表格溢出 */
     .table-wrapper {
         width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-    }
-}
-
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --table-header-bg: rgba(255, 255, 255, 0.03);
-        --table-row-hover: rgba(255, 255, 255, 0.02);
-        --table-border: rgba(255, 255, 255, 0.08);
-        --table-border-strong: rgba(255, 255, 255, 0.12);
-        --table-vertical-border: rgba(255, 255, 255, 0.06);
-    }
-    
-    .markdown-table {
-        background: rgba(0, 0, 0, 0.2);
-    }
-    
-    .table-header {
-        background: var(--table-header-bg);
-        border-bottom-color: var(--table-border-strong);
-    }
-    
-    .table-cell {
-        border-bottom-color: var(--table-border);
     }
 }
 
@@ -134,7 +118,6 @@
         border-bottom-color: #ccc;
     }
     
-    /* 确保表格不会在页面中间断开 */
     tr {
         break-inside: avoid;
     }

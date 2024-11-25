@@ -4,16 +4,21 @@
     --link-hover: #40a9ff;           /* 悬停色 */
     --link-visited: #722ed1;         /* 已访问色 */
     --link-active: #096dd9;          /* 激活色 */
-    --link-underline: rgba(24, 144, 255, 0.3);  /* 下划线颜色 */
+    --link-icon-color: #40a9ff;      /* 图标颜色 */
+}
+
+.dark {
+    --link-color: #40a9ff;           /* 更亮的基础色 */
+    --link-hover: #69c0ff;           /* 更亮的悬停色 */
+    --link-visited: #b37feb;         /* 更亮的已访问色 */
+    --link-active: #1890ff;          /* 更亮的激活色 */
+    --link-icon-color: #69c0ff;      /* 更亮的图标颜色 */
 }
 
 /* 基础链接样式 */
 .text-link {
     color: var(--link-color);
-    text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    text-decoration-color: var(--link-underline);
-    text-underline-offset: 0.2em;
+    text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
 }
@@ -21,7 +26,6 @@
 /* 交互状态 */
 .text-link:hover {
     color: var(--link-hover);
-    text-decoration-color: var(--link-hover);
 }
 
 .text-link:active {
@@ -30,7 +34,6 @@
 
 .text-link:visited {
     color: var(--link-visited);
-    text-decoration-color: var(--link-visited);
 }
 
 /* 外部链接样式 */
@@ -42,7 +45,7 @@
     margin-left: 0.1em;
     margin-bottom: -0.05em;
     opacity: 0.85;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%231890ff' d='M3.5 1h7a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0V3.207L2.854 10.354a.5.5 0 1 1-.708-.708L9.293 2.5H3.5a.5.5 0 0 1 0-1z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='currentColor' fill-rule='evenodd' d='M13.5 10.25V13.25c0 .138-.112.25-.25.25H2.75c-.138 0-.25-.112-.25-.25V2.75c0-.138.112-.25.25-.25h3V1h-3C1.784 1 1 1.784 1 2.75v10.5C1 14.216 1.784 15 2.75 15h10.5c.966 0 1.75-.784 1.75-1.75v-3h-1.5v.25zM9 1h5.25c.414 0 .75.336.75.75V7h-1.5V3.56L8.53 8.53 8 9.06 6.94 8l.53-.53L12.44 2.5H9V1z'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -50,46 +53,9 @@
 }
 
 /* 使用自定义visited类 */
-.text-link.visited[href^="http"]::after {
-    display: none;
-}
-
-/* 悬停状态图标颜色 */
-.text-link:hover[href^="http"]::after {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%2340a9ff' fill-rule='evenodd' d='M13.5 10.25V13.25c0 .138-.112.25-.25.25H2.75c-.138 0-.25-.112-.25-.25V2.75c0-.138.112-.25.25-.25h3V1h-3C1.784 1 1 1.784 1 2.75v10.5C1 14.216 1.784 15 2.75 15h10.5c.966 0 1.75-.784 1.75-1.75v-3h-1.5v.25zM9 1h5.25c.414 0 .75.336.75.75V7h-1.5V3.56L8.53 8.53 8 9.06 6.94 8l.53-.53L12.44 2.5H9V1z'/%3E%3C/svg%3E");
-}
-
-/* 访问过的链接隐藏原图标 */
+.text-link.visited[href^="http"]::after,
 .text-link:visited[href^="http"]::after {
     display: none;
-}
-
-/* 暗色模式图标 */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --link-color: #40a9ff;       /* 更亮的基础色 */
-        --link-hover: #69c0ff;       /* 更亮的悬停色 */
-        --link-visited: #b37feb;     /* 更亮的已访问色 */
-        --link-active: #1890ff;      /* 更亮的激活色 */
-        --link-underline: rgba(64, 169, 255, 0.3);
-    }
-    .text-link[href^="http"]::after {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%2340a9ff' fill-rule='evenodd' d='M13.5 10.25V13.25c0 .138-.112.25-.25.25H2.75c-.138 0-.25-.112-.25-.25V2.75c0-.138.112-.25.25-.25h3V1h-3C1.784 1 1 1.784 1 2.75v10.5C1 14.216 1.784 15 2.75 15h10.5c.966 0 1.75-.784 1.75-1.75v-3h-1.5v.25zM9 1h5.25c.414 0 .75.336.75.75V7h-1.5V3.56L8.53 8.53 8 9.06 6.94 8l.53-.53L12.44 2.5H9V1z'/%3E%3C/svg%3E");
-        opacity: 0.85;
-    }
-
-    .text-link:hover[href^="http"]::after {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%2369c0ff' fill-rule='evenodd' d='M13.5 10.25V13.25c0 .138-.112.25-.25.25H2.75c-.138 0-.25-.112-.25-.25V2.75c0-.138.112-.25.25-.25h3V1h-3C1.784 1 1 1.784 1 2.75v10.5C1 14.216 1.784 15 2.75 15h10.5c.966 0 1.75-.784 1.75-1.75v-3h-1.5v.25zM9 1h5.25c.414 0 .75.336.75.75V7h-1.5V3.56L8.53 8.53 8 9.06 6.94 8l.53-.53L12.44 2.5H9V1z'/%3E%3C/svg%3E");
-    }
-
-    .text-link:visited {
-        color: var(--link-visited);
-        text-decoration-color: var(--link-visited);
-    }
-
-    .text-link:visited[href^="http"]::after {
-        display: none;
-    }
 }
 
 /* 打印样式 */
@@ -100,17 +66,14 @@
         font-weight: normal;
     }
     
-    /* 显示链接URL */
     .text-link[href^="http"]::after {
         content: " (" attr(href) ")";
         font-size: 0.9em;
-    }
-    .text-link[href^="http"]::after {
-        display: none;
+        display: inline;
     }
 }
 
-/* 高对比度模式 */
+/* 高对比度模式 - 保留因为这是辅助功能 */
 @media (prefers-contrast: high) {
     .text-link {
         text-decoration-thickness: 2px;
@@ -118,7 +81,7 @@
     }
 }
 
-/* 减少动画 */
+/* 减少动画 - 保留因为这是辅助功能 */
 @media (prefers-reduced-motion: reduce) {
     .text-link {
         transition: none;

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { ConnectionManager } from '@/lib/ConnectionManager';
 import { ConnectionState } from '@/types/connection';
-import useTranslation from '@/hooks/useTranslation';
 
 export interface ConnectionInfo extends ConnectionState {
     isOnline: boolean;

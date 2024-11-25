@@ -23,7 +23,7 @@ import {
 import {
   Table, TableHeader, TableCell
 } from './table';
-
+import { FootnoteRef, FootnoteBackref } from './footnote';
 // 骨架屏
 import {
   CodeBlockSkeleton,
@@ -173,6 +173,9 @@ export const MarkdownRenderer: React.FC<{
 
     details: Details as any,
     summary: Summary as any,
+
+    footnoteReference: FootnoteRef,
+    footnoteBackReference: FootnoteBackref,
   }), []);
 
   return (

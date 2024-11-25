@@ -5,13 +5,15 @@
 import React, { useCallback, useState } from 'react';
 import ChatInput from './chat_input';
 import { useChatContext } from '@/app/[上下文]/ChatContext';
+import { useModel } from '@/components/ui/model_selector';
 
 interface ChatInputWrapperProps {
     onFirstMessage?: () => void;
 }
 
 const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) => {
-    const { sendMessage, messages, retryMessage } = useChatContext();
+    const { selectedModel } = useModel();
+    const { sendMessage, messages, retryMessage, conversationId } = useChatContext();
     const [isRetrying, setIsRetrying] = useState(false);
 
     // 检查最后一条消息是否失败
@@ -20,11 +22,13 @@ const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) =
 
     const handleSend = useCallback((message: string) => {
         console.log('发送的消息:', message);
-        sendMessage(message);
+        const modelCode = selectedModel.code || 'claude';
+        console.log('使用的模型代码:', modelCode);
+        sendMessage(message, modelCode, conversationId || undefined);
         if (onFirstMessage) {
             onFirstMessage();
         }
-    }, [sendMessage, onFirstMessage]);
+    }, [sendMessage, onFirstMessage, selectedModel, conversationId]);
 
     const handleRetry = useCallback(async () => {
         setIsRetrying(true);

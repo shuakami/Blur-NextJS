@@ -23,7 +23,10 @@ export const sendMessage = async (
             };
 
             //打印
-            console.log(newConversation);
+            console.log('newConversation:', newConversation);
+            console.log('conversation_id:', params.conversation_id);
+            console.log('parent_message_id:', params.parent_message_id);
+            console.log('model:', params.model);
             
             // 使用全局状态更新对话列表
             window.dispatchEvent(new CustomEvent('addConversation', {
@@ -41,10 +44,11 @@ export const sendMessage = async (
             user_input: params.user_input,
             topic: 'luoxiaohei',
             user_id: params.user_id,
+            model: params.model,
         };
 
-        // 添加 conversation_id
-        if (params.conversation_id) {
+        // 只有在有真实的 conversation_id 时才添加
+        if (params.conversation_id && params.conversation_id !== params.model) {
             requestBody.conversation_id = params.conversation_id;
         }
         

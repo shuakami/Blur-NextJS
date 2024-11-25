@@ -1,28 +1,28 @@
 :root {
-    /* 复用全局边框颜色变量 */
     --hr-color: var(--border-medium);
     --hr-margin-y: var(--spacing-lg);
+    --hr-height: 1px;
+    --hr-opacity: 1;
+}
+
+.dark {
+    --hr-color: var(--border-medium);
+    --hr-opacity: 0.8;
 }
 
 .divider {
     border: none;
-    height: 1px;
+    height: var(--hr-height);
     background-color: var(--hr-color);
     margin: var(--hr-margin-y) 0;
     width: 100%;
+    opacity: var(--hr-opacity);
 }
 
 /* 响应式优化 */
 @media (max-width: 768px) {
     .divider {
         margin: var(--spacing-md) 0;
-    }
-}
-
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --hr-color: var(--border-medium);
     }
 }
 
@@ -36,7 +36,7 @@
     }
 }
 
-/* 高对比度模式 */
+/* 高对比度模式*/
 @media (prefers-contrast: high) {
     .divider {
         background-color: var(--text-primary);

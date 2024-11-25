@@ -42,6 +42,7 @@ const useSendMessage = ({
     // 核心发送消息逻辑
     const sendMessageCore = useCallback(async (
         message: string,
+        model: string,
         inputConversationId?: string,
         retryCount: number = 0,
         existingUserMessage?: MessageWithStatus,
@@ -105,18 +106,16 @@ const useSendMessage = ({
                 throw new Error(t('无法获取 JWT，用户未授权'));
             }
 
-            let currentConversationId: string | null = activeConversationId;
-
             await sendMessageAPI({
                 userInput: message,
                 userId,
                 token,
                 conversationId: activeConversationId,
+                model: model,
                 onInitialResponse: (initialResponse) => {
-                    currentConversationId = initialResponse.conversation_id;
                     if (!state.conversationId) {
-                        dispatch({ type: 'SET_CONVERSATION_ID', payload: currentConversationId });
-                        dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: currentConversationId });
+                        dispatch({ type: 'SET_CONVERSATION_ID', payload: initialResponse.conversation_id });
+                        dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: initialResponse.conversation_id });
                     }
                     
                     if (userMessage.message_id) {
@@ -266,10 +265,23 @@ const useSendMessage = ({
 
         try {
             if (botMessage) {
-                await sendMessageCore(userMessage.content, state.conversationId, 1, userMessage as MessageWithStatus, botMessage as MessageWithStatus);
+                await sendMessageCore(
+                    userMessage.content,
+                    userMessage.model || 'claude',
+                    state.conversationId,
+                    1,
+                    userMessage as MessageWithStatus,
+                    botMessage as MessageWithStatus
+                );
             } else {
-                // 如果找不到对应的机器人消息，可能需要手动创建或处理
-                await sendMessageCore(userMessage.content, state.conversationId, 1, userMessage as MessageWithStatus, undefined);
+                await sendMessageCore(
+                    userMessage.content,
+                    userMessage.model || 'claude',
+                    state.conversationId,
+                    1,
+                    userMessage as MessageWithStatus,
+                    undefined
+                );
             }
 
             console.log(`消息 ${messageId} 重试成功.`);
@@ -277,11 +289,11 @@ const useSendMessage = ({
             console.error('重试失败:', error);
             handleMessageError(error, userMessage as MessageWithStatus, botMessage as MessageWithStatus, 1);
         }
-    }, [sendMessageCore, state.conversationId, dispatch, handleMessageError, messagesRef]);
+    }, [sendMessageCore, state.conversationId, handleMessageError, messagesRef]);
 
     // 公开的发送消息接口
-    const sendMessage = useCallback((message: string, inputConversationId?: string) => {
-        return sendMessageCore(message, inputConversationId, 0);
+    const sendMessage = useCallback((message: string, model: string) => {
+        return sendMessageCore(message, model);
     }, [sendMessageCore]);
 
     // 获取失败的消息

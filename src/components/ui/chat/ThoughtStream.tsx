@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { MarkdownRenderer } from '../markdown/MarkdownRenderer';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -18,30 +18,33 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
     isAnimating
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [currentTitle, setCurrentTitle] = useState<string>('Thinking');
+    const [currentTitle, setCurrentTitle] = useState<string>('Thinking...');
     const { theme } = useTheme();
+    const lastTitleRef = useRef<string>('');
 
-    // 使用 useMemo 提取标题，避免重复计算
-    const extractedTitle = useMemo(() => {
-        // 使用正则表达式匹配 "> **文本**" 格式的最后一个标题
-        const titleRegex = />\s*\*\*(.*?)\*\*/g;
-        let lastTitle = '';
+    // 提取所有标题
+    const { titles, thoughtCount } = useMemo(() => {
+        const lines = content.split('\n').filter(line => line.trim().length > 0);
+        const extractedTitles: string[] = [];
+        const titleRegex = /\*\*(.*?)\*\*/g;
         let match;
-
-        // 使用正则的 exec 方法逐个匹配，找到最后一个标题
+        
         while ((match = titleRegex.exec(content)) !== null) {
-            lastTitle = match[1];
+            extractedTitles.push(match[1]);
         }
 
-        return lastTitle || 'Thinking';
+        // 如果有新标题，立即更新显示
+        const lastTitle = extractedTitles[extractedTitles.length - 1];
+        if (lastTitle && lastTitle !== lastTitleRef.current) {
+            lastTitleRef.current = lastTitle;
+            setCurrentTitle(lastTitle);
+        }
+
+        return {
+            titles: extractedTitles,
+            thoughtCount: lines.length
+        };
     }, [content]);
-
-    // 使用 useEffect 更新标题
-    useEffect(() => {
-        if (extractedTitle && extractedTitle !== currentTitle) {
-            setCurrentTitle(extractedTitle);
-        }
-    }, [extractedTitle, currentTitle]);
 
     const variants = {
         expanded: {
@@ -65,14 +68,17 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
     };
 
     return (
-        <div>
+        <div className="min-h-[32px]">
             <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full group flex items-center gap-2 text-gray-650 dark:text-gray-300 hover:dark:text-gray-750 hover:text-gray-800 h-8 my-1.5 relative"
+                className="w-full group flex items-center gap-2 text-gray-650 dark:text-gray-300 hover:dark:text-gray-750 hover:text-gray-800 h-8 relative"
             >
                 <div className="flex items-center gap-1 overflow-hidden">
-                    <span className={cn("relative", isAnimating && "shine-effect")} data-theme={theme}>
-                        {isAnimating ? currentTitle : `Thought for ${duration} seconds`}
+                    <span 
+                        className={cn("relative", isAnimating && "shine-effect")} 
+                        data-theme={theme}
+                    >
+                        {isAnimating ? currentTitle : `${thoughtCount} thoughts generated`}
                     </span>
                     <motion.span
                         animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -83,7 +89,7 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
                 </div>
             </button>
 
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
                 {isExpanded && (
                     <motion.div
                         variants={variants}
@@ -92,7 +98,7 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
                         exit="collapsed"
                         className="overflow-hidden"
                     >
-                        <div className="mb-2">
+                        <div className="blockquote">
                             <MarkdownRenderer content={content} />
                         </div>
                     </motion.div>

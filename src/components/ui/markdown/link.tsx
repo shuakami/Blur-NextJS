@@ -1,5 +1,5 @@
 import { toast } from '@/hooks/use-toast';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ToastAction } from '../toast';
 
 export const Link: React.FC<React.AnchorHTMLAttributes<HTMLAnchorElement>> = ({ href, ...props }) => {

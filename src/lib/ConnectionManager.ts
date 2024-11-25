@@ -39,7 +39,7 @@ export class ConnectionManager extends EventEmitter {
     private lastHeartbeatTime: number = 0;
     private lastSyncTime: number = 0;
     private consecutiveFailures: number = 0;
-    private readonly MAX_FAILURES = 3;  // 连续失败3次后判定为断网
+    private readonly MAX_FAILURES = 2;  // 连续失败3次后判定为断网
 
     constructor() {
         super();
@@ -70,12 +70,10 @@ export class ConnectionManager extends EventEmitter {
 
     private async connect() {
         try {
-            await this.checkHeartbeat();
-            this.scheduleNextHeartbeat();
             await this.startSync();
+            this.scheduleNextHeartbeat();
         } catch (error) {
-            this.handleError(error as ConnectionError, 'heartbeat');
-            this.scheduleReconnect();
+            this.handleError(error as ConnectionError, 'sync');
         }
     }
 
@@ -135,52 +133,49 @@ export class ConnectionManager extends EventEmitter {
     private async startSync() {
         if (this.isDestroyed) return;
 
-        const now = Date.now();
-        if (now - this.lastSyncTime < this.config.syncInterval) return;
-        this.lastSyncTime = now;
-
         try {
             const data = await apiAdapter.get<SyncResponse>(
                 ConnectionManager.API_PATHS.SYNC,
                 { params: { last_sync_id: this.state.lastSyncId } }
             );
 
+            // sync 成功，重置失败计数
+            this.consecutiveFailures = 0;
+            this.reconnectAttempts = 0;
+
             this.updateState({
+                status: 'connected',
                 lastSyncId: data.sync_id,
                 lastUpdate: data.timestamp,
                 serverLatency: data.server_latency,
                 serverStatus: data.server_status,
-                isHealthy: true
+                isHealthy: true,
+                error: undefined // 清除错误状态
             });
 
             if (data.has_updates) {
                 this.emit('updates_available');
             }
 
+            // 设置下一次 sync
             this.syncTimer = setTimeout(() => this.startSync(), this.config.syncInterval);
         } catch (error) {
             this.handleError(error as ConnectionError, 'sync');
-            this.syncTimer = setTimeout(() => this.startSync(), this.config.syncInterval);
         }
     }
 
     private scheduleReconnect() {
         if (this.reconnectTimer) return;
 
-        const isOffline = this.consecutiveFailures >= this.MAX_FAILURES;
-        const baseDelay = isOffline 
-            ? this.config.maxReconnectDelay / 2 
-            : this.config.minReconnectDelay;
-
         const delay = Math.min(
-            baseDelay * Math.pow(this.config.reconnectBackoff, this.reconnectAttempts),
+            this.config.minReconnectDelay * Math.pow(this.config.reconnectBackoff, this.reconnectAttempts),
             this.config.maxReconnectDelay
         );
 
         this.reconnectTimer = setTimeout(() => {
             this.reconnectTimer = undefined;
             this.reconnectAttempts++;
-            this.connect();
+            this.connect(); // 重连时也是从 sync 开始
         }, delay);
     }
 
@@ -190,38 +185,68 @@ export class ConnectionManager extends EventEmitter {
      * @param source 错误来源，'heartbeat' 或 'sync'
      */
     private handleError(error: ConnectionError, source: 'heartbeat' | 'sync') {
-        // 检查是否是明确的网络错误
+        // 更精确地区分错误类型
         const isNetworkError = error.code === 'ERR_INTERNET_DISCONNECTED' || 
-                               error.code === 'ERR_CONNECTION_REFUSED' ||
                               error.code === 'ERR_NETWORK' ||
                               error.code === 'NETWORK_ERROR';
+        
+        const isServerError = error.code === 'ERR_CONNECTION_REFUSED' ||
+                             error.status === 503 ||  // Service Unavailable
+                             error.status === 502;    // Bad Gateway
 
-        if (source === 'heartbeat') {
+        if (source === 'sync') {
             this.consecutiveFailures++;
             
-            // 如果是明确的网络错误，立即显示断网
-            const isOffline = isNetworkError || this.consecutiveFailures >= this.MAX_FAILURES;
-            
-            this.updateState({
-                status: isOffline ? 'disconnected' : this.state.status,
-                error,
-                isHealthy: false
-            });
-            
-            if (isOffline) {
-                this.reconnectAttempts = Math.max(this.reconnectAttempts, 3);
-            }
-            this.scheduleReconnect();
-        } else if (source === 'sync') {
-            // sync 错误只在明确是网络错误时才更新状态
             if (isNetworkError) {
+                // 无网络
                 this.updateState({
                     status: 'disconnected',
+                    error: {
+                        ...error,
+                        message: '网络连接已断开'
+                    },
+                    isHealthy: false
+                });
+            } else if (isServerError) {
+                // 服务器问题
+                this.updateState({
+                    status: 'server_down',
+                    error: {
+                        ...error,
+                        message: '服务器暂时无法访问'
+                    },
+                    isHealthy: false
+                });
+            } else {
+                // 其他错误
+                this.updateState({
+                    status: this.consecutiveFailures >= this.MAX_FAILURES ? 'disconnected' : 'connecting',
                     error,
                     isHealthy: false
                 });
             }
-            console.error('Sync error:', error);
+
+            // 清理现有定时器
+            if (this.heartbeatTimer) {
+                clearTimeout(this.heartbeatTimer);
+                this.heartbeatTimer = undefined;
+            }
+            
+            this.scheduleReconnect();
+        } else if (source === 'heartbeat') {
+            this.consecutiveFailures++;
+            
+            if (this.consecutiveFailures >= this.MAX_FAILURES) {
+                // 心跳连续失败，重新从 sync 开始
+                if (this.heartbeatTimer) {
+                    clearTimeout(this.heartbeatTimer);
+                    this.heartbeatTimer = undefined;
+                }
+                this.connect();
+            } else {
+                // 心跳偶尔失败，继续尝试
+                this.scheduleNextHeartbeat();
+            }
         }
     }
 

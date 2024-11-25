@@ -10,11 +10,11 @@
     --text-quaternary: #999999;   /* 40% 黑 */
 
     /* 间距系统 */
-    --spacing-unit: 1rem;
-    --spacing-xs: calc(var(--spacing-unit) * 0.25);
-    --spacing-sm: calc(var(--spacing-unit) * 0.5);
+    --spacing-unit: 1.25rem;
+    --spacing-xs: calc(var(--spacing-unit) * 0.35);
+    --spacing-sm: calc(var(--spacing-unit) * 0.65);
     --spacing-md: var(--spacing-unit);
-    --spacing-lg: calc(var(--spacing-unit) * 1.5);
+    --spacing-lg: calc(var(--spacing-unit) * 1.75);
     
     /* 强调色 */
     --emphasis-color: #0d0d0d;
@@ -22,21 +22,37 @@
     --border-light: rgba(0, 0, 0, .08);
     --border-medium: rgba(0, 0, 0, .12);
     
-    /* 添加新的排版变量 */
+    /* 排版变量 */
     --cjk-letter-spacing: 0.02em;
     --latin-word-spacing: 0.05em;
-    --mixed-line-height: 1.845;
+    --mixed-line-height: 2;
     
-    /* 优化暗色模式的颜色系统 */
+    /* 文本阴影 */
     --text-shadow-light: 0 0 1px rgba(0, 0, 0, 0.1);
     --text-shadow-dark: 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* 暗色模式 */
+.dark {
+    --text-primary: #ececec;      /* 94.5% 白 */
+    --text-color: #ececec;        /* 保持一致性 */
+    --text-secondary: #CCCCCC;    /* 80% 白 */
+    --text-tertiary: #999999;     /* 60% 白 */
+    --text-quaternary: #666666;   /* 40% 白 */
+    --emphasis-color: #ececec;
+    --background-color: #000000;  /* 纯黑背景 */
+}
+
+.dark .text-body {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-shadow: var(--text-shadow-dark);  /* 添加微弱阴影提升清晰度 */
 }
 
 .text-body {
     /* 基础字号 */
     font-size: var(--base-size);
     line-height: var(--mixed-line-height);
-    margin: 0.5rem 0;
     color: var(--text-color);
     width: 100%;
 
@@ -58,35 +74,15 @@
     font-weight: 400;
 }
 
-/* 文本变体样式优化 */
+/* 文本变体样式 */
 .text-bold {
     font-weight: 600;
     color: var(--emphasis-color);
 }
 
-/* 斜体 */
 .text-italic {
     font-style: italic;
     color: var(--emphasis-color);
-}
-
-/* 暗色模式优化 */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --text-primary: #ececec;      /* 94.5% 白 */
-        --text-color: #ececec;        /* 保持一致性 */
-        --text-secondary: #CCCCCC;    /* 80% 白 */
-        --text-tertiary: #999999;     /* 60% 白 */
-        --text-quaternary: #666666;   /* 40% 白 */
-        --emphasis-color: #ececec;
-        --background-color: #000000;  /* 纯黑背景 */
-    }
-    
-    .text-body {
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
-        text-shadow: var(--text-shadow-dark);  /* 添加微弱阴影提升清晰度 */
-    }
 }
 
 /* 响应式优化 */
@@ -95,7 +91,6 @@
         font-size: 1.025rem;
     }
 }
-
 
 @media (max-width: 768px) {
     :root {

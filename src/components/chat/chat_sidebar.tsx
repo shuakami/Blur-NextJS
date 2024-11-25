@@ -12,6 +12,8 @@ import useTranslation from "@/hooks/useTranslation";
 import dayjs from 'dayjs';
 import {cn} from '@/lib/utils';
 import dynamic from 'next/dynamic';
+import { useShortcutManager } from '@/providers/ShortcutProvider';
+import { SHORTCUT_DESCRIPTIONS, SHORTCUTS } from '@/constants/shortcuts';
 
 const UserInfo = dynamic(() => import('./chat_sidebar/UserInfo'), {
   ssr: false,
@@ -74,6 +76,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [loadingRef, setLoadingRef] = useState<HTMLDivElement | null>(null);
+    const shortcutManager = useShortcutManager()
 
     // 滚动监听
     useEffect(() => {
@@ -215,6 +218,55 @@ const ChatSidebar = memo<ChatSidebarProps>(({
             </div>
         );
     }, [items.length, loading, hasMore, renderGroupItems, loadingRef, t]);
+
+    // 获取当前对话在列表中的索引
+    const getCurrentIndex = useCallback(() => {
+        const allConversations = groupedItems.flatMap(group => group.children)
+        return allConversations.findIndex(item => item.id === selectedItem)
+    }, [groupedItems, selectedItem])
+    // 切换到上一个对话
+    const gotoPrevChat = useCallback(() => {
+        const allConversations = groupedItems.flatMap(group => group.children)
+        const currentIndex = getCurrentIndex()
+        
+        if (currentIndex > 0) {
+            const prevItem = allConversations[currentIndex - 1]
+            handleSelectItem(prevItem.id ?? '', `/chat/${prevItem.id}`)
+        }
+    }, [groupedItems, getCurrentIndex, handleSelectItem])
+    // 切换到下一个对话
+    const gotoNextChat = useCallback(() => {
+        const allConversations = groupedItems.flatMap(group => group.children)
+        const currentIndex = getCurrentIndex()
+        
+        if (currentIndex < allConversations.length - 1) {
+            const nextItem = allConversations[currentIndex + 1]
+            handleSelectItem(nextItem.id ?? '', `/chat/${nextItem.id}`)
+        }
+    }, [groupedItems, getCurrentIndex, handleSelectItem])
+    // 注册快捷键
+    useEffect(() => {
+        shortcutManager.register({
+            command: 'PREV_CHAT',
+            key: SHORTCUTS.PREV_CHAT,
+            description: SHORTCUT_DESCRIPTIONS.PREV_CHAT,
+            handler: gotoPrevChat,
+            condition: () => document.activeElement?.tagName !== 'INPUT'
+        })
+
+        shortcutManager.register({
+            command: 'NEXT_CHAT',
+            key: SHORTCUTS.NEXT_CHAT,
+            description: SHORTCUT_DESCRIPTIONS.NEXT_CHAT,
+            handler: gotoNextChat,
+            condition: () => document.activeElement?.tagName !== 'INPUT'
+        })
+
+        return () => {
+            shortcutManager.unregister('PREV_CHAT')
+            shortcutManager.unregister('NEXT_CHAT')
+        }
+    }, [shortcutManager, gotoPrevChat, gotoNextChat])
 
     return (
         <div className={cn(

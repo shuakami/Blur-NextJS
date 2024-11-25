@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
 import dynamic from 'next/dynamic';
-import { LogOut, SettingsIcon, UserRound } from "lucide-react";
+import { LogOut, SettingsIcon, UserRound, Keyboard } from "lucide-react";
 
 // 模态框组件
 const SettingsModal = dynamic(() => import("@/app/[设置]/settings_modal"), {
@@ -17,11 +17,16 @@ const PersonalCenter = dynamic(() => import("@/app/[个人中心]"), {
     loading: () => null,
     ssr: false
 });
+const ShortcutsModal = dynamic(() => import("@/components/ui/shortcuts-modal"), {
+    loading: () => null,
+    ssr: false
+});
 
 // 菜单项
 const createMenuItems = (handlers: {
     openSettings: () => void,
     openAccountSettings: () => void,
+    openShortcuts: () => void,
     signOut: () => void,
     closeMenu: () => void
 }) => [
@@ -41,6 +46,15 @@ const createMenuItems = (handlers: {
         onClick: () => {
             handlers.closeMenu();
             handlers.openAccountSettings();
+        },
+    },
+    {
+        id: "shortcuts",
+        text: "键盘快捷键",
+        icon: Keyboard,
+        onClick: () => {
+            handlers.closeMenu();
+            handlers.openShortcuts();
         },
     },
     {
@@ -66,7 +80,8 @@ const UserAvatar = memo(() => {
     const [modals, setModals] = useState({
         settings: false,
         account: false,
-        menu: false
+        menu: false,
+        shortcuts: false
     });
 
     // URL 参数处理
@@ -74,7 +89,8 @@ const UserAvatar = memo(() => {
         setModals(prev => ({
             ...prev,
             settings: searchParams?.get("settings") === "open",
-            account: searchParams?.get("account") === "open"
+            account: searchParams?.get("account") === "open",
+            shortcuts: searchParams?.get("shortcuts") === "open"
         }));
     }, [searchParams]);
 
@@ -111,6 +127,16 @@ const UserAvatar = memo(() => {
         closeAccountSettings: useCallback(() => {
             setModals(prev => ({ ...prev, account: false }));
             updateURL({ account: null, tab: null, settings: null });
+        }, [updateURL]),
+
+        openShortcuts: useCallback(() => {
+            setModals(prev => ({ ...prev, shortcuts: true }));
+            updateURL({ shortcuts: "open" });
+        }, [updateURL]),
+
+        closeShortcuts: useCallback(() => {
+            setModals(prev => ({ ...prev, shortcuts: false }));
+            updateURL({ shortcuts: null });
         }, [updateURL])
     };
 
@@ -118,6 +144,7 @@ const UserAvatar = memo(() => {
     const menuItems = createMenuItems({
         openSettings: modalHandlers.openSettings,
         openAccountSettings: modalHandlers.openAccountSettings,
+        openShortcuts: modalHandlers.openShortcuts,
         signOut,
         closeMenu: () => setModals(prev => ({ ...prev, menu: false }))
     });
@@ -150,6 +177,7 @@ const UserAvatar = memo(() => {
                 placement="bottom"
                 onClose={() => setModals(prev => ({ ...prev, menu: false }))}
             />
+            
 
             {modals.settings && (
                 <SettingsModal 
@@ -162,6 +190,13 @@ const UserAvatar = memo(() => {
                 <PersonalCenter 
                     isOpen={modals.account} 
                     onClose={modalHandlers.closeAccountSettings}
+                />
+            )}
+
+            {modals.shortcuts && (
+                <ShortcutsModal 
+                    isOpen={modals.shortcuts} 
+                    onClose={modalHandlers.closeShortcuts}
                 />
             )}
         </>

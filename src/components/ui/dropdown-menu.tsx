@@ -260,7 +260,6 @@ const MenuItems = ({
             "bg-white/95 dark:bg-gray-900/95",
             "py-1 px-1.5",
             "shadow-[0_5px_30px_-12px_rgba(0,0,0,0.18)] dark:shadow-[0_5px_30px_-12px_rgba(0,0,0,0.45)]",
-            "backdrop-blur-xl backdrop-saturate-150",
             "focus:outline-none",
             styles?.menu,
             className

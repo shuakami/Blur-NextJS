@@ -1,14 +1,102 @@
-
-.text-footnote {
-    font-size: 0.8rem;
-    color: #6a737d; /* 默认灰色 */
-    line-height: 1.5;
+:root {
+    --footnote-text: #666666;
+    --footnote-border: var(--border-light);
 }
 
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-    .text-footnote {
-        color: var(--text-color); /* 使用全局文字颜色 */
-        opacity: 0.8; /* 降低透明度以弱化存在感 */
-    }
+.dark {
+    --footnote-text: #8b8b8b;
+    --footnote-border: var(--border-light);
+}
+
+/* 脚注引用样式 */
+.footnote-ref {
+    font-size: 0.75em;
+    text-decoration: none;
+    color: var(--footnote-text);
+    margin: 0 0.2em;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+.footnote-ref:hover {
+    opacity: 1;
+}
+
+/* 脚注区域样式 */
+.markdown-body .footnotes ol {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    padding-left: 0;
+    border-top: 1px solid var(--footnote-border);
+    list-style-type: none;
+    counter-reset: footnote;
+}
+
+/* 脚注项样式 */
+.markdown-body .footnotes ol li {
+    font-size: 0.875rem;
+    color: var(--footnote-text);
+    padding: 0.15rem 0;
+    display: flex;
+    counter-increment: footnote;
+}
+
+/* 脚注序号样式 */
+.markdown-body .footnotes ol li::before {
+    content: '[' counter(footnote) ']';
+    margin-right: 0.75rem;
+    opacity: 0.8;
+    padding: 0.1rem 0rem;
+    white-space: nowrap;
+}
+
+/* 脚注内容样式 */
+.markdown-body .footnotes ol li p {
+    display: inline;
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--footnote-text);
+}
+
+/* 普通列表样式 */
+.markdown-body ol.list-decimal:not(.footnotes ol) {
+    margin: 0.35rem 0;
+    padding-left: 2.5rem;
+    padding-bottom: 0.1rem;
+}
+
+/* 覆盖默认列表样式 */
+.markdown-body ol.list-decimal:not([data-footnotes]),
+.markdown-body ol.list-disc:not([data-footnotes]) {
+    margin: 0.35rem 0rem;
+}
+
+/* 返回链接基础样式 */
+[data-footnote-backref] {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.15rem;
+    margin-left: 0.2rem;
+    color: var(--footnote-text);
+    opacity: 0.75;
+    font-size: 0.85em;
+    text-decoration: none;
+}
+
+[data-footnote-backref]:hover {
+    opacity: 1;
+}
+
+/* 确保两个返回链接都显示 */
+[data-footnote-backref] + [data-footnote-backref] {
+    display: inline-flex;
+    margin-left: 0;
+}
+
+[data-footnote-backref] {
+    content: '↩';
+}
+/* 隐藏 SVG 图标 */
+[data-footnote-backref] svg {
+    display: none;
 }

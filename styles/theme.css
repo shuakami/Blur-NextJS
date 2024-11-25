@@ -1,0 +1,29 @@
+:root {
+    /* 扫光 / ThoughtStream.css */
+    --shine-from: 180, 180, 180;
+    --shine-via: 60, 60, 60;
+    --shine-to: 180, 180, 180;
+
+    /* 用户消息 / UserMessage.tsx */
+    --message-user-bg: 244, 244, 244;    /* #F4F4F4 */
+    --message-user-text: 0, 0, 0;        /* #000 */
+
+    /* 滚动条 / global.css */
+    --scrollbar-thumb: 115, 115, 115;
+    --scrollbar-thumb-alpha: 0.2;
+}
+
+.dark {
+    /* 扫光 / ThoughtStream.css */
+    --shine-from: 100, 100, 100;
+    --shine-via: 255, 255, 255;
+    --shine-to: 100, 100, 100;
+
+    /* 用户消息 / UserMessage.tsx */
+    --message-user-bg: 47, 47, 47;       /* #2F2F2F */
+    --message-user-text: 255, 255, 255;  /* #fff */
+
+    /* 滚动条 / global.css */
+    --scrollbar-thumb: 255, 255, 255;
+    --scrollbar-thumb-alpha: 0.1;
+}

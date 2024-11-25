@@ -1,7 +1,15 @@
+:root {
+    --blockquote-border: 228, 226, 226;  /* #e4e2e2 */
+}
+
+.dark {
+    --blockquote-border: 74, 74, 74;     /* #4a4a4a */
+}
+
 .blockquote {
-    border-left: 2px solid #e4e2e2; /* 边框颜色 */
-    margin: 0.9rem 0 !important; /* 使用 margin 让上下边框稍微长一点 */
-    padding-left: 1.2rem; /* 保持左侧的 padding */
+    border-left: 2px solid rgb(var(--blockquote-border));
+    margin: 0.9rem 0 !important;
+    padding-left: 1.2rem;
     position: relative;
     color: var(--text-color);
 }
@@ -10,21 +18,13 @@
 @media (max-width: 768px) {
     .blockquote {
         padding-left: 0.75rem;
-        margin: 0.15rem 0; /* 小屏幕时缩小上下 margin */
+        margin: 0.15rem 0;
     }
 }
 
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-    .blockquote {
-        border-left: 2px solid #4a4a4a;
-        color: var(--text-color);
-    }
-}
-
-/* 高对比度模式 */
+/* 高对比度模式*/
 @media (prefers-contrast: high) {
     .blockquote {
-        border-left: 2px solid #000; /* 高对比度下使用纯黑色 */
+        border-left: 2px solid #000;
     }
 }

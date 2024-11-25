@@ -7,7 +7,7 @@ import { RetryableMessage } from './core/messageStatus';
 
 interface ChatContextProps {
     messages: Message[];
-    sendMessage: (message: string, conversationId?: string) => void;
+    sendMessage: (message: string, model: string, conversationId?: string) => void;
     addMessage: (message: Message) => void;
     triggerConversationsReload: () => void;
     reloadConversationsCounter: number;

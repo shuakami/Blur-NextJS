@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import hljs from 'highlight.js';
 import { throttle } from 'lodash';
-import { Check, Copy, Terminal } from 'lucide-react';
+import { Check, Copy, Loader2, Terminal } from 'lucide-react';
 import LANGUAGE_ALIASES from './languageAliases';
 import { loadLanguageWithRetry, preloadCommonLanguages } from './Languages/languageLoader';
 import '../../../../styles/code/luoxiaohei.css';
@@ -121,35 +121,62 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
     }
 
     return (
-        <div className="mb-2.5 relative group rounded-lg overflow-hidden bg-gray-50/45 dark:bg-gray-945
-                      border border-gray-50 dark:border-gray-900/50">
-            <div className="z-30 absolute top-2 right-3 flex items-center gap-1">
-                <div className="flex items-center gap-1 px-2 py-1 text-xs font-light bg-gray-50/45 dark:bg-gray-945
-                             text-gray-450 hover:text-gray-600 dark:text-gray-500
-                              dark:hover:text-gray-300 select-none hover:bg-gray-80 dark:hover:bg-gray-940
-                              transition-colors duration-200 rounded-md">
-                    <Terminal size={14} className={isLoading ? 'animate-spin' : ''} />
-                    {detectedLanguage}
-                </div>
-
-                <button 
-                    onClick={handleCopy}
-                    className="p-1.5 rounded-md text-gray-400 bg-[#FCFCFC] dark:bg-gray-945 hover:text-gray-600
-                             dark:text-gray-500 dark:hover:text-gray-300
-                             hover:bg-gray-80 dark:hover:bg-gray-940
-                             transition-colors duration-200"
-                    title="复制代码"
-                >
-                    {copied ? (
-                        <Check size={16} className="text-gray-650 dark:text-gray-350" />
+        <div className="mb-2.5 mt-2.5 relative group rounded-lg 
+                      bg-gray-50/45 dark:bg-gray-945
+                      border border-gray-200/50 dark:border-gray-800/50
+                      shadow-sm dark:shadow-gray-950/50
+                      backdrop-blur-sm
+                      !overflow-visible">
+            {/* 语言标识区域 */}
+            <div className="flex items-center px-4 py-2 text-xs justify-between 
+                          rounded-t-lg h-9 
+                          bg-gray-100/50 dark:bg-gray-900/50
+                          border-b border-gray-200/50 dark:border-gray-800/50
+                          text-gray-500 dark:text-gray-400 
+                          select-none">
+                <div className="flex items-center gap-1.5 py-1 rounded-md
+                              hover:bg-gray-200/50 dark:hover:bg-gray-800/50
+                              transition-colors duration-200">
+                    {isLoading ? (
+                        <Loader2 size={14} className="animate-spin" />
                     ) : (
-                        <Copy size={16} />
+                        <Terminal size={14} />
                     )}
-                </button>
+                    <span className="font-light">{detectedLanguage}</span>
+                </div>
             </div>
 
-            <div className="overflow-auto">
-                <pre className="!mt-0 pt-3 pb-3 px-4">
+            {/* 复制按钮容器 */}
+            <div className="sticky top-9 md:top-[3.75rem] z-10">
+                <div className="absolute bottom-0 right-4 flex h-9 items-center">
+                    <button 
+                        onClick={handleCopy}
+                        className="flex items-center gap-1.5 px-1 py-1 rounded-md
+                                 text-xs text-gray-450 dark:text-gray-500
+                                 hover:bg-gray-100/50 dark:hover:bg-gray-900/50
+                                 hover:text-gray-600 dark:hover:text-gray-300
+                                 transition-all duration-200
+                                 font-[system-ui]"
+                        title="复制代码"
+                    >
+                        {copied ? (
+                            <>
+                                <Check size={14} className="text-gray-650 dark:text-gray-350" />
+                                <span>已复制</span>
+                            </>
+                        ) : (
+                            <>
+                                <Copy size={14} />
+                                <span>复制</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            </div>
+
+            {/* 代码内容区域 */}
+            <div className="overflow-y-auto px-4 py-4">
+                <pre className="!mt-0">
                     <code 
                         ref={codeRef}
                         className={`language-${detectedLanguage} hljs`}
@@ -157,8 +184,6 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
                     />
                 </pre>
             </div>
-
-            <div className="absolute inset-0 pointer-events-none border border-gray-200/40 dark:border-gray-900 rounded-lg" />
         </div>
     );
 });

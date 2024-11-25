@@ -600,6 +600,7 @@ const config: Config = {
             'slideInDown': 'slideInDown 0.4s ease-out forwards',
             'fadeIn': 'fadeIn 0.3s ease-out forwards',
             'stagger': 'fadeIn 0.5s ease-out forwards var(--animation-delay, 0s)',
+            'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
           },
           keyframes: {
             slideInDown: {

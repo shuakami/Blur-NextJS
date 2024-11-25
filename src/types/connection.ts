@@ -3,7 +3,8 @@ export type ConnectionStatus =
     | 'connected'     // 连接正常
     | 'connecting'    // 正在连接
     | 'degraded'      // 服务降级
-    | 'disconnected'; // 连接断开
+    | 'disconnected'  // 连接断开
+    | 'server_down';  // 服务器无法访问
 
 // 服务器状态
 export interface ServerStatus {

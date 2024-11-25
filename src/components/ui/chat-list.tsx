@@ -36,9 +36,9 @@ const MessageItem = memo(({
 
 
     return (
-        <div className="flex flex-col w-full mt-14">
+        <div className={`flex flex-col w-full ${isBot ? 'mb-6' : 'mb-6'}`}>
             {isBot ? (
-                <div className={`flex py-2 first:pt-3 last:pb-3 items-start w-full`}>
+                <div className="flex items-start w-full">
                     <BotMessage
                         content={message.content}
                         isLoading={isLoading}
@@ -48,7 +48,7 @@ const MessageItem = memo(({
                     />
                 </div>
             ) : (
-                <div className={`flex py-2 first:pt-3 last:pb-3 justify-end items-start pr-3 sm:pr-0 -mt-5`}>
+                <div className="flex justify-end items-start pr-3 sm:pr-0">
                     <UserMessage
                         message={message}
                         isEditing={isEditing}
@@ -151,21 +151,34 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
 
     return (
         <div className="relative w-full">
-            <div className="h-full overflow-hidden w-full">
-                <div className="space-y-0.5">
-                    {messages.map((message, index) => (
-                        <MessageItem
-                            key={message.message_id} 
-                            message={message}
-                            index={index}
-                            isLoading={isLoading}
-                            editingId={editingId}
-                            onEditStart={handleEditStart}
-                            onEditComplete={handleEdit}
-                            onEditCancel={handleEditCancel}
-                            isLastMessage={index === messages.length - 1}
-                        />
-                    ))}
+            <div className="h-full w-full">
+                <div className="space-y-2">
+                    {messages.map((message, index) => {
+                        const prevMessage = index > 0 ? messages[index - 1] : null;
+                        const nextMessage = index < messages.length - 1 ? messages[index + 1] : null;
+                        
+                        // 计算额外的间距类名
+                        const spacingClass = (() => {
+                            if (!prevMessage) return ''; // 第一条消息
+                            if (prevMessage.type !== message.type) return 'mt-8'; // 不同类型消息之间
+                            return 'mt-4'; // 相同类型消息之间
+                        })();
+
+                        return (
+                            <div key={message.message_id} className={spacingClass}>
+                                <MessageItem
+                                    message={message}
+                                    index={index}
+                                    isLoading={isLoading}
+                                    editingId={editingId}
+                                    onEditStart={handleEditStart}
+                                    onEditComplete={handleEdit}
+                                    onEditCancel={handleEditCancel}
+                                    isLastMessage={index === messages.length - 1}
+                                />
+                            </div>
+                        );
+                    })}
                     <div ref={messagesEndRef} className="h-1" />
                 </div>
             </div>

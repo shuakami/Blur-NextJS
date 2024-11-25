@@ -1,14 +1,48 @@
 /* 
  * Luoxiaohei / Code Theme
- * Version: 0.01
+ * Version: 0.02
  * Release Date: November 2, 2024
  * Author: Shuakami
  */
 
+/* 定义主题变量 */
+:root {
+    --code-text: #383A42;
+    --code-keyword: #aa25a8;
+    --code-type: #C18401;
+    --code-string: #50A14F;
+    --code-number: #a77a19;
+    --code-function: #4078F2;
+    --code-class: #4078F2;
+    --code-variable: #383A42;
+    --code-attr: #986801;
+    --code-comment: #A0A1A7;
+    --code-operator: #515254;
+    --code-tag: #383A42;
+    --code-tag-name: #E45649;
+    --code-tag-attr: #986801;
+}
 
-/* 代码块 (code block)*/
+.dark {
+    --code-text: #E6E6E6;
+    --code-keyword: #C678DD;
+    --code-type: #E5C07B;
+    --code-string: #98C379;
+    --code-number: #E5C07B;
+    --code-function: #61AFEF;
+    --code-class: #E5C07B;
+    --code-variable: #ABB2BF;
+    --code-attr: #D19A66;
+    --code-comment: #7F848E;
+    --code-operator: #7A7C7F;
+    --code-tag: #ABB2BF;
+    --code-tag-name: #E06C75;
+    --code-tag-attr: #D19A66;
+}
+
+/* 代码块 */
 .hljs {
-    color: #383A42;
+    color: var(--code-text);
     background: transparent;
     font-size: 0.875rem;
     line-height: 1.75;
@@ -16,193 +50,96 @@
     font-weight: 350;
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
     font-feature-settings: "liga" 1, "calt" 1;
-    -webkit-font-smoothing: auto;
     text-rendering: optimizeLegibility;
     white-space: pre-wrap;
     word-wrap: break-word;
 }
 
-/* 关键字 (import, export, const, let, return) */
+/* 关键字 */
 .hljs-keyword {
-    color: #aa25a8;
+    color: var(--code-keyword);
     font-weight: 350;
 }
 
-/* 内置类型和类型注解 (Number, String, Boolean, Array, Object, Function, etc.) */
+/* 内置类型和类型注解 */
 .hljs-type,
 .hljs-built_in {
-    color: #C18401;
+    color: var(--code-type);
     font-weight: 350;
 }
 
-/* 字符串和模板字符串 (String, Template String) */
+/* 字符串和模板字符串 */
 .hljs-string,
 .hljs-template-string {
-    color: #50A14F;
+    color: var(--code-string);
 }
 
-/* 数字 (number)*/
+/* 数字 */
 .hljs-number {
-    color: #a77a19;
+    color: var(--code-number);
 }
 
-/* 函数名 (function)*/
+/* 函数名 */
 .hljs-title.function_ {
-    color: #4078F2;
+    color: var(--code-function);
     font-weight: 350;
 }
 
-/* 类名和接口名 (class)*/
+/* 类名和接口名 */
 .hljs-title.class_ {
-    color: #4078F2;
+    color: var(--code-class);
     font-weight: 350;
 }
 
-/* 变量名和属性 (variable)*/
+/* 变量名和属性 */
 .hljs-variable,
 .hljs-property {
-    color: #383A42;
+    color: var(--code-variable);
 }
 
-/* 对象属性 (attr)*/
+/* 对象属性 */
 .hljs-attr {
-    color: #986801;
+    color: var(--code-attr);
 }
 
-/* 函数参数 (params)*/
-.hljs-params {
-    color: #383A42;
-}
-
-/* 注释 (comment)   */
+/* 注释 */
 .hljs-comment {
-    color: #A0A1A7;
+    color: var(--code-comment);
     font-style: italic;
     font-weight: 350;
 }
 
-/* 操作符和标点 (operator, punctuation)*/
+/* 操作符和标点 */
 .hljs-operator,
 .hljs-punctuation {
-    color: #515254;
+    color: var(--code-operator);
 }
 
-/* 正则表达式 (regexp)*/
-.hljs-regexp {
-    color: #50A14F;
-}
-
-/* 装饰器 (meta)*/
-.hljs-meta {
-    color: #4078F2;
-}
-
-/* JSX/TSX 标签 (tag)*/
+/* JSX/TSX 标签 */
 .hljs-tag {
-    color: #383A42;
+    color: var(--code-tag);
 }
 
-/* JSX/TSX 标签名 (tag name)*/
+/* JSX/TSX 标签名 */
 .hljs-tag .hljs-name {
-    color: #E45649;
+    color: var(--code-tag-name);
 }
 
-/* JSX/TSX 标签属性 (tag attr)*/
+/* JSX/TSX 标签属性 */
 .hljs-tag .hljs-attr {
-    color: #986801;
+    color: var(--code-tag-attr);
 }
 
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-    .hljs {
-        color: #E6E6E6;
-    }
-
-    .hljs-keyword {
-        color: #C678DD;
-    }
-
-    .hljs-type,
-    .hljs-built_in {
-        color: #E5C07B;
-    }
-
-    .hljs-string,
-    .hljs-template-string {
-        color: #98C379;
-    }
-
-    .hljs-number {
-        color: #E5C07B;
-    }
-
-    .hljs-title.function_ {
-        color: #61AFEF;
-    }
-
-    .hljs-title.class_ {
-        color: #E5C07B;
-    }
-
-    .hljs-variable,
-    .hljs-property {
-        color: #ABB2BF;
-    }
-
-    .hljs-attr {
-        color: #D19A66;
-    }
-
-    .hljs-comment {
-        color: #7F848E;
-    }
-
-    .hljs-operator,
-    .hljs-punctuation {
-        color: #7A7C7F;
-    }
-
-    .hljs-regexp {
-        color: #98C379;
-    }
-
-    .hljs-params {
-        color: #ABB2BF;
-    }
-
-    .hljs-meta {
-        color: #61AFEF;
-    }
-
-    .hljs-tag {
-        color: #ABB2BF;
-    }
-
-    .hljs-tag .hljs-name {
-        color: #E06C75;
-    }
-
-    .hljs-tag .hljs-attr {
-        color: #D19A66;
-    }
-}
-
-/* 特殊强调 (emphasis)*/
+/* 其他样式保持不变 */
 .hljs-emphasis {
     font-style: italic;
 }
 
-/* 特殊强调 (strong)*/
 .hljs-strong {
     font-weight: 350;
 }
 
-/* 链接 (link)*/
 .hljs-link {
     text-decoration: underline;
     color: inherit;
 }
-
-
-
-

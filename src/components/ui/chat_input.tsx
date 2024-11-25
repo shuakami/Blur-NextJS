@@ -4,6 +4,8 @@ import { useChatContext } from '@/app/[上下文]/ChatContext';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { debounce } from 'lodash';
+import { useShortcutManager } from '@/providers/ShortcutProvider';
+import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts';
 
 interface ChatInputProps {
     onSend: (message: string) => void;
@@ -85,6 +87,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [isSending, setIsSending] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { isStreaming, stopStreaming } = useChatContext();
+    const shortcutManager = useShortcutManager();
 
     const maxHeight = useMemo(() => 
         Math.max(200, Math.min(window.innerHeight * 0.25, 400)),
@@ -99,7 +102,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             if (savedDraft?.trim()) {
                 toastShown = true;
                 toast({
-                    title: '发现未发送的消息',
+                    title: '发现未送的消息',
                     description: '是否要恢复上次未发送的内容？',
                     action: (
                         <ToastAction altText="恢复" onClick={() => {
@@ -227,6 +230,52 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, [handleSend]);
 
     const showCounter = message.length > maxLength * THRESHOLD_RATIO;
+
+    // 聚焦输入框
+    const focusInput = useCallback(() => {
+        if (textareaRef.current) {
+            textareaRef.current.focus();
+            // 如果当前输入框的值是 "/"，则清空它
+            if (textareaRef.current.value === '/') {
+                textareaRef.current.value = '';
+            }
+        }
+    }, []);
+
+    // 注册快捷键
+    useEffect(() => {
+        shortcutManager.register({
+            command: 'FOCUS_CHAT',
+            key: SHORTCUTS.FOCUS_CHAT,
+            description: SHORTCUT_DESCRIPTIONS.FOCUS_CHAT,
+            handler: focusInput,
+            condition: () => {
+                // 只在不是输入状态时触发
+                return (
+                    document.activeElement?.tagName !== 'INPUT' && 
+                    document.activeElement?.tagName !== 'TEXTAREA'
+                );
+            }
+        });
+
+        // 额外添加键盘事件监听器来处理 "/" 键
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const isSlashKey = e.key === '/' || e.key === 'Slash';
+            if (isSlashKey && 
+                document.activeElement?.tagName !== 'INPUT' && 
+                document.activeElement?.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                focusInput();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            shortcutManager.unregister('FOCUS_CHAT');
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [shortcutManager, focusInput]);
 
     return (
         <div className="max-w-3xl mx-auto px-4">

@@ -44,13 +44,11 @@ const UserMessage = memo(({
                 {...animationConfig}
             >
                 {isEditing ? (
-                    <Suspense fallback={<div className="animate-pulse h-20 bg-gray-100 rounded-3xl"/>}>
-                        <EditableMessage
-                            content={message.content}
-                            onSave={onSave}
-                            onCancel={onCancel}
-                        />
-                    </Suspense>
+                    <EditableMessage
+                        content={message.content}
+                        onSave={onSave}
+                        onCancel={onCancel}
+                    />
                 ) : (
                     <div className="message-user rounded-3xl">
                         <p className="px-5 py-3 text-sm-md">{message.content}</p>

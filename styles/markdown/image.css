@@ -1,3 +1,16 @@
+:root {
+    --image-shadow-color: 0, 0, 0;
+    --image-shadow-opacity: 0.05;
+    --image-shadow-hover-opacity: 0.09;
+    --image-shadow-offset: 4px 6px;
+    --image-shadow-hover-offset: 6px 12px;
+}
+
+.dark {
+    --image-shadow-color: 255, 255, 255;
+    --image-shadow-opacity: 0.1;
+    --image-shadow-hover-opacity: 0.15;
+}
 
 /* 图片样式 */
 .inline-image {
@@ -6,21 +19,21 @@
     display: block;
     margin: 2rem auto;
     border-radius: 0.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--image-shadow-offset) 
+                rgba(var(--image-shadow-color), var(--image-shadow-opacity));
     transition: box-shadow 0.3s ease;
 }
 
 .inline-image:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.09);
+    box-shadow: var(--image-shadow-hover-offset) 
+                rgba(var(--image-shadow-color), var(--image-shadow-hover-opacity));
 }
 
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
+/* 打印模式 */
+@media print {
     .inline-image {
-        box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1); /* 使用浅色阴影 */
-    }
-
-    .inline-image:hover {
-        box-shadow: 0 6px 12px rgba(255, 255, 255, 0.15); /* 悬停时的阴影效果 */
+        box-shadow: none;
+        margin: 1rem auto;
+        page-break-inside: avoid;
     }
 }

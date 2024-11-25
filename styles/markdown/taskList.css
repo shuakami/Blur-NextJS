@@ -1,3 +1,16 @@
+:root {
+    --checkbox-border: var(--text-tertiary);
+    --checkbox-bg: var(--bg-primary);
+    --checkbox-size: 1em;
+    --checkbox-mark-color: var(--bg-primary);
+    --checkbox-border-width: 1.5px;
+}
+
+.dark {
+    --checkbox-border: var(--text-secondary);
+    --checkbox-bg: var(--bg-secondary);
+}
+
 /* TaskList 基础样式 - 继承自普通列表 */
 .task-list {
     margin: var(--spacing-xs) 0;
@@ -21,12 +34,12 @@
 .task-list-checkbox {
     appearance: none;
     position: relative;
-    width: 1em;
-    height: 1em;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
     margin: 0.4em 0.6em 0 -1.6em;  /* 调整对齐和间距 */
-    border: 1.5px solid var(--text-tertiary);
+    border: var(--checkbox-border-width) solid var(--checkbox-border);
     border-radius: 0.25em;
-    background-color: var(--bg-primary);
+    background-color: var(--checkbox-bg);
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -45,7 +58,7 @@
     left: 50%;
     width: 0.4em;
     height: 0.2em;
-    border: 2px solid var(--bg-primary);
+    border: 2px solid var(--checkbox-mark-color);
     border-top: 0;
     border-right: 0;
     transform: translate(-50%, -50%) rotate(-45deg);
@@ -66,49 +79,35 @@
     padding-left: var(--list-nested-indent);
 }
 
-/* 暗色模式适配 */
-@media (prefers-color-scheme: dark) {
-    .task-list-checkbox {
-        border-color: var(--text-secondary);
-        background-color: var(--bg-secondary);
-    }
-    
-    .task-list-checkbox:checked {
-        border-color: var(--link-color);
-        background-color: var(--link-color);
-    }
-}
-
 /* 响应式调整 */
 @media (max-width: 768px) {
+    :root {
+        --checkbox-size: 0.9em;
+    }
+
     .task-list-item {
         font-size: 0.95rem;
         line-height: 1.6;
-    }
-    
-    .task-list-checkbox {
-        width: 0.9em;
-        height: 0.9em;
     }
 }
 
 /* 打印样式优化 */
 @media print {
+    :root {
+        --checkbox-border-width: 1px;
+    }
+
     .task-list-item {
         font-size: 11pt;
         line-height: 1.5;
         break-inside: avoid;
     }
-    
-    .task-list-checkbox {
-        border-width: 1px;
-    }
 }
 
 /* 高对比度模式 */
 @media (prefers-contrast: high) {
-    .task-list-checkbox {
-        border-width: 2px;
+    :root {
+        --checkbox-border-width: 2px;
     }
     
     .task-list-item {

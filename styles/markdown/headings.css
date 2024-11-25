@@ -1,10 +1,11 @@
 :root {
+    /* 颜色变量 */
     --heading-color-dark: #1a1a1a;
     --heading-color-light: #2f3437;
     --heading-accent: #1a1a1a;
     
+    /* 尺寸变量 */
     --heading-base-size: 1rem;
-    
     --h1-size: calc(2.296 * var(--heading-base-size));
     --h2-size: calc(1.68 * var(--heading-base-size));
     --h3-size: calc(1.5 * var(--heading-base-size));
@@ -13,10 +14,16 @@
     --h6-size: calc(1 * var(--heading-base-size));
 }
 
+.dark {
+    --heading-color-dark: #e6e6e6;
+    --heading-color-light: #c9d1d9;
+    --heading-accent: #f0f6fc;
+}
+
 /* H1: 主标题 */
 .text-heading1 {
     font-size: var(--h1-size);
-    font-weight:800;
+    font-weight: 800;
     line-height: 2.25rem;
     margin-top: 0.2rem;
     margin-bottom: 1.5rem;
@@ -75,13 +82,4 @@
     margin-bottom: 0.5rem;
     color: var(--heading-color-dark);
     letter-spacing: -0.008em;
-}
-
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --heading-color-dark: #e6e6e6;
-        --heading-color-light: #c9d1d9;
-        --heading-accent: #f0f6fc;
-    }
 }

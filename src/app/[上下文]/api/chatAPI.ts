@@ -9,6 +9,7 @@ interface SendMessageParams {
     userId: string;
     token: string;
     conversationId?: string | null;
+    model?: string;
     onInitialResponse: (response: SendMessageResponse) => void;
     onChunk: (chunk: StreamChunk) => void;
     onFinalInfo: (info: FinalInfo) => void;
@@ -22,6 +23,7 @@ export const sendMessageAPI = async ({
     userId,
     token,
     conversationId,
+    model,
     onInitialResponse,
     onChunk,
     onFinalInfo,
@@ -34,6 +36,7 @@ export const sendMessageAPI = async ({
                 user_input: userInput,
                 user_id: userId,
                 conversation_id: conversationId || undefined,
+                model: model,
             },
             token,
             onInitialResponse,

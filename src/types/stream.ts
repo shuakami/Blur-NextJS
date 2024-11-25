@@ -79,9 +79,10 @@ export interface FinalInfo {
 
 export interface SendMessageParams {
     user_input: string;
-    user_id: string;
     conversation_id?: string;
     parent_message_id?: string;
+    user_id: string;
+    model?: string;
 }
 
 export interface SendMessageResponse {
@@ -157,6 +158,9 @@ export interface Message {
         status: string;
         timestamp: number;
     };
+
+    // 添加模型字段
+    model?: string;
 }
 
 export interface ThoughtProcess {

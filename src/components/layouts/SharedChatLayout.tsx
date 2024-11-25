@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Cookies from 'js-cookie';
 import Meta from '@/components/ui/Meta';
 import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
 import ConnectionStatus from '../ui/ConnectionStatus';
+import { useShortcutManager } from '@/providers/ShortcutProvider'
+import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts';
+import { CommandDialog } from "@/components/command/command-dialog"
 
 // 动态导入非关键组件
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
@@ -51,8 +55,11 @@ export function SharedChatLayout({
     renderMainContent,
     renderBottomContent
 }: SharedChatLayoutProps) {
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const shortcutManager = useShortcutManager();
+    const [isCommandOpen, setIsCommandOpen] = useState(false)
 
     // 初始化响应式状态
     useEffect(() => {
@@ -91,8 +98,46 @@ export function SharedChatLayout({
         });
     }, [isMobile, onSidebarToggle]);
 
+    useEffect(() => {
+        // 注册快捷键
+        shortcutManager.register({
+            command: 'TOGGLE_SIDEBAR',
+            key: SHORTCUTS.TOGGLE_SIDEBAR,
+            description: SHORTCUT_DESCRIPTIONS.TOGGLE_SIDEBAR,
+            handler: toggleSidebar,
+            condition: () => !isMobile || document.activeElement?.tagName !== 'INPUT'
+        })
+
+        shortcutManager.register({
+            command: 'NEW_CHAT',
+            key: SHORTCUTS.NEW_CHAT,
+            description: SHORTCUT_DESCRIPTIONS.NEW_CHAT,
+            handler: () => router.push('/?new=true'),
+            condition: () => document.activeElement?.tagName !== 'INPUT'
+        })
+
+        shortcutManager.register({
+            command: 'TOGGLE_COMMAND_CENTER',
+            key: SHORTCUTS.TOGGLE_COMMAND_CENTER,
+            description: SHORTCUT_DESCRIPTIONS.TOGGLE_COMMAND_CENTER,
+            handler: () => setIsCommandOpen(true),
+            condition: () => document.activeElement?.tagName !== 'INPUT'
+        })
+
+        // 清理
+        return () => {
+            shortcutManager.unregister('TOGGLE_SIDEBAR')
+            shortcutManager.unregister('NEW_CHAT')
+            shortcutManager.unregister('TOGGLE_COMMAND_CENTER')
+        }
+    }, [shortcutManager, toggleSidebar, router, isMobile])
+
     return (
         <>
+            <CommandDialog 
+                open={isCommandOpen} 
+                onOpenChange={setIsCommandOpen}
+            />
             <Meta
                 pageName={title}
                 pageDescription={description}
@@ -147,10 +192,12 @@ export function SharedChatLayout({
 
                     {/* 主要内容 */}
                     {renderMainContent?.() || (
-                        <div className="flex-1 overflow-auto w-full pt-12">
-                            <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
-                                <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]">
-                                    <ChatList />
+                        <div className="flex-1 flex flex-col w-full pt-12">
+                            <div className="flex-1 overflow-auto scroll-container">
+                                <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
+                                    <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]">
+                                        <ChatList />
+                                    </div>
                                 </div>
                             </div>
                         </div>
