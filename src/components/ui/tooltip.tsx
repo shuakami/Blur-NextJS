@@ -56,12 +56,10 @@ const TooltipContent = React.forwardRef<
       avoidCollisions={true}
       className={cn(
         "z-50 overflow-visible rounded-md",
-        "bg-white dark:bg-black/[0.98]",
-        "border border-gray-200/80 dark:border-white/[0.15]",
-        "px-3 py-2",
-        "text-xs leading-4",
-        "text-gray-900 dark:text-white",
-        "shadow-[0_2px_8px_rgba(0,0,0,0.12)]",
+        "bg-gray-950 dark:bg-white",
+        "px-4 py-2.5",
+        "text-sm leading-5",
+        "text-white dark:text-gray-950",
         "animate-in fade-in-0 zoom-in-95 duration-150",
         "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-100",
         "relative",
@@ -81,13 +79,12 @@ const TooltipContent = React.forwardRef<
         {props.children}
       </div>
       <TooltipPrimitive.Arrow
-        width={10}
-        height={5}
+        width={12}
+        height={6}
         className={cn(
           "absolute",
           "left-1/2 -translate-x-1/2",
-          "fill-white dark:fill-black/[0.98]",
-          "stroke-gray-200/80 dark:stroke-white/[0.15]",
+          "fill-gray-900 dark:fill-white",
         )}
       />
     </TooltipPrimitive.Content>
