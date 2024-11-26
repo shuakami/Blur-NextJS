@@ -48,46 +48,54 @@ const TARGET_TEXT = '今天想聊点什么？';
 const RANDOM_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
 // 建议卡片组件
-const SuggestionCard = React.memo(({ suggestion }: { suggestion: Suggestion }) => (
-    <div className="bg-white dark:bg-gray-900 rounded-xl p-5 hover:bg-gray-50 dark:hover:bg-gray-800 
-                    cursor-pointer border border-gray-100 dark:border-gray-700 transition-all duration-300">
-        <div className="flex items-center gap-3">
-            <div className="text-primary">
-                {React.cloneElement(suggestion.icon, { size: 18 })}
-            </div>
-            <div className="flex-1 mx-2">
-                <div className="font-medium mb-1">{suggestion.title}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {suggestion.subtitle}
+const SuggestionCard: React.FC<{ suggestion: Suggestion }> = React.memo(
+    function SuggestionCard({ suggestion }) {
+        return (
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-5 hover:bg-gray-50 dark:hover:bg-gray-800 
+                        cursor-pointer border border-gray-100 dark:border-gray-700 transition-all duration-300">
+                <div className="flex items-center gap-3">
+                    <div className="text-primary">
+                        {React.cloneElement(suggestion.icon, { size: 18 })}
+                    </div>
+                    <div className="flex-1 mx-2">
+                        <div className="font-medium mb-1">{suggestion.title}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {suggestion.subtitle}
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-));
+        );
+    }
+);
 
 // 分类按钮组件
-const CategoryButton = React.memo(({ category, index }: { category: Category, index: number }) => (
-    <button
-        className="group relative overflow-hidden rounded-lg border 
-                   border-token-border-light dark:border-token-border-dark
-                   hover:bg-gray-50 dark:hover:bg-gray-750 
-                   transition-all duration-200 ease-in-out
-                   opacity-0 scale-90 animate-category-appear"
-        style={{
-            animationDelay: `${index * 50}ms`,
-            animationFillMode: 'forwards'
-        }}
-    >
-        <div className="flex items-center p-2.5 space-x-1.5">
-            <span className="text-2xl" style={{ color: category.color }}>
-                {category.icon}
-            </span>
-            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {category.title}
-            </span>
-        </div>
-    </button>
-));
+const CategoryButton: React.FC<{ category: Category; index: number }> = React.memo(
+    function CategoryButton({ category, index }) {
+        return (
+            <button
+                className="group relative overflow-hidden rounded-lg border 
+                       border-token-border-light dark:border-token-border-dark
+                       hover:bg-gray-50 dark:hover:bg-gray-750 
+                       transition-all duration-200 ease-in-out
+                       opacity-0 scale-90 animate-category-appear"
+                style={{
+                    animationDelay: `${index * 50}ms`,
+                    animationFillMode: 'forwards'
+                }}
+            >
+                <div className="flex items-center p-2.5 space-x-1.5">
+                    <span className="text-2xl" style={{ color: category.color }}>
+                        {category.icon}
+                    </span>
+                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                        {category.title}
+                    </span>
+                </div>
+            </button>
+        );
+    }
+);
 
 export default function HomepageContent({onFirstMessage}: HomepageContentProps) {
     const [title, setTitle] = useState('');
