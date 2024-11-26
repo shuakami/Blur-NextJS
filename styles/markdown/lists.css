@@ -37,19 +37,11 @@
     word-spacing: var(--latin-word-spacing);
 }
 
-.list-decimal .list-item {
-    padding-left: var(--marker-text-gap);
-}
-
-/* 跟在有序列表后的独立无序列表 */
-.markdown-body .list-disc.follows-ordered-list {
-    padding-left: 4em !important;
-}
 
 /* 有序列表项 */
 .list-decimal > .list-item {
     position: relative;
-    padding-left: 0.5em;
+    padding-left: 0.4em;
     margin: 0.3rem 0;
 }
 

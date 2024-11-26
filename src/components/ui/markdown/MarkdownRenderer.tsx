@@ -139,9 +139,7 @@ export const MarkdownRenderer: React.FC<{
     content: string;
     isStreaming?: boolean;
 }> = memo(({ content, isStreaming = false }) => {
-  
-  console.log('Raw markdown content:', content);
-  
+
   const components = useMemo<Components>(() => ({
     h1: HeadingOne,
     h2: HeadingTwo,
@@ -155,18 +153,9 @@ export const MarkdownRenderer: React.FC<{
     em: EmphasisComponent,
     blockquote: BlockquoteComponent,
 
-    ul: ({ children, ...props }: any) => {
-      console.log('ul props:', props);
-      return <UnorderedListComponent {...props}>{children}</UnorderedListComponent>;
-    },
-    ol: ({ children, ...props }: any) => {
-      console.log('ol props:', props);
-      return <OrderedListComponent {...props}>{children}</OrderedListComponent>;
-    },
-    li: ({ children, ordered, ...props }: any) => {
-      console.log('li props:', { ordered, ...props });
-      return <ListItemComponent {...props}>{children}</ListItemComponent>;
-    },
+    ul: UnorderedListComponent,
+    ol: OrderedListComponent,
+    li: ListItemComponent,
 
     a: LinkComponent,
     img: ImageComponent,

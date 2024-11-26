@@ -12,6 +12,8 @@ interface HomeHeaderIconProps {
     onOpen: () => void;
 }
 
+
+
 const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({ isSidebarOpen, onOpen }) => {
     const [isHidden, setIsHidden] = useState(isSidebarOpen);
     const timeoutRef = useRef<NodeJS.Timeout>();
@@ -63,7 +65,7 @@ const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({ isSidebarOpen, onOpen }
             </Button>
 
             <a
-                href="/"
+                href="/?new=true"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
