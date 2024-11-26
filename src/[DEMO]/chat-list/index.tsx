@@ -631,6 +631,99 @@ const agentResponseMessages: Message[] = [
   }
 ]
 
+// Debug 用的
+const DebugMessages: Message[] = [
+  {
+    id: "15",
+    message_id: "15",
+    type: "bot",
+    content: `我可以为您查看目前可用的Agent伙伴。让我调用<Get_Agent/>查询。
+
+@Agent列表:
+1. 知识助手Claude
+- 专长：全面知识检索与解答
+- 特点：逻辑清晰、知识广博
+
+2. 文案创作Agent
+- 专长：撰写各类文案
+- 特点：创意丰富、文笔优美
+
+3. 代码开发Agent 
+- 专长：编程与技术支持
+- 特点：精通多种编程语言
+
+4. 数据分析Agent
+- 专长：数据处理与可视化
+- 特点：擅长统计与建模
+
+5. 翻译专家Agent
+- 专长：多语言专业翻译
+- 特点：准确传达原文semantics
+
+6. 个人助理Agent
+- 专长：日程管理与任务规划
+- 特点：高效率、细心
+
+请问您对哪个Agent感兴趣?我可以帮您详细了解或直接调用。
+    `,
+    timestamp: Date.now() + 1000,
+    status: "active",
+  }
+]
+
+const EnglishMessages: Message[] = [
+{
+  id: "16",
+  message_id: "16",
+  type: "bot",
+  content: `
+  # React Frontend Framework Introduction
+
+  React is a JavaScript library for building user interfaces. Here are its main features:
+
+  ## Core Features
+
+  1. **Component-based Development**
+     - Reusable UI components
+     - Improved code organization
+
+  2. **Virtual DOM**
+     - Efficient DOM operations
+     - Excellent performance
+
+  ## Code Example
+
+  \`\`\`jsx
+  function Welcome() {
+    return <h1>Hello React!</h1>;
+  }
+  \`\`\`
+
+  ## Why Choose React?
+
+  - 📦 **Ecosystem Rich**
+  - 🚀 **Performance Excellent**
+  - 🛠️ **Development Efficiency**
+  - 📚 **Easy Learning Curve**
+
+  > React makes building interactive UIs effortless.
+
+  ### Conclusion
+
+  React is a powerful and flexible library that simplifies the process of building interactive UIs. Its component-based approach, virtual DOM, and rich ecosystem make it a top choice for modern web development.
+
+  ## Vercel Platform
+  
+  React is a powerful and flexible library that simplifies the process of building interactive UIs. Its component-based approach, virtual DOM, and rich ecosystem make it a top choice for modern web development.
+  Next.js is a framework for building server-rendered React applications. It provides a robust set of features for building scalable and performant web applications.
+  React Router is a library for routing in React applications. It allows you to manage navigation between different pages or components in your application.
+  Remix is a framework for building server-rendered React applications. It provides a robust set of features for building scalable and performant web applications.
+  `,
+  timestamp: Date.now(),
+  status: "active",
+}
+]
+
 
 export default function ChatListShowcase() {
   const [streamContent, setStreamContent] = useState("")
@@ -694,6 +787,14 @@ function Welcome() {
   }
 
   const categories = [
+    createCategory("debug", "调试用例", "展示调试用例", [
+      createVariant("Debug Info", "debug", "调试信息",
+        <div className="w-full">
+          <ChatList messages={DebugMessages} />
+        </div>
+      )
+    ]),
+
     createCategory("basic", "基础对话", "展示基本的对话流程", [
       createVariant("Basic Chat", "basic", "基础的问答对话",
         <div className="w-full">
@@ -804,6 +905,16 @@ function Welcome() {
       )
     ]),
 
+    createCategory("english", "英文对话", "展示英文对话", [
+      createVariant("English Chat", "english", "英文对话示例",
+        <div className="w-full">
+          <ChatList 
+            messages={EnglishMessages}
+            onEditMessage={handleEditMessage}
+          />
+        </div>
+      )
+    ]),
 
   ]
 

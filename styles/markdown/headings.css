@@ -8,7 +8,7 @@
     --heading-base-size: 1rem;
     --h1-size: calc(2.296 * var(--heading-base-size));
     --h2-size: calc(1.68 * var(--heading-base-size));
-    --h3-size: calc(1.5 * var(--heading-base-size));
+    --h3-size: calc(1.25 * var(--heading-base-size));
     --h4-size: calc(1.18 * var(--heading-base-size));
     --h5-size: calc(1.0625 * var(--heading-base-size));
     --h6-size: calc(1 * var(--heading-base-size));
@@ -48,7 +48,7 @@
     font-weight: 600;
     line-height: 1.6;
     padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
     color: var(--heading-color-dark);
 }
 

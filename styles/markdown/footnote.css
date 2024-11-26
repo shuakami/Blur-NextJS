@@ -62,7 +62,6 @@
 .markdown-body ol.list-decimal:not(.footnotes ol) {
     margin: 0.35rem 0;
     padding-left: 2.5rem;
-    padding-bottom: 0.1rem;
 }
 
 /* 覆盖默认列表样式 */

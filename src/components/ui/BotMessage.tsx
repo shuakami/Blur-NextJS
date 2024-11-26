@@ -148,7 +148,7 @@ const BotMessage = memo(({
                     </Suspense>
                 )}
 
-                <div className="markdown prose w-full break-words dark:prose-invert light">
+                <div className="markdown w-full break-words">
                     {isLoading && isLatestBotMessage ? (
                         <Suspense fallback={<div className="animate-pulse h-4 bg-gray-200 rounded w-1/2" />}>
                             <AnimatedShinyText darkMode={false} />

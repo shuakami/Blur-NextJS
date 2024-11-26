@@ -4,6 +4,13 @@ import { Moon, Sun, ArrowLeft, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ShowcaseProps, ShowcaseVariant } from "./utils"
+import dynamic from 'next/dynamic'
+
+// 动态导入 VariantItem 组件
+const DynamicVariantItem = dynamic(() => 
+  import('./VariantItem').then(mod => mod.VariantItem), {
+  loading: () => <div className="animate-pulse h-48 bg-gray-100 dark:bg-gray-900 rounded-xl" />
+})
 
 // 记忆化侧边栏按钮组件
 const SidebarButton = memo(({ 
@@ -39,32 +46,6 @@ const SidebarButton = memo(({
   </button>
 ))
 SidebarButton.displayName = 'SidebarButton'
-
-// 记忆化变体组件
-const VariantItem = memo(({ variant }: { variant: ShowcaseVariant }) => (
-  <div className="mb-8 last:mb-0">
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {variant.name}
-        </h3>
-        {variant.description && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {variant.description}
-          </p>
-        )}
-      </div>
-      <code className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-        variant=&quot;{variant.variant}&quot;
-      </code>
-    </div>
-    <div className="px-8 py-12 rounded-xl bg-gray-50/50 dark:bg-gray-900/50 
-      divide-y divide-gray-200 dark:divide-gray-800">
-      {variant.component}
-    </div>
-  </div>
-))
-VariantItem.displayName = 'VariantItem'
 
 // 记忆化主题切换按钮
 const ThemeToggle = memo(({ theme, onToggle }: { 
@@ -258,16 +239,19 @@ export default function ShowcasePro({ title, categories }: ShowcaseProps) {
           {/* Content Area */}
           <div className="flex-1 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
             <div className="p-4 sm:p-8 max-w-4xl mx-auto">
-              {categories.map((category) => (
-                <div 
-                  key={category.id}
-                  className={`${activeCategory === category.id ? 'block' : 'hidden'} space-y-8 sm:space-y-12`}
-                >
-                  {category.variants.map((variant) => (
-                    <VariantItem key={variant.variant} variant={variant} />
-                  ))}
-                </div>
-              ))}
+              {/* 只渲染当前激活的分类 */}
+              {categories
+                .filter(category => category.id === activeCategory)
+                .map((category) => (
+                  <div 
+                    key={category.id}
+                    className="space-y-8 sm:space-y-12"
+                  >
+                    {category.variants.map((variant) => (
+                      <DynamicVariantItem key={variant.variant} variant={variant} />
+                    ))}
+                  </div>
+                ))}
             </div>
           </div>
         </div>
