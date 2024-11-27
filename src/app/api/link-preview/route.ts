@@ -46,7 +46,9 @@ async function setCache(url: string, data: any) {
   // 2. 限制内存缓存大小
   if (MEMORY_CACHE.size > MEMORY_CACHE_SIZE) {
     const oldestKey = MEMORY_CACHE.keys().next().value;
-    MEMORY_CACHE.delete(oldestKey);
+    if (oldestKey) {
+      MEMORY_CACHE.delete(oldestKey);
+    }
   }
 
   // 3. 更新文件缓存

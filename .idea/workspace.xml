@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="cad02b1c-7689-42b7-9a9a-47ef1969d236" name="更改" comment="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持">
+      <change afterPath="$PROJECT_DIR$/global.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pages/api/favicon.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/EditButton.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/Form.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/LLMtoAgent.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/SearchingMessage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/TextForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/agent.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/markdown/CodeHeader.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/ui/markdown/MathRenderer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/content/update/Alpha_v0.0.1_926001.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/content/update/Alpha_v0.0.1_926001.mdx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/blurdemo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/blurdemo.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/chat/[conversation_id].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/chat/[conversation_id].tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/update/[version].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/update/[version].tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/lists.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/lists.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/model_selector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/model_selector.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/page_right_user_avatar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/page_right_user_avatar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/tofu/dropdown-menu-plus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/tofu/dropdown-menu-plus.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/languages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/languages.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/react-transition-group.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/react-transition-group.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles/markdown/code.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/code.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles/markdown/code_prism.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/code_prism.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles/markdown/headings.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/headings.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles/markdown/lists.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/lists.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/styles/markdown/text.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/text.css" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;shuakami&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/shuakami/Blur-NextJS.git&quot;,
+    &quot;accountId&quot;: &quot;15bec839-0357-4eb5-87c5-3a10c81ba0fe&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2m6YvmC68mhgJmWB7yB39CNhQRe" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "javascript.nodejs.core.library.configured.version": "20.18.0",
+    "javascript.nodejs.core.library.typings.version": "20.17.1",
+    "last_opened_file_path": "F:/A-Project-Blur/electron-app-main/nextjs",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.语言默认设置",
+    "settings.editor.splitter.proportion": "0.15554072",
+    "ts.external.directory.path": "F:\\A-Project-Blur\\electron-app-main\\nextjs\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="QodanaReportsService">
+    <option name="descriptions">
+      <ReportDescription localRun="true" path="C:\Users\Administrator\AppData\Local\Temp\qodana_output2\qodana.sarif.json" reportGuid="bbf56135-701b-4cf1-899c-6f08f9b05f8b" reportId="nextjs/qodana/2024-09-25" />
+      <ReportDescription localRun="true" path="C:\Users\Administrator\AppData\Local\Temp\qodana_output6\qodana.sarif.json" reportGuid="6d091548-9d6c-485c-ba71-61d9c95039d8" reportId="nextjs/qodana/2024-09-25" />
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\public\logo\svg" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\public\logo\webp" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\public\img\settings" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\src\components\ui" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\src\app\fonts" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\src\components\ui\LLM" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\content\update" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\pages\update" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs" />
+      <recent name="F:\A-Project-Blur\electron-app-main\nextjs\src\content" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.19416.2" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="cad02b1c-7689-42b7-9a9a-47ef1969d236" name="更改" comment="" />
+      <created>1726398725919</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1726398725919</updated>
+      <workItem from="1726398727246" duration="3570000" />
+      <workItem from="1726471832205" duration="15867000" />
+      <workItem from="1726704918862" duration="160714000" />
+      <workItem from="1727225109294" duration="56602000" />
+      <workItem from="1727322246251" duration="93350000" />
+      <workItem from="1727602132041" duration="66935000" />
+      <workItem from="1727924187063" duration="64000" />
+      <workItem from="1727960315860" duration="30733000" />
+      <workItem from="1728529758729" duration="92906000" />
+      <workItem from="1728904025830" duration="87412000" />
+      <workItem from="1729386670614" duration="6233000" />
+      <workItem from="1729413653193" duration="10000" />
+      <workItem from="1729413687279" duration="6481000" />
+      <workItem from="1730020066759" duration="10000" />
+      <workItem from="1730278076695" duration="642000" />
+    </task>
+    <task id="LOCAL-00035" summary="支持环境变量的API URL切换&#10;&#10;---&#10;&#10;API 客户端配置和特定API的基础URL设置现改为从环境变量中读取。在生产和非生产环境中，将分别使用`PROD_API_URL`和`LOCAL_API_URL`环境变量指定的URL。此更改将简化不同环境之间的切换，并提高配置的一致性和灵活性。&#10;&#10;此外，更新了SEO关键词列表，以更好地反映与AI相关的内容和服务。">
+      <option name="closed" value="true" />
+      <created>1727446877021</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1727446877021</updated>
+    </task>
+    <task id="LOCAL-00036" summary="修复一个会导致APIURL无法正常读取的问题&#10;&#10;---&#10;&#10;更改了API配置和消息发送模块中的环境变量引用，以使用NEXT_PUBLIC前缀。&#10;这确保了正确的环境变量在生产&#10;和本地开发环境中都能被读取和使用。">
+      <option name="closed" value="true" />
+      <created>1727510206409</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1727510206409</updated>
+    </task>
+    <task id="LOCAL-00037" summary="统一API端点路径为`/api/v1`&#10;---&#10;为了一致性和规范化，所有API调用的端点路径都已更新为使用`/api/v1`前缀。这包括会话管理、历史记录和用户信息更新等API请求。&#10;&#10;此外，对话框背景颜色的微调也已完成，以改善用户界面的一致性。">
+      <option name="closed" value="true" />
+      <created>1727539125577</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1727539125578</updated>
+    </task>
+    <task id="LOCAL-00038" summary="翻译支持和代码优化">
+      <option name="closed" value="true" />
+      <created>1727598529759</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1727598529759</updated>
+    </task>
+    <task id="LOCAL-00039" summary="修复一个Vercel部署错误问题">
+      <option name="closed" value="true" />
+      <created>1727600138451</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1727600138451</updated>
+    </task>
+    <task id="LOCAL-00040" summary="更新配置文件">
+      <option name="closed" value="true" />
+      <created>1727602295663</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1727602295663</updated>
+    </task>
+    <task id="LOCAL-00041" summary="(Fix:1)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727602559328</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1727602559328</updated>
+    </task>
+    <task id="LOCAL-00042" summary="(Fix:2)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727602750637</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1727602750637</updated>
+    </task>
+    <task id="LOCAL-00043" summary="(Fix:3)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727603831012</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1727603831012</updated>
+    </task>
+    <task id="LOCAL-00044" summary="(Fix:3)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727603852648</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1727603852648</updated>
+    </task>
+    <task id="LOCAL-00045" summary="(Fix:4)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727603895743</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1727603895743</updated>
+    </task>
+    <task id="LOCAL-00046" summary="(Fix:5)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727603918992</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1727603918992</updated>
+    </task>
+    <task id="LOCAL-00047" summary="(Fix:6)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727603964888</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1727603964888</updated>
+    </task>
+    <task id="LOCAL-00048" summary="(Fix:6)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727604082078</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1727604082078</updated>
+    </task>
+    <task id="LOCAL-00049" summary="(Fix:7)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727604352102</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1727604352102</updated>
+    </task>
+    <task id="LOCAL-00050" summary="(Fix:8)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727604500911</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1727604500911</updated>
+    </task>
+    <task id="LOCAL-00051" summary="(Fix:9)尝试解决白屏问题">
+      <option name="closed" value="true" />
+      <created>1727604788423</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1727604788423</updated>
+    </task>
+    <task id="LOCAL-00052" summary="(Fix)解决白屏问题&#10;&#10;---&#10;&#10;耻辱：&#10;/* 仅在需要时显示滚动条 */&#10;body,&#10;html {&#10;  overflow-y: auto; /* 垂直滚动条始终可用 */&#10;  scrollbar-width: thin; /* Firefox滚动条宽度 */&#10;  scrollbar-color: rgba(136, 136, 136, 0.18) transparent; /* Firefox滚动条颜色 */&#10;}">
+      <option name="closed" value="true" />
+      <created>1727613095955</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1727613095955</updated>
+    </task>
+    <task id="LOCAL-00053" summary="修复一个暗黑模式下按钮是黑色的问题">
+      <option name="closed" value="true" />
+      <created>1727613667865</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1727613667865</updated>
+    </task>
+    <task id="LOCAL-00054" summary="修复一个暗黑模式下按钮是黑色的问题">
+      <option name="closed" value="true" />
+      <created>1727615133047</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1727615133047</updated>
+    </task>
+    <task id="LOCAL-00055" summary="集成Vercel Analytics 和 Speed Insights">
+      <option name="closed" value="true" />
+      <created>1727660494712</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1727660494712</updated>
+    </task>
+    <task id="LOCAL-00056" summary="给connect-src添加新api">
+      <option name="closed" value="true" />
+      <created>1727660933154</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1727660933154</updated>
+    </task>
+    <task id="LOCAL-00057" summary="更新无用户名时的占位符和翻译">
+      <option name="closed" value="true" />
+      <created>1727664424527</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1727664424527</updated>
+    </task>
+    <task id="LOCAL-00058" summary="DEBUG:尝试找到对话历史异常问题">
+      <option name="closed" value="true" />
+      <created>1727665772898</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1727665772898</updated>
+    </task>
+    <task id="LOCAL-00059" summary="已找到，尝试修复（允许http://blur-api.al001.sdjz.wiki）&#10;&#10;---&#10;&#10;不知道是怎么发生的这个问题。不过api已经配置强制https。">
+      <option name="closed" value="true" />
+      <created>1727666187457</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1727666187457</updated>
+    </task>
+    <task id="LOCAL-00060" summary="DEBUG2:尝试找到对话历史异常问题">
+      <option name="closed" value="true" />
+      <created>1727676507708</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1727676507708</updated>
+    </task>
+    <task id="LOCAL-00061" summary="DEBUG3:尝试找到对话历史异常问题">
+      <option name="closed" value="true" />
+      <created>1727676967369</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1727676967369</updated>
+    </task>
+    <task id="LOCAL-00062" summary="(Fix)上一个提交以成功解决对话历史异常问题&#10;&#10;---&#10;&#10;本次提交为回滚">
+      <option name="closed" value="true" />
+      <created>1727677192214</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1727677192214</updated>
+    </task>
+    <task id="LOCAL-00063" summary="(Fix)修复了一个图片无法上传的问题&#10;---&#10;- 在项目的 CSP (Content Security Policy) 中添加了 Dicebear 头像源- 更新了英文本地化文件中的部分内容">
+      <option name="closed" value="true" />
+      <created>1727678302903</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1727678302903</updated>
+    </task>
+    <task id="LOCAL-00064" summary="(Fix)修复了一个图片无法上传的问题&#10;---&#10;- 在项目的 CSP (Content Security Policy) 中添加了 Dicebear 头像源- 更新了英文本地化文件中的部分内容&#10;&#10;- 修改源代码">
+      <option name="closed" value="true" />
+      <created>1727678824165</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1727678824165</updated>
+    </task>
+    <task id="LOCAL-00065" summary="什么几把合并">
+      <option name="closed" value="true" />
+      <created>1727679023167</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1727679023167</updated>
+    </task>
+    <task id="LOCAL-00066" summary="修复一个上传不了头像的问题">
+      <option name="closed" value="true" />
+      <created>1727680019729</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1727680019729</updated>
+    </task>
+    <task id="LOCAL-00067" summary="改进用户名验证和错误处理&#10;&#10;- 添加用户名长度和字符要求的验证&#10;- 根据不同的错误码显示具体的错误信息&#10;- 在多语言环境下更新相应的错误提示信息">
+      <option name="closed" value="true" />
+      <created>1727682285756</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1727682285756</updated>
+    </task>
+    <task id="LOCAL-00068" summary="LOGO/新增动画组件和流式文本渲染功能&#10;&#10;- 添加模糊动画组件BlurAnimatedWrapper，用于实现文本的模糊到清晰动画效果&#10;- 新增流式文本渲染示例BlurTextDemo，展示如何逐字渲染Markdown文本&#10;- 在ChatList组件中集成模糊动画&#10;- 添加MoonLogo组件和相关CSS样式，实现月亮图案的动画效果&#10;- 更新MarkdownRenderer组件，集成模糊动画&#10;- 修改next.config.mjs，调整内容安全策略&#10;- 在package.json中添加animejs和react-spring依赖">
+      <option name="closed" value="true" />
+      <created>1727788498196</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1727788498196</updated>
+    </task>
+    <task id="LOCAL-00069" summary="在消息渲染中添加加载动画/在等待响应时显示占位扫光&#10;&#10;此更新引入了以下更改：&#10;- 在聊天界面中，当机器人处理请求时，将显示一个加载动画&#10;- 使用 framer-motion 库来实现动画效果&#10;- 在 ChatContext 中添加 isLoading 状态，以跟踪当前是否正在加载&#10;- 修改 ChatList组件，根据 isLoading 状态显示加载动画或消息内容&#10;- 更新 ChatContext 逻辑，在发送消息和接收响应时正确设置 isLoading 状态">
+      <option name="closed" value="true" />
+      <created>1727834572974</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1727834572974</updated>
+    </task>
+    <task id="LOCAL-00070" summary="忘记把UI传上去了，补一下">
+      <option name="closed" value="true" />
+      <created>1727834660500</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1727834660500</updated>
+    </task>
+    <task id="LOCAL-00071" summary="(Fix) 修复[Error: useChatContext 必须在 ChatProvider 内使用]的问题">
+      <option name="closed" value="true" />
+      <created>1727834941498</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1727834941498</updated>
+    </task>
+    <task id="LOCAL-00072" summary="将登录和注册按钮点击行为改为在新窗口打开对应页面&#10;&#10;---&#10;&#10;修改了无登录状态下的聊天侧边栏和首页登录/注册按钮的点击逻辑，由原先的页面跳转改为在新窗口中打开登录和注册页面。">
+      <option name="closed" value="true" />
+      <created>1727836403332</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1727836403332</updated>
+    </task>
+    <task id="LOCAL-00073" summary="实现懒加载/修复侧边栏日期重复Bug&#10;&#10;-重构聊天页面组件顺序，提高代码组织性&#10;- 优化侧边栏渲染逻辑，减少重复渲染- 增加加载更多消息的功能和相关状态管理&#10;-修复了一些与消息加载和渲染相关的潜在问题">
+      <option name="closed" value="true" />
+      <created>1728012144458</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1728012144458</updated>
+    </task>
+    <task id="LOCAL-00074" summary="(UI)支持删除对话/修改对话名称&#10;&#10;- 在聊天侧边栏中实现对话删除和标题更改功能&#10;- 优化侧边栏组件，支持更新对话列表&#10;- 添加确认对话删除的模态框- 实现对话标题编辑功能- 优化灰色色调配色方案">
+      <option name="closed" value="true" />
+      <created>1728037883258</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1728037883258</updated>
+    </task>
+    <task id="LOCAL-00075" summary="支持在流式输出时用户主动停止输出&#10;&#10;- 在 ChatInput 组件中添加停止流式传输按钮&#10;- 在 ChatContext 中引入流式传输状态和停止流式传输功能&#10;- 新增停止流式传输的 API 接口和相关逻辑&#10;- 优化流式传输消息的处理和状态更新">
+      <option name="closed" value="true" />
+      <created>1728142496248</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1728142496248</updated>
+    </task>
+    <task id="LOCAL-00076" summary="添加项目版权文件">
+      <option name="closed" value="true" />
+      <created>1728190292396</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1728190292398</updated>
+    </task>
+    <task id="LOCAL-00077" summary="更新README">
+      <option name="closed" value="true" />
+      <created>1728190640450</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1728190640450</updated>
+    </task>
+    <task id="LOCAL-00078" summary="新增设置页面功能，优化主题和语言选择器&#10;&#10;- 添加关于页面，展示应用信息和法律条款- 实现主题颜色设置，支持多种颜色主题切换&#10;- 新增字体大小设置功能&#10;- 优化语言选择器，支持搜索和切换语言&#10;- 更新Logo SVG文件- 修复个人中心遮罩层透明度">
+      <option name="closed" value="true" />
+      <created>1728789335098</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1728789335099</updated>
+    </task>
+    <task id="LOCAL-00079" summary="新增模型选择器功能/优化页面布局/修复语言切换Bug（牛皮癣）&#10;&#10;- 添加模型选择器组件，支持选择不同版本的模型- 优化首页头部图标布局，调整动画效果&#10;- 移除个人中心页面的重复逻辑&#10;- 更新版本检查逻辑，改善用户体验- 调整尾风配置中的字体大小">
+      <option name="closed" value="true" />
+      <created>1728828030740</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1728828030740</updated>
+    </task>
+    <task id="LOCAL-00080" summary="[存档提交] 更新日志页面&#10;&#10;- 新增更新日志页面，支持按版本号静态生成页面&#10;- 修改版权文本中的更新日志链接，使用版本号作为路径参数&#10;- 添加处理更新日志文件的静态路径和属性函数">
+      <option name="closed" value="true" />
+      <created>1728876081450</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1728876081450</updated>
+    </task>
+    <task id="LOCAL-00081" summary="重构更新日志页面并添加新功能&#10;&#10;- 重构更新日志页面结构，添加更多内容和细节&#10;- 新增特殊按钮和导航项组件&#10;- 实现面包屑导航和阅读时间显示&#10;- 添加表目录组件和右侧目录树- 导入并使用gray-matter、lodash、react-window等新依赖&#10;- 优化页面交互和样式">
+      <option name="closed" value="true" />
+      <created>1728906346313</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1728906346313</updated>
+    </task>
+    <task id="LOCAL-00082" summary="修复部署失败问题">
+      <option name="closed" value="true" />
+      <created>1728906505123</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1728906505123</updated>
+    </task>
+    <task id="LOCAL-00083" summary="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持">
+      <option name="closed" value="true" />
+      <created>1728917131507</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1728917131507</updated>
+    </task>
+    <option name="localTasksCounter" value="84" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <MESSAGE value="已找到，尝试修复（允许http://blur-api.al001.sdjz.wiki）&#10;&#10;---&#10;&#10;不知道是怎么发生的这个问题。不过api已经配置强制https。" />
+    <MESSAGE value="DEBUG2:尝试找到对话历史异常问题" />
+    <MESSAGE value="DEBUG3:尝试找到对话历史异常问题" />
+    <MESSAGE value="(Fix)上一个提交以成功解决对话历史异常问题&#10;&#10;---&#10;&#10;本次提交为回滚" />
+    <MESSAGE value="(Fix)修复了一个图片无法上传的问题&#10;---&#10;- 在项目的 CSP (Content Security Policy) 中添加了 Dicebear 头像源- 更新了英文本地化文件中的部分内容" />
+    <MESSAGE value="(Fix)修复了一个图片无法上传的问题&#10;---&#10;- 在项目的 CSP (Content Security Policy) 中添加了 Dicebear 头像源- 更新了英文本地化文件中的部分内容&#10;&#10;- 修改源代码" />
+    <MESSAGE value="什么几把合并" />
+    <MESSAGE value="修复一个上传不了头像的问题" />
+    <MESSAGE value="改进用户名验证和错误处理&#10;&#10;- 添加用户名长度和字符要求的验证&#10;- 根据不同的错误码显示具体的错误信息&#10;- 在多语言环境下更新相应的错误提示信息" />
+    <MESSAGE value="LOGO/新增动画组件和流式文本渲染功能&#10;&#10;- 添加模糊动画组件BlurAnimatedWrapper，用于实现文本的模糊到清晰动画效果&#10;- 新增流式文本渲染示例BlurTextDemo，展示如何逐字渲染Markdown文本&#10;- 在ChatList组件中集成模糊动画&#10;- 添加MoonLogo组件和相关CSS样式，实现月亮图案的动画效果&#10;- 更新MarkdownRenderer组件，集成模糊动画&#10;- 修改next.config.mjs，调整内容安全策略&#10;- 在package.json中添加animejs和react-spring依赖" />
+    <MESSAGE value="在消息渲染中添加加载动画/在等待响应时显示占位扫光&#10;&#10;此更新引入了以下更改：&#10;- 在聊天界面中，当机器人处理请求时，将显示一个加载动画&#10;- 使用 framer-motion 库来实现动画效果&#10;- 在 ChatContext 中添加 isLoading 状态，以跟踪当前是否正在加载&#10;- 修改 ChatList组件，根据 isLoading 状态显示加载动画或消息内容&#10;- 更新 ChatContext 逻辑，在发送消息和接收响应时正确设置 isLoading 状态" />
+    <MESSAGE value="忘记把UI传上去了，补一下" />
+    <MESSAGE value="(Fix) 修复[Error: useChatContext 必须在 ChatProvider 内使用]的问题" />
+    <MESSAGE value="将登录和注册按钮点击行为改为在新窗口打开对应页面&#10;&#10;---&#10;&#10;修改了无登录状态下的聊天侧边栏和首页登录/注册按钮的点击逻辑，由原先的页面跳转改为在新窗口中打开登录和注册页面。" />
+    <MESSAGE value="实现懒加载/修复侧边栏日期重复Bug&#10;&#10;-重构聊天页面组件顺序，提高代码组织性&#10;- 优化侧边栏渲染逻辑，减少重复渲染- 增加加载更多消息的功能和相关状态管理&#10;-修复了一些与消息加载和渲染相关的潜在问题" />
+    <MESSAGE value="(UI)支持删除对话/修改对话名称&#10;&#10;- 在聊天侧边栏中实现对话删除和标题更改功能&#10;- 优化侧边栏组件，支持更新对话列表&#10;- 添加确认对话删除的模态框- 实现对话标题编辑功能- 优化灰色色调配色方案" />
+    <MESSAGE value="支持在流式输出时用户主动停止输出&#10;&#10;- 在 ChatInput 组件中添加停止流式传输按钮&#10;- 在 ChatContext 中引入流式传输状态和停止流式传输功能&#10;- 新增停止流式传输的 API 接口和相关逻辑&#10;- 优化流式传输消息的处理和状态更新" />
+    <MESSAGE value="添加项目版权文件" />
+    <MESSAGE value="更新README" />
+    <MESSAGE value="新增设置页面功能，优化主题和语言选择器&#10;&#10;- 添加关于页面，展示应用信息和法律条款- 实现主题颜色设置，支持多种颜色主题切换&#10;- 新增字体大小设置功能&#10;- 优化语言选择器，支持搜索和切换语言&#10;- 更新Logo SVG文件- 修复个人中心遮罩层透明度" />
+    <MESSAGE value="新增模型选择器功能/优化页面布局/修复语言切换Bug（牛皮癣）&#10;&#10;- 添加模型选择器组件，支持选择不同版本的模型- 优化首页头部图标布局，调整动画效果&#10;- 移除个人中心页面的重复逻辑&#10;- 更新版本检查逻辑，改善用户体验- 调整尾风配置中的字体大小" />
+    <MESSAGE value="[存档提交] 更新日志页面&#10;&#10;- 新增更新日志页面，支持按版本号静态生成页面&#10;- 修改版权文本中的更新日志链接，使用版本号作为路径参数&#10;- 添加处理更新日志文件的静态路径和属性函数" />
+    <MESSAGE value="重构更新日志页面并添加新功能&#10;&#10;- 重构更新日志页面结构，添加更多内容和细节&#10;- 新增特殊按钮和导航项组件&#10;- 实现面包屑导航和阅读时间显示&#10;- 添加表目录组件和右侧目录树- 导入并使用gray-matter、lodash、react-window等新依赖&#10;- 优化页面交互和样式" />
+    <MESSAGE value="修复部署失败问题" />
+    <MESSAGE value="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持" />
+    <option name="LAST_COMMIT_MESSAGE" value="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
+</project>
