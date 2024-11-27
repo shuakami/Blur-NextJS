@@ -74,11 +74,32 @@ const ToastContent = React.memo(function ToastContent({
 }) {
   return (
     <div className={cn(
-      "flex min-h-[48px]",
-      hasBoth ? "flex-col gap-1.5" : "items-center"
+      "flex",
+      hasBoth ? "flex-col gap-1.5 min-h-[48px]" : "items-center h-10"
     )}>
-      {title && <ToastTitle>{title}</ToastTitle>}
-      {description && <ToastDescription>{description}</ToastDescription>}
+      {title && (
+        <ToastTitle className={cn(
+          "text-sm",
+          !description && cn(
+            "flex items-center font-medium tracking-tight",
+            "bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-700",
+            "dark:from-neutral-100 dark:via-neutral-200 dark:to-neutral-300",
+            "bg-clip-text text-transparent"
+          )
+        )}>
+          {!description && (
+            <span className="flex items-center mr-2 text-neutral-500 dark:text-neutral-400">
+              <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-500" />
+            </span>
+          )}
+          {title}
+        </ToastTitle>
+      )}
+      {description && (
+        <ToastDescription className="text-sm text-neutral-500 dark:text-neutral-400">
+          {description}
+        </ToastDescription>
+      )}
     </div>
   )
 })
@@ -97,8 +118,19 @@ export const Toaster = React.memo(function Toaster() {
         const hasBoth = Boolean(title && description)
         
         return (
-          <Toast key={id} {...props}>
-            <div className="flex flex-col w-full">
+          <Toast 
+            key={id} 
+            {...props}
+            className={cn(
+              "group",
+              !description && !acceptButton && !quitButton ? "h-10 py-0" : "min-h-[48px]",
+              props.className
+            )}
+          >
+            <div className={cn(
+              "flex flex-col w-full",
+              !description && !acceptButton && !quitButton && "justify-center"
+            )}>
               <ToastContent 
                 title={title}
                 description={description as string}

@@ -6,6 +6,7 @@ import MoonLogo from "../../../pages/logo";
 import { useChatContext } from "@/app/[上下文]/ChatContext";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
 import { Agent } from './LLM/agent';
+import { cn } from "@/lib/utils";
 
 
 // 懒加载非关键组件
@@ -37,6 +38,7 @@ const PluginComponents = {
 
 interface BotMessageProps {
     content: string;
+    messageId?: string;
     isLoading?: boolean;
     isLatestBotMessage: boolean;
     thought?: ThoughtProcess;
@@ -117,11 +119,13 @@ const renderThinkingContent = (part: string, index: number, isLatestBotMessage: 
 // Bot 消息组件
 const BotMessage = memo(({ 
     content, 
+    messageId,
     isLoading, 
     isLatestBotMessage,
     thought,
     error
 }: BotMessageProps) => {
+
     const { isStreaming } = useChatContext();
 
     // 分割正则表达式，支持 plugin-data / agent-data / thinking 标记
@@ -182,14 +186,25 @@ const BotMessage = memo(({
                     )}
                 </div>
 
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 -ml-1 flex items-center">
+                <div className={cn(
+                    "transition-opacity duration-200 -ml-1 flex items-center",
+                    // 如果是最后一条消息且不是流式，则始终显示
+                    isLatestBotMessage && !isStreaming 
+                        ? "opacity-100" 
+                        // 其他情况下保持 hover 显示
+                        : "opacity-0 group-hover:opacity-100",
+                    // 如果是最后一条消息且是流式，则完全隐藏
+                    isLatestBotMessage && isStreaming && "hidden"
+                )}>
                     <Suspense fallback={null}>
                         <MessageToolbar 
-                            onVoicePlay={() => console.log('播放语音')}
-                            onCopy={() => console.log('复制内容')}
-                            onLike={() => console.log('点赞')}
-                            onDislike={() => console.log('踩')}
-                            onReset={() => console.log('重置')}
+                            content={content}
+                            messageId={messageId}
+                            isLatestMessage={isLatestBotMessage}
+                            isStreaming={isStreaming || false}
+                            onRegenerate={() => {
+                                // 重新生成的回调
+                            }}
                         />
                     </Suspense>
                 </div>

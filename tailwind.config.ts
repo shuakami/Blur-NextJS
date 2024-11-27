@@ -601,6 +601,19 @@ const config: Config = {
             'fadeIn': 'fadeIn 0.3s ease-out forwards',
             'stagger': 'fadeIn 0.5s ease-out forwards var(--animation-delay, 0s)',
             'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+
+            'spinner-1': 'spinner 1.2s linear infinite -1.2s',
+            'spinner-2': 'spinner 1.2s linear infinite -1.1s',
+            'spinner-3': 'spinner 1.2s linear infinite -1.0s',
+            'spinner-4': 'spinner 1.2s linear infinite -0.9s',
+            'spinner-5': 'spinner 1.2s linear infinite -0.8s',
+            'spinner-6': 'spinner 1.2s linear infinite -0.7s',
+            'spinner-7': 'spinner 1.2s linear infinite -0.6s',
+            'spinner-8': 'spinner 1.2s linear infinite -0.5s',
+            'spinner-9': 'spinner 1.2s linear infinite -0.4s',
+            'spinner-10': 'spinner 1.2s linear infinite -0.3s',
+            'spinner-11': 'spinner 1.2s linear infinite -0.2s',
+            'spinner-12': 'spinner 1.2s linear infinite -0.1s',
           },
           keyframes: {
             slideInDown: {
@@ -668,6 +681,10 @@ const config: Config = {
                 transform: 'translateY(0)',
                 opacity: '1'
               }
+            },
+            'spinner': {
+              '0%': { opacity: '1' },
+              '100%': { opacity: '0.15' }
             }
           },
           transitionDuration: {

@@ -34,7 +34,7 @@ interface UseImageZoomProps {
  * @property {number} scale - 当前缩放比例
  * @property {Position} position - 当前图像位置
  * @property {boolean} isDragging - 是否正在拖动图像
- * @property {(e: WheelEvent) => void} handleWheel - 处理滚轮事件的函数
+ * @property {(e: WheelEvent) => void} handleWheel - 处理���轮事件的函数
  * @property {(e: React.MouseEvent) => void} handleMouseMove - 处理鼠标移动事件的函数
  * @property {(e: React.MouseEvent) => void} handleMouseDown - 处理鼠标按下事件的函数
  * @property {() => void} handleMouseUp - 处理鼠标抬起事件的函数
@@ -71,32 +71,37 @@ export const useImageZoom = ({
     scaleStep = DEFAULT_SCALE_STEP
 }: UseImageZoomProps): UseImageZoomReturn => {
     const dragStartRef = useRef<Position>({ x: 0, y: 0 });
+    const lastPositionRef = useRef<Position>({ x: 0, y: 0 });
     const isDraggingRef = useRef(false);
 
-    const [scale, setScale] = useState(1); // 当前缩放比例
-    const [position, setPosition] = useState<Position>({ x: 0, y: 0 }); // 当前图像位置
+    const [scale, setScale] = useState(1);
+    const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
 
-    const getMaxOffset = useCallback((currentScale: number) => 100 * currentScale, []);
+    // 计算最大偏移量，考虑图片尺寸和缩放
+    const getMaxOffset = useCallback((currentScale: number) => {
+        return Math.max(150, 100 * currentScale);
+    }, []);
 
     const handleZoom = useCallback((factor: number) => {
         setScale(prev => {
-            const newScale = prev + factor;
-            return Math.min(Math.max(minScale, newScale), maxScale);
+            const newScale = Math.min(Math.max(minScale, prev + factor), maxScale);
+            // 缩小时重置位置
+            if (newScale <= 1) {
+                setPosition({ x: 0, y: 0 });
+            }
+            return newScale;
         });
     }, [minScale, maxScale]);
-
-    const handleWheel = useCallback((e: WheelEvent) => {
-        const delta = e.deltaY > 0 ? -scaleStep : scaleStep;
-        handleZoom(delta);
-    }, [handleZoom, scaleStep]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
         if (!isDraggingRef.current || scale <= 1) return;
 
-        const newX = (e.clientX - dragStartRef.current.x) * DRAG_SENSITIVITY;
-        const newY = (e.clientY - dragStartRef.current.y) * DRAG_SENSITIVITY;
+        const deltaX = e.clientX - dragStartRef.current.x;
+        const deltaY = e.clientY - dragStartRef.current.y;
         
         const maxOffset = getMaxOffset(scale);
+        const newX = lastPositionRef.current.x + deltaX * DRAG_SENSITIVITY;
+        const newY = lastPositionRef.current.y + deltaY * DRAG_SENSITIVITY;
         
         setPosition({
             x: Math.min(Math.max(-maxOffset, newX), maxOffset),
@@ -107,28 +112,73 @@ export const useImageZoom = ({
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         if (scale <= 1) return;
 
+        e.preventDefault(); // 防止意外的选择
         isDraggingRef.current = true;
         dragStartRef.current = {
-            x: e.clientX - position.x,
-            y: e.clientY - position.y
+            x: e.clientX,
+            y: e.clientY
         };
+        lastPositionRef.current = position;
     }, [scale, position]);
 
     const handleMouseUp = useCallback(() => {
-        isDraggingRef.current = false;
-    }, []);
+        if (isDraggingRef.current) {
+            isDraggingRef.current = false;
+            lastPositionRef.current = position;
+        }
+    }, [position]);
 
     const resetImageState = useCallback(() => {
         setScale(1);
         setPosition({ x: 0, y: 0 });
         isDraggingRef.current = false;
+        lastPositionRef.current = { x: 0, y: 0 };
+        dragStartRef.current = { x: 0, y: 0 };
     }, []);
+
+    const handleWheel = useCallback((e: WheelEvent) => {
+        if (!isOpen || e.deltaY === 0) return;
+
+        // 如果按住 Ctrl 键，则进行缩放
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const zoomFactor = e.deltaY > 0 ? -scaleStep : scaleStep;
+            handleZoom(zoomFactor);
+            return;
+        }
+
+        // 如果已经放大，则允许拖动
+        if (scale > 1) {
+            e.preventDefault();
+            const maxOffset = getMaxOffset(scale);
+            const sensitivity = 0.5;
+
+            setPosition(prev => ({
+                x: Math.min(Math.max(-maxOffset, prev.x - e.deltaX * sensitivity), maxOffset),
+                y: Math.min(Math.max(-maxOffset, prev.y - e.deltaY * sensitivity), maxOffset)
+            }));
+        }
+    }, [isOpen, scale, scaleStep, handleZoom, getMaxOffset]);
+
+    // 清理函数
+    useEffect(() => {
+        if (!isOpen) {
+            resetImageState();
+        }
+        return () => {
+            resetImageState();
+        };
+    }, [isOpen, resetImageState]);
 
     useEffect(() => {
         if (!isOpen) return;
 
         const element = document.body;
-        element.addEventListener('wheel', handleWheel, { passive: false });
+        const wheelHandler = (e: WheelEvent) => {
+            handleWheel(e);
+        };
+
+        element.addEventListener('wheel', wheelHandler, { passive: false });
         
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!isOpen) return;
@@ -146,7 +196,7 @@ export const useImageZoom = ({
 
         window.addEventListener('keydown', handleKeyDown);
         return () => {
-            element.removeEventListener('wheel', handleWheel);
+            element.removeEventListener('wheel', wheelHandler);
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [isOpen, handleWheel, handleZoom, onClose, scaleStep]);

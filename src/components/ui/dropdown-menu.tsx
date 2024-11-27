@@ -4,6 +4,8 @@ import { useFloating, shift, offset, flip, autoUpdate } from '@floating-ui/react
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 import { Button, ButtonProps } from '@/components/ui/button';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { XIcon } from 'lucide-react';
 
 interface MenuItemProps {
   icon?: React.ComponentType<{ className?: string }>;
@@ -12,6 +14,7 @@ interface MenuItemProps {
   shortcut?: string;
   className?: string;
   isDanger?: boolean;
+  rightContent?: React.ReactNode;
 }
 
 // 添加自定义样式接口
@@ -25,10 +28,29 @@ interface MenuStyles {
   shortcut?: string;      // 快捷键样式
 }
 
+/**
+ * 菜单项组件
+ * @remarks
+ * // 请不要删除此注释 //
+ * 该组件使用 flex 布局,主内容会被 `flex-grow text-left` 的 span 包裹。
+ * 如果需要在右侧添加自定义内容(如标签、图标等),请使用 `rightContent` 属性,
+ * 而不是直接放在 children 中。
+ * 
+ * @example
+ * ```tsx
+ * <MenuItem
+ *   rightContent={
+ *     <span className="badge">New</span>
+ *   }
+ * >
+ *   Menu Item
+ * </MenuItem>
+ * ```
+ */
 const MenuItem = memo(React.forwardRef<
   HTMLButtonElement,
   MenuItemProps & React.ButtonHTMLAttributes<HTMLButtonElement> & { styles?: MenuStyles }
->(({ icon: Icon, children, onClick, shortcut, className, isDanger, styles, ...props }, ref) => (
+>(({ icon: Icon, children, onClick, shortcut, className, isDanger, styles, rightContent, ...props }, ref) => (
   <button
     ref={ref}
     className={cn(
@@ -67,6 +89,7 @@ const MenuItem = memo(React.forwardRef<
       )}
     </span>
     <span className="flex-grow text-left">{children}</span>
+    {rightContent}
     {shortcut && (
       <kbd className={cn(
         "ml-5 text-xs text-gray-400 dark:text-gray-500",
@@ -121,7 +144,11 @@ interface MenuItemsProps {
   isOpen: boolean;
   referenceElement: HTMLElement | null;
   onClose?: () => void;
-  styles?: MenuStyles;    // 添加自定义样式
+  styles?: MenuStyles;
+  // 新增移动端标题配置
+  mobileHeader?: {
+    title: string;
+  };
 }
 
 const MenuItems = ({
@@ -130,8 +157,13 @@ const MenuItems = ({
   isOpen,
   referenceElement,
   onClose,
-  styles
+  styles,
+  mobileHeader = {
+    title: '程序员偷懒了，没有写标题'
+  }
 }: MenuItemsProps) => {
+  const isMobile = useMediaQuery('(max-width: 640px)');
+  
   const { x, y, strategy, refs, update } = useFloating({
     placement: 'bottom-end',
     strategy: 'fixed',
@@ -228,13 +260,24 @@ const MenuItems = ({
           ref={floatingRef}
           role="menu"
           aria-orientation="vertical"
-          initial={{ 
+          initial={isMobile ? {
+            opacity: 0,
+            y: '100%'
+          } : { 
             opacity: 0,
             scale: 0.98,
             y: -8,
             transformOrigin: 'top'
           }}
-          animate={{ 
+          animate={isMobile ? {
+            opacity: 1,
+            y: 0,
+            transition: {
+              type: "spring",
+              stiffness: 300,
+              damping: 30
+            }
+          } : { 
             opacity: 1,
             scale: 1,
             y: 0,
@@ -245,7 +288,14 @@ const MenuItems = ({
               mass: 0.8
             }
           }}
-          exit={{ 
+          exit={isMobile ? {
+            opacity: 0,
+            y: '100%',
+            transition: {
+              duration: 0.2,
+              ease: "easeOut"
+            }
+          } : { 
             opacity: 0,
             scale: 0.98,
             y: -8,
@@ -255,16 +305,33 @@ const MenuItems = ({
             }
           }}
           className={cn(
-            "fixed z-50 min-w-[195px] origin-top-right rounded-xl",
-            "border border-gray-200/80 dark:border-gray-800/80",
-            "bg-white/95 dark:bg-gray-900/95",
-            "py-1 px-1.5",
-            "shadow-[0_5px_30px_-12px_rgba(0,0,0,0.18)] dark:shadow-[0_5px_30px_-12px_rgba(0,0,0,0.45)]",
+            "z-50 min-w-[195px] origin-top-right",
+            "bg-white dark:bg-gray-900",
             "focus:outline-none",
+            isMobile ? cn(
+              "!w-full",
+              "fixed inset-x-0 bottom-0",
+              "rounded-t-2xl",
+              "border-t border-gray-200 dark:border-gray-800",
+              "max-h-[70vh]",
+              "overflow-hidden",
+            ) : cn(
+              "fixed",
+              "rounded-xl",
+              "border border-gray-200 dark:border-gray-800",
+              "py-1 px-1.5",
+              "shadow-[0_5px_30px_-12px_rgba(0,0,0,0.18)] dark:shadow-[0_5px_30px_-12px_rgba(0,0,0,0.45)]",
+            ),
             styles?.menu,
             className
           )}
-          style={{
+          style={isMobile ? {
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            willChange: 'transform',
+          } : {
             position: strategy,
             top: y ?? 0,
             left: x ?? 0,
@@ -272,60 +339,46 @@ const MenuItems = ({
             contain: 'layout style paint',
           }}
         >
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ 
-              opacity: 1,
-              y: 0,
-              transition: {
-                duration: 0.15,
-                ease: [0.4, 0, 0.2, 1],
-                staggerChildren: 0.025,
-                delayChildren: 0.025
-              }
-            }}
-            exit={{ 
-              opacity: 0,
-              y: -8,
-              transition: {
-                duration: 0.1,
-                ease: [0.4, 0, 1, 1]
-              }
-            }}
-          >
-            {React.Children.map(children, (child, index) => {
-              if (React.isValidElement(child)) {
-                return (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ 
-                      opacity: 1,
-                      y: 0,
-                      transition: {
-                        duration: 0.2,
-                        ease: [0.4, 0, 0.2, 1]
-                      }
-                    }}
-                    exit={{ 
-                      opacity: 0,
-                      y: -8,
-                      transition: {
-                        duration: 0.1,
-                        ease: [0.4, 0, 1, 1]
-                      }
-                    }}
-                  >
-                    {React.cloneElement(child, {
-                      role: 'menuitem',
-                      styles,
-                      ...child.props
-                    })}
-                  </motion.div>
-                );
-              }
-              return child;
-            })}
-          </motion.div>
+          {isMobile && (
+            <>
+              <div className="sticky top-0 -mt-2 -mx-2 z-10 flex items-center justify-between px-4 py-3
+                            border-b border-gray-200/80 dark:border-gray-800/80
+                            bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm
+                            supports-[backdrop-filter]:bg-white/80 
+                            supports-[backdrop-filter]:dark:bg-gray-900/80">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mx-2">
+                  {mobileHeader.title}
+                </h3>
+                <button
+                  onClick={onClose}
+                  className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800
+                            transition-colors"
+                >
+                  <XIcon className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+              <div className="px-2 py-2">
+                {children}
+              </div>
+            </>
+          )}
+
+          {/* 桌面端内容 */}
+          {!isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ 
+                opacity: 1,
+                transition: {
+                  duration: 0.2,
+                  ease: "easeOut"
+                }
+              }}
+              className="space-y-0.5"
+            >
+              {children}
+            </motion.div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

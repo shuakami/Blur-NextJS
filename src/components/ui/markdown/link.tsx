@@ -1,50 +1,72 @@
-import { toast } from '@/hooks/use-toast';
-import React, { useState, useMemo } from 'react';
-import { ToastAction } from '../toast';
+import * as React from 'react'
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import type { LinkProps as NextLinkProps } from "next/link"
+import { getLinkInfo } from './link-preview/utils'
+import { Preview } from '@/components/ui/markdown/link-preview/preview'
+import { LinkInfo } from './link-preview/types'
 
-export const Link: React.FC<React.AnchorHTMLAttributes<HTMLAnchorElement>> = ({ href, ...props }) => {
-  // 使用 useMemo 缓存访问记录的 key，避免重复计算
-  const visitedKey = useMemo(() => 
+interface LinkProps extends Omit<NextLinkProps<string>, 'href'> {
+  href: string;
+  children: React.ReactNode;
+}
+
+export const Link: React.FC<LinkProps> = ({ href: originalHref, children, ...props }) => {
+  // 处理 href
+  const href = React.useMemo(() => {
+    if (originalHref.startsWith('http')) return originalHref.startsWith('https') ? originalHref : `https://${originalHref}`;
+    
+    const baseUrl = window.location.origin;
+    return originalHref.startsWith('/') 
+      ? `${baseUrl}${originalHref}`
+      : `${baseUrl}${window.location.pathname.split('/').slice(0, -1).join('/')}/${originalHref}`;
+  }, [originalHref]);
+
+  // 访问记录相关
+  const visitedKey = React.useMemo(() => 
     href ? `visited-${encodeURIComponent(href)}` : null
   , [href]);
 
-  // 判断是否是外部链接
-  const isExternal = useMemo(() => 
-    href?.startsWith('http') || href?.startsWith('https')
+  const isExternal = React.useMemo(() => 
+    href.startsWith('http') || href.startsWith('https')
   , [href]);
 
-  const [isVisited, setIsVisited] = useState(() => {
-    // 初始化时就检查访问状态，避免二次渲染
-    if (visitedKey) {
-      try {
-        return !!localStorage.getItem(visitedKey);
-      } catch (e) {
-        // localStorage 可能被禁用，静默失败
-        toast({
-            title: '您的浏览器不支持 localStorage',
-            action: (
-              <ToastAction altText="更新浏览器">
-                <a href="https://firefox.com" target="_blank" rel="noopener noreferrer">
-                更新
-                </a>
-              </ToastAction>
-            ),
-            description: '请升级您的浏览器以获得更好的体验',
-            variant: 'destructive'
-          });
-        return false;
-      }
+  const [isVisited, setIsVisited] = React.useState(() => {
+    if (!visitedKey) return false;
+    try {
+      return !!localStorage.getItem(visitedKey);
+    } catch {
+      return false;
     }
-    return false;
   });
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  // Popover 相关
+  const [showPopover, setShowPopover] = React.useState(false);
+  const [linkInfo, setLinkInfo] = React.useState<LinkInfo>({ type: 'link' });
+  const timeoutRef = React.useRef<NodeJS.Timeout>();
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    getLinkInfo(href)
+      .then(info => setLinkInfo(info))
+      .catch(() => {/* 保持默认状态 */});
+    return () => controller.abort();
+  }, [href]);
+
+  const handleMouseEnter = React.useCallback(() => {
+    timeoutRef.current = setTimeout(() => setShowPopover(true), 450);
+  }, []);
+
+  const handleMouseLeave = React.useCallback(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setShowPopover(false);
+  }, []);
+
+  const handleClick = React.useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     if (visitedKey) {
       try {
         localStorage.setItem(visitedKey, 'true');
         setIsVisited(true);
       } catch (e) {
-        // 处理 localStorage 可能的异常
         console.warn('Failed to save visited state:', e);
       }
     }
@@ -52,25 +74,42 @@ export const Link: React.FC<React.AnchorHTMLAttributes<HTMLAnchorElement>> = ({ 
     if (props.onClick) {
       props.onClick(e);
     }
-  };
+  }, [visitedKey, props.onClick]);
+
+  React.useEffect(() => () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  }, []);
+
+  const displayHref = href.replace(`${window.location.origin}/chat`, window.location.origin);
 
   return (
-    <a 
-      className={`text-link ${isVisited ? 'visited' : ''}`}
-      href={href}
-      onClick={handleClick}
-      // 外部链接添加安全属性和性能优化
-      {...(isExternal ? {
-        target: "_blank",
-        rel: "noopener noreferrer",
-        // DNS 预获取
-        prefetch: "true",
-        // 预连接
-        preconnect: "true",
-        // 预加载
-        preload: "true"
-      } : {})}
-      {...props}
-    />
+    <Popover open={showPopover}>
+      <PopoverTrigger asChild>
+        <a 
+          href={displayHref}
+          className={`text-link inline-flex items-center gap-1.5 ${isVisited ? 'visited' : ''}`}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onClick={handleClick}
+          {...(isExternal ? {
+            target: "_blank",
+            rel: "noopener noreferrer",
+            prefetch: "true",
+            preconnect: "true",
+            preload: "true"
+          } : {})}
+          {...props}
+        >
+          {children}
+        </a>
+      </PopoverTrigger>
+      <PopoverContent 
+        className="w-auto p-2 mt-1" 
+        align="start"
+        sideOffset={8}
+      >
+        <Preview href={displayHref} info={linkInfo} />
+      </PopoverContent>
+    </Popover>
   );
 };

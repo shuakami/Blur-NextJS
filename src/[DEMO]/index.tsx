@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, memo, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
 
 
+
 // 1. 预加载策略优化
 const componentMap = {
   button: () => import('@/[DEMO]/button'),
@@ -36,6 +37,9 @@ const TooltipShowcase = dynamic(() => import('@/[DEMO]/tooltip'), {
 })
 const DropdownMenuShowcase = dynamic(() => import('@/[DEMO]/dropdown-menu'), {
   loading: () => <ComponentLoader name="DropdownMenu" />
+})
+const PopoverShowcase = dynamic(() => import('@/[DEMO]/popover'), {
+  loading: () => <ComponentLoader name="Popover" />
 })
 
 // 加载占位组件
@@ -121,6 +125,15 @@ const demoComponents: DemoComponent[] = [
     description: '展示不同类型的下拉菜单',
     component: DropdownMenuShowcase,
     icon: '🔄',
+    bgColor: 'bg-gradient-to-br from-blue-500 to-purple-400',
+    category: 'UI 基础组件'
+  },
+  {
+    id: 'popover',
+    name: '弹窗组件',
+    description: '展示不同类型的弹窗',
+    component: PopoverShowcase,
+    icon: '👽',
     bgColor: 'bg-gradient-to-br from-blue-500 to-purple-400',
     category: 'UI 基础组件'
   }

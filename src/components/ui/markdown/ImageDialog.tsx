@@ -50,44 +50,53 @@ export const ImageDialog: React.FC<ImageDialogProps> = ({
         await downloadImage(currentImage.src, alt);
     };
 
+    // 检测操作系统
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const ctrlKey = isMac ? '⌘' : 'Ctrl';
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent 
-                className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-0 shadow-none overflow-hidden"
+                className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-0 shadow-none overflow-hidden select-none"
                 onWheel={handleWheel as any}
             >
                 {/* 关闭按钮 */}
                 <button
                     onClick={onClose}
-                    className="absolute right-4 top-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                    className="absolute right-4 top-4 z-50 p-2 rounded-full bg-gray-100/80 dark:bg-black/50 hover:bg-gray-200/90 dark:hover:bg-black/70 transition-colors"
                 >
-                    <X className="w-5 h-5 text-white" />
+                    <X className="w-5 h-5 text-gray-700 dark:text-white" />
                 </button>
 
                 {/* 下载按钮 */}
                 <button
                     onClick={handleDownload}
-                    className="absolute right-16 top-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                    className="absolute right-16 top-4 z-50 p-2 rounded-full bg-gray-100/80 dark:bg-black/50 hover:bg-gray-200/90 dark:hover:bg-black/70 transition-colors"
                 >
-                    <Download className="w-5 h-5 text-white" />
+                    <Download className="w-5 h-5 text-gray-700 dark:text-white" />
                 </button>
 
-                {/* 缩放控制按钮 */}
-                <div className="absolute left-4 top-4 z-50 flex gap-2">
-                    <button
-                        onClick={() => handleZoom(0.1)}
-                        className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-                        disabled={scale >= 3}
-                    >
-                        <ZoomIn className="w-5 h-5 text-white" />
-                    </button>
-                    <button
-                        onClick={() => handleZoom(-0.1)}
-                        className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-                        disabled={scale <= 0.5}
-                    >
-                        <ZoomOut className="w-5 h-5 text-white" />
-                    </button>
+                {/* 缩放控制按钮和提示 */}
+                <div className="absolute left-4 top-4 z-50">
+                    <div className="flex gap-2 mb-2">
+                        <button
+                            onClick={() => handleZoom(0.1)}
+                            className="p-2 rounded-full bg-gray-100/80 dark:bg-black/50 hover:bg-gray-200/90 dark:hover:bg-black/70 transition-colors disabled:opacity-50"
+                            disabled={scale >= 3}
+                        >
+                            <ZoomIn className="w-5 h-5 text-gray-700 dark:text-white" />
+                        </button>
+                        <button
+                            onClick={() => handleZoom(-0.1)}
+                            className="p-2 rounded-full bg-gray-100/80 dark:bg-black/50 hover:bg-gray-200/90 dark:hover:bg-black/70 transition-colors disabled:opacity-50"
+                            disabled={scale <= 0.5}
+                        >
+                            <ZoomOut className="w-5 h-5 text-gray-700 dark:text-white" />
+                        </button>
+                    </div>
+                    <div className="text-xs text-gray-700 dark:text-white/70 bg-gray-100/80 dark:bg-black/50 px-2 py-1 rounded">
+                        {ctrlKey} + 滚轮缩放
+                    </div>
                 </div>
 
                 {/* 导航按钮 */}
@@ -108,28 +117,45 @@ export const ImageDialog: React.FC<ImageDialogProps> = ({
                     </>
                 )}
 
-                {/* 图片容器 */}
+                {/* 优化图片容器 */}
                 <div 
-                    className="w-full h-full flex items-center justify-center"
+                    className="w-screen h-screen flex items-center justify-center bg-white/95 dark:bg-gray-900"
                     onMouseMove={handleMouseMove}
                     onMouseDown={handleMouseDown}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp}
                 >
-                    <img
-                        src={currentImage?.element?.src || currentImage?.src}
-                        alt={alt}
-                        className={cn(
-                            'max-w-[95vw] max-h-[95vh] rounded-md object-contain select-none transition-transform',
-                            isDragging && 'cursor-grabbing',
-                            scale > 1 && !isDragging && 'cursor-grab'
-                        )}
+                    <div 
+                        className="relative flex items-center justify-center"
                         style={{
-                            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                            transition: isDragging ? 'none' : 'transform 0.2s'
+                            width: '100%',
+                            height: '100%',
+                            touchAction: 'none',
+                            userSelect: 'none',
                         }}
-                        draggable={false}
-                    />
+                    >
+                        <img
+                            src={currentImage?.element?.src || currentImage?.src}
+                            alt={alt}
+                            className={cn(
+                                'max-w-[90vw] max-h-[90vh] w-auto h-auto',
+                                'object-contain select-none',
+                                'will-change-transform',
+                                isDragging && 'cursor-grabbing',
+                                scale > 1 && !isDragging && 'cursor-grab',
+                                scale <= 1 && 'cursor-default'
+                            )}
+                            style={{
+                                transform: `translate3d(${position.x}px, ${position.y}px, 0) scale(${scale})`,
+                                transition: isDragging ? 'none' : 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                                transformOrigin: 'center center',
+                                pointerEvents: scale <= 1 ? 'none' : 'auto',
+                            }}
+                            draggable={false}
+                            loading="eager"
+                            onDragStart={e => e.preventDefault()}
+                        />
+                    </div>
                 </div>
 
                 {/* 图片计数器 */}

@@ -136,7 +136,7 @@ export function CommandDialog({ open, onOpenChange }: CommandDialogProps) {
 
             <CommandGroup heading={t("主题设置")} className="px-2">
               <CommandItem 
-                onSelect={() => setTheme("light")}
+                onSelect={() => { setTheme("light"); onOpenChange(false); }}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg aria-selected:bg-accent"
               >
                 <Sun className="w-4 h-4 text-muted-foreground/70" />
@@ -144,7 +144,7 @@ export function CommandDialog({ open, onOpenChange }: CommandDialogProps) {
               </CommandItem>
               
               <CommandItem 
-                onSelect={() => setTheme("dark")}
+                onSelect={() => { setTheme("dark"); onOpenChange(false); }}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg aria-selected:bg-accent"
               >
                 <Moon className="w-4 h-4 text-muted-foreground/70" />
@@ -152,7 +152,7 @@ export function CommandDialog({ open, onOpenChange }: CommandDialogProps) {
               </CommandItem>
 
               <CommandItem 
-                onSelect={() => setTheme("system")}
+                onSelect={() => { setTheme("system"); onOpenChange(false); }}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg aria-selected:bg-accent"
               >
                 <Monitor className="w-4 h-4 text-muted-foreground/70" />

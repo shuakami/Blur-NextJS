@@ -32,6 +32,7 @@ import {
   ImageSkeleton
 } from './skeleton/skeleton';
 import { Blockquote } from './blockquote';
+import { remarkSandboxLinks } from './pig/link';
 
 // 动态导入组件
 const CodeBlock = dynamic(() => import("@/components/ui/markdown/code"), {
@@ -82,7 +83,10 @@ const UnorderedListComponent = ({ children, ...props }: any) => <UnorderedList {
 const OrderedListComponent = ({ children, ...props }: any) => <OrderedList {...props}>{children}</OrderedList>;
 const ListItemComponent = ({ children, ...props }: any) => <ListItem {...props}>{children}</ListItem>;
 
-const LinkComponent = ({ children, ...props }: any) => <Link {...props}>{children}</Link>;
+const LinkComponent = ({ node, children, ...props }: any) => {
+  const href = node?.properties?.href || node?.url || props.href || '';
+  return <Link href={href.replace('sandbox:/', '')} {...props}>{children}</Link>;
+};
 const ImageComponent = ({ src, alt, ...props }: any) => <Image src={src} alt={alt} {...props} />;
 
 const TableComponent = ({ children, ...props }: any) => <Table {...props}>{children}</Table>;
@@ -132,13 +136,21 @@ const CodeComponent = ({ inline, className, children, ...props }: any) => {
   />;
 };
 
-const remarkPlugins = [remarkGfm, remarkMath, remarkCodePreserver];
-const rehypePlugins = [rehypeKatex, rehypeRaw];
-
 export const MarkdownRenderer: React.FC<{ 
     content: string;
     isStreaming?: boolean;
 }> = memo(({ content, isStreaming = false }) => {
+  const remarkPlugins = useMemo(() => [
+    remarkGfm,
+    remarkMath,
+    remarkCodePreserver,
+    remarkSandboxLinks
+  ], []);
+
+  const rehypePlugins = useMemo(() => [
+    rehypeKatex, 
+    rehypeRaw
+  ], []);
 
   const components = useMemo<Components>(() => ({
     h1: HeadingOne,

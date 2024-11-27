@@ -41,6 +41,7 @@ const MessageItem = memo(({
                 <div className="flex items-start w-full">
                     <BotMessage
                         content={message.content}
+                        messageId={message.message_id}
                         isLoading={isLoading}
                         isLatestBotMessage={isLastMessage}
                         thought={message.thought}
