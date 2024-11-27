@@ -382,8 +382,8 @@ const config: Config = {
             '6xl': '3840px',
             '7xl': '4480px',
             '8xl': '5120px',
-            'custom-lg': '40rem',
-            'custom-xl': '48rem'
+            'custom-lg': '640px',
+            'custom-xl': '768px'
         },
         fontFamily: {
             sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
