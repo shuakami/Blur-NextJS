@@ -373,7 +373,7 @@ export default function PopoverShowcase() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <code className="text-sm font-mono text-gray-600 dark:text-gray-400">
-                    SELECT * FROM users WHERE status = 'active'
+                    SELECT * FROM users WHERE status = &#39;active&#39;
                   </code>
                 </div>
                 <div className="flex items-center gap-2">
@@ -402,7 +402,7 @@ export default function PopoverShowcase() {
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                       {[
                         { op: "→ Index Scan", index: "idx_status", cost: "0.42..1.45", rows: 285, time: "0.242ms" },
-                        { op: "  ↳ Filter", pred: "status = 'active'", cost: "0.00..0.32", rows: 158, time: "0.082ms" }
+                        { op: "  ↳ Filter", pred: "status = &#39;active&#39;", cost: "0.00..0.32", rows: 158, time: "0.082ms" }
                       ].map((step, i) => (
                         <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                           <td className="px-3 py-2 font-mono">
@@ -521,12 +521,12 @@ export default function PopoverShowcase() {
                   { type: "removed", content: "    const user = await User.findOne({ username });" },
                   { type: "added", content: "    const user = await User.findOne({" },
                   { type: "added", content: "      where: { username }," },
-                  { type: "added", content: "      select: ['id', 'password', 'role']" },
+                  { type: "added", content: "      select: [&#39;id&#39;, &#39;password&#39;, &#39;role&#39;]" },
                   { type: "added", content: "    });" },
                   { type: "unchanged", content: "" },
-                  { type: "removed", content: "    if (!user) throw new Error('User not found');" },
+                  { type: "removed", content: "    if (!user) throw new Error(&#39;User not found&#39;);" },
                   { type: "added", content: "    if (!user) {" },
-                  { type: "added", content: "      throw new AuthError('Invalid credentials');" },
+                  { type: "added", content: "      throw new AuthError(&#39;Invalid credentials&#39;);" },
                   { type: "added", content: "    }" },
                 ].map((line, i) => (
                   <div
