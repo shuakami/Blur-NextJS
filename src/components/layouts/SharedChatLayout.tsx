@@ -168,7 +168,7 @@ export function SharedChatLayout({
                     ${isSidebarOpen && !isMobile ? 'ml-[220px]' : 'ml-0'}
                 `}>
                     {/* 头部工具栏 */}
-                    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-3 bg-white dark:bg-[#212121] z-30">
+                    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#212121] z-30">
                         <div className="flex items-center gap-3 w-full">
                             <HomeHeaderIcon 
                                 isSidebarOpen={isSidebarOpen} 

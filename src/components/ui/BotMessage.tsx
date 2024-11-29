@@ -5,6 +5,7 @@ import MoonLogo from "../../../pages/logo";
 import { useChatContext } from "@/app/[上下文]/ChatContext";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
 import { cn } from "@/lib/utils";
+import { Agent } from "./LLM/agent";
 
 // 懒加载组件保持不变
 const AnimatedShinyText = lazy(() => 
@@ -208,7 +209,7 @@ const BotMessage = memo(({
       );
       return (
         <Suspense key={index} fallback={null}>
-          <div>Agent Data: {JSON.stringify(agentInfo)}</div>
+          <Agent data={agentInfo} />
         </Suspense>
       );
     } catch (e) {

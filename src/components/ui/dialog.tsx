@@ -5,20 +5,45 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+/** 
+ * 对话框组件，作为对话框的根组件。
+ * 用于管理对话框的打开和关闭状态。
+ */
 const Dialog = DialogPrimitive.Root
+
+/** 
+ * 对话框触发器组件，用户点击此组件时会打开对话框。
+ * 通常用于按钮或链接。
+ */
 const DialogTrigger = DialogPrimitive.Trigger
+
+/** 
+ * 对话框门户组件，负责将对话框内容渲染到正确的 DOM 节点中。
+ * 这有助于确保对话框在视觉上覆盖其他内容。
+ */
 const DialogPortal = DialogPrimitive.Portal
+
+/** 
+ * 对话框关闭组件，用户点击此组件时会关闭对话框。
+ * 通常用于关闭按钮或图标。
+ */
 const DialogClose = DialogPrimitive.Close
+
+
+interface DialogOverlayProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> {
+    overlayBgColor?: string;
+}
 
 const DialogOverlay = React.forwardRef<
     React.ElementRef<typeof DialogPrimitive.Overlay>,
-    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+    DialogOverlayProps  // 使用新的Props类型
+>(({ className, overlayBgColor, ...props }, ref) => (
     <DialogPrimitive.Overlay
         ref={ref}
         className={cn(
             "fixed inset-0 z-50",
-            "bg-black/30 dark:bg-black/40",
+            // 如果提供了overlayBgColor就使用它,否则使用默认值
+            overlayBgColor || "bg-black/30 dark:bg-black/40",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             className
@@ -28,12 +53,20 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
+    /** 对话框遮罩层的背景颜色，可选。如不提供则使用默认值 */
+    overlayBgColor?: string;
+}
+
+/** 
+ * 对话框内容组件，包含对话框的主要内容和关闭按钮。
+ */
 const DialogContent = React.forwardRef<
     React.ElementRef<typeof DialogPrimitive.Content>,
-    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+    DialogContentProps
+>(({ className, children, overlayBgColor, ...props }, ref) => (
     <DialogPortal>
-        <DialogOverlay />
+        <DialogOverlay overlayBgColor={overlayBgColor} />
         <DialogPrimitive.Content
             ref={ref}
             className={cn(
