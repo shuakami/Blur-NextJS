@@ -11,6 +11,7 @@ export enum ErrorCode {
     Timeout = "TIMEOUT",
     Unknown = "UNKNOWN",
     TooManyRequests = "TOO_MANY_REQUESTS",
+    TokenRefreshError = 'TOKEN_REFRESH_ERROR',
 }
 
 // src/types/api.ts

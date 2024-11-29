@@ -23,13 +23,18 @@ export const Image: React.FC<ImageProps> = ({
     const [isLoading, setIsLoading] = useState(() => !priority);
     const [aspectRatio, setAspectRatio] = useState<number | null>(null);
     const [error, setError] = useState<boolean>(false);
-    const [isHovered, setIsHovered] = useState(false);
     
     const [isOpen, setIsOpen] = useState(false);
     const DialogComponent = useMemo(() => dynamic(
         () => import('@/components/ui/markdown/ImageDialog').then(mod => mod.ImageDialog),
         { ssr: false }
     ), []);
+
+    // 确保src的引用不会丢失
+    const srcRef = useRef(src);
+    useEffect(() => {
+        srcRef.current = src;
+    }, [src]);
 
     const {
         resetImageState
@@ -40,7 +45,7 @@ export const Image: React.FC<ImageProps> = ({
 
     const {
     } = useImageNavigation({
-        initialSrc: src,
+        initialSrc: srcRef.current,
         onReset: resetImageState
     });
 
@@ -84,7 +89,7 @@ export const Image: React.FC<ImageProps> = ({
         return (
             <div className="my-4 w-full h-48 bg-muted/30 dark:bg-muted/10 flex flex-col items-center justify-center rounded-xl border border-dashed border-muted-foreground/25 dark:border-muted-foreground/20 backdrop-blur-sm">
                 <ImageOff 
-                    className="w-12 h-12 text-gray-600 dark:text-gray-300 mb-2" 
+                    className="w-10 h-10 text-gray-600 dark:text-gray-300 mb-2" 
                     strokeWidth={1.5}
                 />
                 <div className="flex flex-col items-center gap-1">
@@ -100,7 +105,8 @@ export const Image: React.FC<ImageProps> = ({
         <>
             <div 
                 className={cn(
-                    'relative w-full overflow-hidden my-4',
+                    'relative w-full overflow-hidden my-4 [--img-hover:0] hover:[--img-hover:1]',
+                    'isolation-auto',
                     isLoading ? 'animate-pulse bg-muted dark:bg-muted/20' : 'bg-transparent',
                     !isLoading && 'cursor-zoom-in',
                     className
@@ -109,9 +115,7 @@ export const Image: React.FC<ImageProps> = ({
                     maxWidth: '100%',
                     aspectRatio: aspectRatio ? `${aspectRatio}` : 'auto',
                 }}
-                onClick={() => setIsOpen(true)}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                onClick={() => !isLoading && setIsOpen(true)}
             >
                 <NextImage
                     ref={imageRef}
@@ -122,10 +126,11 @@ export const Image: React.FC<ImageProps> = ({
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     className={cn(
                         'w-full h-full object-contain rounded-xl',
-                        'transition-transform duration-300',
+                        'transition-all duration-200',
                         isLoading ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100',
+                        '[filter:brightness(calc(1-0.1*var(--img-hover)))]',
+                        'dark:[filter:brightness(calc(1-0.25*var(--img-hover)))]'
                     )}
-                    data-original-src={src}
                     priority={priority}
                     quality={75}
                     loading={priority ? 'eager' : 'lazy'}
@@ -138,26 +143,22 @@ export const Image: React.FC<ImageProps> = ({
                     referrerPolicy="no-referrer"
                     {...props}
                 />
-                <div 
-                    className={cn(
-                        "absolute inset-0 bg-black transition-opacity duration-200",
-                        isHovered ? "opacity-10 dark:opacity-20" : "opacity-0"
-                    )} 
-                />
-                <div 
-                    className={cn(
-                        "absolute inset-0 flex items-center justify-center pointer-events-none",
-                        "transition-opacity duration-200",
-                        isHovered ? "opacity-100" : "opacity-0"
-                    )}
-                >
-                    <ZoomIn className="w-8 h-8 text-white drop-shadow-lg" />
-                </div>
+                
+                {!isLoading && (
+                    <ZoomIn 
+                        className={cn(
+                            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                            "w-8 h-8 text-white drop-shadow-lg",
+                            "transition-opacity duration-200",
+                            "opacity-[var(--img-hover)]"
+                        )} 
+                    />
+                )}
             </div>
 
             {isOpen && (
                 <DialogComponent
-                    src={src}
+                    src={srcRef.current || ''}
                     alt={alt}
                     isOpen={isOpen}
                     onClose={() => setIsOpen(false)}

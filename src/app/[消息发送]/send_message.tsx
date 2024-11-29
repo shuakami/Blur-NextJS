@@ -67,6 +67,15 @@ export const sendMessage = async (
             body: JSON.stringify(requestBody),
         });
 
+        // 检查响应状态码
+        if (response.status === 401) {
+            const error = new Error(t('身份验证失败'));
+            if (onError) {
+                onError(error);
+            }
+            throw error;
+        }
+
         if (!response.body) {
             throw new Error(t('浏览器不支持流式响应。'));
         }

@@ -3,12 +3,11 @@ import {motion} from 'framer-motion';
 import './Placeholder.css';
 
 type PlaceholderProps = {
-    darkMode?: boolean;
     children?: ReactNode;
     className?: string;
 };
 
-const Placeholder: React.FC<PlaceholderProps> = ({className, darkMode = false, children}) => {
+const Placeholder: React.FC<PlaceholderProps> = ({className, children}) => {
     const [stage, setStage] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -24,8 +23,8 @@ const Placeholder: React.FC<PlaceholderProps> = ({className, darkMode = false, c
 
     const styles = {
         color: isHovered 
-            ? (darkMode ? '#A0A0A0' : '#555')
-            : (darkMode ? '#808080' : 'rgba(136,136,136,0.85)')
+            ? 'var(--text-hover-color)'
+            : 'var(--text-color)'
     } as React.CSSProperties;
 
     return (
@@ -37,7 +36,6 @@ const Placeholder: React.FC<PlaceholderProps> = ({className, darkMode = false, c
         >
             <motion.span
                 className={`text`}
-                data-sweep-color={darkMode ? 'dark' : 'light'}
                 animate={{
                     opacity: 1,
                     y: 0,

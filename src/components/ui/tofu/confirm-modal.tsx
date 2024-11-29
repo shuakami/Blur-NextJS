@@ -4,7 +4,6 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogBody,
     DialogDescription,
     DialogFooter,
 } from '@/components/ui/dialog';
@@ -30,25 +29,23 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
-                <DialogBody>
-                    <DialogDescription>
-                        {message}
-                    </DialogDescription>
-                    <DialogFooter>
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                        >
-                            取消
-                        </button>
-                        <button
-                            onClick={onConfirm}
-                            className="px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
-                        >
-                            确认删除
-                        </button>
-                    </DialogFooter>
-                </DialogBody>
+                <DialogDescription className="mt-2">
+                    {message}
+                </DialogDescription>
+                <DialogFooter>
+                    <button
+                        onClick={onClose}
+                        className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                        取消
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                    >
+                        确认删除
+                    </button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

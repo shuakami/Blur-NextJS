@@ -270,7 +270,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
 
     return (
         <div className={cn(
-            "flex flex-col h-screen w-[220px] bg-[#F9F9F9]/95 dark:bg-[#171717]/95",
+            "flex flex-col h-screen w-[220px] bg-white dark:bg-gray-900 md:bg-[#F9F9F9]/95 md:dark:bg-[#171717]/95",
             "text-black dark:text-white"
         )}>
             <ScrollArea className="flex-grow" ref={scrollRef}>

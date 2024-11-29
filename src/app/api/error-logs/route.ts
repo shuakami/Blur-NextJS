@@ -11,6 +11,12 @@ const MAX_LOG_SIZE = 1024 * 50; // 50KB
 const RATE_LIMIT = 10; // 每小时最多10次
 const RATE_LIMIT_WINDOW = '1 h';
 
+// 错误响应接口
+interface ErrorResponse {
+    error: string;
+    details?: any;
+}
+
 export async function POST(req: NextRequest) {
     try {
         const headersList = headers();
@@ -21,28 +27,31 @@ export async function POST(req: NextRequest) {
         // 速率限制
         const limiter = await checkRateLimit(ip, RATE_LIMIT, RATE_LIMIT_WINDOW);
         if (!limiter.success) {
-            return NextResponse.json(
-                { error: 'Too many requests' }, 
-                { status: 429 }
-            );
+            const errorResponse: ErrorResponse = {
+                error: 'Rate limit exceeded',
+                details: { retryAfter: limiter.retryAfter }
+            };
+            return NextResponse.json(errorResponse, { status: 429 });
         }
 
         // 大小限制
         const body = await req.json();
         if (JSON.stringify(body).length > MAX_LOG_SIZE) {
-            return NextResponse.json(
-                { error: 'Log too large' }, 
-                { status: 413 }
-            );
+            const errorResponse: ErrorResponse = {
+                error: 'Payload too large',
+                details: { maxSize: MAX_LOG_SIZE }
+            };
+            return NextResponse.json(errorResponse, { status: 413 });
         }
 
         // 数据验证
         const validationResult = validateErrorLog(body);
         if (!validationResult.success) {
-            return NextResponse.json(
-                { error: 'Invalid log format', details: validationResult.error }, 
-                { status: 400 }
-            );
+            const errorResponse: ErrorResponse = {
+                error: 'Validation failed',
+                details: validationResult.error
+            };
+            return NextResponse.json(errorResponse, { status: 400 });
         }
 
         // 清理敏感信息
@@ -79,10 +88,10 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Failed to save error log:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' }, // 不返回详细错误信息给客户端
-            { status: 500 }
-        );
+        const errorResponse: ErrorResponse = {
+            error: 'Internal server error'
+        };
+        return NextResponse.json(errorResponse, { status: 500 });
     }
 }
 
@@ -93,10 +102,10 @@ export async function GET(req: NextRequest) {
         const { userId } = auth();
         
         if (!userId) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            );
+            const errorResponse: ErrorResponse = {
+                error: 'Authentication required'
+            };
+            return NextResponse.json(errorResponse, { status: 401 });
         }
 
         const client = await clientPromise;
@@ -130,9 +139,9 @@ export async function GET(req: NextRequest) {
 
     } catch (error) {
         console.error('Failed to fetch error logs:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        const errorResponse: ErrorResponse = {
+            error: 'Internal server error'
+        };
+        return NextResponse.json(errorResponse, { status: 500 });
     }
 }

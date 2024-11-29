@@ -7,7 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import type { Components } from 'react-markdown';
-import remarkCodePreserver from "@/components/ui/markdown/pig/code";
+import remarkCodePreserver from "@/components/ui/markdown/plugins/code";
 
 // 基础文本组件
 import { Paragraph, Strong, Emphasis } from './text';
@@ -32,7 +32,8 @@ import {
   ImageSkeleton
 } from './skeleton/skeleton';
 import { Blockquote } from './blockquote';
-import { remarkSandboxLinks } from './pig/link';
+import { remarkLinkUrls } from './plugins/remark-link-urls';
+import { remarkImageUrls } from './plugins/remark-image-urls';
 
 // 动态导入组件
 const CodeBlock = dynamic(() => import("@/components/ui/markdown/code"), {
@@ -144,7 +145,8 @@ export const MarkdownRenderer: React.FC<{
     remarkGfm,
     remarkMath,
     remarkCodePreserver,
-    remarkSandboxLinks
+    remarkLinkUrls,    
+    remarkImageUrls,
   ], []);
 
   const rehypePlugins = useMemo(() => [

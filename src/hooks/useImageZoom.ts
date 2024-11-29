@@ -34,7 +34,7 @@ interface UseImageZoomProps {
  * @property {number} scale - 当前缩放比例
  * @property {Position} position - 当前图像位置
  * @property {boolean} isDragging - 是否正在拖动图像
- * @property {(e: WheelEvent) => void} handleWheel - 处理���轮事件的函数
+ * @property {(e: WheelEvent) => void} handleWheel - 处理轮事件的函数
  * @property {(e: React.MouseEvent) => void} handleMouseMove - 处理鼠标移动事件的函数
  * @property {(e: React.MouseEvent) => void} handleMouseDown - 处理鼠标按下事件的函数
  * @property {() => void} handleMouseUp - 处理鼠标抬起事件的函数
@@ -79,7 +79,19 @@ export const useImageZoom = ({
 
     // 计算最大偏移量，考虑图片尺寸和缩放
     const getMaxOffset = useCallback((currentScale: number) => {
-        return Math.max(150, 100 * currentScale);
+        // 获取视窗大小
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        
+        // 基础偏移值设为视窗尺寸的一半
+        const baseOffset = Math.max(
+            viewportHeight / 2,
+            viewportWidth / 2,
+            500  // 最小值设为500px
+        );
+        
+        // 根据缩放比例调整偏移值
+        return baseOffset * currentScale;
     }, []);
 
     const handleZoom = useCallback((factor: number) => {

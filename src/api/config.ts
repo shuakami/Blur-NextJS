@@ -1,6 +1,7 @@
 // src/api/config.ts
 import axios from 'axios';
 import {ApiError, ErrorCode} from "@/types/error";
+import { useAuth } from '@clerk/nextjs';
 
 const apiClient = axios.create({
     // 如果是生产环境，读取NEXT_PUBLIC_PROD_API_URL，不是就读取NEXT_PUBLIC_LOCAL_API_URL
@@ -13,6 +14,18 @@ const apiClient = axios.create({
     },
 });
 
+// 添加token刷新状态控制
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+const subscribeTokenRefresh = (cb: (token: string) => void) => {
+    refreshSubscribers.push(cb);
+};
+
+const onTokenRefreshed = (token: string) => {
+    refreshSubscribers.forEach(cb => cb(token));
+    refreshSubscribers = [];
+};
 
 export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
     apiClient.interceptors.request.use(
@@ -43,7 +56,33 @@ export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
     );
 
     apiClient.interceptors.response.use(
-        (response) => {
+        async (response) => {
+            const tokenExpireSoon = response.headers['x-token-expire-soon'];
+            
+            if (tokenExpireSoon === 'true' && !isRefreshing) {
+                isRefreshing = true;
+                
+                try {
+                    // 触发 Clerk 的 token 刷新
+                    const newToken = await getToken();
+                    
+                    if (newToken) {
+                        // 通知所有等待的请求
+                        onTokenRefreshed(newToken);
+                    }
+                } catch (error) {
+                    console.error('Token refresh failed:', error);
+                    // 触发错误事件
+                    const apiError: ApiError = {
+                        code: ErrorCode.TokenRefreshError,
+                        message: "Failed to refresh token",
+                    };
+                    window.dispatchEvent(new CustomEvent("apiError", { detail: apiError }));
+                } finally {
+                    isRefreshing = false;
+                }
+            }
+            
             return response;
         },
         (error) => {
@@ -63,9 +102,7 @@ export const setupApiClientAuth = (getToken: () => Promise<string | null>) => {
                                             error.response.status === 400 ? ErrorCode.BadRequest : ErrorCode.NetworkError;
             }
 
-            const event = new CustomEvent("apiError", {detail: apiError});
-            window.dispatchEvent(event);
-
+            window.dispatchEvent(new CustomEvent("apiError", { detail: apiError }));
             return Promise.reject(apiError);
         }
     );

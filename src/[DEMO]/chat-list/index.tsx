@@ -393,13 +393,36 @@ const pluginCallingMessages: Message[] = [
     type: "bot",
     content: `让我帮你查询北京的天气信息。
 
-<plugin-data>
-{
-  "status": "calling",
-  "plugin_id": "weather-plugin",
-  "plugin_name": "天气查询"
-}
-</plugin-data>`,
+[USE_TOOL type="code" id="1"]print("First")[USE_TOOL/]
+<plugin-data>{"status": "calling", "plugin_id": "1", "plugin_name": "FirstExecutor", "content": "Executing first..."}</plugin-data>
+[USE_TOOL type="text" id="2"]Handle second text.[USE_TOOL/]
+<plugin-data>{"status": "response", "plugin_id": "1", "plugin_name": "FirstExecutor", "plugin_response": {"data": "First execution done."}}</plugin-data>
+<plugin-data>{"status": "response", "plugin_id": "2", "plugin_name": "SecondHandler", "plugin_response": {"data": "Second text handled."}}</plugin-data>
+
+
+[USE_TOOL type="code" id="4"]
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 创建爱心形状的参数方程
+t = np.linspace(0, 2np.pi, 100)
+x = 16 * np.sin(t)**3
+y = 13 * np.cos(t) - 5 * np.cos(2t) - 2 * np.cos(3t) - np.cos(4t)
+
+# 绘制爱心
+plt.figure(figsize=(8, 6))
+plt.plot(x, y, color='red')
+plt.fill(x, y, color='pink', alpha=0.3)
+plt.title('❤ Love Heart ❤')
+plt.axis('equal')
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+[USE_TOOL/]
+
+
+<plugin-data>{"status": "response", "plugin_id": "3", "plugin_name": "CodeExecutor", "plugin_response": {"data": "Execution successful."}}</plugin-data>
+`,
     timestamp: Date.now() + 1000,
     status: "active",
   }
@@ -413,12 +436,19 @@ const pluginResponseBotMessages: Message[] = [
     type: "bot",
     content: `ok了。
 
+[USE_TOOL type="text" id="4"]
+query: 北京今天的天气怎么样？
+Params: {
+  "city": "北京"
+}
+[USE_TOOL/]
+
 <plugin-data>
 {
   "status": "response",
+  "plugin_id": "4",
+  "plugin_name": "天气查询",
   "plugin_response": {
-    "plugin_id": "weather-plugin",
-    "plugin_name": "天气查询",
     "data": {
       "city": "北京",
       "temperature": "25",

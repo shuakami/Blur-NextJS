@@ -112,21 +112,27 @@ const PluginResponseMessage: React.FC<PluginResponseMessageProps> = ({
             {/* Image Files */}
             {imageFiles.length > 0 && (
                 <div className="mt-4 space-y-2">
-                    {imageFiles.map((file, index) => (
-                        <div 
-                            key={file.url} 
-                            className="rounded-lg overflow-hidden"
-                            // 防止事件冒泡
-                            onClick={e => e.stopPropagation()}
-                            onMouseEnter={e => e.stopPropagation()}
-                        >
-                            <Image
-                                src={file.url}
-                                alt={file.filename}
-                                className="w-full h-full"
-                            />
-                        </div>
-                    ))}
+                    {imageFiles.map((file, index) => {
+                        // 处理图片 URL
+                        const imageUrl = file.url
+                            .replace(/[()]/g, '')  // 移除括号
+                            .replace('sandbox:/', '/');  // 将 sandbox:/ 替换为根路径
+
+                        return (
+                            <div 
+                                key={imageUrl} 
+                                className="rounded-lg overflow-hidden"
+                                onClick={e => e.stopPropagation()}
+                                onMouseEnter={e => e.stopPropagation()}
+                            >
+                                <Image
+                                    src={imageUrl}
+                                    alt={file.filename}
+                                    className="w-full h-full"
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </>

@@ -53,6 +53,13 @@ const GlobalErrorHandler: React.FC = () => {
                         description: t("请求参数不正确。"),
                     });
                     break;
+                case ErrorCode.TokenRefreshError:
+                    toast({
+                        variant: "destructive",
+                        title: t("Token 刷新错误"),
+                        description: t("请重新登录。"),
+                    });
+                    break;
                 default:
                     toast({
                         variant: "destructive",

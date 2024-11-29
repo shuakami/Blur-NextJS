@@ -4,6 +4,7 @@ interface RateLimitResult {
     current: number;
     limit: number;
     remaining: number;
+    retryAfter?: number;
 }
 
 // 内存存储

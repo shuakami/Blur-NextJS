@@ -82,7 +82,7 @@ const MobileSidebar = memo(({
   onCategoryChange: (id: string) => void
 }) => (
   <div className={`
-    md:hidden fixed inset-0 z-50 bg-white dark:bg-gray-950
+    lg:hidden fixed inset-0 z-50 bg-white dark:bg-gray-950
     transform transition-transform duration-300
     ${isOpen ? 'translate-x-0' : '-translate-x-full'}
   `}>
@@ -197,7 +197,7 @@ export default function ShowcasePro({ title, categories }: ShowcaseProps) {
                 variant="outline"
                 size="icon"
                 onClick={() => setIsNavOpen(true)}
-                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full md:hidden"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full lg:hidden"
               >
                 <Menu className="h-[1.2rem] w-[1.2rem]" />
               </Button>
@@ -221,7 +221,7 @@ export default function ShowcasePro({ title, categories }: ShowcaseProps) {
         {/* Main Content */}
         <div className="flex gap-8">
           {/* 桌面端侧边栏 */}
-          <div className="hidden md:block w-64 flex-shrink-0">
+          <div className="hidden lg:block w-64 flex-shrink-0">
             <nav className="fixed w-64 space-y-1">
               {categories.map((category) => (
                 <SidebarButton
@@ -238,7 +238,7 @@ export default function ShowcasePro({ title, categories }: ShowcaseProps) {
 
           {/* Content Area */}
           <div className="flex-1 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-            <div className="p-4 sm:p-8 max-w-4xl mx-auto">
+            <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
               {/* 只渲染当前激活的分类 */}
               {categories
                 .filter(category => category.id === activeCategory)
