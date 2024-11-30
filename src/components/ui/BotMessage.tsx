@@ -90,7 +90,6 @@ const BotMessage = memo(({
       const parts = splitContent(content);
       
       const toolQueue: ToolState[] = [];
-      let currentToolContent = '';
       let isCollectingTool = false;
 
       parts.forEach(part => {
@@ -101,28 +100,23 @@ const BotMessage = memo(({
             const [, type, id] = match;
             const tool: ToolState = {
               id,
-              type: type as "code" | "text", 
+              type: type as "code" | "text",
               content: '',
               status: "input"
             };
             toolQueue.push(tool);
             items.push({
-              type: "group",
+              type: "group", 
               group: { useTool: tool }
             });
             isCollectingTool = true;
           }
         } else if (part === "[USE_TOOL/]") {
-          // 匹配结束标签
-          if (toolQueue.length > 0 && isCollectingTool) {
-            const currentTool = toolQueue[toolQueue.length - 1];
-            currentTool.content = currentToolContent.trim();
-            currentToolContent = '';
-            isCollectingTool = false;
-          }
-        } else if (isCollectingTool) {
-          // 收集工具内容
-          currentToolContent += part;
+          isCollectingTool = false;
+        } else if (isCollectingTool && toolQueue.length > 0) {
+          // 直接更新最后一个tool的content
+          const currentTool = toolQueue[toolQueue.length - 1];
+          currentTool.content = (currentTool.content || '') + part;
         } else if (part.startsWith("<plugin-data>")) {
           // 解析 <plugin-data>
           try {
