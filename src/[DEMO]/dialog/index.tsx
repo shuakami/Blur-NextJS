@@ -141,7 +141,7 @@ export default function DialogShowcase() {
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="destructive" onClick={() => {
+                <Button variant="error" onClick={() => {
                   // 这里添加重试逻辑
                   console.log('重试操作')
                 }}>重试</Button>
