@@ -3,7 +3,7 @@ import { Check, Volume2, Copy, ThumbsUp, ThumbsDown, RotateCcw, Pause } from 'lu
 import { Spinner } from './spinner';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useChatContext } from '@/app/[上下文]/ChatContext';
+import { useConversationContext } from '@/app/[上下文]/ChatContext';
 
 interface MessageToolbarProps {
   content: string;
@@ -27,7 +27,7 @@ export function MessageToolbar({
   const [isLiked, setIsLiked] = useState<boolean | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
-  const { conversationId } = useChatContext();
+  const { conversationId } = useConversationContext();
 
   // 控制工具栏显示逻辑
   const visibility = useMemo(() => {

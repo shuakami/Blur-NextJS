@@ -6,7 +6,7 @@ import UserMessage from "./UserMessage";
 import { ChatListProps, Message, ThoughtProcess } from "@/types/stream";
 import './chat_list.css';
 import { usePathname } from 'next/navigation';
-import { useChatContext } from "@/app/[上下文]/ChatContext";
+import { useChatStateContext } from "@/app/[上下文]/ChatContext";
 
 
 // 消息项组件
@@ -71,7 +71,7 @@ export const ChatList = memo(({ isLoading, messages, onEditMessage, demo }: Chat
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
     const lastPathRef = useRef(pathname);
-    const { isStreaming } = useChatContext();
+    const { isStreaming } = useChatStateContext();
     const userInteractedRef = useRef(false);
     const lastScrollTime = useRef(0);
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import useTranslation from '@/hooks/useTranslation';
-import { useChatContext } from '@/app/[上下文]/ChatContext';
+import { useChatStateContext } from '@/app/[上下文]/ChatContext';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { debounce } from 'lodash';
@@ -86,7 +86,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [message, setMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { isStreaming, stopStreaming } = useChatContext();
+    const { isStreaming, stopStreaming } = useChatStateContext();
     const shortcutManager = useShortcutManager();
 
     const maxHeight = useMemo(() => 

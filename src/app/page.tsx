@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { ChatProvider, useChatContext } from '@/app/[上下文]/ChatContext';
+import { ChatProvider, useChatStateContext, useConversationContext } from '@/app/[上下文]/ChatContext';
 import { ConversationsProvider } from "../../contexts/ConversationsContext";
 import dynamic from 'next/dynamic';
 import HomepageContent from "@/app/[首页占位]/home-content";
@@ -16,8 +16,12 @@ const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
 function HomeContent() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const { newConversationId, resetNewConversationId, resetChatState } = useChatContext();
-    
+    const { 
+        newConversationId, 
+        resetNewConversationId 
+    } = useConversationContext();
+    const { resetChatState } = useChatStateContext();
+
     const [hasConversation, setHasConversation] = useState(false);
     const [chatTitle, setChatTitle] = useState<string | null>(null);
     const eventListenerRef = useRef<(event: Event) => void>();

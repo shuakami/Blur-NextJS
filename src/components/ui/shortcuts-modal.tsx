@@ -261,6 +261,7 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose }) => {
             aria-modal={!isLearningMode}
         >
             <DialogContent 
+                showClose={false}
                 className="max-w-4xl p-0 outline-none"
                 role={isLearningMode ? "none" : "dialog"}
                 tabIndex={isLearningMode ? undefined : 0}

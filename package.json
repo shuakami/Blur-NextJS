@@ -43,7 +43,7 @@
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.10.0",
     "html2canvas": "^1.4.1",
-    "jotai": "^2.10.3",
+    "immer": "^10.1.1",
     "js-cookie": "^3.0.5",
     "katex": "^0.16.11",
     "link-preview-js": "^3.0.12",

@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import ChatInput from './chat_input';
-import { useChatContext } from '@/app/[上下文]/ChatContext';
+import { useMessageContext, useConversationContext } from '@/app/[上下文]/contexts';
 import { useModel } from '@/components/ui/model_selector';
 
 interface ChatInputWrapperProps {
@@ -13,7 +13,8 @@ interface ChatInputWrapperProps {
 
 const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) => {
     const { selectedModel } = useModel();
-    const { sendMessage, messages, retryMessage, conversationId } = useChatContext();
+    const { messages, sendMessage, retryMessage } = useMessageContext();
+    const { conversationId } = useConversationContext();
     const [isRetrying, setIsRetrying] = useState(false);
 
     // 检查最后一条消息是否失败

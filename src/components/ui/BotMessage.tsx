@@ -2,7 +2,7 @@ import React, { memo, lazy, Suspense, useEffect, useState } from "react";
 import { ThoughtProcess } from "@/types/stream";
 import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
-import { useChatContext } from "@/app/[上下文]/ChatContext";
+import { useChatStateContext } from "@/app/[上下文]/ChatContext";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
 import { cn } from "@/lib/utils";
 import { Agent } from "./LLM/agent";
@@ -81,7 +81,7 @@ const BotMessage = memo(({
   thought,
   error,
 }: BotMessageProps) => {
-  const { isStreaming } = useChatContext();
+  const { isStreaming } = useChatStateContext();
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
 
   useEffect(() => {

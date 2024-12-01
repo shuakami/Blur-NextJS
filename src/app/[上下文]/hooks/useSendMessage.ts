@@ -1,5 +1,3 @@
-// src/app/[上下文]/useSendMessage.ts
-
 import { useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { sendMessageAPI, stopStreamAPI } from '../api/chatAPI';
@@ -10,9 +8,20 @@ import { Action } from '../core/chatReducer';
 import { 
     MessageWithStatus, 
     RetryableMessage,
-    createMessageWithStatus 
+    createMessageWithStatus,
+    MessageStatus
 } from '../core/messageStatus';
 import { StreamMessageHandler } from '../core/StreamMessageHandler';
+
+interface MessagePair {
+    userMessage: MessageWithStatus;
+    botMessage: MessageWithStatus;
+}
+
+interface MessageUpdatePayload {
+    message_id: string;
+    updates: Partial<MessageWithStatus>;
+}
 
 interface UseSendMessageProps {
     state: any;
@@ -39,14 +48,120 @@ const useSendMessage = ({
     const abortControllerRef = useRef<AbortController | null>(null);
     const streamHandler = useRef<StreamMessageHandler>(new StreamMessageHandler(dispatch));
 
-    // 核心发送消息逻辑
+    // 状态更新工具
+    const updateMessageStates = useCallback((updates: MessageUpdatePayload[]) => {
+        updates.forEach(update => {
+            dispatch({
+                type: 'UPDATE_MESSAGE',
+                payload: update
+            });
+        });
+    }, [dispatch]);
+
+    // 消息对初始化
+    const initializeMessagePair = useCallback((
+        message: string,
+        existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus }
+    ): MessagePair => {
+        if (existingPair?.userMessage && existingPair?.botMessage) {
+            const userMessage = { 
+                ...existingPair.userMessage, 
+                sendStatus: 'pending' as MessageStatus, 
+                error: undefined 
+            };
+            const botMessage = { 
+                ...existingPair.botMessage, 
+                sendStatus: 'pending' as MessageStatus, 
+                error: undefined, 
+                content: '' 
+            };
+
+            updateMessageStates([
+                {
+                    message_id: userMessage.message_id!,
+                    updates: { sendStatus: 'pending', error: undefined }
+                },
+                {
+                    message_id: botMessage.message_id!,
+                    updates: { sendStatus: 'pending', error: undefined, content: '' }
+                }
+            ]);
+
+            return { userMessage, botMessage };
+        }
+
+        const userMessage = createMessageWithStatus(
+            dialogProcessor.createUserMessage(message, userImageUrl),
+            'pending'
+        );
+        const botMessage = createMessageWithStatus(
+            dialogProcessor.createBotMessage(),
+            'pending'
+        );
+
+        addMessage(userMessage as Message);
+        addMessage(botMessage as Message);
+
+        return { userMessage, botMessage };
+    }, [addMessage, updateMessageStates, userImageUrl]);
+
+    // 流处理状态管理
+    const handleStreamState = useCallback((
+        botMessageId: string | null,
+        content: string = '',
+        isStreaming: boolean = true
+    ) => {
+        streamHandler.current.setCurrentBotMessageId(botMessageId);
+        streamHandler.current.setCurrentBotContent(content);
+        dispatch({ type: 'SET_IS_STREAMING', payload: isStreaming });
+    }, [dispatch]);
+
+    // 错误处理
+    const handleMessageError = useCallback((
+        error: any,
+        messagePair: MessagePair
+    ) => {
+        console.error(t('发送消息失败:'), error);
+
+        const errorDetails = {
+            code: error.code || 500,
+            message: error.message || t('抱歉，发送消息失败。')
+        };
+
+        const updates: MessageUpdatePayload[] = [];
+
+        if (messagePair.userMessage.message_id) {
+            updates.push({
+                message_id: messagePair.userMessage.message_id,
+                updates: { 
+                    sendStatus: 'failed',
+                    error: errorDetails
+                }
+            });
+        }
+
+        if (messagePair.botMessage.message_id) {
+            updates.push({
+                message_id: messagePair.botMessage.message_id,
+                updates: { 
+                    sendStatus: 'failed',
+                    error: errorDetails,
+                    isStreaming: false
+                }
+            });
+        }
+
+        updateMessageStates(updates);
+        dispatch({ type: 'SET_IS_STREAMING', payload: false });
+        dispatch({ type: 'SET_LOADING', payload: false });
+    }, [dispatch, t, updateMessageStates]);
+
+    // [CORE] 发送消息逻辑
     const sendMessageCore = useCallback(async (
         message: string,
         model: string,
         inputConversationId?: string,
-        retryCount: number = 0,
-        existingUserMessage?: MessageWithStatus,
-        existingBotMessage?: MessageWithStatus
+        existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus }
     ) => {
         if (!userId) {
             addMessage(dialogProcessor.createErrorMessage(t('无法发送消息，用户未登录或未授权。')));
@@ -54,48 +169,10 @@ const useSendMessage = ({
         }
 
         const activeConversationId = inputConversationId || state.conversationId;
-
-        let userMessage: MessageWithStatus;
-        let botMessage: MessageWithStatus;
-
-        if (retryCount > 0 && existingUserMessage && existingBotMessage) {
-            userMessage = { ...existingUserMessage, sendStatus: 'pending', error: undefined };
-            botMessage = { ...existingBotMessage, sendStatus: 'pending', error: undefined, content: '' };
-
-            dispatch({
-                type: 'UPDATE_MESSAGE',
-                payload: {
-                    message_id: userMessage.message_id,
-                    updates: { sendStatus: 'pending', error: undefined }
-                }
-            });
-
-            dispatch({
-                type: 'UPDATE_MESSAGE',
-                payload: {
-                    message_id: botMessage.message_id,
-                    updates: { sendStatus: 'pending', error: undefined, content: '' }
-                }
-            });
-        } else {
-            userMessage = createMessageWithStatus(
-                dialogProcessor.createUserMessage(message, userImageUrl),
-                'pending'
-            );
-            botMessage = createMessageWithStatus(
-                dialogProcessor.createBotMessage(),
-                'pending'
-            );
-
-            addMessage(userMessage as Message);
-            addMessage(botMessage as Message);
-        }
-
-        streamHandler.current.setCurrentBotMessageId(botMessage.message_id || null);
-        streamHandler.current.setCurrentBotContent(botMessage.content || '');
-
+        const messagePair = initializeMessagePair(message, existingPair);
+        
+        handleStreamState(messagePair.botMessage.message_id || null);
         dispatch({ type: 'SET_LOADING', payload: true });
-        dispatch({ type: 'SET_IS_STREAMING', payload: true });
 
         const abortController = new AbortController();
         abortControllerRef.current = abortController;
@@ -118,14 +195,11 @@ const useSendMessage = ({
                         dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: initialResponse.conversation_id });
                     }
                     
-                    if (userMessage.message_id) {
-                        dispatch({
-                            type: 'UPDATE_MESSAGE',
-                            payload: {
-                                message_id: userMessage.message_id,
-                                updates: { sendStatus: 'sent' }
-                            }
-                        });
+                    if (messagePair.userMessage.message_id) {
+                        updateMessageStates([{
+                            message_id: messagePair.userMessage.message_id,
+                            updates: { sendStatus: 'sent' }
+                        }]);
                     }
                 },
                 onChunk: (chunk) => {
@@ -133,26 +207,10 @@ const useSendMessage = ({
 
                     if ((chunk.status === 'error' && chunk.error) || (chunk.code && chunk.code >= 400)) {
                         console.error('检测到错误的 chunk:', chunk);
-                        const currentBotMessageId = streamHandler.current.getCurrentBotMessageId();
-                        if (currentBotMessageId) {
-                            const errorDetails = {
-                                code: chunk.code || 500,
-                                message: chunk.message || t('抱歉，发送消息失败。')
-                            };
-                            dispatch({
-                                type: 'UPDATE_MESSAGE',
-                                payload: {
-                                    message_id: currentBotMessageId,
-                                    updates: {
-                                        error: errorDetails,
-                                        isStreaming: false,
-                                        sendStatus: 'failed'
-                                    }
-                                }
-                            });
-                        }
-                        dispatch({ type: 'SET_IS_STREAMING', payload: false });
-                        dispatch({ type: 'SET_LOADING', payload: false });
+                        handleMessageError({ 
+                            code: chunk.code || 500,
+                            message: chunk.message || t('抱歉，发送消息失败。')
+                        }, messagePair);
                         return;
                     }
 
@@ -161,19 +219,15 @@ const useSendMessage = ({
                     if (chunk.is_final_chunk) {
                         const currentBotMessageId = streamHandler.current.getCurrentBotMessageId();
                         if (currentBotMessageId) {
-                            dispatch({
-                                type: 'UPDATE_MESSAGE',
-                                payload: {
-                                    message_id: currentBotMessageId,
-                                    updates: { isStreaming: false }
-                                }
-                            });
+                            updateMessageStates([{
+                                message_id: currentBotMessageId,
+                                updates: { isStreaming: false }
+                            }]);
                         }
 
                         dispatch({ type: 'RESET_NEW_CONVERSATION_ID' });
-                        dispatch({ type: 'SET_IS_STREAMING', payload: false });
+                        handleStreamState(null, '', false);
                         triggerConversationsReload();
-
                         streamHandler.current.resetState();
                     }
                 },
@@ -182,13 +236,13 @@ const useSendMessage = ({
                 },
                 onError: (error) => {
                     console.error('onError 被调用:', error);
-                    handleMessageError(error, userMessage, botMessage, retryCount);
+                    handleMessageError(error, messagePair);
                 },
                 signal: abortController.signal
             });
 
         } catch (error: any) {
-            handleMessageError(error, userMessage, botMessage, retryCount);
+            handleMessageError(error, messagePair);
         } finally {
             abortControllerRef.current = null;
         }
@@ -197,113 +251,60 @@ const useSendMessage = ({
         userId,
         addMessage,
         t,
-        userImageUrl,
         getToken,
         dispatch,
         triggerConversationsReload,
+        handleStreamState,
+        handleMessageError,
+        initializeMessagePair
     ]);
-
-    // 错误处理函数
-    const handleMessageError = useCallback((
-        error: any,
-        userMessage: MessageWithStatus,
-        botMessage: MessageWithStatus,
-        retryCount: number
-    ) => {
-        console.error(t('发送消息失败:'), error);
-
-        const errorDetails = {
-            code: error.code || 500,
-            message: error.message || t('抱歉，发送消息失败。')
-        };
-
-        // 更新用户消息状态为 'failed'
-        if (userMessage.message_id) {
-            dispatch({
-                type: 'UPDATE_MESSAGE',
-                payload: {
-                    message_id: userMessage.message_id,
-                    updates: { 
-                        sendStatus: 'failed',
-                        error: errorDetails
-                    }
-                }
-            });
-        }
-
-        // 更新机器人消息状态为 'failed'
-        if (botMessage.message_id) {
-            dispatch({
-                type: 'UPDATE_MESSAGE',
-                payload: {
-                    message_id: botMessage.message_id,
-                    updates: { 
-                        sendStatus: 'failed',
-                        error: errorDetails,
-                        isStreaming: false
-                    }
-                }
-            });
-        }
-
-        dispatch({ type: 'SET_IS_STREAMING', payload: false });
-        dispatch({ type: 'SET_LOADING', payload: false });
-    }, [dispatch, t]);
 
     // 重试消息
     const retryMessage = useCallback(async (messageId: string) => {
-        console.log(`尝试重试消息: ${messageId}`);
-        // 找到需要重试的用户消息
-        const messageIndex = messagesRef.current.findIndex(msg => msg.message_id === messageId && msg.sendStatus === 'failed' && msg.type === 'user');
+        const messageIndex = messagesRef.current.findIndex(
+            msg => msg.message_id === messageId && 
+            msg.sendStatus === 'failed' && 
+            msg.type === 'user'
+        );
+
         if (messageIndex === -1) {
             console.log(`消息 ${messageId} 无法重试，因为未找到可重试的消息`);
             return;
         }
 
         const userMessage = messagesRef.current[messageIndex];
-        const botMessage = messagesRef.current[messageIndex + 1] && messagesRef.current[messageIndex + 1].type === 'bot' ? messagesRef.current[messageIndex + 1] : undefined;
+        const botMessage = messagesRef.current[messageIndex + 1]?.type === 'bot' 
+            ? messagesRef.current[messageIndex + 1] 
+            : undefined;
 
         try {
-            if (botMessage) {
-                await sendMessageCore(
-                    userMessage.content,
-                    userMessage.model || 'claude',
-                    state.conversationId,
-                    1,
-                    userMessage as MessageWithStatus,
-                    botMessage as MessageWithStatus
-                );
-            } else {
-                await sendMessageCore(
-                    userMessage.content,
-                    userMessage.model || 'claude',
-                    state.conversationId,
-                    1,
-                    userMessage as MessageWithStatus,
-                    undefined
-                );
-            }
-
-            console.log(`消息 ${messageId} 重试成功.`);
+            await sendMessageCore(
+                userMessage.content,
+                userMessage.model || 'claude',
+                state.conversationId,
+                { 
+                    userMessage: userMessage as MessageWithStatus,
+                    botMessage: botMessage as MessageWithStatus 
+                }
+            );
         } catch (error) {
             console.error('重试失败:', error);
-            handleMessageError(error, userMessage as MessageWithStatus, botMessage as MessageWithStatus, 1);
+            handleMessageError(
+                error, 
+                { 
+                    userMessage: userMessage as MessageWithStatus,
+                    botMessage: botMessage as MessageWithStatus 
+                }
+            );
         }
     }, [sendMessageCore, state.conversationId, handleMessageError, messagesRef]);
 
-    // 公开的发送消息接口
-    const sendMessage = useCallback((message: string, model: string) => {
-        return sendMessageCore(message, model);
-    }, [sendMessageCore]);
-
     // 获取失败的消息
     const getFailedMessages = useCallback((): RetryableMessage[] => {
-        const failedMessages: RetryableMessage[] = [];
-        
-        messagesRef.current.forEach((msg, index) => {
+        return messagesRef.current.reduce((acc: RetryableMessage[], msg, index) => {
             if (msg.sendStatus === 'failed' && msg.type === 'user') {
                 const botMessage = messagesRef.current[index + 1];
-                failedMessages.push({
+                acc.push({
                     message_id: msg.message_id || '',
                     type: msg.type,
                     content: msg.content,
@@ -314,11 +315,11 @@ const useSendMessage = ({
                     botMessage: botMessage?.type === 'bot' ? botMessage : undefined
                 });
             }
-        });
-        
-        return failedMessages;
+            return acc;
+        }, []);
     }, [messagesRef]);
 
+    // 停止流式传输
     const stopStreaming = useCallback(async () => {
         if (!state.conversationId || !userId) {
             console.error('无法停止流式传输，缺少 conversationId 或 userId');
@@ -326,7 +327,6 @@ const useSendMessage = ({
         }
 
         const botMessageId = streamHandler.current.getCurrentBotMessageId();
-
         if (!botMessageId) {
             console.error('无法停止流式传输，未找到正在 streaming 的消息');
             return;
@@ -334,25 +334,27 @@ const useSendMessage = ({
 
         try {
             await stopStreamAPI(state.conversationId, botMessageId, userId);
-
+            
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
 
-            dispatch({ type: 'SET_IS_STREAMING', payload: false });
-            dispatch({
-                type: 'UPDATE_MESSAGE',
-                payload: {
-                    message_id: botMessageId,
-                    updates: { isStreaming: false }
-                }
-            });
+            handleStreamState(botMessageId, undefined, false);
+            updateMessageStates([{
+                message_id: botMessageId,
+                updates: { isStreaming: false }
+            }]);
 
             streamHandler.current.resetState();
         } catch (error) {
             console.error('停止流式传输失败:', error);
         }
-    }, [state.conversationId, userId, dispatch]);
+    }, [state.conversationId, userId, handleStreamState, updateMessageStates]);
+
+    // 公开接口
+    const sendMessage = useCallback((message: string, model: string) => {
+        return sendMessageCore(message, model);
+    }, [sendMessageCore]);
 
     return { 
         sendMessage, 

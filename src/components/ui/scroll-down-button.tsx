@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
-import { useChatContext } from '@/app/[上下文]/ChatContext';
+import { useChatStateContext } from '@/app/[上下文]/ChatContext';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +20,7 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = memo(({
     isSidebarOpen, 
     sidebarWidth 
 }) => {
-    const { isStreaming } = useChatContext();
+    const { isStreaming } = useChatStateContext();
     const [show, setShow] = useState(false);
     const lastCheckTime = useRef(0);
     const [isMobile, setIsMobile] = useState(false);

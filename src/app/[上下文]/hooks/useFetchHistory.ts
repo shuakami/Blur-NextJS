@@ -34,7 +34,7 @@ const useFetchHistory = ({
                 offset: state.offset,
             });
 
-            const formattedMessages = formatMessages(history.messages, userImageUrl).map(msg =>
+            const formattedMessages = formatMessages(history.messages, { userImageUrl }).map(msg =>
                 dialogProcessor.updateMessage(msg)
             );
 

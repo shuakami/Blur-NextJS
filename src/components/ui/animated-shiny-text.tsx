@@ -18,8 +18,18 @@ const Placeholder: React.FC<PlaceholderProps> = ({className, children}) => {
             setStage(prev => 1 - prev);
         }, 3500);
         
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            setStage(0);
+        };
     }, [isHovered]);
+
+    useEffect(() => {
+        return () => {
+            setStage(0);
+            setIsHovered(false);
+        };
+    }, []);
 
     const styles = {
         color: isHovered 

@@ -1,54 +1,94 @@
-// src/app/[上下文]/ChatContext.tsx
-
-import React, { createContext, useContext, useMemo } from 'react';
-import { Message } from '@/types/stream';
+import React, { useMemo } from 'react';
 import useChat from './hooks/useChat';
-import { RetryableMessage } from './core/messageStatus';
+import { MessageProvider } from './contexts/MessageContext';
+import { ConversationProvider } from './contexts/ConversationContext';
+import { ChatStateProvider } from './contexts/ChatStateContext';
 
-interface ChatContextProps {
-    messages: Message[];
-    sendMessage: (message: string, model: string, conversationId?: string) => void;
-    addMessage: (message: Message) => void;
-    triggerConversationsReload: () => void;
-    reloadConversationsCounter: number;
-    newConversationId: string | null;
-    resetNewConversationId: () => void;
-    isLoading?: boolean;
-    loadMoreMessages: () => void;
-    isStreaming?: boolean; // 是否正在流式传输
-    stopStreaming?: () => void; // 停止流式传输
-    conversationId?: string | null; // 暴露 conversationId
-    resetChatState: () => void; // 添加重置方法
-    retryMessage: (messageId: string) => Promise<void>;
-    getFailedMessages: () => RetryableMessage[];
-}
+const MemoizedMessageProvider = React.memo(MessageProvider);
+const MemoizedConversationProvider = React.memo(ConversationProvider);
+const MemoizedChatStateProvider = React.memo(ChatStateProvider);
 
-const ChatContext = createContext<ChatContextProps | undefined>(undefined);
-
-export const ChatProvider: React.FC<{ children: React.ReactNode; initialConversationId?: string }> = ({
-    children,
-    initialConversationId,
-}) => {
+export const ChatProvider: React.FC<{
+    children: React.ReactNode;
+    initialConversationId?: string;
+}> = ({ children, initialConversationId }) => {
     const chat = useChat(initialConversationId);
 
-    // 使用 useMemo 记忆化 context value，避免不必要的重新渲染
-    const contextValue = useMemo(() => ({
-        ...chat,
-        retryMessage: chat.retryMessage,
-        getFailedMessages: chat.getFailedMessages,
-    }), [chat]);
+    const memoizedMessageMethods = useMemo(() => ({
+        addMessage: chat.addMessage,
+        updateMessage: chat.updateMessage,
+        clearMessages: chat.clearMessages,
+        clearFailedMessages: chat.clearFailedMessages,
+        sendMessage: chat.sendMessage,
+        retryMessage: chat.retryMessage
+    }), [
+        chat.addMessage,
+        chat.updateMessage,
+        chat.clearMessages,
+        chat.clearFailedMessages,
+        chat.sendMessage,
+        chat.retryMessage
+    ]);
+
+    const messageState = useMemo(() => ({
+        messages: chat.messages
+    }), [chat.messages]);
+
+    const messageValue = useMemo(() => ({
+        ...messageState,
+        ...memoizedMessageMethods
+    }), [messageState, memoizedMessageMethods]);
+
+    const memoizedConversationMethods = useMemo(() => ({
+        resetNewConversationId: chat.resetNewConversationId,
+        triggerConversationsReload: chat.triggerConversationsReload
+    }), [chat.resetNewConversationId, chat.triggerConversationsReload]);
+
+    const conversationState = useMemo(() => ({
+        conversationId: chat.conversationId,
+        newConversationId: chat.newConversationId,
+        reloadConversationsCounter: chat.reloadConversationsCounter
+    }), [
+        chat.conversationId,
+        chat.newConversationId,
+        chat.reloadConversationsCounter
+    ]);
+
+    const conversationValue = useMemo(() => ({
+        ...conversationState,
+        ...memoizedConversationMethods
+    }), [conversationState, memoizedConversationMethods]);
+
+    const memoizedChatStateMethods = useMemo(() => ({
+        loadMoreMessages: chat.loadMoreMessages,
+        stopStreaming: chat.stopStreaming,
+        resetChatState: chat.resetChatState
+    }), [chat.loadMoreMessages, chat.stopStreaming, chat.resetChatState]);
+
+    const chatState = useMemo(() => ({
+        isLoading: chat.isLoading,
+        isStreaming: chat.isStreaming,
+        hasMore: chat.hasMore
+    }), [chat.isLoading, chat.isStreaming, chat.hasMore]);
+
+    const chatStateValue = useMemo(() => ({
+        ...chatState,
+        ...memoizedChatStateMethods
+    }), [chatState, memoizedChatStateMethods]);
 
     return (
-        <ChatContext.Provider value={contextValue}>
-            {children}
-        </ChatContext.Provider>
+        <MemoizedConversationProvider value={conversationValue}>
+            <MemoizedMessageProvider value={messageValue}>
+                <MemoizedChatStateProvider value={chatStateValue}>
+                    {children}
+                </MemoizedChatStateProvider>
+            </MemoizedMessageProvider>
+        </MemoizedConversationProvider>
     );
 };
 
-export const useChatContext = (): ChatContextProps => {
-    const context = useContext(ChatContext);
-    if (!context) {
-        throw new Error('useChatContext 必须在 ChatProvider 内使用');
-    }
-    return context;
-};
+export {
+    useMessageContext,
+    useConversationContext,
+    useChatStateContext,
+} from './contexts/index';

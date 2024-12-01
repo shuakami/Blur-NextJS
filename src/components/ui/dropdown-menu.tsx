@@ -124,7 +124,7 @@ const MenuButton = React.forwardRef<HTMLButtonElement, MenuButtonProps>(
     <Button
       ref={ref}
       variant={variant}
-      size={size}
+      size={size as "sm" | "md" | "lg" | null | undefined}
       className={cn(
         "inline-flex items-center gap-1.5",
         className

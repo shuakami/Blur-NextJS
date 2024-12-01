@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 import { ClipboardIcon, CheckIcon, DownloadIcon, ImageIcon, FileCode } from 'lucide-react';
 import { ColorScheme, getThemeVariables} from './mermaid-themes';
 import { exportDiagram } from './mermaid-export';
-import { useChatContext } from "@/app/[上下文]/ChatContext";
+import { useChatStateContext } from "@/app/[上下文]/ChatContext";
 import { MenuItem, MenuItems, MenuSeparator } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
@@ -330,7 +330,7 @@ export const MermaidRenderer = memo<MermaidRendererProps>(({ chart, className = 
     const [showExportMenu, setShowExportMenu] = React.useState(false);
     const exportMenuRef = useRef<HTMLDivElement>(null);
     const [selectedColorScheme, setSelectedColorScheme] = useState<ColorScheme>('system');
-    const { isStreaming } = useChatContext();
+    const { isStreaming } = useChatStateContext();
     const [isExportOpen, setIsExportOpen] = useState(false);
     const exportButtonRef = useRef<HTMLButtonElement>(null);
 

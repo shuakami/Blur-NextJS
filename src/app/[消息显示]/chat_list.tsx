@@ -3,11 +3,12 @@
 "use client";
 
 import React, { memo } from 'react';
-import {useChatContext} from '@/app/[上下文]/ChatContext';
+import {useMessageContext, useChatStateContext} from '@/app/[上下文]/ChatContext';
 import {ChatList as UIChatList} from '@/components/ui/chat-list';
 
 const ChatList = memo(() => {
-    const {messages, isLoading} = useChatContext();
+    const {messages} = useMessageContext();
+    const { isLoading } = useChatStateContext();
     
     console.log(messages);
     return <UIChatList messages={messages} isLoading={isLoading || false} />;

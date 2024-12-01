@@ -1,9 +1,7 @@
-// src/app/[上下文]/useChat.ts
-
 import { useReducer, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useUser } from '@clerk/nextjs';
 import useTranslation from "@/hooks/useTranslation";
-import { Message } from '@/types/stream';
+import { Message, MessageStatus } from '@/types/stream';
 import '@/app/[上下文]/plugins';
 
 import { chatReducer, initialState } from '@/app/[上下文]/core/chatReducer';
@@ -11,14 +9,43 @@ import { addMessageHandler } from '@/app/[上下文]/core/messageHandlers';
 import useFetchHistory from '@/app/[上下文]/hooks/useFetchHistory';
 import useSendMessage from '@/app/[上下文]/hooks/useSendMessage';
 
+// 返回类型
+interface ChatReturn {
+    // Message State
+    messages: Message[];
+    sendMessage: (message: string, model: string, conversationId?: string) => void;
+    addMessage: (message: Message) => void;
+    updateMessage: (messageId: string, updates: Partial<Message & { sendStatus?: MessageStatus }>) => void;
+    clearMessages: () => void;
+    clearFailedMessages: (userMessageId?: string, botMessageId?: string) => void;
+    retryMessage: (messageId: string) => Promise<void>;
+
+    // Conversation State
+    conversationId: string | null;
+    newConversationId: string | null;
+    resetNewConversationId: () => void;
+    triggerConversationsReload: () => void;
+    reloadConversationsCounter: number;
+
+    // Chat State
+    isLoading: boolean;
+    isStreaming: boolean;
+    hasMore: boolean;
+    loadMoreMessages: () => void;
+    stopStreaming?: () => void;
+    resetChatState: () => void;
+}
+
 // 自定义 Hook
-const useChat = (initialConversationId?: string) => {
+const useChat = (initialConversationId?: string): ChatReturn => {
     const { t } = useTranslation();
     const { user } = useUser();
     const [state, dispatch] = useReducer(chatReducer, {
         ...initialState,
         conversationId: initialConversationId || null,
     });
+
+    // 使用ref存储messages以确保在异步操作中获取最新值
     const messagesRef = useRef<Message[]>(state.messages);
 
     // 保持 messagesRef 同步最新的 messages
@@ -27,8 +54,11 @@ const useChat = (initialConversationId?: string) => {
         console.log('messagesRef 更新:', messagesRef.current);
     }, [state.messages]);
 
-    const userId = user?.id;
-    const userImageUrl = user?.imageUrl;
+    // 缓存用户信息避免重复计算
+    const userInfo = useMemo(() => ({
+        userId: user?.id,
+        userImageUrl: user?.imageUrl
+    }), [user?.id, user?.imageUrl]);
 
     // 添加一个标志来追踪是否是新对话
     const isNewChat = useRef(false);
@@ -36,7 +66,22 @@ const useChat = (initialConversationId?: string) => {
     // 添加消息
     const addMessage = useCallback((message: Message) => {
         addMessageHandler(message, dispatch);
-    }, [dispatch]);
+    }, []);
+
+    // 更新消息
+    const updateMessage = useCallback((messageId: string, updates: Partial<Message & { sendStatus?: MessageStatus }>) => {
+        dispatch({ type: 'UPDATE_MESSAGE', payload: { message_id: messageId, updates } });
+    }, []);
+
+    // 清除消息
+    const clearMessages = useCallback(() => {
+        dispatch({ type: 'CLEAR_MESSAGES' });
+    }, []);
+
+    // 清除失败的消息
+    const clearFailedMessages = useCallback((userMessageId?: string, botMessageId?: string) => {
+        dispatch({ type: 'CLEAR_FAILED_MESSAGES', payload: { userMessageId, botMessageId } });
+    }, []);
 
     // 触发对话重载
     const triggerConversationsReload = useCallback(() => {
@@ -55,16 +100,14 @@ const useChat = (initialConversationId?: string) => {
         addMessage,
         triggerConversationsReload,
         t,
-        userId,
-        userImageUrl,
-        messagesRef, // 传递 messagesRef
+        ...userInfo,
+        messagesRef,
     });
 
     const { fetchAndSetHistory } = useFetchHistory({
         state,
         dispatch,
-        userId,
-        userImageUrl,
+        ...userInfo,
         t,
     });
 
@@ -78,7 +121,7 @@ const useChat = (initialConversationId?: string) => {
     // 重置新对话 ID
     const resetNewConversationId = useCallback(() => {
         dispatch({ type: 'RESET_NEW_CONVERSATION_ID' });
-    }, [dispatch]);
+    }, []);
 
     // 监听 initialConversationId 变化
     useEffect(() => {
@@ -116,42 +159,31 @@ const useChat = (initialConversationId?: string) => {
         isNewChat.current = true;
     }, []);
 
-    // 使用 useMemo 记忆化返回的对象
-    const memoizedChat = useMemo(() => ({
+    return {
+        // Message State
         messages: state.messages,
         sendMessage,
         addMessage,
-        triggerConversationsReload,
-        reloadConversationsCounter: state.reloadConversationsCounter,
+        updateMessage,
+        clearMessages,
+        clearFailedMessages,
+        retryMessage,
+
+        // Conversation State
+        conversationId: state.conversationId,
         newConversationId: state.newConversationId,
         resetNewConversationId,
-        isLoading: state.isLoading,
-        loadMoreMessages,
-        isStreaming: state.isStreaming,
-        stopStreaming,
-        conversationId: state.conversationId,
-        resetChatState, // 重置
-        retryMessage,        // 重试
-        getFailedMessages,   // 获取失败消息方法
-    }), [
-        state.messages,
-        sendMessage,
-        addMessage,
         triggerConversationsReload,
-        state.reloadConversationsCounter,
-        state.newConversationId,
-        resetNewConversationId,
-        state.isLoading,
-        loadMoreMessages,
-        state.isStreaming,
-        stopStreaming,
-        state.conversationId,
-        resetChatState,
-        retryMessage,
-        getFailedMessages,
-    ]);
+        reloadConversationsCounter: state.reloadConversationsCounter,
 
-    return memoizedChat;
+        // Chat State
+        isLoading: state.isLoading,
+        isStreaming: state.isStreaming,
+        hasMore: state.hasMore,
+        loadMoreMessages,
+        stopStreaming,
+        resetChatState,
+    };
 };
 
 export default useChat;

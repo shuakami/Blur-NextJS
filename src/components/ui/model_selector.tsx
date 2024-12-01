@@ -15,6 +15,7 @@ type Model = {
     description: string;
     code?: string;
     icon: React.ComponentType;
+    isDisabled?: boolean;
 };
 
 // 定义模型数组
@@ -23,28 +24,30 @@ const models: Model[] = [
         name: "Blur",
         version: "Lite",
         code: "claude",
-        description: "为轻松日常对话打造。体验清晰、快速的智能交互。",
+        description: "全能助手，支持工具调用。",
         icon: Orbit,
     },
     {
         name: "Blur",
         version: "Flex",
         code: "gemini",
-        description: "赋予更多情感与温度的模型，完美满足你在情感共鸣上的需求。",
+        description: "赋予更多情感与温度的模型（即将推出）",
         icon: Sparkles,
+        isDisabled: true,
     },
     {
         name: "Blur Search",
         version: "",
         code: "claude",
-        description: "专注于高速大规模检索，适合查找专业知识分析数据。",
+        description: "专注于高速大规模检索的模型。（即将推出）",
         icon: Search,
+        isDisabled: true,
     },
     {
         name: "Blur",
         version: "Intellect",
-        code: "claude",
-        description: "精于推理，善于思考。应对复杂问题和逻辑分析的最佳选择。",
+        code: "gemini",
+        description: "精于推理，善于思考，帮你解决复杂问题。",
         icon: Brain,
     },
 ];
@@ -145,6 +148,7 @@ const ModelSelector: FC = () => {
         text: `${model.name} ${model.version}`,
         description: model.description,
         icon: model.icon,
+        isDisabled: model.isDisabled,
         onClick: () => {
             setSelectedModel(model);
             setIsMenuOpen(false);

@@ -25,11 +25,11 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-lg max-w-md">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
-                <DialogDescription className="mt-2">
+                <DialogDescription className="mt-2 text-center sm:text-left">
                     {message}
                 </DialogDescription>
                 <DialogFooter>
