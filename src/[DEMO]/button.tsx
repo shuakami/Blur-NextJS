@@ -241,7 +241,7 @@ export default function ButtonShowcase() {
                     <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full shrink-0" />
                     <div className="flex-1">
                       <div className="inline-block bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-2">
-                        <p className="text-sm">Hey, how's it going?</p>
+                        <p className="text-sm">Hey, how&#39;s it going?</p>
                       </div>
                       <span className="text-xs text-gray-500 mt-1 text-left block">John • 2m ago</span>
                     </div>
