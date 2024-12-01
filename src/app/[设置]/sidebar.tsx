@@ -49,7 +49,7 @@ export const SettingsSidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab
                 {menuItems.map((item) => (
                     <Button
                         key={item.id}
-                        variant={activeTab === item.id ? "secondary" : "ghost"}
+                        variant={activeTab === item.id ? "default" : "ghost"}
                         className="w-full justify-start"
                         onClick={() => {
                             setActiveTab(item.id);
