@@ -25,7 +25,9 @@ const buttonVariants = cva(
           "bg-[#F97316] text-black hover:bg-[#F97316]/90 dark:bg-[#FB923C] dark:hover:bg-[#FB923C]/90",
         error:
           "bg-[#DC2626] text-white hover:bg-[#DC2626]/90 dark:bg-[#EF4444] dark:hover:bg-[#EF4444]/90",
-      },
+        link:
+          "text-primary underline-offset-4 hover:underline p-0 h-auto",
+      } as const,
       size: {
         sm: "h-8 px-3 text-xs",
         md: "h-10 px-4",
@@ -44,9 +46,12 @@ const buttonVariants = cva(
   }
 )
 
+type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>["variant"]>
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  variant?: ButtonVariant
   asChild?: boolean
   loading?: boolean
   leftIcon?: React.ReactNode
