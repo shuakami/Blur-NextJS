@@ -176,8 +176,8 @@ const UseTool: React.FC<UseToolProps> = ({
           {(content || response) && (
             <div className="border-t border-gray-100 dark:border-gray-800">
               {content && (
-                <div className="px-4 py-3">
-                  <div className="space-y-2">
+                <div className="px-4 py-2">
+                  <div className="-mt-6">
                     <CodeBlock
                       code={content}
                       language={type === "code" ? "python" : "text"}
