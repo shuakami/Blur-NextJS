@@ -495,7 +495,7 @@ export default function PopoverShowcase() {
           <PopoverTrigger asChild>
             <Button variant="outline" className="gap-2">
               <GitBranch className="h-4 w-4" />
-              查看变更 <Badge variant="secondary" className="ml-1">+8 -3</Badge>
+              查看变更 <Badge variant="outline" className="ml-1">+8 -3</Badge>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[580px]">

@@ -301,7 +301,7 @@ function ShareMenuExample() {
       <MenuButton 
         ref={setButtonRef} 
         onClick={() => setIsOpen(!isOpen)}
-        variant="secondary"
+        variant="ghost"
         className="flex items-center gap-2"
       >
         <Share className="w-4 h-4" />
