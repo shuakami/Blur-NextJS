@@ -225,7 +225,7 @@ export default function Custom404() {
                             <span className="text-gray-500/90 dark:text-gray-400/90">.</span>
                             <span className="text-red-500/90 dark:text-red-400/90">error</span>
                             <span className="text-gray-500/90 dark:text-gray-400/90">(</span>
-                            <span className="text-amber-600/90 dark:text-amber-400/90">'404'</span>
+                            <span className="text-amber-600/90 dark:text-amber-400/90">&apos;404&apos;</span>
                             <span className="text-gray-500/90 dark:text-gray-400/90">);</span>
                         </h1>
                     </div>
