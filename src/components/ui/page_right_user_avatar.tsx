@@ -7,200 +7,227 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
 import dynamic from 'next/dynamic';
 import { LogOut, SettingsIcon, UserRound, Keyboard } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// 模态框组件
+// 动态导入
 const SettingsModal = dynamic(() => import("@/app/[设置]/settings_modal"), {
-    loading: () => null,
-    ssr: false
+  loading: () => null,
+  ssr: false
 });
 const PersonalCenter = dynamic(() => import("@/app/[个人中心]"), {
-    loading: () => null,
-    ssr: false
+  loading: () => null,
+  ssr: false
 });
 const ShortcutsModal = dynamic(() => import("@/components/ui/shortcuts-modal"), {
-    loading: () => null,
-    ssr: false
+  loading: () => null,
+  ssr: false
 });
 
-// 菜单项
+// 菜单项配置
 const createMenuItems = (handlers: {
-    openSettings: () => void,
-    openAccountSettings: () => void,
-    openShortcuts: () => void,
-    signOut: () => void,
-    closeMenu: () => void
+  openSettings: () => void,
+  openAccountSettings: () => void,
+  openShortcuts: () => void,
+  signOut: () => void,
+  closeMenu: () => void
 }) => [
-    {
-        id: "settings",
-        text: "设置",
-        icon: SettingsIcon,
-        onClick: () => {
-            handlers.closeMenu();
-            handlers.openSettings();
-        },
+  {
+    id: "settings",
+    text: "设置",
+    icon: SettingsIcon,
+    onClick: () => {
+      handlers.closeMenu();
+      handlers.openSettings();
     },
-    {
-        id: "account",
-        text: "账户设置",
-        icon: UserRound,
-        onClick: () => {
-            handlers.closeMenu();
-            handlers.openAccountSettings();
-        },
+  },
+  {
+    id: "account",
+    text: "账户设置",
+    icon: UserRound,
+    onClick: () => {
+      handlers.closeMenu();
+      handlers.openAccountSettings();
     },
-    {
-        id: "shortcuts",
-        text: "键盘快捷键",
-        icon: Keyboard,
-        onClick: () => {
-            handlers.closeMenu();
-            handlers.openShortcuts();
-        },
+  },
+  {
+    id: "shortcuts",
+    text: "键盘快捷键",
+    icon: Keyboard,
+    onClick: () => {
+      handlers.closeMenu();
+      handlers.openShortcuts();
     },
-    {
-        id: "logout",
-        text: "退出登录",
-        icon: LogOut,
-        onClick: () => {
-            handlers.closeMenu();
-            handlers.signOut();
-        },
-        isDanger: true,
-        isSpecial: true
+  },
+  {
+    id: "logout",
+    text: "退出登录",
+    icon: LogOut,
+    onClick: () => {
+      handlers.closeMenu();
+      handlers.signOut();
     },
+    isDanger: true,
+    isSpecial: true
+  },
 ];
 
 const UserAvatar = memo(() => {
-    const { user } = useUser();
-    const { signOut } = useAuth();
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const avatarRef = useRef<HTMLButtonElement>(null);
-    
-    const [modals, setModals] = useState({
-        settings: false,
-        account: false,
-        menu: false,
-        shortcuts: false
-    });
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { signOut } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const avatarRef = useRef<HTMLButtonElement>(null);
+  
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
-    // URL 参数处理
-    useEffect(() => {
-        setModals(prev => ({
-            ...prev,
-            settings: searchParams?.get("settings") === "open",
-            account: searchParams?.get("account") === "open",
-            shortcuts: searchParams?.get("shortcuts") === "open"
-        }));
-    }, [searchParams]);
+  // URL 参数处理
+  useEffect(() => {
+    setSettingsOpen(searchParams?.get("settings") === "open");
+    setAccountOpen(searchParams?.get("account") === "open");
+    setShortcutsOpen(searchParams?.get("shortcuts") === "open");
+  }, [searchParams]);
 
-    // URL 更新处理器
-    const updateURL = useCallback((params: { [key: string]: string | null }) => {
-        const newUrl = new URL(window.location.href);
-        Object.entries(params).forEach(([key, value]) => {
-            if (value === null) {
-                newUrl.searchParams.delete(key);
-            } else {
-                newUrl.searchParams.set(key, value);
-            }
-        });
-        router.push(newUrl.toString() as any);
-    }, [router]);
+  // URL 更新处理器
+  const updateURL = useCallback((params: { [key: string]: string | null }) => {
+    try {
+      const newUrl = new URL(window.location.href);
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === null) {
+          newUrl.searchParams.delete(key);
+        } else {
+          newUrl.searchParams.set(key, value);
+        }
+      });
+      router.push(newUrl.toString() as any);
+    } catch (error) {
+      console.error('URL update failed:', error);
+    }
+  }, [router]);
 
-    // 模态框处理器
-    const modalHandlers = {
-        openSettings: useCallback(() => {
-            setModals(prev => ({ ...prev, settings: true }));
-            updateURL({ settings: "open" });
-        }, [updateURL]),
+  // 模态框处理器
+  const modalHandlers = {
+    openSettings: useCallback(() => {
+      setSettingsOpen(true);
+      updateURL({ settings: "open" });
+    }, [updateURL]),
 
-        closeSettings: useCallback(() => {
-            setModals(prev => ({ ...prev, settings: false }));
-            updateURL({ settings: null, account: null, tab: null });
-        }, [updateURL]),
+    closeSettings: useCallback(() => {
+      setSettingsOpen(false);
+      updateURL({ settings: null, account: null, tab: null });
+    }, [updateURL]),
 
-        openAccountSettings: useCallback(() => {
-            setModals(prev => ({ ...prev, account: true }));
-            updateURL({ account: "open" });
-        }, [updateURL]),
+    openAccountSettings: useCallback(() => {
+      setAccountOpen(true);
+      updateURL({ account: "open" });
+    }, [updateURL]),
 
-        closeAccountSettings: useCallback(() => {
-            setModals(prev => ({ ...prev, account: false }));
-            updateURL({ account: null, tab: null, settings: null });
-        }, [updateURL]),
+    closeAccountSettings: useCallback(() => {
+      setAccountOpen(false);
+      updateURL({ account: null, tab: null, settings: null });
+    }, [updateURL]),
 
-        openShortcuts: useCallback(() => {
-            setModals(prev => ({ ...prev, shortcuts: true }));
-            updateURL({ shortcuts: "open" });
-        }, [updateURL]),
+    openShortcuts: useCallback(() => {
+      setShortcutsOpen(true);
+      updateURL({ shortcuts: "open" });
+    }, [updateURL]),
 
-        closeShortcuts: useCallback(() => {
-            setModals(prev => ({ ...prev, shortcuts: false }));
-            updateURL({ shortcuts: null });
-        }, [updateURL])
-    };
+    closeShortcuts: useCallback(() => {
+      setShortcutsOpen(false);
+      updateURL({ shortcuts: null });
+    }, [updateURL])
+  };
 
-    // 菜单项配置
-    const menuItems = createMenuItems({
-        openSettings: modalHandlers.openSettings,
-        openAccountSettings: modalHandlers.openAccountSettings,
-        openShortcuts: modalHandlers.openShortcuts,
-        signOut,
-        closeMenu: () => setModals(prev => ({ ...prev, menu: false }))
-    });
+  // 菜单项配置
+  const menuItems = createMenuItems({
+    openSettings: modalHandlers.openSettings,
+    openAccountSettings: modalHandlers.openAccountSettings,
+    openShortcuts: modalHandlers.openShortcuts,
+    signOut,
+    closeMenu: () => setMenuOpen(false)
+  });
 
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
     return (
-        <>
-            <Avatar 
-                ref={avatarRef} 
-                onClick={() => setModals(prev => ({ ...prev, menu: true }))}
-            >
-                {user?.imageUrl ? (
-                    <AvatarImage 
-                        src={user.imageUrl} 
-                        alt="User avatar" 
-                        className="h-9 w-9 cursor-pointer hover:ring-[3px] hover:ring-gray-250 
-                                 dark:hover:ring-gray-850/70 transition-all duration-200 
-                                 ease-in-out rounded-full"
-                    />
-                ) : (
-                    <AvatarFallback className="cursor-pointer">
-                        {user?.fullName?.[0] || 'NL'}
-                    </AvatarFallback>
-                )}
-            </Avatar>
-
-            <DropDownMenu
-                referenceElement={avatarRef.current}
-                isOpen={modals.menu}
-                menuItems={menuItems}
-                placement="bottom"
-                onClose={() => setModals(prev => ({ ...prev, menu: false }))}
-            />
-            
-
-            {modals.settings && (
-                <SettingsModal 
-                    isOpen={modals.settings} 
-                    onClose={modalHandlers.closeSettings}
-                />
-            )}
-
-            {modals.account && (
-                <PersonalCenter 
-                    isOpen={modals.account} 
-                    onClose={modalHandlers.closeAccountSettings}
-                />
-            )}
-
-            {modals.shortcuts && (
-                <ShortcutsModal 
-                    isOpen={modals.shortcuts} 
-                    onClose={modalHandlers.closeShortcuts}
-                />
-            )}
-        </>
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 px-4 hidden md:block"
+          onClick={() => router.push("/login" as any)}
+        >
+          登录
+        </Button>
+        <Button
+          size="sm"
+          variant="default"
+          className="h-8 px-4 hidden md:block"
+          onClick={() => router.push("/signup" as any)}
+        >
+          注册
+        </Button>
+      </div>
     );
+  }
+
+  return (
+    <>
+      <Avatar 
+        ref={avatarRef} 
+        onClick={() => setMenuOpen(true)}
+      >
+        {user?.imageUrl ? (
+          <AvatarImage 
+            src={user.imageUrl} 
+            alt="User avatar" 
+            className="h-9 w-9 cursor-pointer hover:ring-[3px] hover:ring-gray-250 
+                     dark:hover:ring-gray-850/70 transition-all duration-200 
+                     ease-in-out rounded-full"
+          />
+        ) : (
+          <AvatarFallback className="cursor-pointer">
+            {user?.fullName?.[0] || 'NL'}
+          </AvatarFallback>
+        )}
+      </Avatar>
+
+      <DropDownMenu
+        referenceElement={avatarRef.current}
+        isOpen={menuOpen}
+        menuItems={menuItems}
+        placement="bottom"
+        onClose={() => setMenuOpen(false)}
+      />
+      
+
+      {settingsOpen && (
+        <SettingsModal 
+          isOpen={settingsOpen} 
+          onClose={modalHandlers.closeSettings}
+        />
+      )}
+
+      {accountOpen && (
+        <PersonalCenter 
+          isOpen={accountOpen} 
+          onClose={modalHandlers.closeAccountSettings}
+        />
+      )}
+
+      {shortcutsOpen && (
+        <ShortcutsModal 
+          isOpen={shortcutsOpen} 
+          onClose={modalHandlers.closeShortcuts}
+        />
+      )}
+    </>
+  );
 });
 
 UserAvatar.displayName = 'UserAvatar';

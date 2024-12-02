@@ -1,23 +1,22 @@
 :root {
-    /* 基础字号 */
+    /* 基础变量 */
     --base-size: 1rem;
+    --base-spacing: 1.25rem;
     
     /* 颜色系统 */
-    --text-primary: #0d0d0d; 
     --text-color: #0d0d0d;
-    --text-secondary: #363636;    /* 79% 黑 */
-    --text-tertiary: #666666;     /* 60% 黑 */
-    --text-quaternary: #999999;   /* 40% 黑 */
-
-    /* 间距系统 */
-    --spacing-unit: 1.25rem;
-    --spacing-xs: calc(var(--spacing-unit) * 0.35);
-    --spacing-sm: calc(var(--spacing-unit) * 0.65);
-    --spacing-md: var(--spacing-unit);
-    --spacing-lg: calc(var(--spacing-unit) * 1.75);
+    --text-secondary: #363636;
+    --text-tertiary: #666666;
+    --text-quaternary: #999999;
     
-    /* 强调色 */
-    --emphasis-color: #0d0d0d;
+    /* 间距系统*/
+    --spacing-xs: calc(var(--base-spacing) * 0.35);
+    --spacing-sm: calc(var(--base-spacing) * 0.65);
+    --spacing-md: var(--base-spacing);
+    --spacing-lg: calc(var(--base-spacing) * 1.75);
+    
+    /* 界面变量 */
+    --emphasis-color: var(--text-color);
     --background-color: #ffffff;
     --border-light: rgba(0, 0, 0, .08);
     --border-medium: rgba(0, 0, 0, .12);
@@ -27,65 +26,78 @@
     --latin-word-spacing: 0.05em;
     --mixed-line-height: 2;
     
-    /* 文本阴影 */
+    /* 阴影效果 */
     --text-shadow-light: 0 0 1px rgba(0, 0, 0, 0.1);
     --text-shadow-dark: 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-/* 暗色模式 */
+/* 暗色模式 - 使用CSS变量继承 */
 .dark {
-    --text-primary: #ececec;      /* 94.5% 白 */
-    --text-color: #ececec;        /* 保持一致性 */
-    --text-secondary: #CCCCCC;    /* 80% 白 */
-    --text-tertiary: #999999;     /* 60% 白 */
-    --text-quaternary: #666666;   /* 40% 白 */
-    --emphasis-color: #ececec;
-    --background-color: #000000;  /* 纯黑背景 */
+    --text-color: #ececec;
+    --text-secondary: #cccccc;
+    --text-tertiary: #999999;
+    --text-quaternary: #666666;
+    --emphasis-color: var(--text-color);
+    --background-color: #000000;
+    --border-light: rgba(255, 255, 255, .08);
+    --border-medium: rgba(255, 255, 255, .12);
 }
 
-.dark .text-body {
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
-    text-shadow: var(--text-shadow-dark);  /* 添加微弱阴影提升清晰度 */
-}
-
+/* 基础文本样式 */
 .text-body {
-    /* 基础字号 */
     font-size: var(--base-size);
-    line-height: var(--mixed-line-height);
+    line-height: 1.75;
     color: var(--text-color);
     width: 100%;
-
-    /* 优化渲染 */
-    will-change: transform;
-    
-    /* 优化中英文混排 */
+    padding: 0.125rem 0;
     letter-spacing: var(--cjk-letter-spacing);
     word-spacing: var(--latin-word-spacing);
-    
-    /* 添加中文特定优化 */
     font-feature-settings: "palt" 1, "kern" 1, "pwid" 1;
-
-    /* 优化渲染 */
+    font-weight: 400;
+    
+    /* 性能优化 */
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-synthesis: none;
-    font-weight: 400;
+    will-change: transform;
 }
 
-/* 文本变体样式 */
+/* 暗色模式文本增强 */
+.dark .text-body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-shadow: var(--text-shadow-dark);
+}
+
+/* 间距控制 */
+.text-body:not(:last-child) {
+    margin-bottom: var(--list-block-spacing);
+}
+
+.text-body > p {
+    margin: var(--list-block-spacing) 0;
+}
+
+.text-body > p:not(:last-child) {
+    margin-bottom: var(--list-block-spacing);
+}
+
+/* 文本变体 */
+.text-bold,
+.text-italic {
+    color: var(--emphasis-color);
+}
+
 .text-bold {
     font-weight: 600;
-    color: var(--emphasis-color);
 }
 
 .text-italic {
     font-style: italic;
-    color: var(--emphasis-color);
 }
 
-/* 响应式优化 */
+/* 响应式布局 - 合并媒体查询 */
 @media (max-width: 1200px) {
     .text-body {
         font-size: 1.025rem;
@@ -96,6 +108,9 @@
     :root {
         --mixed-line-height: 1.75;
         --cjk-letter-spacing: 0.01em;
+        --list-indent: 1.75em;
+        --list-nested-indent: 2em;
+        --item-spacing: 0.65rem;
     }
     
     .text-body {
@@ -104,45 +119,51 @@
     }
 }
 
-/* 减少动画 */
+/* 辅助功能 */
 @media (prefers-reduced-motion: reduce) {
     .text-body {
         transition: none;
     }
 }
 
-/* 打印样式优化 */
+/* 打印优化 */
 @media print {
     .text-body {
         font-size: 11pt;
         line-height: 1.5;
         color: #000;
-        width: 100%;
-        margin: calc(var(--spacing-xs) * 0.5) 0;
-        margin-bottom: 0.25cm;
+        margin: calc(var(--spacing-xs) * 0.5) 0 0.25cm;
         text-align: justify;
-        
-        /* 禁用特效 */
         -webkit-font-smoothing: none;
         -moz-osx-font-smoothing: none;
     }
     
-    /* 避免在不适当的地方分页 */
     h1, h2, h3, h4, h5, h6 {
         break-after: avoid;
     }
     
-    /* 确保图片不会被分页 */
     img {
         break-inside: avoid;
     }
 }
 
-/* 高分辨率屏幕优化 */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+/* 高DPI屏幕优化 */
+@media (min-resolution: 2dppx) {
     .text-body {
         -webkit-font-smoothing: subpixel-antialiased;
         text-rendering: geometricPrecision;
     }
 }
 
+/* 列表间距 */
+p + .list-decimal,
+p + .list-disc {
+    margin-top: var(--list-block-spacing);
+}
+
+/* 暗色模式列表 */
+.dark .list-decimal > .list-item::before,
+.dark .list-disc > .list-item::before {
+    color: var(--text-secondary);
+    text-shadow: var(--text-shadow-dark);
+}

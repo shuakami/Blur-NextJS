@@ -5,18 +5,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import useTranslation from "@/hooks/useTranslation";
 import { motion } from 'framer-motion';
 import { Loader2, Upload } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { detect } from 'detect-browser';
 import Cookies from 'js-cookie';
-
-const TimeDisplay = dynamic(() => import('@/components/TimeDisplay'), {
-    ssr: false,
-    loading: () => (
-        <span className="text-gray-600 dark:text-gray-300 tabular-nums">
-            Loading...
-        </span>
-    ),
-});
 
 interface DebugInfo {
     error: string;

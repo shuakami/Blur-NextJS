@@ -190,8 +190,8 @@ export function SharedChatLayout({
                         </div>
                     </header>
 
-                    {/* 主要内容 */}
-                    {renderMainContent?.() || (
+                  {/* 主要内容 */}
+                  {renderMainContent?.() || (
                         <div className="flex-1 flex flex-col w-full pt-12">
                             <div className="flex-1 overflow-auto scroll-container">
                                 <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
@@ -206,7 +206,7 @@ export function SharedChatLayout({
                     {/* 底部内容 */}
                     {renderBottomContent?.() || (hasConversation && (
                         <div className="flex flex-col items-center w-full bg-transparent">
-                            <div className="w-full max-w-4xl">
+                            <div className="w-full max-w-4xl px-3 md:px-0">
                                 <ChatInputWrapper />
                             </div>
                             <CText />
@@ -215,7 +215,9 @@ export function SharedChatLayout({
                     ))}
 
                     {/* 连接状态 */}
-                    <ConnectionStatus />
+                    <div className="fixed md:right-4 md:bottom-4 hidden md:block">
+                        <ConnectionStatus />
+                    </div>
                 </div>
 
                 <ScrollDownButton

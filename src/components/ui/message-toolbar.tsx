@@ -198,7 +198,7 @@ export function MessageToolbar({
 
   return (
     <div className={cn(
-      "flex items-center space-x-1.5 transition-opacity duration-200 mt-1",
+      "flex items-center space-x-1.5 transition-opacity duration-200",
       visibility === 'hidden' && 'hidden',
       visibility === 'hover' && 'opacity-0 group-hover:opacity-100',
       visibility === 'visible' && 'opacity-100'

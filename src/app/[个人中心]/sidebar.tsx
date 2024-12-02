@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({activeTab, setActiveTab, isMobi
                 {menuItems.map((item) => (
                     <Button
                         key={item.id}
-                        variant={activeTab === item.id ? "default" : "ghost"}
+                        variant={activeTab === item.id ? "outline" : "ghost"}
                         className="w-full justify-start"
                         onClick={() => setActiveTab(item.id)}
                     >

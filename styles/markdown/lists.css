@@ -1,52 +1,66 @@
 :root {
-    --list-marker-color: var(--text-tertiary);
+    /* 列表基础变量 */
     --list-indent: 2em;
-    --list-nested-indent: 2.25em;
-    --item-spacing: 0.25rem;
+    --list-nested-indent: calc(var(--list-indent) + 0.5em);
+    --item-spacing: calc(var(--base-spacing) * 0.6);
     --marker-text-gap: 0.75em;
-}
-
-.dark {
-    --list-marker-color: var(--text-secondary);
+    --list-block-spacing: calc(var(--base-spacing) * 0.8);
 }
 
 /* 基础列表样式 */
 .list-decimal,
 .list-disc {
-    margin: 0.5rem 0;
-    padding-left: 2em;
+    margin: var(--list-block-spacing) 0;
+    padding-left: var(--list-indent);
+    list-style-position: outside;
 }
 
-/* 列表标记样式 */
-.list-decimal {
-    list-style-type: decimal;
-    counter-reset: list-counter;
-}
-
-.list-disc {
-    list-style-type: disc;
-}
-
-/* 列表项样式 */
+/* 列表项基础样式 */
 .list-item {
-    font-size: var(--base-size);
-    line-height: var(--mixed-line-height);
+    position: relative;
     margin: var(--item-spacing) 0;
+    padding-left: var(--marker-text-gap);
+    line-height: 1.625;
     color: var(--text-color);
     letter-spacing: var(--cjk-letter-spacing);
     word-spacing: var(--latin-word-spacing);
 }
 
-
-/* 有序列表项 */
-.list-decimal > .list-item {
-    position: relative;
-    padding-left: 0.4em;
-    margin: 0.3rem 0;
+/* 有序列表 */
+.list-decimal {
+    counter-reset: list-counter;
 }
 
-/* 普通无序列表项 */
-.list-disc > .list-item {
-    position: relative;
-    margin: 0.3rem 0;
+.list-decimal > .list-item {
+    counter-increment: list-counter;
+}
+
+/* 列表标记样式 */
+.list-decimal > .list-item::before,
+.list-disc > .list-item::before {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* 列表和段落的间距关系 */
+.list-decimal + p,
+.list-disc + p,
+p + .list-decimal,
+p + .list-disc {
+    margin-top: var(--list-block-spacing);
+}
+
+/* 嵌套列表样式 */
+.list-decimal .list-decimal,
+.list-decimal .list-disc,
+.list-disc .list-decimal,
+.list-disc .list-disc {
+    margin: var(--item-spacing) 0;
+    padding-left: var(--list-nested-indent);
+}
+
+/* 暗色模式列表标记 */
+.dark .list-decimal > .list-item::before,
+.dark .list-disc > .list-item::before {
+    text-shadow: var(--text-shadow-dark);
 }

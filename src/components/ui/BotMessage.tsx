@@ -224,7 +224,7 @@ const BotMessage = memo(({
           <ThoughtStream
             duration={0}
             content={thoughtContent}
-            isAnimating={isStreaming || false && isLatestBotMessage}
+            isAnimating={isLatestBotMessage && isStreaming}
           />
         </Suspense>
       );

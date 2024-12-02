@@ -38,7 +38,7 @@ const DropDownMenu: FC<DropDownMenuProps> = ({referenceElement, isOpen, menuItem
             case 'top':
                 return 'top-start';
             case 'bottom':
-                return 'bottom-start';
+                return 'bottom-end';
             default:
                 return 'left-start';
         }

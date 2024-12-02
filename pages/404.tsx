@@ -216,31 +216,42 @@ export default function Custom404() {
     }, [aiThoughts]);
 
     return (
-        <div className="h-screen w-full flex items-center justify-center bg-white dark:bg-black p-4 relative">
+        <div className="h-screen w-full flex items-center justify-center bg-[#faf9f7] dark:bg-[#1a1f2c] p-4 relative">
             <div className="max-w-[600px] text-center space-y-16">
                 <div className="space-y-6 min-h-[200px]">
-                    <p className="text-base text-gray-600 dark:text-gray-300 font-light leading-relaxed tracking-wide text-left">
+                    <div className="text-left space-y-1 mb-8 font-mono">
+                        <h1 className="text-2xl md:text-3xl font-normal">
+                            <span className="text-gray-600/90 dark:text-gray-300/90">console</span>
+                            <span className="text-gray-500/90 dark:text-gray-400/90">.</span>
+                            <span className="text-red-500/90 dark:text-red-400/90">error</span>
+                            <span className="text-gray-500/90 dark:text-gray-400/90">(</span>
+                            <span className="text-amber-600/90 dark:text-amber-400/90">'404'</span>
+                            <span className="text-gray-500/90 dark:text-gray-400/90">);</span>
+                        </h1>
+                    </div>
+                    
+                    <p className="text-base text-gray-700 dark:text-gray-200 font-light leading-relaxed tracking-wide text-left">
                         {displayText}
-                        <span className={`inline-block w-0.5 h-4 bg-gray-400 dark:bg-gray-500 ml-1 align-middle ${isTypingComplete ? 'animate-pulse' : 'animate-blink'}`} />
+                        <span className={`inline-block w-0.5 h-4 bg-gray-500 dark:bg-gray-400 ml-1 align-middle ${isTypingComplete ? 'animate-pulse' : 'animate-blink'}`} />
                     </p>
                 </div>
-
+    
                 <div className={`transition-opacity duration-1000 ${isTypingComplete ? 'opacity-100' : 'opacity-0'}`}>
                     <div className="flex items-center justify-center space-x-8">
                         <button 
                             onClick={() => router.back()}
-                            className="text-sm text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 
+                            className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400
                                      tracking-wider transition-all duration-300 group"
                         >
                             <span className="inline-block transition-transform group-hover:-translate-x-1">←</span>
                             <span className="ml-2">{t("返回")}</span>
                         </button>
-
-                        <div className="w-1 h-1 rounded-full bg-gray-200 dark:bg-gray-700" />
-
+    
+                        <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+    
                         <button 
                             onClick={() => router.push('/')}
-                            className="text-sm text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 
+                            className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400
                                      tracking-wider transition-all duration-300 group"
                         >
                             <span>{t("首页")}</span>
@@ -249,11 +260,11 @@ export default function Custom404() {
                     </div>
                 </div>
             </div>
-
+    
             <button 
                 onClick={() => window.location.reload()}
                 className={`absolute bottom-8 right-8 flex items-center space-x-2 
-                           text-sm text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 
+                           text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400
                            tracking-wider transition-all duration-300 group`}
             >
                 <span>{t("换个想法")}</span>

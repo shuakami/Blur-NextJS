@@ -12,8 +12,6 @@ interface HomeHeaderIconProps {
     onOpen: () => void;
 }
 
-
-
 const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({ isSidebarOpen, onOpen }) => {
     const [isHidden, setIsHidden] = useState(isSidebarOpen);
     const timeoutRef = useRef<NodeJS.Timeout>();
@@ -42,7 +40,7 @@ const HomeHeaderIcon: React.FC<HomeHeaderIconProps> = ({ isSidebarOpen, onOpen }
         <div
             className={cn(
                 "flex items-center",
-                "transform transition-all duration-200 ease-in-out",
+                "transform transition-all duration-200 ease-in-out z-40",
                 {
                     "opacity-0 -translate-x-5 pointer-events-none": isHidden,
                     "opacity-100 translate-x-0": !isHidden

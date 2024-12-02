@@ -58,12 +58,6 @@
     color: var(--footnote-text);
 }
 
-/* 普通列表样式 */
-.markdown-body ol.list-decimal:not(.footnotes ol) {
-    margin: 0.35rem 0;
-    padding-left: 2.5rem;
-}
-
 /* 覆盖默认列表样式 */
 .markdown-body ol.list-decimal:not([data-footnotes]),
 .markdown-body ol.list-disc:not([data-footnotes]) {

@@ -1,5 +1,5 @@
-import LoginPage from "@/app/[登录]/login_page";
+import AuthPage from "@/app/[登录]/auth_page";
 
 export default function Home() {
-  return <LoginPage />
+  return <AuthPage mode="login" />
 }
