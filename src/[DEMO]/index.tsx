@@ -1,11 +1,8 @@
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
-import { Suspense, useState, useEffect, memo, useCallback } from 'react'
+import { Suspense,  memo, useCallback, useMemo } from 'react'
 import { Loader2 } from 'lucide-react'
 
-
-
-// 1. 预加载策略优化
 const componentMap = {
   button: () => import('@/[DEMO]/button'),
   avatar: () => import('@/[DEMO]/avatar'),
@@ -14,7 +11,6 @@ const componentMap = {
   'chat-list': () => import('@/[DEMO]/chat-list'),
 }
 
-// 2. 优化动态导入，使用 webpack magic comments
 const ButtonShowcase = dynamic(
   () => import(/* webpackPrefetch: true */ '@/[DEMO]/button'),
   { ssr: false, loading: () => <ComponentLoader name="Button" /> }
@@ -42,7 +38,6 @@ const PopoverShowcase = dynamic(() => import('@/[DEMO]/popover'), {
   loading: () => <ComponentLoader name="Popover" />
 })
 
-// 加载占位组件
 function ComponentLoader({ name }: { name: string }) {
   return (
     <div className="min-h-[200px] flex items-center justify-center">
@@ -139,18 +134,14 @@ const demoComponents: DemoComponent[] = [
   }
 ]
 
-// 3. 优化预加载函数
 const preloadComponent = (id: string) => {
   const importFn = componentMap[id as keyof typeof componentMap]
   if (importFn) {
-    // 立即开始预加载
     importFn()
   }
 }
 
-// 4. 优化 DemoCard 组件
 const DemoCard = memo(({ demo, onClick }: { demo: DemoComponent; onClick: () => void }) => {
-  // 使用 useCallback 优化预加载触发
   const handleMouseEnter = useCallback(() => {
     preloadComponent(demo.id)
   }, [demo.id])
@@ -215,49 +206,33 @@ const DemoCard = memo(({ demo, onClick }: { demo: DemoComponent; onClick: () => 
 })
 DemoCard.displayName = 'DemoCard'
 
-// 5. 优化主页面组件
 export default function DemoPage() {
   const router = useRouter()
   const { demo } = router.query
-  const [mounted, setMounted] = useState(false)
-
-  // 6. 优化初始加载
-  useEffect(() => {
-    setMounted(true)
-    
-    // 预加载最常用的组件
-    if (!demo) {
-      preloadComponent('button')
-      // 使用 requestIdleCallback 在空闲时间预加载其他组件
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          preloadComponent('avatar')
-          preloadComponent('dialog')
-        })
-      }
-    }
+  
+  const currentDemo = useMemo(() => {
+    if (!demo) return null
+    return demoComponents.find(d => d.id === demo)
   }, [demo])
 
-  // 7. 优化组件渲染
-  const renderDemo = useCallback(() => {
-    if (!demo) return null
-    const DemoComponent = demoComponents.find(d => d.id === demo)?.component
-    if (!DemoComponent) {
-      router.replace('/blurdemo')
-      return null
-    }
-    
-    return (
-      <Suspense fallback={<ComponentLoader name={demo as string} />}>
-        <DemoComponent />
-      </Suspense>
-    )
-  }, [demo, router])
+  if (!demo) {
+    return <DemoList onSelect={(id) => router.push(`/blurdemo?demo=${id}`)} />
+  }
 
-  if (!mounted) return null
+  if (!currentDemo) {
+    router.replace('/blurdemo')
+    return null
+  }
 
-  if (demo) return renderDemo()
+  const DemoComponent = currentDemo.component
+  return (
+    <Suspense fallback={<ComponentLoader name={demo as string} />}>
+      <DemoComponent />
+    </Suspense>
+  )
+}
 
+const DemoList = memo(({ onSelect }: { onSelect: (id: string) => void }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
       <div className="max-w-md md:max-w-7xl mx-auto min-h-screen flex flex-col px-3 sm:px-6 md:px-8">
@@ -287,7 +262,7 @@ export default function DemoPage() {
               <DemoCard
                 key={demo.id}
                 demo={demo}
-                onClick={() => router.push(`/blurdemo?demo=${demo.id}`)}
+                onClick={() => onSelect(demo.id)}
               />
             ))}
           </div>
@@ -317,4 +292,5 @@ export default function DemoPage() {
       </div>
     </div>
   )
-}
+})
+DemoList.displayName = 'DemoList'

@@ -348,6 +348,20 @@ const config: Config = {
           }
       },
   	extend: {
+      boxShadow: {
+        // 几乎难以察觉的基础阴影
+        sm: '0 1px 2px rgba(0, 0, 0, 0.015), 0 1px 3px rgba(0, 0, 0, 0.03)',
+        // 默认阴影,非常克制
+        DEFAULT: '0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04), 0 3px 6px -1px rgba(0, 0, 0, 0.02)',
+        // 中等阴影,用于重要元素
+        md: '0 2px 4px rgba(0, 0, 0, 0.01), 0 2px 6px -1px rgba(0, 0, 0, 0.03), 0 4px 12px -2px rgba(0, 0, 0, 0.02)',
+        // 大阴影,用于模态框等
+        lg: '0 2px 6px rgba(0, 0, 0, 0.01), 0 3px 8px -1px rgba(0, 0, 0, 0.02), 0 6px 16px -2px rgba(0, 0, 0, 0.02)',
+        // 特大阴影,谨慎使用
+        xl: '0 3px 8px rgba(0, 0, 0, 0.01), 0 4px 12px -2px rgba(0, 0, 0, 0.02), 0 8px 24px -4px rgba(0, 0, 0, 0.02)',
+        '2xl': '0 4px 12px rgba(0, 0, 0, 0.02), 0 8px 16px -2px rgba(0, 0, 0, 0.03), 0 12px 32px -4px rgba(0, 0, 0, 0.03), 0 16px 48px -8px rgba(0, 0, 0, 0.02)',
+        none: 'none',
+      },
       zIndex: {
         '45': '45',
         '46': '46',

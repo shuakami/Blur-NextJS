@@ -20,6 +20,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import type { NextRouter } from 'next/router';
 import type { NextComponentType, NextPageContext } from 'next';
 import { ShortcutProvider } from '@/providers/ShortcutProvider';
+import { LayoutProvider } from "@/components/layouts/LayoutContext";
 
 // 懒加载非关键组件
 const Analytics = lazy(() => import('@vercel/analytics/react').then(mod => ({ default: mod.Analytics })));
@@ -149,9 +150,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 
 
     const providedContent = useMemo(() => (
-      
-            <ClerkProvider {...pageProps}>
-                <ThemeProvider 
+        <ClerkProvider {...pageProps}>
+            <ThemeProvider 
                 attribute="class" 
                 defaultTheme="system" 
                 enableSystem
@@ -160,30 +160,32 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <LXHThemeProvider>
                     <ApiClientProvider>
                         <LanguageProvider>
-                            <ModelProvider>
-                                <ConversationsProvider>
-                                    <TooltipProvider>
-                                        <GlobalErrorHandler />
-                                        {isRouterReady && (
-                                            <>
-                                                <ShortcutProvider>
-                                                    <NonCriticalUI />
-                                                    <MainContent 
-                                                    Component={Component} 
-                                                    pageProps={pageProps} 
-                                                    router={router}
-                                                />
-                                                </ShortcutProvider>
-                                            </>
-                                        )}
-                                    </TooltipProvider>
-                                </ConversationsProvider>
-                            </ModelProvider>
+                            <LayoutProvider>
+                                <ModelProvider>
+                                    <ConversationsProvider>
+                                        <TooltipProvider>
+                                            <GlobalErrorHandler />
+                                            {isRouterReady && (
+                                                <>
+                                                    <ShortcutProvider>
+                                                        <NonCriticalUI />
+                                                        <MainContent 
+                                                            Component={Component} 
+                                                            pageProps={pageProps} 
+                                                            router={router}
+                                                        />
+                                                    </ShortcutProvider>
+                                                </>
+                                            )}
+                                        </TooltipProvider>
+                                    </ConversationsProvider>
+                                </ModelProvider>
+                            </LayoutProvider>
                         </LanguageProvider>
                     </ApiClientProvider>
                 </LXHThemeProvider>
-                </ThemeProvider>
-            </ClerkProvider>
+            </ThemeProvider>
+        </ClerkProvider>
     ), [Component, pageProps, router, isRouterReady]);
 
     return providedContent;

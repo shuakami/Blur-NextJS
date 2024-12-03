@@ -1,4 +1,24 @@
-// src/api/config.ts
+/**
+ * @file config.ts
+ * @description 配置 Axios API 客户端，处理请求和响应拦截器。
+ * 
+ * 该文件创建了一个 Axios 实例，并根据环境变量设置基本 URL。它还实现了
+ * 令牌刷新机制，以确保在令牌即将过期时自动刷新令牌。
+ * 
+ * 主要功能：
+ * - 根据环境变量设置 API 基础 URL。
+ * - 在请求中添加认证令牌。
+ * - 处理令牌刷新，确保在令牌即将过期时自动获取新令牌。
+ * - 处理 API 错误并通过事件通知。
+ * 
+ * 可用方法：
+ * - `setupApiClientAuth(getToken: () => Promise<string | null>)`: 设置 API 客户端的认证拦截器。
+ *   - 参数:
+ *     - `getToken`: 一个返回 Promise 的函数，用于获取当前的认证令牌。
+ * 
+ * @module apiClient
+ */
+
 import axios from 'axios';
 import {ApiError, ErrorCode} from "@/types/error";
 import { useAuth } from '@clerk/nextjs';

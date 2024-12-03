@@ -89,9 +89,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const { isStreaming, stopStreaming } = useChatStateContext();
     const shortcutManager = useShortcutManager();
 
-    const maxHeight = useMemo(() => 
-        Math.max(200, Math.min(window.innerHeight * 0.25, 400)),
-    []);
+    const maxHeight = 200;
 
     // 优化初始化检查和恢复逻辑
     useEffect(() => {
@@ -168,9 +166,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
         textarea.style.overflowY = 'hidden';
         
         const resizeObserver = new ResizeObserver(() => {
-            if (textarea.scrollHeight <= maxHeight) {
+            if (!textarea.value) {
+                textarea.style.height = `${INITIAL_HEIGHT}px`;
+                return;
+            }
+            
+            const currentHeight = textarea.scrollHeight;
+            if (currentHeight <= maxHeight) {
+                textarea.style.height = `${currentHeight}px`;
                 textarea.style.overflowY = 'hidden';
             } else {
+                textarea.style.height = `${maxHeight}px`;
                 textarea.style.overflowY = 'auto';
             }
         });
@@ -299,10 +305,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                          focus:outline-none
                                          scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600
                                          scrollbar-track-transparent
-                                         transition-none" // 禁用所有过渡动画
+                                         transition-none
+                                         overflow-y-auto"
                                 style={{
                                     minHeight: `${MIN_HEIGHT}px`,
-                                    maxHeight: `${maxHeight}px`
+                                    maxHeight: `${maxHeight}px`,
+                                    height: 'auto'
                                 }}
                             />
                         </div>

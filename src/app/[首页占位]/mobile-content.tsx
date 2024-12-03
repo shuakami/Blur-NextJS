@@ -120,21 +120,17 @@ export default function MobileContent({ onFirstMessage, className }: MobileConte
   const { greeting, subGreeting } = useGreeting();
 
   return (
-    <div className={`min-h-screen ${className ?? ''}`}>
-      <div className="px-6 pt-16">
+    <div className={`flex flex-col ${className ?? ''}`}>
+      <div className="px-6 pb-32">
         {/* 头部区域 */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
-        >
+        <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-50">
             {greeting}
           </h1>
           <p className="mt-2 text-2xl font-medium text-gray-500 dark:text-gray-400">
             {subGreeting}
           </p>
-        </motion.div>
+        </div>
 
         {/* 主功能区 */}
         <motion.div 
@@ -144,7 +140,7 @@ export default function MobileContent({ onFirstMessage, className }: MobileConte
           className="space-y-6"
         >
           <div className="grid grid-cols-2 gap-4">
-            {FEATURE_CARDS.map((feature, index) => (
+            {FEATURE_CARDS.map((feature) => (
               <FeatureCard key={feature.title} feature={feature} />
             ))}
           </div>
@@ -152,7 +148,7 @@ export default function MobileContent({ onFirstMessage, className }: MobileConte
       </div>
 
       {/* 输入框 */}
-      <div className="fixed bottom-0 left-0 right-0 pb-1">
+      <div className="absolute bottom-0 left-0 right-0 pb-1">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ChatInputWrapper onFirstMessage={onFirstMessage} />
         </ErrorBoundary>

@@ -9,6 +9,7 @@ import HomepageContent from "@/app/[首页占位]/home-content";
 import { SharedChatLayout } from '@/components/layouts/SharedChatLayout';
 import MobileContent from '@/app/[首页占位]/mobile-content';
 import ChatList from '@/app/[消息显示]/chat_list';
+import Head from 'next/head'
 
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
 const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
@@ -93,7 +94,7 @@ function HomeContent() {
       );
     }
     return (
-      <div className={`${chatState.isMobile ? 'flex flex-col justify-center mt-40' : 'flex justify-center items-center'} h-full justify-center`}>
+      <div className="flex flex-col flex-1 justify-center">
         {chatState.isMobile ? (
           <MobileContent onFirstMessage={() => setChatState(prev => ({ ...prev, hasConversation: true }))} />
         ) : (
@@ -132,10 +133,16 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <ConversationsProvider>
-      <ChatProvider>
-        <HomeContent />
-      </ChatProvider>
-    </ConversationsProvider>
+    <>
+      <Head>
+        <meta name="viewport" 
+              content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+      </Head>
+      <ConversationsProvider>
+        <ChatProvider>
+          <HomeContent />
+        </ChatProvider>
+      </ConversationsProvider>
+    </>
   );
 }

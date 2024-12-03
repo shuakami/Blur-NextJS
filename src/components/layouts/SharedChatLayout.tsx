@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import Cookies from 'js-cookie';
 import Meta from '@/components/ui/Meta';
 import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
@@ -11,6 +10,7 @@ import ConnectionStatus from '../ui/ConnectionStatus';
 import { useShortcutManager } from '@/providers/ShortcutProvider'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts';
 import { CommandDialog } from "@/components/command/command-dialog"
+import { useLayout } from '@/components/layouts/LayoutContext';
 
 // 动态导入非关键组件
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
@@ -19,9 +19,6 @@ const UserAvatar = dynamic(() => import('@/components/ui/page_right_user_avatar'
 const ModelSelector = dynamic(() => import('@/components/ui/model_selector'), { ssr: false });
 const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
 const ScrollDownButton = dynamic(() => import('@/components/ui/scroll-down-button'), { ssr: false });
-
-// 常量配置
-const MOBILE_BREAKPOINT = 768;
 
 // 类型定义
 interface SharedChatLayoutProps {
@@ -34,7 +31,6 @@ interface SharedChatLayoutProps {
     renderMainContent?: () => React.ReactNode;
     renderBottomContent?: () => React.ReactNode;
 }
-
 // 遮罩层组件
 const Overlay = React.memo(({ onClose }: { onClose: () => void }) => (
     <div 
@@ -50,53 +46,20 @@ export function SharedChatLayout({
     title,
     description,
     hasConversation,
-    showAvatar = true,
+    showAvatar = true, 
     onSidebarToggle,
     renderMainContent,
     renderBottomContent
 }: SharedChatLayoutProps) {
     const router = useRouter();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
+    const { isSidebarOpen, toggleSidebar, isMobile } = useLayout();
     const shortcutManager = useShortcutManager();
-    const [isCommandOpen, setIsCommandOpen] = useState(false)
+    const [isCommandOpen, setIsCommandOpen] = React.useState(false);
 
-    // 初始化响应式状态
     useEffect(() => {
-        const checkMobile = () => {
-            const isMobileView = document.documentElement.clientWidth < MOBILE_BREAKPOINT;
-            setIsMobile(isMobileView);
-            
-            // 如果是移动端，强制关闭侧边栏
-            if (isMobileView) {
-                setIsSidebarOpen(false);
-            } else {
-                // PC端则读取存储的状态
-                setIsSidebarOpen(Cookies.get('isSidebarOpen') === 'true');
-            }
-        };
-        
-        checkMobile();
-        const resizeObserver = new ResizeObserver(() => {
-            requestAnimationFrame(checkMobile);
-        });
-        
-        resizeObserver.observe(document.documentElement);
-        return () => resizeObserver.disconnect();
-    }, []);
-
-    // 修改侧边栏切换逻辑
-    const toggleSidebar = useCallback(() => {
-        setIsSidebarOpen(prev => {
-            const newState = !prev;
-            // 只在PC端保存状态
-            if (!isMobile) {
-                Cookies.set('isSidebarOpen', String(newState));
-            }
-            onSidebarToggle?.(newState);
-            return newState;
-        });
-    }, [isMobile, onSidebarToggle]);
+        // 通知父组件侧边栏状态变化
+        onSidebarToggle?.(isSidebarOpen);
+    }, [isSidebarOpen, onSidebarToggle]);
 
     useEffect(() => {
         // 注册快捷键
@@ -106,7 +69,7 @@ export function SharedChatLayout({
             description: SHORTCUT_DESCRIPTIONS.TOGGLE_SIDEBAR,
             handler: toggleSidebar,
             condition: () => !isMobile || document.activeElement?.tagName !== 'INPUT'
-        })
+        });
 
         shortcutManager.register({
             command: 'NEW_CHAT',
@@ -114,7 +77,7 @@ export function SharedChatLayout({
             description: SHORTCUT_DESCRIPTIONS.NEW_CHAT,
             handler: () => router.push('/?new=true'),
             condition: () => document.activeElement?.tagName !== 'INPUT'
-        })
+        });
 
         shortcutManager.register({
             command: 'TOGGLE_COMMAND_CENTER',
@@ -122,15 +85,14 @@ export function SharedChatLayout({
             description: SHORTCUT_DESCRIPTIONS.TOGGLE_COMMAND_CENTER,
             handler: () => setIsCommandOpen(true),
             condition: () => document.activeElement?.tagName !== 'INPUT'
-        })
+        });
 
-        // 清理
         return () => {
-            shortcutManager.unregister('TOGGLE_SIDEBAR')
-            shortcutManager.unregister('NEW_CHAT')
-            shortcutManager.unregister('TOGGLE_COMMAND_CENTER')
-        }
-    }, [shortcutManager, toggleSidebar, router, isMobile])
+            shortcutManager.unregister('TOGGLE_SIDEBAR');
+            shortcutManager.unregister('NEW_CHAT');
+            shortcutManager.unregister('TOGGLE_COMMAND_CENTER');
+        };
+    }, [shortcutManager, toggleSidebar, router, isMobile]);
 
     return (
         <>
@@ -153,10 +115,10 @@ export function SharedChatLayout({
                 </div>
 
                 {/* 移动端遮罩 */}
-                {isMobile && (
-                    <div className={`fixed inset-0 bg-black/40 cursor-pointer z-40
-                        transition-opacity duration-300 ease-in-out
-                        ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                {isMobile && isSidebarOpen && (
+                    <div 
+                        className="fixed inset-0 bg-black/40 cursor-pointer z-40
+                        transition-opacity duration-300 ease-in-out"
                         onClick={toggleSidebar}
                     />
                 )}
@@ -190,8 +152,8 @@ export function SharedChatLayout({
                         </div>
                     </header>
 
-                  {/* 主要内容 */}
-                  {renderMainContent?.() || (
+                    {/* 主要内容 */}
+                    {renderMainContent?.() || (
                         <div className="flex-1 flex flex-col w-full pt-12">
                             <div className="flex-1 overflow-auto scroll-container">
                                 <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
