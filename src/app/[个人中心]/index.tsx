@@ -9,6 +9,7 @@ import {useState, useEffect} from "react";
 import {useUser} from "@clerk/nextjs";
 import PersonalCenterLoading from "@/components/Loading/loading_personal_center";
 import {useRouter} from "next/navigation";
+import { Route } from "next";
 
 interface PersonalCenterProps {
     isOpen: boolean;
@@ -37,7 +38,7 @@ const PersonalCenter: React.FC<PersonalCenterProps> = ({isOpen, onClose}) => {
 
     // 如果用户未登录，跳回去首页
     if (!isSignedIn) {
-        router.push('/?new=true');
+        router.push('/?new=true' as Route);
         return null;
     }
 
