@@ -14,6 +14,7 @@ import {cn} from '../../lib/utils/utils';
 import dynamic from 'next/dynamic';
 import { useShortcutManager } from '@/providers/ShortcutProvider';
 import { SHORTCUT_DESCRIPTIONS, SHORTCUTS } from '@/constants/shortcuts';
+import { useConversationContext } from '@/app/[上下文]/contexts';
 
 const UserInfo = dynamic(() => import('./chat_sidebar/UserInfo'), {
   ssr: false,
@@ -77,6 +78,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     const scrollRef = useRef<HTMLDivElement>(null);
     const [loadingRef, setLoadingRef] = useState<HTMLDivElement | null>(null);
     const shortcutManager = useShortcutManager()
+    const { newConversationId } = useConversationContext();
 
     // 滚动监听
     useEffect(() => {
@@ -94,22 +96,32 @@ const ChatSidebar = memo<ChatSidebarProps>(({
         observer.observe(loadingRef);
         return () => observer.disconnect();
     }, [loadingRef, hasMore, loading, onLoadMore]);
-
-    // 提取 conversationId 的逻辑
-    const getConversationIdFromPath = useCallback((path: string) => {
-        const parts = path.split('/');
-        return parts[parts.length - 1] || null;
-    }, []);
-
+    
     // 根据路径更新选中状态
     useEffect(() => {
-        if (!pathname) return;
-        
-        const conversationId = getConversationIdFromPath(pathname);
-        if (conversationId !== selectedItem) {
-            setSelectedItem(conversationId);
+        // 如果有新对话，直接设置为选中
+        if (newConversationId) {
+            setSelectedItem(newConversationId);
+            return;
         }
-    }, [pathname, selectedItem, getConversationIdFromPath]);
+
+        // 普通的路径检测逻辑
+        if (pathname) {
+            const conversationId = pathname.split('/').pop() || null;
+            if (conversationId && conversationId !== selectedItem) {
+                setSelectedItem(conversationId);
+                return;
+            }
+        }
+        
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/chat/')) {
+            const conversationId = currentPath.split('/').pop() || null;
+            if (conversationId && conversationId !== selectedItem) {
+                setSelectedItem(conversationId);
+            }
+        }
+    }, [pathname, selectedItem, newConversationId]);
 
     // 选择对话
     const handleSelectItem = useCallback((id: string, href?: string) => {

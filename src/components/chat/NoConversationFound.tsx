@@ -30,24 +30,24 @@ const NoConversationFound = memo(() => {
     // 自定义主内容渲染函数
     const renderMainContent = () => (
         <div className="flex-1 flex items-center justify-center">
-            <div className="flex items-center gap-16 w-full max-w-[720px] mx-auto px-8">
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 w-full max-w-[720px] mx-auto px-4 md:px-8">
                 {/* 左侧图标 */}
-                <div className="flex-shrink-0 w-[128px] flex justify-center">
+                <div className="flex-shrink-0 w-[96px] md:w-[128px] flex justify-center">
                     <motion.div
-                        className="relative p-6 rounded-full
+                        className="relative p-4 md:p-6 rounded-full
                                  bg-gradient-to-br from-gray-50 to-gray-100/50 
                                  dark:from-gray-800 dark:to-gray-900/50"
                         {...ANIMATION_CONFIG.icon}
                     >
-                        <MessageCircleX className="w-16 h-16 text-gray-400 dark:text-gray-500" />
+                        <MessageCircleX className="w-12 h-12 md:w-16 md:h-16 text-gray-400 dark:text-gray-500" />
                     </motion.div>
                 </div>
 
                 {/* 右侧内容 */}
-                <div className="flex-1 max-w-[420px]">
+                <div className="flex-1 max-w-[420px] text-center md:text-left">
                     <div className="space-y-6">
                         <div>
-                            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+                            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100">
                                 {t("对话不存在")}
                             </h2>
                             <p className="mt-2.5 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
@@ -55,10 +55,10 @@ const NoConversationFound = memo(() => {
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col md:flex-row items-center gap-3">
                             <Button
                                 variant="default"
-                                className="h-11 px-6 text-sm font-medium
+                                className="w-full md:w-auto h-11 px-6 text-sm font-medium
                                          bg-gray-900 hover:bg-gray-800 
                                          dark:bg-white dark:hover:bg-gray-50
                                          transition-colors duration-200"
@@ -69,12 +69,12 @@ const NoConversationFound = memo(() => {
                             
                             <Button
                                 variant="ghost"
-                                className="h-11 px-6 text-sm font-medium
+                                className="w-full md:w-auto h-11 px-6 text-sm font-medium
                                          text-gray-600 hover:text-gray-900 
                                          dark:text-gray-400 dark:hover:text-gray-100"
                                 onClick={() => router.back()}
                             >
-                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                <ArrowLeft className="mr-2 h-4 w-4 hidden md:block" />
                                 {t("返回上一页")}
                             </Button>
                         </div>

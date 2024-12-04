@@ -193,6 +193,16 @@ const useSendMessage = ({
                     if (!state.conversationId) {
                         dispatch({ type: 'SET_CONVERSATION_ID', payload: initialResponse.conversation_id });
                         dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: initialResponse.conversation_id });
+                        
+                        // 触发新对话事件，使用后端返回的标题
+                        const newConversationEvent = new CustomEvent('addConversation', {
+                            detail: {
+                                conversation_id: initialResponse.conversation_id,
+                                chat_title: initialResponse.chat_title || "新对话",  // 使用后端返回的标题，如果没有则使用默认值
+                                timestamp: Date.now()
+                            }
+                        });
+                        window.dispatchEvent(newConversationEvent);
                     }
                     
                     if (messagePair.userMessage.message_id) {
@@ -227,7 +237,6 @@ const useSendMessage = ({
 
                         dispatch({ type: 'RESET_NEW_CONVERSATION_ID' });
                         handleStreamState(null, '', false);
-                        triggerConversationsReload();
                         streamHandler.current.resetState();
                     }
                 },
