@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import { useRouter } from "next/navigation";
 import LoginHandler from "./[安全工具]/LoginHandler";
 import { Eye, EyeOff } from "lucide-react";

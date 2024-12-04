@@ -1,7 +1,7 @@
 "use client"
 // src/components/ApiClientProvider.tsx
 import React, {useEffect} from 'react';
-import {setupApiClientAuth} from '@/api/config';
+import {setupApiClientAuth} from '@/app/api/config/route';
 import {useAuth} from "@clerk/nextjs";
 
 interface ApiClientProviderProps {

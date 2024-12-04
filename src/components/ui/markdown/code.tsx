@@ -4,7 +4,7 @@ import { throttle } from 'lodash';
 import { Check, Copy, Loader2, Terminal } from 'lucide-react';
 import LANGUAGE_ALIASES from './languageAliases';
 import { loadLanguageWithRetry, preloadCommonLanguages } from './Languages/languageLoader';
-import '../../../../styles/code/luoxiaohei.css';
+import '@/styles/code/luoxiaohei.css';
 
 // 将 hljs 设置为全局变量
 declare global {

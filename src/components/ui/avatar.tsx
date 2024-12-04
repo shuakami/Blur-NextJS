@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
-import { cn } from "@/lib/utils"
+import { cn } from '../../lib/utils/utils'
 
 // 定义尺寸和状态类型
 type AvatarSize = 'sm' | 'md' | 'lg' | 'xl'

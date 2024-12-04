@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from "react";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import {Search} from "lucide-react";
 import {useThemeContext} from "@/theme/ThemeContext";
-import {defaultLanguages} from "@/lib/languages";
+import {defaultLanguages} from '../../lib/config/languages';
 
 
 export const LanguageSettings: React.FC = () => {

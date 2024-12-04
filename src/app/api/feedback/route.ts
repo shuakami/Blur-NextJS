@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import clientPromise from '@/lib/mongodb';
-import { checkRateLimit } from '@/lib/rate-limit';
+import clientPromise from '../../../lib/db/mongodb';
+import { checkRateLimit } from '../../../lib/security/rate-limit';
 
 // 常量定义
 const RATE_LIMIT = 50; // 每小时最多50次反馈

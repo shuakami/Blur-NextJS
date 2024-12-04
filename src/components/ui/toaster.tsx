@@ -1,10 +1,10 @@
 "use client"
 
 import dynamic from 'next/dynamic'
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from '../../hooks/ui/use-toast'
 import { ToastProvider, ToastViewport } from "@/components/ui/toast"
 import React, { useCallback, useMemo } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '../../lib/utils/utils'
 
 const Toast = dynamic(() => import('@/components/ui/toast').then(mod => mod.Toast), {
   ssr: false

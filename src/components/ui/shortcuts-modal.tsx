@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { Check, Command, Trophy } from 'lucide-react'
 import { useShortcutManager } from '@/providers/ShortcutProvider'
-import { toast } from '@/hooks/use-toast'
+import { toast } from '../../hooks/ui/use-toast'
 import { ShortcutLearningMode } from './shortcut-learning-mode'
 import { SHORTCUT_DESCRIPTIONS, SHORTCUTS } from '@/constants/shortcuts'
 

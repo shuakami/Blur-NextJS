@@ -4,7 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
 import { useChatStateContext } from "@/app/[上下文]/ChatContext";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
-import { cn } from "@/lib/utils";
+import { cn } from '../../lib/utils/utils';
 import { Agent } from "./LLM/agent";
 
 // 懒加载组件保持不变

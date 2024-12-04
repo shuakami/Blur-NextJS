@@ -2,7 +2,7 @@
 
 import {Paintbrush, Bell, Globe, Shield, Plug, HelpCircle} from "lucide-react";
 import {Button} from "@/components/ui/button";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import {useRouter, useSearchParams} from "next/navigation";
 import {useEffect, useState} from "react";
 

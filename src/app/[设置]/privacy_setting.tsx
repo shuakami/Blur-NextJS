@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import {PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
 import {useThemeContext} from "@/theme/ThemeContext";
 

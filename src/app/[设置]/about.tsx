@@ -1,5 +1,5 @@
 import React from "react";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import {Logo} from "@/components/logo";
 
 const AboutBlur: React.FC = () => {

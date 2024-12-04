@@ -4,9 +4,9 @@
 import {User, CreditCard, Bell, Shield, HelpCircle, LogOut} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {useAuth} from "@clerk/nextjs";
-import {toast} from "@/hooks/use-toast";
+import {toast} from '../../hooks/ui/use-toast';
 import {useState} from "react";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 
 interface SidebarProps {
     activeTab: string;

@@ -2,7 +2,7 @@
 
 import React, {useEffect, useState, useCallback} from 'react';
 import dynamic from 'next/dynamic';
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import Cookies from 'js-cookie';
 import {useThemeContext} from "@/theme/ThemeContext";
 

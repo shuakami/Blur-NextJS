@@ -3,7 +3,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from '../../lib/utils/utils'
 
 /** 
  * 对话框组件，作为对话框的根组件。

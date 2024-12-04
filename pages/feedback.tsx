@@ -5,7 +5,7 @@ import DocumentPage from '@/components/document-page';
 import { TicketIcon, MessagesSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import TicketList from '../components/TicketList';
+import TicketList from '../src/components/TicketList';
 
 
 export default function FeedbackPage() {
@@ -32,7 +32,7 @@ export default function FeedbackPage() {
                             transition={{ delay: 0.1 }}
                             className="group"
                         >
-                            <Link href="/feedback/ticket" className="block p-6 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/75 dark:border-neutral-700/75 [box-shadow:0_0_1px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.05)] hover:[box-shadow:0_0_1px_rgba(0,0,0,0.08),0_3px_6px_rgba(0,0,0,0.04),0_12px_32px_rgba(0,0,0,0.07)] dark:hover:[box-shadow:0_0_1px_rgba(0,0,0,0.12),0_3px_6px_rgba(0,0,0,0.16),0_12px_32px_rgba(0,0,0,0.12)] transition-shadow">
+                            <Link href="/ticket/create" className="block p-6 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/75 dark:border-neutral-700/75 [box-shadow:0_0_1px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.03),0_8px_24px_rgba(0,0,0,0.05)] hover:[box-shadow:0_0_1px_rgba(0,0,0,0.08),0_3px_6px_rgba(0,0,0,0.04),0_12px_32px_rgba(0,0,0,0.07)] dark:hover:[box-shadow:0_0_1px_rgba(0,0,0,0.12),0_3px_6px_rgba(0,0,0,0.16),0_12px_32px_rgba(0,0,0,0.12)] transition-shadow">
                                 <div className="space-y-4">
                                     <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
                                         <TicketIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />

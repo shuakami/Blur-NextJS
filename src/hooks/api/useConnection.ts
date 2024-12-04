@@ -1,7 +1,7 @@
 // useConnection.ts
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { ConnectionManager } from '@/lib/ConnectionManager';
+import { ConnectionManager } from '../../lib/api/ConnectionManager';
 import { ConnectionState } from '@/types/connection';
 
 export interface ConnectionInfo extends ConnectionState {

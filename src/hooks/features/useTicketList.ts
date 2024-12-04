@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { Ticket, Message } from '../types/ticket';
-import apiClient from '@/api/config';
+import { Ticket, Message } from '../../types/ticket';
+import apiClient from '@/app/api/config/route';
 
 export function useTicketList() {
     const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -85,9 +85,9 @@ export function useTicketList() {
                 if (!prev) return null;
                 return {
                     ...prev,
-                    messages: prev.messages.map(msg => 
+                    messages: prev.messages ? prev.messages.map(msg => 
                         msg.id === messageId ? { ...msg, read: true } : msg
-                    ),
+                    ) : [],
                     unreadCount: (prev.unreadCount || 0) - 1
                 };
             });

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import useTranslation from '@/hooks/useTranslation';
+import useTranslation from '../../hooks/i18n/useTranslation';
 import { useChatStateContext } from '@/app/[上下文]/ChatContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '../../hooks/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { debounce } from 'lodash';
 import { useShortcutManager } from '@/providers/ShortcutProvider';

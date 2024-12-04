@@ -2,7 +2,7 @@
 import { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 import NProgress from 'nprogress';
-import '../styles/globals.css';
+import '@/styles/globals.css';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, Suspense, lazy, startTransition, useState } from 'react';
 import { LanguageProvider } from "@/components/LanguageProvider";
@@ -12,7 +12,7 @@ import { LXHThemeProvider } from '@/theme/ThemeContext';
 import 'nprogress/nprogress.css';
 import { ApiClientProvider } from "@/api/ApiClientProvider";
 import type { Metadata } from "next";
-import { ConversationsProvider } from "../contexts/ConversationsContext";
+import { ConversationsProvider } from "../src/app/[对话管理]/ConversationsContext";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
 import { ModelProvider } from '@/components/ui/model_selector';

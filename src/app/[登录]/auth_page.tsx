@@ -13,8 +13,8 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import LanguageDropdown from "@/app/[语言选择器]/language-dropdown";
 import AuthMethodsWrapper from "./AuthMethodsWrapper";
 import Meta from "@/components/ui/Meta";
-import useTranslation from "@/hooks/useTranslation";
-import { defaultLanguages } from "@/lib/languages";
+import useTranslation from '../../hooks/i18n/useTranslation';
+import { defaultLanguages } from '../../lib/config/languages';
 import { MenuItems, MenuItem } from "@/components/ui/dropdown-menu";
 
 interface AuthPageProps {

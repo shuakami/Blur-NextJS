@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { TicketIcon, MessageSquare, Clock, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
-import { useTicketList } from '../hooks/useTicketList';
 import { STATUS_CONFIG, PRIORITY_CONFIG } from '../types/ticket';
+import { useTicketList } from '../hooks/features/useTicketList';
 
 export default function TicketList() {
     const {

@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { toast } from '../../hooks/ui/use-toast';
 
 /**
  * 下载方法类型

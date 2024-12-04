@@ -1,6 +1,6 @@
 import {handleStream} from '@/app/[流式处理]/stream';
 import {SendMessageParams, FinalInfo, StreamChunk, SendMessageResponse} from '@/types/stream';
-import {getTranslate} from '@/hooks/useTranslation';
+import {getTranslate} from '../../hooks/i18n/useTranslation';
 
 // 设置 API 基础 URL 和端口
 const API_BASE_URL = process.env.NODE_ENV === 'production'

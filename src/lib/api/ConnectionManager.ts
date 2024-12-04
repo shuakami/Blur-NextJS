@@ -1,7 +1,6 @@
 // ConnectionManager.ts
 
 import { EventEmitter } from 'events';
-import { apiAdapter } from './api/adapter';
 import { 
     ConnectionState, 
     ConnectionStatus, 
@@ -10,6 +9,7 @@ import {
     ConnectionError,
     ServerStatus 
 } from '@/types/connection';
+import { apiAdapter } from './adapter';
 
 export class ConnectionManager extends EventEmitter {
     private static readonly API_PATHS = {

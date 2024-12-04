@@ -4,9 +4,9 @@
 
 import React from "react";
 import { MenuItem, MenuItems } from "@/components/ui/dropdown-menu";
-import useTranslation from "@/hooks/useTranslation";
-import { defaultLanguages, Language } from "@/lib/languages";
-import { toast } from "@/hooks/use-toast";
+import useTranslation from '../../hooks/i18n/useTranslation';
+import { defaultLanguages, Language } from '../../lib/config/languages';
+import { toast } from '../../hooks/ui/use-toast';
 
 interface LanguageDropdownProps {
   isOpen: boolean;

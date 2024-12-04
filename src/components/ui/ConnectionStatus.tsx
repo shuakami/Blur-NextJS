@@ -1,10 +1,10 @@
 // ConnectionStatus.tsx
 
 import { memo, useState, useRef } from 'react';
-import { useConnection } from '@/hooks/useConnection';
-import { cn } from '@/lib/utils';
-import { useOnClickOutside } from '@/hooks/useOnClickOutside';
-import useTranslation from '@/hooks/useTranslation';
+import { useConnection } from '../../hooks/api/useConnection';
+import { cn } from '../../lib/utils/utils';
+import { useOnClickOutside } from '../../hooks/ui/useOnClickOutside';
+import useTranslation from '../../hooks/i18n/useTranslation';
 import Link from 'next/link';
 
 const ConnectionStatus = memo(() => {

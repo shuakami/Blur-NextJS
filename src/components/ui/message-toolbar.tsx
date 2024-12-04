@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect, useContext } from 'react';
 import { Check, Volume2, Copy, ThumbsUp, ThumbsDown, RotateCcw, Pause } from 'lucide-react';
 import { Spinner } from './spinner';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { useToast } from '../../hooks/ui/use-toast';
+import { cn } from '../../lib/utils/utils';
 import { useConversationContext } from '@/app/[上下文]/ChatContext';
 
 interface MessageToolbarProps {

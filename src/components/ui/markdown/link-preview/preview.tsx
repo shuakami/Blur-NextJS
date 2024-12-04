@@ -1,7 +1,7 @@
 import { FileText, Image as ImageIcon, File, Link2 } from 'lucide-react'
 import { LinkInfo } from './types'
 import { useState, memo } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '../../../../lib/utils/utils'
 
 interface PreviewProps {
   href: string;

@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
-import { cn } from "@/lib/utils"
-import { useMediaQuery } from '@/hooks/use-media-query'
+import { cn } from '../../lib/utils/utils'
+import { useMediaQuery } from '../../hooks/ui/use-media-query'
 import { XIcon } from 'lucide-react'
 
 const Popover = PopoverPrimitive.Root

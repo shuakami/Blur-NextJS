@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import clientPromise from '@/lib/mongodb';
-import { validateErrorLog } from '@/lib/validate-error-log';
-import { checkRateLimit } from '@/lib/rate-limit';
-import { sanitizeErrorLog } from '@/lib/sanitize-error-log';
+import clientPromise from '../../../lib/db/mongodb';
+import { validateErrorLog } from '../../../lib/security/validate-error-log';
+import { checkRateLimit } from '../../../lib/security/rate-limit';
+import { sanitizeErrorLog } from '../../../lib/security/sanitize-error-log';
 import { auth } from '@clerk/nextjs/server';
 
 // 常量定义

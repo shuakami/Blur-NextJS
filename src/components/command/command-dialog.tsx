@@ -4,12 +4,12 @@ import * as React from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { MessageSquarePlus, Search, Sparkles, Clock, Moon, Sun, Monitor } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn } from '../../lib/utils/utils'
 import type { Route } from 'next'
 import { useRouter } from "next/navigation"
 
-import useTranslation from "@/hooks/useTranslation"
-import { useConversations } from "../../../contexts/ConversationsContext"
+import useTranslation from '../../hooks/i18n/useTranslation'
+import { useConversations } from "../../app/[对话管理]/ConversationsContext"
 import { useUser } from "@clerk/nextjs"
 import { useTheme } from "next-themes"
 

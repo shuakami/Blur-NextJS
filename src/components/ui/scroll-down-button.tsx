@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useChatStateContext } from '@/app/[上下文]/ChatContext';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils/utils';
 
 interface ScrollDownButtonProps {
     className?: string;

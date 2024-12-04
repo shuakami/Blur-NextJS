@@ -1,9 +1,9 @@
 import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useImageZoom } from '@/hooks/useImageZoom';
-import { useImageNavigation } from '@/hooks/useImageNavigation';
+import { useImageZoom } from '../../../hooks/ui/useImageZoom';
+import { useImageNavigation } from '../../../hooks/features/useImageNavigation';
 import { ZoomIn, X, Download, ChevronLeft, ChevronRight, ZoomOut } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils/utils';
 import { downloadImage } from '@/lib/image/download';
 
 interface ImageDialogProps {

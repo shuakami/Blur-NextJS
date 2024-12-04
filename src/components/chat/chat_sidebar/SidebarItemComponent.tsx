@@ -15,10 +15,10 @@ import CustomButton from './CustomButton';
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
 import {useUser} from '@clerk/nextjs';
 import {deleteConversation, updateConversationTitle} from "@/app/[对话管理]/api";
-import {toast} from "@/hooks/use-toast";
+import {toast} from '../../../hooks/ui/use-toast';
 import ConfirmModal from "@/components/ui/tofu/confirm-modal";
 import {useRouter} from 'next/navigation';
-import { useConversations } from '../../../../contexts/ConversationsContext';
+import { useConversations } from '../../../app/[对话管理]/ConversationsContext';
 import Link from 'next/link';
 import { useShortcutManager } from '@/providers/ShortcutProvider'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts'

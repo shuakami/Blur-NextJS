@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ChatProvider, useChatStateContext, useConversationContext } from '@/app/[上下文]/ChatContext';
-import { ConversationsProvider } from "../contexts/ConversationsContext";
+import { ConversationsProvider } from "../src/app/[对话管理]/ConversationsContext";
 import dynamic from 'next/dynamic';
 import HomepageContent from "@/app/[首页占位]/home-content";
 import { SharedChatLayout } from '@/components/layouts/SharedChatLayout';

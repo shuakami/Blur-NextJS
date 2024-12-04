@@ -5,7 +5,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { ArrowLeft, HelpCircle } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
+import { toast } from '../../hooks/ui/use-toast'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts'
 
 interface LearningModeProps {

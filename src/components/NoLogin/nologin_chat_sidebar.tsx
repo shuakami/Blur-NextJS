@@ -6,7 +6,7 @@ import {ScrollArea} from '@/components/ui/scroll-area';
 import {motion} from 'framer-motion';
 import {MessageCirclePlus, SidebarCloseIcon} from 'lucide-react';
 import {useRouter} from 'next/navigation';
-import useTranslation from '@/hooks/useTranslation';
+import useTranslation from '../../hooks/i18n/useTranslation';
 
 interface UnauthenticatedSidebarProps {
     onClose: () => void;

@@ -1,7 +1,7 @@
 import { useSignUp } from "@clerk/nextjs";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import useTranslation from "@/hooks/useTranslation";
+import { useToast } from '../../../hooks/ui/use-toast';
+import useTranslation from '../../../hooks/i18n/useTranslation';
 
 interface SignupHandlerProps {
     email: string;

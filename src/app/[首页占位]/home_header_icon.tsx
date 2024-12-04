@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { SidebarOpenIcon, SquarePen } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from '../../lib/utils/utils';
 
 interface HomeHeaderIconProps {
     isSidebarOpen: boolean;

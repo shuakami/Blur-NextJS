@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { MarkdownRenderer } from '../markdown/MarkdownRenderer';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../lib/utils/utils';
 import { useTheme } from 'next-themes';
 import '@/components/ui/ThoughtStream.css';
 import { motion, AnimatePresence } from 'framer-motion';

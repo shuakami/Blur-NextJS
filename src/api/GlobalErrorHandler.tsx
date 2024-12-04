@@ -1,8 +1,9 @@
 "use client"
 import React, {useEffect} from 'react';
-import {useToast} from "@/hooks/use-toast";
 import {ApiError, ErrorCode} from "@/types/error";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '@/hooks/i18n/useTranslation';
+import { useToast } from '@/hooks/ui/use-toast';
+
 
 const GlobalErrorHandler: React.FC = () => {
     const {toast} = useToast();

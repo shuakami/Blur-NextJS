@@ -1,5 +1,5 @@
 import {useUser} from "@clerk/nextjs";
-import {toast} from "@/hooks/use-toast";
+import {toast} from '../../hooks/ui/use-toast';
 import * as React from "react";
 import UpdateAvatar from "@/app/[个人中心]/modal/update_avatar";
 import {Button} from "@/components/ui/button";
@@ -7,7 +7,7 @@ import {Input} from "@/components/ui/input";
 import {Check, X} from "lucide-react";
 import {useState} from "react";
 import {GitHubLogoIcon} from "@radix-ui/react-icons";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 
 export const PersonalCenterMain: React.FC = () => {
     const {t} = useTranslation();

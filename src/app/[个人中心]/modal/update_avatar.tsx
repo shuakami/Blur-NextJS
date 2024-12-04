@@ -8,11 +8,11 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Camera, Loader2} from 'lucide-react'
-import {toast} from "@/hooks/use-toast"
+import {toast} from '../../../hooks/ui/use-toast'
 import Cropper from 'react-easy-crop'
-import getCroppedImg, {Area} from '@/lib/cropImage'
+import getCroppedImg, {Area} from '../../../lib/utils/cropImage'
 import {motion} from 'framer-motion'
-import useTranslation from "@/hooks/useTranslation"
+import useTranslation from '../../../hooks/i18n/useTranslation'
 
 export default function UpdateAvatar() {
     const {t} = useTranslation();

@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import {Check} from "lucide-react";
 import {motion} from "framer-motion";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../../hooks/i18n/useTranslation';
 import {useTheme} from "next-themes";
 
 export const ThemeSettings: React.FC = () => {

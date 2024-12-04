@@ -1,7 +1,7 @@
 // src/app/[对话管理]/stop_stream.ts
 
-import apiClient from '@/api/config';
-import {getTranslate} from '@/hooks/useTranslation';
+import apiClient from '../api/config/route';
+import {getTranslate} from '../../hooks/i18n/useTranslation';
 
 /**
  * 发送停止消息流的请求

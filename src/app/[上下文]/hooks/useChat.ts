@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useUser } from '@clerk/nextjs';
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../../hooks/i18n/useTranslation';
 import { Message, MessageStatus } from '@/types/stream';
 import '@/app/[上下文]/plugins';
 

@@ -5,8 +5,8 @@ import {fetchConversations} from '@/app/[侧边栏管理]/fetch_conversations';
 import ChatSidebar from '@/components/chat/chat_sidebar';
 import {useUser} from '@clerk/nextjs';
 import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
-import {useConversations} from "../../../contexts/ConversationsContext";
-import useTranslation from "@/hooks/useTranslation";
+import {useConversations} from "../[对话管理]/ConversationsContext";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import type {Conversation} from './types';
 
 // 日期分组函数

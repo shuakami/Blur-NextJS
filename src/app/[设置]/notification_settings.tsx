@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import {useThemeContext} from "@/theme/ThemeContext";
 
 // 通知类型定义

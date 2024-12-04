@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {motion} from 'framer-motion';
 import {useThemeContext} from '@/theme/ThemeContext';
-import useTranslation from '@/hooks/useTranslation';
+import useTranslation from '../../../hooks/i18n/useTranslation';
 
 const fontSizes = [
     {name: '小', value: 'sm', sample: 'Aa'},

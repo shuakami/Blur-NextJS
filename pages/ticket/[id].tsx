@@ -17,12 +17,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { format, isValid, parseISO } from 'date-fns';
-import { useTicketList } from '../../hooks/useTicketList';
-import { STATUS_CONFIG, PRIORITY_CONFIG } from '../../types/ticket';
+
+import { STATUS_CONFIG, PRIORITY_CONFIG } from '../../src/types/ticket';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useTicketList } from '../../src/hooks/features/useTicketList';
 
 // 格式化日期的工具函数
 const formatDate = (dateString: string) => {

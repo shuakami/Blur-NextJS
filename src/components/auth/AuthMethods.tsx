@@ -4,7 +4,7 @@ import { useState } from "react";
 import RegisterForm from "../login/signup";
 import { motion, AnimatePresence } from "framer-motion";
 import Login from "../login/Login";
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 
 export default function AuthMethods({ mode }: { mode: string }) {
     const [isRegister, setIsRegister] = useState(mode === "register");

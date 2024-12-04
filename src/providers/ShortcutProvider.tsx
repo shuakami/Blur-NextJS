@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext } from 'react'
-import { useShortcuts } from '@/hooks/useShortcuts'
+import { useShortcuts } from '../hooks/features/useShortcuts'
 import type { ShortcutManager } from '@/types/shortcuts'
 
 const ShortcutContext = createContext<ShortcutManager | null>(null)

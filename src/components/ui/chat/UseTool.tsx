@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from '../../../lib/utils/utils';
 import { Loader2, Terminal, ChevronDown, Code2 } from "lucide-react";
 import CodeBlock from "../markdown/code";
 import { Image } from "../markdown/image";

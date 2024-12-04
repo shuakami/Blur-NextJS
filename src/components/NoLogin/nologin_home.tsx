@@ -10,7 +10,7 @@ import {Button} from '@/components/ui/button';
 import {LogIn, Sparkles, UserPlus} from 'lucide-react';
 import {Skeleton} from '@/components/ui/skeleton';
 import UnauthenticatedSidebar from '@/components/NoLogin/nologin_chat_sidebar';
-import useTranslation from '@/hooks/useTranslation';
+import useTranslation from '../../hooks/i18n/useTranslation';
 
 const SIDEBAR_WIDTH = 220; // 固定侧边栏宽度
 

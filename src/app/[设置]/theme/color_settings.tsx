@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {motion} from 'framer-motion';
 import {useThemeContext} from '@/theme/ThemeContext';
-import useTranslation from '@/hooks/useTranslation';
+import useTranslation from '../../../hooks/i18n/useTranslation';
 
 const colorThemes = [
     {key: 'default', name: '默认蓝', primary: '#3b82f6', secondary: '#93c5fd'},  // blue-500, blue-300

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import axios from '@/api/config';
+import axios from '@/app/api/config/route';
 
 export const MEDIA_TYPES = {
   "png": "image/png",

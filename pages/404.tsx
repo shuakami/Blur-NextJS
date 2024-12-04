@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '@/hooks/i18n/useTranslation';
 
 export default function Custom404() {
     const router = useRouter();

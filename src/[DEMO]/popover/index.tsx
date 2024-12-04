@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Settings, User, FileText, MoreHorizontal, Copy, Database, AlertTriangle, Info, History, Save, Play, GitBranch, GitPullRequest, Activity, Terminal } from "lucide-react"
 import Showcase from "../showcase"
 import { createCategory, createVariant } from "../utils"
-import { cn } from "@/lib/utils"
+import { cn } from '../../lib/utils/utils'
 import { Badge } from "@/components/ui/badge"
 
 export default function PopoverShowcase() {

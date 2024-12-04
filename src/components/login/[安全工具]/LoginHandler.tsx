@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useSignIn } from "@clerk/nextjs";
-import { useToast } from "@/hooks/use-toast";
-import useTranslation from "@/hooks/useTranslation";
+import { useToast } from '../../../hooks/ui/use-toast';
+import useTranslation from '../../../hooks/i18n/useTranslation';
 import { useRouter } from "next/navigation";
 
 const LoginHandler = ({

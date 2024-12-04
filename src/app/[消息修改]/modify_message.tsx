@@ -1,6 +1,6 @@
 import { handleStream } from '@/app/[流式处理]/stream';
 import { SendMessageResponse, StreamChunk, FinalInfo } from '@/types/stream';
-import { getTranslate } from '@/hooks/useTranslation';
+import { getTranslate } from '../../hooks/i18n/useTranslation';
 
 interface ModifyMessageParams {
     conversation_id: string;

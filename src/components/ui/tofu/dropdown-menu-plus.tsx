@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, LucideIcon } from 'lucide-react';
 import { useFloating, shift, offset, flip, autoUpdate } from '@floating-ui/react-dom';
 import Cookies from 'js-cookie';
-import { cn } from '../../../lib/utils';
+import { cn } from '../../../lib/utils/utils';
 
 interface MenuItem {
     id: string;

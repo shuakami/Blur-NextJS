@@ -1,10 +1,10 @@
 import React, { useEffect, useCallback, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFloating, shift, offset, flip, autoUpdate } from '@floating-ui/react-dom';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils/utils';
 import { ChevronDown } from 'lucide-react';
 import { Button, ButtonProps } from '@/components/ui/button';
-import { useMediaQuery } from '@/hooks/use-media-query';
+import { useMediaQuery } from '../../hooks/ui/use-media-query';
 import { XIcon } from 'lucide-react';
 
 interface MenuItemProps {

@@ -1,7 +1,7 @@
 // components/ClientVersionCheck.tsx
 "use client";
 
-import useVersionCheck from '@/hooks/useVersionCheck';
+import useVersionCheck from '../hooks/system/useVersionCheck';
 
 const ClientVersionCheck = () => {
     useVersionCheck();

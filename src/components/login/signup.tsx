@@ -3,11 +3,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import useTranslation from "@/hooks/useTranslation";
-import { useToast } from "@/hooks/use-toast";
+import useTranslation from '../../hooks/i18n/useTranslation';
+import { useToast } from '../../hooks/ui/use-toast';
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Eye, EyeOff, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from '../../lib/utils/utils';
 import SignupHandler from "./[安全工具]/SignupHandler";
 import AgreementModal from "./agreement-modal";
 import { useRouter } from "next/navigation";

@@ -4,7 +4,7 @@ import React, { memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { MessageCircleX, ArrowLeft } from 'lucide-react';
-import useTranslation from "@/hooks/useTranslation";
+import useTranslation from '../../hooks/i18n/useTranslation';
 import { Button } from '@/components/ui/button';
 import { SharedChatLayout } from '@/components/layouts/SharedChatLayout';
 

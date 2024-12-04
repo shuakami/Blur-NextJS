@@ -49,7 +49,7 @@ import {
 } from "lucide-react";
 import Showcase from "../showcase";
 import { createCategory, createVariant } from "../utils";
-import { cn } from "@/lib/utils";
+import { cn } from '../../lib/utils/utils';
 
 export default function DropdownMenuShowcase() {
   const categories = [

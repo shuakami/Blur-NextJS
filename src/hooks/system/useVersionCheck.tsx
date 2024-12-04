@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import Cookies from 'js-cookie';
-import {useToast} from '@/hooks/use-toast';
-import useTranslation from '@/hooks/useTranslation';
+import {useToast} from '../ui/use-toast';
+import useTranslation from '../i18n/useTranslation';
 
 export default function useVersionCheck() {
     const {toast} = useToast();

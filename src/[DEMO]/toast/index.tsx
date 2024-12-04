@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { toast } from "@/hooks/use-toast"
+import { toast } from '../../hooks/ui/use-toast'
 import Showcase from "../showcase"
 import { createCategory, createVariant } from "../utils"
 
