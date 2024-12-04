@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import axios from '@/app/api/config/route';
+import axios from '@/lib/api/config';
 import { MEDIA_TYPES } from '../list';
 
 export default async function handler(
