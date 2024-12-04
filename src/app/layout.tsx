@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import dynamic from 'next/dynamic';
-import '@/styles/globals.css";
+import '@/styles/globals.css';
 import {ThemeProvider} from "@/components/ui/theme-provider";
 import {OptimizedClerkProvider} from "@/components/providers/OptimizedClerkProvider";
 import seoDescription from "@/seo/seo_description";

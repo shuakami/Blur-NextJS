@@ -57,10 +57,13 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
   );
 }
 
+type DebouncedFunction = (...args: any[]) => void;
+
 // 防抖函数
-function debounce(fn: Function, ms: number) {
+function debounce(fn: DebouncedFunction, ms: number): DebouncedFunction {
   let timer: NodeJS.Timeout;
   return (...args: any[]) => {
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), ms);
-  };}
+  };
+}

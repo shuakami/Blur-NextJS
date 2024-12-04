@@ -3,6 +3,7 @@
 import DocumentPage from '@/components/document-page';
 import { Metadata } from 'next';
 import { Mail, MessageCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
     title: '用户协议',
@@ -81,10 +82,10 @@ export default function TermsPage() {
                                 <Mail className="w-3.5 h-3.5 ml-0.5" />
                             </a>
                             <span className="text-neutral-400 dark:text-neutral-600">·</span>
-                            <a href="/feedback" className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                            <Link href={{ pathname: "/feedback" }} className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                                 提交反馈
                                 <MessageCircle className="w-3.5 h-3.5 ml-0.5" />
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </section>

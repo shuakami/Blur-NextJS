@@ -45,7 +45,7 @@ export default function TicketList() {
                     暂无工单记录
                 </h3>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto">
-                    您还没有提交过工单，如需帮助请点击上方的"提交工单"按钮
+                    您还没有提交过工单，如需帮助请点击上方的&#34;提交工单&#34;按钮
                 </p>
             </div>
         );
