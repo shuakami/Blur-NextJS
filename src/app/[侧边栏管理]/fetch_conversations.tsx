@@ -1,6 +1,6 @@
 // src/app/[侧边栏管理]/fetch_conversations.tsx
-import apiClient from '../api/config/route';
-import {getTranslate} from '../../hooks/i18n/useTranslation';
+import apiClient from '@/lib/api/config';
+import {getTranslate} from '@/hooks/i18n/useTranslation';
 import {Conversation, ConversationsResponse, FetchParams} from './types';
 
 export const fetchConversations = async (

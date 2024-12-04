@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { Ticket, Message } from '../../types/ticket';
-import apiClient from '@/app/api/config/route';
+import { Ticket } from '@/types/ticket';
+import apiClient from '@/lib/api/config';
 
 export function useTicketList() {
     const [tickets, setTickets] = useState<Ticket[]>([]);

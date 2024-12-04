@@ -6,7 +6,7 @@ import DocumentPage from '@/components/document-page';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { TicketForm } from '../../src/components/TicketForm';
-import apiClient from '@/app/api/config/route';
+import apiClient from '@/lib/api/config';
 import { toast } from '@/hooks/ui/use-toast';
 import { useOnClickOutside } from '@/hooks/ui/useOnClickOutside';
 

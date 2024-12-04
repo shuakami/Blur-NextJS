@@ -1,8 +1,8 @@
 // src/app/[拉取历史]/fetch_history.tsx
 
-import apiClient from '../api/config/route';
+import apiClient from '@/lib/api/config';
 import {FetchHistoryParams, FetchHistoryResponse} from '@/types/stream';
-import {getTranslate} from '../../hooks/i18n/useTranslation';
+import {getTranslate} from '@/hooks/i18n/useTranslation';
 
 /**
  * 拉取历史记录的函数

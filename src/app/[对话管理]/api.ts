@@ -1,7 +1,7 @@
 // src/app/[对话管理]/api.ts
 
-import apiClient from '../api/config/route';
-import {getTranslate} from '../../hooks/i18n/useTranslation';
+import apiClient from '@/lib/api/config';
+import {getTranslate} from '@/hooks/i18n/useTranslation';
 
 /**
  * 更新对话标题的函数
