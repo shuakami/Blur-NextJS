@@ -229,7 +229,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, [message, isSending, onSend]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        // 检查是否是移动设备的输入法回车
+        const isMobileKeyboard = e.nativeEvent?.isComposing; // 用于检测输入法组合键
+    
+        if (e.key === 'Enter' && !e.shiftKey && !isMobileKeyboard) {
             e.preventDefault();
             handleSend();
         }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Volume2, Copy, ThumbsUp, ThumbsDown, RotateCcw, Pause } from 'lucide-react';
 import { Spinner } from './spinner';
 import { useToast } from '../../hooks/ui/use-toast';
@@ -28,15 +28,6 @@ export function MessageToolbar({
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
   const { conversationId } = useConversationContext();
-
-  // 控制工具栏显示逻辑
-  const visibility = useMemo(() => {
-    if (isLatestMessage) {
-      if (isStreaming) return 'hidden';
-      return 'visible';
-    }
-    return 'hover';
-  }, [isLatestMessage, isStreaming]);
 
   // 语音播放/暂停处理
   const handleVoicePlay = async () => {
@@ -199,9 +190,18 @@ export function MessageToolbar({
   return (
     <div className={cn(
       "flex items-center space-x-1.5 transition-opacity duration-200",
-      visibility === 'hidden' && 'hidden',
-      visibility === 'hover' && 'opacity-0 group-hover:opacity-100',
-      visibility === 'visible' && 'opacity-100'
+      // 移动端基础样式: 默认显示
+      "opacity-100",
+      // PC端分情况处理:
+      isLatestMessage 
+        // 最新消息:
+        ? isStreaming
+          // 流式输出时隐藏
+          ? "!hidden"
+          // 非流式输出时在PC端长显
+          : "md:!opacity-100"
+        // 非最新消息在PC端hover显示
+        : "md:opacity-0 md:group-hover:opacity-100"
     )}>
       <div className="flex items-center gap-0.5">
         <button 

@@ -8,7 +8,7 @@ import { FaBook, FaServer, FaEye, FaMicrophone } from 'react-icons/fa';
 import { BreadcrumbWithCustomSeparator } from "@/components/ui/tofu/Breadcrumb";
 import { ReadingTime } from "@/components/ui/tofu/ReadingTime";
 import TableOfContents from "@/components/ui/tofu/TableOfContents";
-import { countNonTextElements, extractPlainText } from "@/lib/contentUtils";
+import { countNonTextElements, extractPlainText } from "@/lib/utils/contentUtils";
 import { ChatProvider } from '@/app/[上下文]/ChatContext';
 
 interface UpdatePageProps {

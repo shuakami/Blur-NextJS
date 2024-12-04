@@ -57,11 +57,11 @@ const FEATURE_CARDS: FeatureCard[] = [
 
 const CARD_BASE_CLASSES = `
   bg-white dark:bg-gray-850 
-  rounded-2xl p-6 
+  rounded-xl p-4  
   text-left 
-  shadow-[0_2px_10px_rgb(0,0,0,0.08)] 
-  dark:shadow-[0_2px_10px_rgb(0,0,0,0.15)] 
-  border border-gray-200 
+  shadow-md
+  dark:shadow-md 
+  border border-gray-200  
   dark:border-gray-800
 `;
 
@@ -93,13 +93,13 @@ const FeatureCard: React.FC<{ feature: FeatureCard }> = ({ feature }) => (
     className={CARD_BASE_CLASSES}
     whileHover={{ scale: 0.98 }}
   >
-    <span className={`block mb-4 ${feature.iconColor}`}>
+    <span className={`block mb-3 ${feature.iconColor}`}>
       {feature.icon}
     </span>
-    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-1">
+    <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-0.5">
       {feature.title}
     </h3>
-    <p className="text-sm text-gray-500 dark:text-gray-400">
+    <p className="text-xs text-gray-500 dark:text-gray-400">
       {feature.description}
     </p>
   </motion.button>
@@ -120,26 +120,24 @@ export default function MobileContent({ onFirstMessage, className }: MobileConte
   const { greeting, subGreeting } = useGreeting();
 
   return (
-    <div className={`flex flex-col ${className ?? ''}`}>
-      <div className="px-6 pb-32">
-        {/* 头部区域 */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-50">
+    <div className={`flex flex-col py-4 px-4 ${className ?? ''}`}>
+      <div className="px-4 pb-16">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
             {greeting}
           </h1>
-          <p className="mt-2 text-2xl font-medium text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-xl font-medium text-gray-500 dark:text-gray-400">
             {subGreeting}
           </p>
         </div>
 
-        {/* 主功能区 */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="space-y-6"
+          className="space-y-4"
         >
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {FEATURE_CARDS.map((feature) => (
               <FeatureCard key={feature.title} feature={feature} />
             ))}
@@ -147,7 +145,6 @@ export default function MobileContent({ onFirstMessage, className }: MobileConte
         </motion.div>
       </div>
 
-      {/* 输入框 */}
       <div className="absolute bottom-0 left-0 right-0 pb-1">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ChatInputWrapper onFirstMessage={onFirstMessage} />

@@ -242,7 +242,10 @@ const BotMessage = memo(({
         </Avatar>
       </div>
 
-      <div className="flex flex-col min-w-0 flex-1 gap-1.5 ml-4 markdown">
+      <div className={cn(
+        "flex flex-col min-w-0 flex-1 gap-1.5 ml-4 markdown",
+        "group/message"
+      )}>
         {thought && (
           <Suspense fallback={null}>
             <ThoughtStream
@@ -307,9 +310,6 @@ const BotMessage = memo(({
 
         <div className={cn(
           "transition-opacity duration-200 -ml-1 flex items-center",
-          isLatestBotMessage && !isStreaming
-            ? "opacity-100"
-            : "opacity-0 group-hover:opacity-100",
           isLatestBotMessage && isStreaming && "hidden"
         )}>
           <Suspense fallback={null}>
@@ -317,7 +317,7 @@ const BotMessage = memo(({
               content={content}
               messageId={messageId}
               isLatestMessage={isLatestBotMessage}
-              isStreaming={isStreaming || false}
+              isStreaming={isStreaming}
               onRegenerate={() => {
                 // 处理重新生成
               }}
