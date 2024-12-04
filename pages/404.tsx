@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
 import useTranslation from '@/hooks/i18n/useTranslation';
+import { Route } from 'next';
 
 export default function Custom404() {
     const router = useRouter();
@@ -250,7 +251,7 @@ export default function Custom404() {
                         <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
     
                         <button 
-                            onClick={() => router.push('/')}
+                            onClick={() => router.replace('/' as Route)}
                             className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400
                                      tracking-wider transition-all duration-300 group"
                         >
