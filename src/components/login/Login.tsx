@@ -45,14 +45,14 @@ export default function Login({ callback }: { callback: () => void }) {
             } else {
                 const success = await loginHandler.handlePasswordLogin(password);
                 if (success) {
-                    router.push("/" as Route);
+                    window.location.href = "/?new=true";
                 }
             }
         } else {
             // 内测登录处理
             const success = await loginHandler.handlePasswordLogin(bulPassword);
             if (success) {
-                router.push("/" as Route);
+                window.location.href = "/?new=true";
             }
         }
     };
