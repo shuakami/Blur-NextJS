@@ -1,16 +1,19 @@
 // pages/api/auth.ts
-import {getAuth} from "@clerk/nextjs/server";
-import type {NextApiRequest, NextApiResponse} from 'next';
+import { getAuth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const auth = getAuth(req);
-    const {userId} = auth;
+export async function GET(request: NextRequest) {
+    const auth = getAuth(request);
+    const { userId } = auth;
 
     if (!userId) {
-        return res.status(401).json({error: "Unauthorized"});
+        return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 401 }
+        );
     }
 
     const token = await auth.getToken();
 
-    res.status(200).json({token});
+    return NextResponse.json({ token });
 }
