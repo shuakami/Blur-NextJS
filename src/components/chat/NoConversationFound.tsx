@@ -7,6 +7,7 @@ import { MessageCircleX, ArrowLeft } from 'lucide-react';
 import useTranslation from '../../hooks/i18n/useTranslation';
 import { Button } from '@/components/ui/button';
 import { SharedChatLayout } from '@/components/layouts/SharedChatLayout';
+import { Route } from 'next';
 
 const ANIMATION_CONFIG = {
     icon: {
@@ -61,7 +62,7 @@ const NoConversationFound = memo(() => {
                                          bg-gray-900 hover:bg-gray-800 
                                          dark:bg-white dark:hover:bg-gray-50
                                          transition-colors duration-200"
-                                onClick={() => router.push('/?new=')}
+                                onClick={() => router.push('/?new=true' as Route)}
                             >
                                 {t("返回首页")}
                             </Button>

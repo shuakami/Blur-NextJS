@@ -22,6 +22,7 @@ import { useConversations } from '../../../app/[对话管理]/ConversationsConte
 import Link from 'next/link';
 import { useShortcutManager } from '@/providers/ShortcutProvider'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts'
+import { Route } from 'next';
 
 const TRANSITION_CLASSES = {
     enter: 'transition-[height] duration-200 ease-out',
@@ -86,7 +87,7 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
             
             // 如果当前对话被选中，重定向到首页
             if (isSelected) {
-                router.push('/?new=true');
+                router.push('/?new=true' as Route);
             }
             // 从会话列表中移除该对话
             removeConversation(item.id);

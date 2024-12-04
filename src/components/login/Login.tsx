@@ -7,6 +7,7 @@ import useTranslation from '../../hooks/i18n/useTranslation';
 import { useRouter } from "next/navigation";
 import LoginHandler from "./[安全工具]/LoginHandler";
 import { Eye, EyeOff } from "lucide-react";
+import { Route } from "next";
 
 export default function Login({ callback }: { callback: () => void }) {
     const router = useRouter();
@@ -25,7 +26,7 @@ export default function Login({ callback }: { callback: () => void }) {
     const loginHandler = LoginHandler({
         email: isEmailLogin ? email : bulEmail,
         onSuccess: () => {
-            router.push("/");
+            router.push("/" as Route);
         },
         onEmailSent: () => {
             setStage("password");
@@ -44,14 +45,14 @@ export default function Login({ callback }: { callback: () => void }) {
             } else {
                 const success = await loginHandler.handlePasswordLogin(password);
                 if (success) {
-                    router.push("/");
+                    router.push("/" as Route);
                 }
             }
         } else {
             // 内测登录处理
             const success = await loginHandler.handlePasswordLogin(bulPassword);
             if (success) {
-                router.push("/");
+                router.push("/" as Route);
             }
         }
     };

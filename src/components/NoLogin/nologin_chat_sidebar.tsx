@@ -7,6 +7,7 @@ import {motion} from 'framer-motion';
 import {MessageCirclePlus, SidebarCloseIcon} from 'lucide-react';
 import {useRouter} from 'next/navigation';
 import useTranslation from '../../hooks/i18n/useTranslation';
+import { Route } from 'next';
 
 interface UnauthenticatedSidebarProps {
     onClose: () => void;
@@ -24,7 +25,7 @@ export default function UnauthenticatedSidebar({onClose}: UnauthenticatedSidebar
     };
 
     const onNewChat = () => {
-        router.push('/?new=true');
+        router.push('/?new=true' as Route);
     };
 
     return (

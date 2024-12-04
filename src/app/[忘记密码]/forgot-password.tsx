@@ -5,6 +5,7 @@ import { useSignIn } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
+import { Route } from 'next'
 
 const ForgotPasswordPage: React.FC = () => {
     const [email, setEmail] = useState('')
@@ -49,7 +50,7 @@ const ForgotPasswordPage: React.FC = () => {
                 setError(null)
             } else if (result?.status === 'complete') {
                 await setActive({ session: result.createdSessionId })
-                router.push('/')
+                router.push('/?new=true' as Route);
             } else {
                 console.error('Unknown result', result)
             }

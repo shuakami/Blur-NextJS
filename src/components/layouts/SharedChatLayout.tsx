@@ -11,6 +11,7 @@ import { useShortcutManager } from '@/providers/ShortcutProvider'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts';
 import { CommandDialog } from "@/components/command/command-dialog"
 import { useLayout } from '@/components/layouts/LayoutContext';
+import { Route } from 'next';
 
 // 动态导入非关键组件
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
@@ -75,7 +76,7 @@ export function SharedChatLayout({
             command: 'NEW_CHAT',
             key: SHORTCUTS.NEW_CHAT,
             description: SHORTCUT_DESCRIPTIONS.NEW_CHAT,
-            handler: () => router.push('/?new=true'),
+            handler: () => router.push('/?new=true' as Route),
             condition: () => document.activeElement?.tagName !== 'INPUT'
         });
 
