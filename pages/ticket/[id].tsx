@@ -109,7 +109,7 @@ export default function TicketDetail() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-6">
                                 <Link
-                                    href="/feedback"
+                                    href={{ pathname: "/feedback" }}
                                     className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 rounded-lg transition-colors"
                                 >
                                     <ArrowLeft className="w-4 h-4" />
