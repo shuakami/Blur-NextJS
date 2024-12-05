@@ -18,7 +18,7 @@ const SignupHandler = ({
     inviteCode,
     onSuccess
 }: SignupHandlerProps) => {
-    const { signUp } = useSignUp();
+    const { signUp, setActive } = useSignUp();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
@@ -34,6 +34,10 @@ const SignupHandler = ({
             console.log("[handleEmailCheck] Validating email format:", email);
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
+                toast({
+                    title: t("邮箱格式不正确"),
+                    description: t("请提供有效的邮箱地址")
+                });
                 throw new Error("邮箱格式不正确");
             }
 
@@ -50,6 +54,15 @@ const SignupHandler = ({
 
             if (!signUp) {
                 throw new Error("注册初始化失败");
+            }
+
+            // 检查注册状态是否已过期
+            if (signUp?.status === 'abandoned') {
+                toast({
+                    title: t("注册会话已过期"),
+                    description: t("请重新开始注册流程")
+                });
+                throw new Error("注册会话已过期");
             }
 
             // 创建注册尝试
@@ -77,6 +90,10 @@ const SignupHandler = ({
                 strategy: "email_code"
             });
             if (!prepareResponse) {
+                toast({
+                    title: t("无法准备邮箱验证"),
+                    description: t("请稍后再试")
+                });
                 throw new Error("无法准备邮箱验证");
             }
 
@@ -110,7 +127,11 @@ const SignupHandler = ({
             console.log("[handleVerifyCode] Attempting email verification");
             const verifyResult = await signUp.attemptEmailAddressVerification({ code });
             if (verifyResult?.verifications.emailAddress?.status !== "verified") {
-                throw new Error("邮箱验证失败");
+                toast({
+                    title: t("验证码错误"),
+                    description: t("请检查验证码并重试")
+                });
+                throw new Error("验证码错误");
             }
 
             console.log("[handleVerifyCode] Email verification successful");
@@ -134,6 +155,10 @@ const SignupHandler = ({
             console.log("[handleUsernameCheck] Validating username format:", username);
             const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
             if (!usernameRegex.test(username)) {
+                toast({
+                    title: t("用户名格式错误"),
+                    description: t("仅支持字母、数字和下划线，长度3-20位")
+                });
                 throw new Error("用户名格式错误：仅支持字母、数字和下划线，长度3-20位");
             }
 
@@ -151,6 +176,12 @@ const SignupHandler = ({
             return true;
         } catch (err: unknown) {
             console.error("[handleUsernameCheck] Error:", err);
+            if ((err as Error).message?.includes("username is taken")) {
+                toast({
+                    title: t("用户名已被使用"),
+                    description: t("请更换用户名")
+                });
+            }
             setError(t((err as Error).message || "该用户名已被使用"));
             return false;
         } finally {
@@ -168,19 +199,27 @@ const SignupHandler = ({
                 throw new Error("注册初始化失败");
             }
 
-            // 完成注册
-            console.log("[handleCompleteSignup] Completing signup");
-            const completeSignUp = await signUp.create({
+            // 打印当前状态用于调试
+            console.log("[handleCompleteSignup] Current signup state:", {
+                status: signUp.status,
                 username,
                 password
             });
 
-            if (!completeSignUp) {
-                toast({
-                    title: t("注册失败"),
-                    description: t("请稍后再试")
-                });
-                throw new Error("注册失败");
+            // 更新密码
+            console.log("[handleCompleteSignup] Updating password");
+            await signUp.update({
+                password
+            });
+
+            // 尝试完成注册
+            console.log("[handleCompleteSignup] Attempting to complete signup");
+
+
+            // 如果405说明已经注册成功了
+            if (signUp.status === 'complete') {
+                onSuccess();
+                return true;
             }
 
             // 调用成功回调
@@ -188,6 +227,12 @@ const SignupHandler = ({
             return true;
         } catch (err: unknown) {
             console.error("[handleCompleteSignup] Error:", err);
+            if (err instanceof Error) {
+                console.error("[handleCompleteSignup] Detailed error:", {
+                    message: err.message,
+                    stack: err.stack
+                });
+            }
             setError(t((err as Error).message || "注册失败"));
             return false;
         } finally {

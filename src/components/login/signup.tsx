@@ -68,23 +68,6 @@ export default function RegisterForm({ onBack }: RegisterFormProps) {
         setError(null);
     };
 
-    // 状态检查
-    const canProceed = useCallback(() => {
-        switch (stage) {
-            case "email":
-                return formData.email && formData.inviteCode;
-            case "verify":
-                return formData.verificationCode.length === 6;
-            case "username":
-                return formData.username.length >= 3;
-            case "password":
-                return passwordRules.every(rule => rule.check(formData.password)) && 
-                       formData.password === formData.confirmPassword;
-            default:
-                return false;
-        }
-    }, [stage, formData, passwordRules]);
-
     // 注册处理器
     const signupHandler = SignupHandler({
         email: formData.email,
@@ -96,6 +79,8 @@ export default function RegisterForm({ onBack }: RegisterFormProps) {
                 title: t("注册成功"),
                 description: t("正在跳转...")
             });
+            // 跳 /
+            window.location.href = "/";
         }
     });
 
@@ -497,4 +482,8 @@ export default function RegisterForm({ onBack }: RegisterFormProps) {
             />
         </div>
     );
+}
+
+function reloadUser() {
+    throw new Error("Function not implemented.");
 }
