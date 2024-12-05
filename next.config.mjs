@@ -15,6 +15,7 @@ const nextConfig = {
         removeConsole: process.env.NODE_ENV === 'production',
         styledComponents: true,
     },
+    reactStrictMode: false,
 
     // 图片优化
     images: {

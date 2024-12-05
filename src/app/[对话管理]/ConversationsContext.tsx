@@ -1,6 +1,6 @@
 "use client";
 
-import React, {createContext, useState, ReactNode, useContext, useCallback, useMemo} from 'react';
+import React, { createContext, useState, ReactNode, useContext, useCallback, useMemo } from 'react';
 
 interface Conversation {
     conversation_id: string;
@@ -18,44 +18,46 @@ interface ConversationsContextType {
 
 const ConversationsContext = createContext<ConversationsContextType | undefined>(undefined);
 
-export const ConversationsProvider: React.FC<{ children: ReactNode }> = ({children}) => {
+export const ConversationsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [processedIds] = useState(() => new Set<string>());
     const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [recentConversations, setRecentConversations] = useState<Conversation[]>([]);
 
     const removeConversation = useCallback((conversationId: string) => {
         setConversations(prev => prev.filter(conv => conv.conversation_id !== conversationId));
     }, []);
 
     const updateConversationTitle = useCallback((conversationId: string, newTitle: string) => {
-        setConversations(prev => prev.map(conv => 
-            conv.conversation_id === conversationId 
-                ? {...conv, chat_title: newTitle}
+        setConversations(prev => prev.map(conv =>
+            conv.conversation_id === conversationId
+                ? { ...conv, chat_title: newTitle }
                 : conv
         ));
     }, []);
 
-    const recentConversations = useMemo(() => {
-        console.log('Recalculating recent conversations');
-        return conversations
+    const updateRecentConversations = useCallback(() => {
+        setRecentConversations(conversations
             .sort((a, b) => b.timestamp - a.timestamp)
-            .slice(0, 5);
+            .slice(0, 5));
     }, [conversations]);
 
     const handleAddConversation = useCallback((event: CustomEvent<Conversation>) => {
         const newConversation = event.detail;
-        
+
         setConversations(prev => {
             if (processedIds.has(newConversation.conversation_id)) {
                 console.log('跳过重复的对话:', newConversation.conversation_id);
                 return prev;
             }
-            
+
             processedIds.add(newConversation.conversation_id);
             console.log('添加新对话:', newConversation.conversation_id);
-            
+
             return [newConversation, ...prev];
         });
-    }, [processedIds]);
+
+        updateRecentConversations();
+    }, [processedIds, updateRecentConversations]);
 
     React.useEffect(() => {
         window.addEventListener('addConversation', handleAddConversation as EventListener);
@@ -63,6 +65,10 @@ export const ConversationsProvider: React.FC<{ children: ReactNode }> = ({childr
             window.removeEventListener('addConversation', handleAddConversation as EventListener);
         };
     }, [handleAddConversation]);
+
+    React.useEffect(() => {
+        updateRecentConversations();
+    }, [conversations, updateRecentConversations]);
 
     const value = useMemo(() => ({
         conversations,

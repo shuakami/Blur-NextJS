@@ -1,6 +1,5 @@
 // src/pages/_app.tsx
 import { AppProps } from 'next/app';
-import { ThemeProvider } from 'next-themes';
 import NProgress from 'nprogress';
 import '@/styles/globals.css';
 import { useRouter } from 'next/router';
@@ -21,6 +20,7 @@ import type { NextRouter } from 'next/router';
 import type { NextComponentType, NextPageContext } from 'next';
 import { ShortcutProvider } from '@/providers/ShortcutProvider';
 import { LayoutProvider } from "@/components/layouts/LayoutContext";
+import CustomThemeProvider from '@/theme/CustomThemeProvider';
 
 // 懒加载非关键组件
 const Analytics = lazy(() => import('@vercel/analytics/react').then(mod => ({ default: mod.Analytics })));
@@ -121,6 +121,8 @@ const NonCriticalUI = React.memo(() => {
 
 NonCriticalUI.displayName = 'NonCriticalUI';
 
+
+
 function MyApp({ Component, pageProps }: AppProps) {
     const router = useRouter();
     const [isRouterReady, setIsRouterReady] = useState(false);
@@ -151,12 +153,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     const providedContent = useMemo(() => (
         <ClerkProvider {...pageProps}>
-            <ThemeProvider 
-                attribute="class" 
-                defaultTheme="system" 
-                enableSystem
-                disableTransitionOnChange
-            >
+            <CustomThemeProvider>
                 <LXHThemeProvider>
                     <ApiClientProvider>
                         <LanguageProvider>
@@ -184,7 +181,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                         </LanguageProvider>
                     </ApiClientProvider>
                 </LXHThemeProvider>
-            </ThemeProvider>
+            </CustomThemeProvider>
         </ClerkProvider>
     ), [Component, pageProps, router, isRouterReady]);
 

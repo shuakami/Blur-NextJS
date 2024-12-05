@@ -1,73 +1,90 @@
 'use client';
 
-import React, {createContext, useContext, useState, ReactNode, useMemo, useEffect} from 'react';
-import {ThemeProvider as NextThemesProvider, useTheme as useNextTheme} from 'next-themes';
-import {themeColors} from './themeColors';
-import Cookies from 'js-cookie';  // 引入 js-cookie
+import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from 'next-themes';
+import { themeColors } from './themeColors';
+import Cookies from 'js-cookie';
 
-interface ThemeContextProps {
-    theme: {
-        ring: (weight?: number, color?: 'primary' | 'secondary') => string;
-        border: (weight?: number, color?: 'primary' | 'secondary') => string;
-        bg: (weight?: number, color?: 'primary' | 'secondary') => string;
-        hover: (color?: 'primary' | 'secondary') => string;
-        shadow: (strength?: number) => string;
-    };
-    themeName: string;
-    setThemeName: (name: string) => void;
+type ThemeColor = 'primary' | 'secondary';
+type ThemeWeight = number | undefined;
+
+interface ThemeFunctions {
+  ring: (weight?: ThemeWeight, color?: ThemeColor) => string;
+  border: (weight?: ThemeWeight, color?: ThemeColor) => string;
+  bg: (weight?: ThemeWeight, color?: ThemeColor) => string;
+  hover: (color?: ThemeColor) => string;
+  shadow: (strength?: number) => string;
 }
 
-const ThemeContext = createContext<ThemeContextProps>({
-    theme: {
-        ring: () => '',
-        border: () => '',
-        bg: () => '',
-        hover: () => '',
-        shadow: () => '',
-    },
-    themeName: 'default',
-    setThemeName: () => {
-    },
+interface ThemeContextProps {
+  theme: ThemeFunctions;
+  themeName: string;
+  setThemeName: (name: string) => void;
+}
+
+const createDefaultThemeFunctions = (): ThemeFunctions => ({
+  ring: () => '',
+  border: () => '',
+  bg: () => '',
+  hover: () => '',
+  shadow: () => '',
 });
 
-export const LXHThemeProvider: React.FC<{ children: ReactNode }> = ({children}) => {
-    const {resolvedTheme} = useNextTheme();  // 获取当前的 light/dark 模式
+const ThemeContext = createContext<ThemeContextProps>({
+  theme: createDefaultThemeFunctions(),
+  themeName: 'default',
+  setThemeName: () => {},
+});
 
-    // 从 Cookie 中获取主题名，默认为 'default'
-    const [themeName, setThemeName] = useState<string>(() => {
-        return Cookies.get('themeName') || 'default';
-    });
-
-    const theme = useMemo(() => {
-        const currentThemeColors = themeColors[themeName] || themeColors.default;
-        const mode = resolvedTheme === 'dark' ? currentThemeColors.dark : currentThemeColors.light;
-
-        // 生成可用的 TailwindCSS 类名
-        const getClassName = (type: string, weight?: number, color: 'primary' | 'secondary' = 'primary') => {
-            const [baseColor, baseWeight] = mode[color].split('-'); // 获取颜色基调和默认权重
-            const colorWeight = weight || baseWeight; // 使用传递的权重或者默认权重
-            return `${type}-${baseColor}-${colorWeight}`;
-        };
-
-        return {
-            ring: (weight?: number, color?: 'primary' | 'secondary') => getClassName('ring', weight, color),
-            border: (weight?: number, color?: 'primary' | 'secondary') => getClassName('border', weight, color),
-            bg: (weight?: number, color?: 'primary' | 'secondary') => getClassName('bg', weight, color),
-            hover: (color: 'primary' | 'secondary' = 'primary') => `hover:${getClassName('bg', undefined, color)}`,
-            shadow: (strength: number = 500) => `shadow-${strength}`,
-        };
-    }, [themeName, resolvedTheme]);
-
-    // 当主题名变化时，存储到 Cookie 中
-    useEffect(() => {
-        Cookies.set('themeName', themeName, {expires: 365});  // 设置 Cookie，有效期为一年
-    }, [themeName]);
-
-    return (
-        <ThemeContext.Provider value={{theme, themeName, setThemeName}}>
-            <NextThemesProvider>{children}</NextThemesProvider>
-        </ThemeContext.Provider>
-    );
+// 移除 Hook，改为普通函数
+const getClassName = (mode: any, type: string, weight?: ThemeWeight, color: ThemeColor = 'primary'): string => {
+  const [baseColor, baseWeight] = mode[color].split('-');
+  const colorWeight = weight || baseWeight;
+  return `${type}-${baseColor}-${colorWeight}`;
 };
+
+export const LXHThemeProvider: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
+  const { resolvedTheme } = useNextTheme();
+  const [themeName, setThemeName] = useState(() => Cookies.get('themeName') || 'default');
+
+  const theme = useMemo(() => {
+    const currentThemeColors = themeColors[themeName] || themeColors.default;
+    const mode = resolvedTheme === 'dark' ? currentThemeColors.dark : currentThemeColors.light;
+    
+    return {
+      ring: (weight?: ThemeWeight, color?: ThemeColor) => 
+        getClassName(mode, 'ring', weight, color),
+      border: (weight?: ThemeWeight, color?: ThemeColor) => 
+        getClassName(mode, 'border', weight, color),
+      bg: (weight?: ThemeWeight, color?: ThemeColor) => 
+        getClassName(mode, 'bg', weight, color),
+      hover: (color: ThemeColor = 'primary') => 
+        `hover:${getClassName(mode, 'bg', undefined, color)}`,
+      shadow: (strength: number = 500) => 
+        `shadow-${strength}`,
+    };
+  }, [themeName, resolvedTheme]);
+
+  const handleThemeChange = useCallback((name: string) => {
+    setThemeName(name);
+    Cookies.set('themeName', name, { expires: 365 });
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    theme,
+    themeName,
+    setThemeName: handleThemeChange
+  }), [theme, themeName, handleThemeChange]);
+
+  return (
+    <ThemeContext.Provider value={contextValue}>
+      {React.Children.only(children)}
+    </ThemeContext.Provider>
+  );
+}, (prevProps, nextProps) => {
+  return prevProps.children === nextProps.children;
+});
+
+LXHThemeProvider.displayName = 'LXHThemeProvider';
 
 export const useThemeContext = () => useContext(ThemeContext);

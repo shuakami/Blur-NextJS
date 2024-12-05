@@ -51,7 +51,6 @@ const useChat = (initialConversationId?: string): ChatReturn => {
     // 保持 messagesRef 同步最新的 messages
     useEffect(() => {
         messagesRef.current = state.messages;
-        console.log('messagesRef 更新:', messagesRef.current);
     }, [state.messages]);
 
     // 缓存用户信息避免重复计算
@@ -63,10 +62,21 @@ const useChat = (initialConversationId?: string): ChatReturn => {
     // 添加一个标志来追踪是否是新对话
     const isNewChat = useRef(false);
 
+    // 添加 state.messages 变化的追踪
+    useEffect(() => {
+        console.log('state.messages 更新:', state.messages);
+    }, [state.messages]);
+
+    // 添加 dispatch 追踪
+    const trackedDispatch = useCallback((action: any) => {
+        console.log('dispatch action:', action.type);
+        dispatch(action);
+    }, [dispatch]);
+
     // 添加消息
     const addMessage = useCallback((message: Message) => {
-        addMessageHandler(message, dispatch);
-    }, []);
+        addMessageHandler(message, trackedDispatch);
+    }, [trackedDispatch]);
 
     // 更新消息
     const updateMessage = useCallback((messageId: string, updates: Partial<Message & { sendStatus?: MessageStatus }>) => {
