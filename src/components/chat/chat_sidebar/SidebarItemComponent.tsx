@@ -60,6 +60,8 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // 控制模态框的打开状态
     const { removeConversation, updateConversationTitle: updateTitle } = useConversations();
     const shortcutManager = useShortcutManager()
+    const [displayedTitle, setDisplayedTitle] = useState(item.label);
+    const previousTitleRef = useRef(item.label);
 
     const toggleOpen = useCallback(() => setIsOpen(!isOpen), [isOpen]);
     const isSelected = selectedItem === item.id;
@@ -209,6 +211,33 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
         }
     }, [isSelected, item.id, shortcutManager])
 
+    // 处理标题更新的动画
+    useEffect(() => {
+        // 如果是从编辑模式退出，直接更新标题，不需要动画
+        if (isEditing) {
+            setDisplayedTitle(item.label);
+            previousTitleRef.current = item.label;
+            return;
+        }
+        
+        // 如果是系统更新标题，用打字机效果
+        if (item.label !== previousTitleRef.current) {
+            let index = 0;
+            const targetTitle = item.label;
+            const interval = setInterval(() => {
+                setDisplayedTitle(targetTitle.substring(0, index));
+                index++;
+                
+                if (index > targetTitle.length) {
+                    clearInterval(interval);
+                    previousTitleRef.current = targetTitle;
+                }
+            }, 60);
+
+            return () => clearInterval(interval);
+        }
+    }, [item.label, isEditing]);
+
     return (
         <div className="relative">
             <ConfirmModal
@@ -277,7 +306,9 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                                     {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
                                 </span>
                             )}
-                            <span className="text-sm flex-grow">{item.label}</span>
+                            <span className="text-sm flex-grow truncate">
+                                {displayedTitle}
+                            </span>
 
                             {(isSelected || hover) && (
                                 <span

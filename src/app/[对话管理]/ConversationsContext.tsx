@@ -70,6 +70,19 @@ export const ConversationsProvider: React.FC<{ children: ReactNode }> = ({ child
         updateRecentConversations();
     }, [conversations, updateRecentConversations]);
 
+    React.useEffect(() => {
+        const handleUpdateTitle = (event: CustomEvent<{conversation_id: string, chat_title: string}>) => {
+            console.log('收到更新标题事件:', event.detail);
+            const { conversation_id, chat_title } = event.detail;
+            updateConversationTitle(conversation_id, chat_title);
+        };
+
+        window.addEventListener('updateConversationTitle', handleUpdateTitle as EventListener);
+        return () => {
+            window.removeEventListener('updateConversationTitle', handleUpdateTitle as EventListener);
+        };
+    }, [updateConversationTitle]);
+
     const value = useMemo(() => ({
         conversations,
         recentConversations,

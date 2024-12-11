@@ -47,6 +47,7 @@ const useSendMessage = ({
     const { getToken } = useAuth();
     const abortControllerRef = useRef<AbortController | null>(null);
     const streamHandler = useRef<StreamMessageHandler>(new StreamMessageHandler(dispatch));
+    const currentConversationIdRef = useRef<string | null>(null);
 
     // 状态更新工具
     const updateMessageStates = useCallback((updates: MessageUpdatePayload[]) => {
@@ -190,15 +191,20 @@ const useSendMessage = ({
                 conversationId: activeConversationId,
                 model: model,
                 onInitialResponse: (initialResponse) => {
+                    const conversationId = initialResponse.conversation_id;
                     if (!state.conversationId) {
-                        dispatch({ type: 'SET_CONVERSATION_ID', payload: initialResponse.conversation_id });
-                        dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: initialResponse.conversation_id });
+                        currentConversationIdRef.current = conversationId;
+                        
+                        dispatch({ type: 'SET_CONVERSATION_ID', payload: conversationId });
+                        dispatch({ type: 'SET_NEW_CONVERSATION_ID', payload: conversationId });
+                        
+                        console.log('设置新对话ID:', conversationId);
                         
                         // 触发新对话事件，使用后端返回的标题
                         const newConversationEvent = new CustomEvent('addConversation', {
                             detail: {
-                                conversation_id: initialResponse.conversation_id,
-                                chat_title: initialResponse.chat_title || "新对话",  // 使用后端返回的标题，如果没有则使用默认值
+                                conversation_id: conversationId,
+                                chat_title: initialResponse.chat_title || "新对话",
                                 timestamp: Date.now()
                             }
                         });
@@ -241,7 +247,25 @@ const useSendMessage = ({
                     }
                 },
                 onFinalInfo: (finalInfo) => {
-                    console.log('最终信息:', finalInfo);
+                    console.log('收到最终信息:', finalInfo);
+                    
+                    if (finalInfo?.chat_title) {
+                        const conversationId = currentConversationIdRef.current;
+                        
+                        if (!conversationId) {
+                            console.error('无法更新标题：conversationId 为空');
+                            return;
+                        }
+                        
+                        const updateTitleEvent = new CustomEvent('updateConversationTitle', {
+                            detail: {
+                                conversation_id: conversationId,
+                                chat_title: finalInfo.chat_title,
+                                timestamp: Date.now()
+                            }
+                        });
+                        window.dispatchEvent(updateTitleEvent);
+                    }
                 },
                 onError: (error) => {
                     console.error('onError 被调用:', error);

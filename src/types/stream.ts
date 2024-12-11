@@ -75,6 +75,7 @@ export interface FinalInfo {
     isComplete?: boolean;
     total_tokens: number;
     generation_duration: number;
+    chat_title: string
 }
 
 export interface SendMessageParams {
