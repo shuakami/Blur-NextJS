@@ -1,0 +1,18 @@
+---
+title: Alpha v0.0.6 发布：后端大升级！
+date: 2024-09-18 18:00:00
+version: Alpha_v0.0.6_926006
+author:
+  name: shuakami
+  avatar: https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvdXBsb2FkZWQvaW1nXzJtZGRtYnMxYnFYWFN2VkY5RlNPQ21laTJ3RSJ9
+---
+
+我们又有新版本啦，这次是 Alpha v0.0.6，主要集中在后端的改进和优化。
+
+首先，我们实现了 Kafka 消息队列与消息管理，这让我们的消息处理更加高效和可靠。接着，我们完成了 RAG 工作流的实现，进一步提升了系统的智能化水平。
+
+为了提高性能，我们给画像读取增加了缓存机制（使用 `lru_cache`），这样可以显著减少重复计算的时间。我们还重构了用户画像，现在的用户画像只使用 文字 存储数据，结构更加清晰。
+
+最后，我们修复了用户 ID 类型错误，并优化了首次对话的处理流程，用户体验更流畅。
+
+这次的更新全是后端的改进，但对整体系统的性能和稳定性都有很大提升。

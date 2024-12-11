@@ -5,12 +5,13 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar"
 import { cn } from '../../lib/utils/utils'
 
 // 定义尺寸和状态类型
-type AvatarSize = 'sm' | 'md' | 'lg' | 'xl'
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 type AvatarStatus = 'online' | 'offline' | 'busy' | 'away'
 type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error'
 
 // 尺寸样式映射
 const sizeStyles: Record<AvatarSize, string> = {
+  xs: "h-6 w-6",
   sm: "h-8 w-8",
   md: "h-10 w-10",
   lg: "h-12 w-12",

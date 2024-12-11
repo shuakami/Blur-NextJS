@@ -1,6 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import axios from '@/lib/api/config';
-import { MEDIA_TYPES } from '../list';
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,7 +9,6 @@ export default async function handler(
   }
 
   const { filename } = req.query;
-
   if (!filename || Array.isArray(filename)) {
     return res.status(400).json({ error: '无效的文件名' });
   }
@@ -20,20 +17,49 @@ export default async function handler(
     const sessionToken = req.cookies['__session'] || 
                         req.cookies['__session_-_9sCB0w'];
 
-    if (!sessionToken) {
-      return res.status(401).json({ error: '请先登录' });
-    }
-
-    const response = await axios.get(`/api/v1/files/output/${filename}`, {
-      responseType: 'arraybuffer',
-      headers: {
-        'Authorization': `Bearer ${sessionToken}`,
-        'Cookie': `__session=${sessionToken}`
-      }
+    console.log('=== 调试信息 ===');
+    console.log('文件名:', filename);
+    console.log('会话令牌:', sessionToken ? '存在' : '不存在');
+    
+    // 检查环境变量
+    console.log('环境变量:', {
+      NODE_ENV: process.env.NODE_ENV,
+      PROD_API_URL: process.env.NEXT_PUBLIC_PROD_API_URL,
+      LOCAL_API_URL: process.env.NEXT_PUBLIC_LOCAL_API_URL
     });
 
-    const fileExt = filename.split('.').pop()?.toLowerCase() as keyof typeof MEDIA_TYPES;
-    const contentType = MEDIA_TYPES[fileExt] || 'application/octet-stream';
+    // 构建API URL
+    const apiUrl = process.env.NODE_ENV === 'production'
+      ? `${process.env.NEXT_PUBLIC_PROD_API_URL}/api/v1/files/output/${filename}`
+      : `http://127.0.0.1:33413/api/v1/files/output/${filename}`;  // 直接硬编码测试
+
+    console.log('尝试请求URL:', apiUrl);
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`,
+        'Accept': 'image/*, application/octet-stream'
+      },
+    });
+
+    console.log('响应状态:', response.status);
+    console.log('响应头:', Object.fromEntries(response.headers.entries()));
+
+    if (!response.ok) {
+      const textResponse = await response.text();
+      console.log('错误响应内容:', textResponse);
+      return res.status(response.status).json({ 
+        error: '获取文件失败',
+        details: textResponse
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    console.log('响应数据大小:', buffer.byteLength);
+
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    console.log('设置响应Content-Type:', contentType);
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
@@ -43,27 +69,22 @@ export default async function handler(
     }
 
     res.setHeader('Cache-Control', 'public, max-age=3600');
-
-    return res.send(response.data);
+    
+    return res.send(Buffer.from(buffer));
 
   } catch (error: any) {
-    if (error.response?.data instanceof Buffer) {
-      try {
-        const errorData = JSON.parse(error.response.data.toString());
-        console.error('获取文件失败:', errorData);
-        
-        if (error.response.status === 403) {
-          return res.status(403).json({ error: errorData.detail || '未授权访问' });
-        }
-      } catch (e) {
-        console.error('解析错误响应失败:', e);
-      }
+    console.error('=== 错误详情 ===');
+    console.error('错误类型:', error.constructor.name);
+    console.error('错误消息:', error.message);
+    console.error('错误堆栈:', error.stack);
+    
+    if (error.cause) {
+      console.error('错误原因:', error.cause);
     }
 
-    if (error.response?.status === 404) {
-      return res.status(404).json({ error: '文件不存在' });
-    }
-
-    return res.status(500).json({ error: '获取文件失败' });
+    return res.status(500).json({ 
+      error: '获取文件失败',
+      details: error.message 
+    });
   }
 }

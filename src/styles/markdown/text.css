@@ -3,13 +3,13 @@
     --base-size: 1rem;
     --base-spacing: 1.25rem;
     
-    /* 颜色系统 */
-    --text-color: #0d0d0d;
-    --text-secondary: #363636;
-    --text-tertiary: #666666;
-    --text-quaternary: #999999;
+    /* 颜色系统 - (支持Tailwindcss上层覆盖) */
+    --text-color: var(--tw-text-opacity, 1) rgb(13 13 13 / var(--tw-text-opacity, 1));
+    --text-secondary: var(--tw-text-opacity, 1) rgb(54 54 54 / var(--tw-text-opacity, 1));
+    --text-tertiary: var(--tw-text-opacity, 1) rgb(102 102 102 / var(--tw-text-opacity, 1));
+    --text-quaternary: var(--tw-text-opacity, 1) rgb(153 153 153 / var(--tw-text-opacity, 1));
     
-    /* 间距系统*/
+    /* 间距系统 */
     --spacing-xs: calc(var(--base-spacing) * 0.35);
     --spacing-sm: calc(var(--base-spacing) * 0.65);
     --spacing-md: var(--base-spacing);
@@ -25,18 +25,15 @@
     --cjk-letter-spacing: 0.02em;
     --latin-word-spacing: 0.05em;
     --mixed-line-height: 2;
-    
-    /* 阴影效果 */
-    --text-shadow-light: 0 0 1px rgba(0, 0, 0, 0.1);
-    --text-shadow-dark: 0 0 1px rgba(255, 255, 255, 0.1);
+
 }
 
-/* 暗色模式 - 使用CSS变量继承 */
+/* 暗色模式 */
 .dark {
-    --text-color: #ececec;
-    --text-secondary: #cccccc;
-    --text-tertiary: #999999;
-    --text-quaternary: #666666;
+    --text-color: var(--tw-text-opacity, 1) rgb(236 236 236 / var(--tw-text-opacity, 1));
+    --text-secondary: var(--tw-text-opacity, 1) rgb(204 204 204 / var(--tw-text-opacity, 1));
+    --text-tertiary: var(--tw-text-opacity, 1) rgb(153 153 153 / var(--tw-text-opacity, 1));
+    --text-quaternary: var(--tw-text-opacity, 1) rgb(102 102 102 / var(--tw-text-opacity, 1));
     --emphasis-color: var(--text-color);
     --background-color: #000000;
     --border-light: rgba(255, 255, 255, .08);
@@ -67,7 +64,6 @@
 .dark .text-body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-shadow: var(--text-shadow-dark);
 }
 
 /* 间距控制 */
@@ -165,5 +161,4 @@ p + .list-disc {
 .dark .list-decimal > .list-item::before,
 .dark .list-disc > .list-item::before {
     color: var(--text-secondary);
-    text-shadow: var(--text-shadow-dark);
 }

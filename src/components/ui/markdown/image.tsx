@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import NextImage from 'next/image';
-import { cn } from '../../../lib/utils/utils';
+import { cn } from '@/lib/utils/utils';
 import { ImageOff, ZoomIn } from 'lucide-react';
-import { useImageZoom } from '../../../hooks/ui/useImageZoom';
-import { useImageNavigation } from '../../../hooks/features/useImageNavigation';
+import { useImageZoom } from '@/hooks/ui/useImageZoom';
+import { useImageNavigation } from '@/hooks/features/useImageNavigation';
 import dynamic from 'next/dynamic';
 
 interface ImageProps {
