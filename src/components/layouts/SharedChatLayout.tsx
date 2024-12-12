@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Meta from '@/components/ui/Meta';
@@ -56,6 +56,7 @@ export function SharedChatLayout({
     const { isSidebarOpen, toggleSidebar, isMobile } = useLayout();
     const shortcutManager = useShortcutManager();
     const [isCommandOpen, setIsCommandOpen] = React.useState(false);
+    const mainContentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // 通知父组件侧边栏状态变化
@@ -95,6 +96,28 @@ export function SharedChatLayout({
         };
     }, [shortcutManager, toggleSidebar, router, isMobile]);
 
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        const viewportHandler = () => {
+            const viewport = window.visualViewport;
+            if (!viewport || !mainContentRef.current) return;
+            
+            // 添加 transform 过渡动画
+            mainContentRef.current.style.transform = `translateY(${window.innerHeight - viewport.height}px)`;
+            mainContentRef.current.style.transition = 'transform 0.3s ease-out';
+        };
+
+        // 监听 viewport 变化
+        window.visualViewport?.addEventListener('resize', viewportHandler);
+        window.visualViewport?.addEventListener('scroll', viewportHandler);
+
+        return () => {
+            window.visualViewport?.removeEventListener('resize', viewportHandler);
+            window.visualViewport?.removeEventListener('scroll', viewportHandler);
+        };
+    }, [isMobile]);
+
     return (
         <>
             <CommandDialog 
@@ -125,12 +148,16 @@ export function SharedChatLayout({
                 )}
 
                 {/* 主内容区 */}
-                <div className={`
-                    w-full flex flex-col relative
-                    ${isSidebarOpen && !isMobile ? 'ml-[220px]' : 'ml-0'}
-                `}>
+                <div 
+                    ref={mainContentRef}
+                    className={`
+                        flex flex-col h-full w-full overflow-hidden
+                        will-change-transform
+                        ${isSidebarOpen && !isMobile ? 'ml-[220px]' : 'ml-0'}
+                    `}
+                >
                     {/* 头部工具栏 */}
-                    <header className="flex-none bg-white dark:bg-[#212121] z-30 px-4 py-2.5">
+                    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#212121] z-30">
                         <div className="flex items-center gap-3 w-full">
                             <HomeHeaderIcon 
                                 isSidebarOpen={isSidebarOpen} 
@@ -154,9 +181,9 @@ export function SharedChatLayout({
 
                     {/* 主要内容 */}
                     {renderMainContent?.() || (
-                        <div className="flex-1 min-h-0">
-                            <div className="h-full overflow-auto scroll-container">
-                                <div className="py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
+                        <div className="flex-1 flex flex-col w-full pt-12">
+                            <div className="flex-1 overflow-auto scroll-container">
+                                <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
                                     <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]">
                                         <ChatList />
                                     </div>
@@ -167,12 +194,12 @@ export function SharedChatLayout({
 
                     {/* 底部内容 */}
                     {renderBottomContent?.() || (hasConversation && (
-                        <div className="flex-none bg-transparent">
-                            <div className="w-full max-w-4xl px-3 md:px-0 mx-auto">
+                        <div className="flex flex-col items-center w-full bg-transparent">
+                            <div className="w-full max-w-4xl px-3 md:px-0">
                                 <ChatInputWrapper />
                             </div>
                             <CText />
-                            <div className="h-3" />
+                            <div className="mb-3"/>
                         </div>
                     ))}
 

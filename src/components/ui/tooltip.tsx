@@ -65,6 +65,7 @@ const TooltipContent = React.forwardRef<
         "relative",
         "forced-colors:outline",
         "[&_*]:dir-rtl:text-right",
+        "hidden md:block", // 隐藏移动端显示
         className
       )}
       style={{
