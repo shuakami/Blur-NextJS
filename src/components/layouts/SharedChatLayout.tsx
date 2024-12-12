@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Meta from '@/components/ui/Meta';
@@ -56,7 +56,6 @@ export function SharedChatLayout({
     const { isSidebarOpen, toggleSidebar, isMobile } = useLayout();
     const shortcutManager = useShortcutManager();
     const [isCommandOpen, setIsCommandOpen] = React.useState(false);
-    const mainContentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // 通知父组件侧边栏状态变化
@@ -96,28 +95,6 @@ export function SharedChatLayout({
         };
     }, [shortcutManager, toggleSidebar, router, isMobile]);
 
-    useEffect(() => {
-        if (!isMobile) return;
-        
-        const viewportHandler = () => {
-            const viewport = window.visualViewport;
-            if (!viewport || !mainContentRef.current) return;
-            
-            // 添加 transform 过渡动画
-            mainContentRef.current.style.transform = `translateY(${window.innerHeight - viewport.height}px)`;
-            mainContentRef.current.style.transition = 'transform 0.3s ease-out';
-        };
-
-        // 监听 viewport 变化
-        window.visualViewport?.addEventListener('resize', viewportHandler);
-        window.visualViewport?.addEventListener('scroll', viewportHandler);
-
-        return () => {
-            window.visualViewport?.removeEventListener('resize', viewportHandler);
-            window.visualViewport?.removeEventListener('scroll', viewportHandler);
-        };
-    }, [isMobile]);
-
     return (
         <>
             <CommandDialog 
@@ -128,10 +105,10 @@ export function SharedChatLayout({
                 pageName={title}
                 pageDescription={description}
             />
-            <div className="w-full h-[100dvh] flex overflow-hidden relative bg-white dark:bg-[#212121]">
+            <div className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
                 {/* 侧边栏 */}
                 <div className={`
-                    fixed top-0 left-0 h-[100dvh] z-50 w-[220px]
+                    fixed top-0 left-0 h-full z-50 w-[220px]
                     transform transition-transform duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-[220px]'}
                 `}>
@@ -148,14 +125,11 @@ export function SharedChatLayout({
                 )}
 
                 {/* 主内容区 */}
-                <div 
-                    ref={mainContentRef}
-                    className={`
-                        flex flex-col h-full w-full overflow-hidden
-                        will-change-transform
-                        ${isSidebarOpen && !isMobile ? 'ml-[220px]' : 'ml-0'}
-                    `}
-                >
+                <div className={`
+                    flex flex-col h-full w-full overflow-hidden
+                    transition-[margin] duration-300 ease-in-out
+                    ${isSidebarOpen && !isMobile ? 'ml-[220px]' : 'ml-0'}
+                `}>
                     {/* 头部工具栏 */}
                     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#212121] z-30">
                         <div className="flex items-center gap-3 w-full">
