@@ -126,12 +126,11 @@ export function SharedChatLayout({
 
                 {/* 主内容区 */}
                 <div className={`
-                    flex flex-col h-full w-full overflow-hidden
-                    transition-[margin] duration-300 ease-in-out
+                    w-full flex flex-col relative
                     ${isSidebarOpen && !isMobile ? 'ml-[220px]' : 'ml-0'}
                 `}>
                     {/* 头部工具栏 */}
-                    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#212121] z-30">
+                    <header className="flex-none bg-white dark:bg-[#212121] z-30 px-4 py-2.5">
                         <div className="flex items-center gap-3 w-full">
                             <HomeHeaderIcon 
                                 isSidebarOpen={isSidebarOpen} 
@@ -155,9 +154,9 @@ export function SharedChatLayout({
 
                     {/* 主要内容 */}
                     {renderMainContent?.() || (
-                        <div className="flex-1 flex flex-col w-full pt-12">
-                            <div className="flex-1 overflow-auto scroll-container">
-                                <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
+                        <div className="flex-1 min-h-0">
+                            <div className="h-full overflow-auto scroll-container">
+                                <div className="py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
                                     <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]">
                                         <ChatList />
                                     </div>
@@ -168,12 +167,12 @@ export function SharedChatLayout({
 
                     {/* 底部内容 */}
                     {renderBottomContent?.() || (hasConversation && (
-                        <div className="flex flex-col items-center w-full bg-transparent">
-                            <div className="w-full max-w-4xl px-3 md:px-0">
+                        <div className="flex-none bg-transparent">
+                            <div className="w-full max-w-4xl px-3 md:px-0 mx-auto">
                                 <ChatInputWrapper />
                             </div>
                             <CText />
-                            <div className="mb-3"/>
+                            <div className="h-3" />
                         </div>
                     ))}
 
