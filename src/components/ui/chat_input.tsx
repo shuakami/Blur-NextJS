@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import useTranslation from '../../hooks/i18n/useTranslation';
+import useTranslation from '@/hooks/i18n/useTranslation';
 import { useChatStateContext } from '@/app/[上下文]/ChatContext';
-import { toast } from '../../hooks/ui/use-toast';
+import { toast } from '@/hooks/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { debounce } from 'lodash';
 import { useShortcutManager } from '@/providers/ShortcutProvider';
@@ -229,12 +229,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, [message, isSending, onSend]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        // 检查是否是移动设备的输入法回车
-        const isMobileKeyboard = e.nativeEvent?.isComposing; // 用于检测输入法组合键
-    
-        if (e.key === 'Enter' && !e.shiftKey && !isMobileKeyboard) {
-            e.preventDefault();
-            handleSend();
+        // 桌面端回车发送，移动端回车换行
+        if (e.key === 'Enter' && !e.shiftKey) {
+            if (window.innerWidth > 768) {
+                // 桌面端回车发送
+                e.preventDefault();
+                handleSend();
+            }
+            // 移动端自然换行
         }
     }, [handleSend]);
 
@@ -292,7 +294,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <div className="group relative flex w-full flex-col">
                     <div className="flex w-full items-end gap-1.5 rounded-[26px] p-2 
                                   bg-[#f4f4f4] dark:bg-[#2a2a2a] 
-                                  transition-colors duration-200">
+                                  transition-colors duration-200
+                                  transform-gpu">
                         <div className="flex min-w-0 flex-1 flex-col pl-4">
                             <textarea
                                 ref={textareaRef}
@@ -309,7 +312,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                          scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600
                                          scrollbar-track-transparent
                                          transition-none
-                                         overflow-y-auto"
+                                         overflow-y-auto
+                                         focus:transform-none"
                                 style={{
                                     minHeight: `${MIN_HEIGHT}px`,
                                     maxHeight: `${maxHeight}px`,

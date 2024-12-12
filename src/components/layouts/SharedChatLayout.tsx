@@ -105,10 +105,10 @@ export function SharedChatLayout({
                 pageName={title}
                 pageDescription={description}
             />
-            <div className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
+            <div className="w-full h-[100dvh] flex overflow-hidden relative bg-white dark:bg-[#212121]">
                 {/* 侧边栏 */}
                 <div className={`
-                    fixed top-0 left-0 h-full z-50 w-[220px]
+                    fixed top-0 left-0 h-[100dvh] z-50 w-[220px]
                     transform transition-transform duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-[220px]'}
                 `}>

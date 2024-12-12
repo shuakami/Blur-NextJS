@@ -125,7 +125,7 @@ const UpdatePage: React.FC<UpdatePageProps> = ({ updates }) => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-black py-4 px-6 md:px-0">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-black py-4 px-6 md:px-0">
             {/* 头部区域 */}
             <div className="w-full max-w-screen-xl mx-auto px-6 pt-16 pb-24">
                 <div className="max-w-2xl mx-auto text-center space-y-6">
@@ -144,7 +144,7 @@ const UpdatePage: React.FC<UpdatePageProps> = ({ updates }) => {
                 className={`transition-opacity duration-200 ${isContentReady ? 'opacity-100' : 'opacity-0'}`}
             >
                 <div className="w-full max-w-screen-xl mx-auto px-4 md:px-6 pb-32">
-                    <div className="max-w-3xl mx-auto">
+                    <div className="max-w-4xl mx-auto">
                         <div className="relative">
                             {/* 主时间线 - 确保延伸到底部 */}
                             <div className="hidden md:block absolute left-[139px] top-0 bottom-0 w-px">

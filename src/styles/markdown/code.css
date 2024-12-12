@@ -31,6 +31,7 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 500;
     margin: 0 0.15em;
+    white-space: pre-wrap;
 }
 
 /* 代码块容器样式 */
