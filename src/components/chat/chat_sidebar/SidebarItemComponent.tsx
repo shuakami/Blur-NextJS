@@ -238,6 +238,11 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
         }
     }, [item.label, isEditing]);
 
+    // 当 item.label 更新时，同步更新 newTitle
+    useEffect(() => {
+        setNewTitle(item.label);
+    }, [item.label]);
+
     return (
         <div className="relative">
             <ConfirmModal
