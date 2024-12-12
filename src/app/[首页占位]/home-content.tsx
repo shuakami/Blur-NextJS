@@ -126,7 +126,7 @@ export default function HomepageContent({ onFirstMessage, className }: HomepageC
   const { title, isDone } = useTitleAnimation(TARGET_TEXT, RANDOM_CHARS);
 
   return (
-    <div className={`mx-auto flex h-full w-full pt-[35vh] flex-col text-base justify-center max-w-3xl ${className ?? ''}`}>
+    <div className={`mx-auto flex h-full w-full flex-col text-base justify-center max-w-3xl ${className ?? ''}`}>
       {/* 标题区域 */}
       <div className="mb-8 text-center mt-0">
         <div className={`transition-opacity duration-300 ease-out ${title ? 'opacity-100' : 'opacity-0'}`}>
