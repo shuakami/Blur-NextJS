@@ -113,9 +113,11 @@ export default function ChatPage() {
 // 错误边界组件
 function ChatErrorFallback({ error }: { error: Error }) {
     return (
-        <div className="text-center py-4">
-            <p>聊天加载失败</p>
-            <p className="text-sm text-gray-500">{error.message}</p>
+        <div className="flex items-center justify-center min-h-[120px] w-full">
+            <div className="text-center space-y-2">
+                <p className="text-gray-800 dark:text-gray-200">聊天加载失败</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{error.message}</p>
+            </div>
         </div>
     );
 }
@@ -123,11 +125,10 @@ function ChatErrorFallback({ error }: { error: Error }) {
 function PageErrorFallback({ error }: { error: Error }) {
     return (
         <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-                <h1 className="text-xl font-bold mb-2">页面加载失败</h1>
-                <p className="text-gray-500">{error.message}</p>
+            <div className="text-center space-y-3 px-4">
+                <h1 className="text-xl font-medium text-gray-800 dark:text-gray-200">页面加载失败</h1>
+                <p className="text-gray-500 dark:text-gray-400 max-w-[320px]">{error.message}</p>
             </div>
         </div>
     );
 }
-

@@ -1,11 +1,9 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import useTranslation from '@/hooks/i18n/useTranslation';
 import { useChatStateContext } from '@/app/[上下文]/ChatContext';
-import { toast } from '@/hooks/ui/use-toast';
-import { ToastAction } from '@/components/ui/toast';
-import { debounce } from 'lodash';
 import { useShortcutManager } from '@/providers/ShortcutProvider';
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts';
+import { toast } from '@/hooks/ui/use-toast';
 
 interface ChatInputProps {
     onSend: (message: string) => void;
@@ -18,12 +16,8 @@ const INITIAL_HEIGHT = 40;
 const MIN_HEIGHT = 40;
 const DEFAULT_MAX_LENGTH = 10000;
 const THRESHOLD_RATIO = 0.8;
-const DRAFT_KEY = 'chat_input_draft';
 
-// 添加一个标记来追踪 toast 是否已显示
-let toastShown = false;
-
-// 优化后的发送按钮组件
+// 发送按钮组件
 const SendButton = React.memo(({ 
     message, 
     isSending,
@@ -37,13 +31,13 @@ const SendButton = React.memo(({
     onStop: () => void;
     onClick: () => void; 
 }) => {
-    const buttonClassName = useMemo(() => `
+    const buttonClassName = `
         flex h-8 w-8 items-center justify-center 
         rounded-full transition-all duration-300 
         relative focus-visible:outline-none
         ${message || isStreaming ? 'bg-gray-900 dark:bg-white' : 'bg-gray-200 dark:bg-gray-700'}
         ${isSending ? 'scale-95' : 'scale-100'}
-    `, [message, isStreaming, isSending]);
+    `;
 
     return (
         <button
@@ -91,124 +85,55 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     const maxHeight = 200;
 
-    // 优化初始化检查和恢复逻辑
-    useEffect(() => {
-        if (toastShown) return; // 防止重复显示
-
-        try {
-            const savedDraft = localStorage.getItem(DRAFT_KEY);
-            if (savedDraft?.trim()) {
-                toastShown = true;
-                toast({
-                    title: '发现未送的消息',
-                    description: '是否要恢复上次未发送的内容？',
-                    action: (
-                        <ToastAction altText="恢复" onClick={() => {
-                            setMessage(savedDraft);
-                            localStorage.removeItem(DRAFT_KEY);
-                            toastShown = false;
-                        }}>
-                            恢复
-                        </ToastAction>
-                    ),
-                });
-            }
-        } catch (error) {
-            console.error('读取草稿失败:', error);
-        }
-
-        // 组件卸载时重置标记
-        return () => {
-            toastShown = false;
-        };
-    }, []);
-
-    // 优化自动保存草稿
-    const debouncedSave = useMemo(
-        () =>
-            debounce((text: string) => {
-                // 如果正在发送消息，不保存草稿
-                if (isSending) return;
-                
-                if (!text.trim()) {
-                    localStorage.removeItem(DRAFT_KEY);
-                    return;
-                }
-
-                // 只有当内容变化时才存储
-                const currentDraft = localStorage.getItem(DRAFT_KEY);
-                if (currentDraft !== text) {
-                    try {
-                        localStorage.setItem(DRAFT_KEY, text);
-                    } catch (error) {
-                        console.error('保存草稿失败:', error);
-                    }
-                }
-            }, 1000),
-        [isSending]
-    );
-
-    // 在组件卸载时取消待处理的防抖操作
-    useEffect(() => {
-        return () => {
-            debouncedSave.cancel();
-        };
-    }, [debouncedSave]);
-
-    // 使用 ResizeObserver 替代手动计算高度
-    useEffect(() => {
-        if (!textareaRef.current) return;
-        
+    // 处理高度自适应
+    const updateHeight = useCallback(() => {
         const textarea = textareaRef.current;
+        if (!textarea) return;
         
-        // 初始化样式
         textarea.style.height = `${INITIAL_HEIGHT}px`;
-        textarea.style.overflowY = 'hidden';
+        const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+        textarea.style.height = `${newHeight}px`;
+        textarea.style.overflowY = newHeight === maxHeight ? 'auto' : 'hidden';
+    }, [maxHeight]);
+
+    // 监听内容变化
+    useEffect(() => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
         
-        const resizeObserver = new ResizeObserver(() => {
-            if (!textarea.value) {
-                textarea.style.height = `${INITIAL_HEIGHT}px`;
-                return;
-            }
-            
-            const currentHeight = textarea.scrollHeight;
-            if (currentHeight <= maxHeight) {
-                textarea.style.height = `${currentHeight}px`;
-                textarea.style.overflowY = 'hidden';
-            } else {
-                textarea.style.height = `${maxHeight}px`;
-                textarea.style.overflowY = 'auto';
-            }
-        });
-        
+        const resizeObserver = new ResizeObserver(updateHeight);
         resizeObserver.observe(textarea);
         
         return () => resizeObserver.disconnect();
-    }, [maxHeight]);
+    }, [updateHeight]);
 
-    // 简化的消息处理函数
+    // 处理消息输入
     const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const textarea = e.target;
-        const newMessage = textarea.value;
-        
+        const newMessage = e.target.value;
         if (newMessage.length <= maxLength) {
             setMessage(newMessage);
-            
-            // 直接调整高度，不使用额外的 div
-            textarea.style.height = 'auto';
-            const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-            textarea.style.height = `${newHeight}px`;
-            
-            // 使用 requestIdleCallback 处理草稿保存
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(() => debouncedSave(newMessage));
-            } else {
-                setTimeout(() => debouncedSave(newMessage), 1000);
-            }
+            queueMicrotask(updateHeight);
         }
-    }, [maxLength, maxHeight, debouncedSave]);
+    }, [maxLength, updateHeight]);
 
-    // 优化 handleSend
+    // 处理粘贴事件
+    const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const pastedText = e.clipboardData.getData('text');
+        const currentText = e.currentTarget.value;
+        const selectionStart = e.currentTarget.selectionStart;
+        const selectionEnd = e.currentTarget.selectionEnd;
+        
+        const newText = currentText.slice(0, selectionStart) + pastedText + currentText.slice(selectionEnd);
+        
+        if (newText.length > maxLength) {
+            e.preventDefault();
+            const truncatedText = newText.slice(0, maxLength);
+            setMessage(truncatedText);
+            queueMicrotask(updateHeight);
+        }
+    }, [maxLength]);
+
+    // 处理消息发送
     const handleSend = useCallback(async () => {
         if (!message.trim() || isSending) return;
         
@@ -216,8 +141,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         try {
             await onSend(message);
             setMessage('');
-            localStorage.removeItem(DRAFT_KEY);
-            toastShown = false; // 重置 toast 标记
             if (textareaRef.current) {
                 textareaRef.current.style.height = `${INITIAL_HEIGHT}px`;
             }
@@ -228,65 +151,58 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     }, [message, isSending, onSend]);
 
+    // 处理键盘事件
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        // 桌面端回车发送，移动端回车换行
-        if (e.key === 'Enter' && !e.shiftKey) {
-            if (window.innerWidth > 768) {
-                // 桌面端回车发送
-                e.preventDefault();
-                handleSend();
-            }
-            // 移动端自然换行
+        if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
+            e.preventDefault();
+            handleSend();
         }
     }, [handleSend]);
 
-    const showCounter = message.length > maxLength * THRESHOLD_RATIO;
-
     // 聚焦输入框
     const focusInput = useCallback(() => {
-        if (textareaRef.current) {
-            textareaRef.current.focus();
-            // 如果当前输入框的值是 "/"，则清空它
-            if (textareaRef.current.value === '/') {
-                textareaRef.current.value = '';
+        const textarea = textareaRef.current;
+        if (textarea) {
+            textarea.focus();
+            if (textarea.value === '/') {
+                textarea.value = '';
             }
         }
     }, []);
 
     // 注册快捷键
     useEffect(() => {
+        const handleSlashKey = (e: KeyboardEvent) => {
+            const isSlashKey = e.key === '/' || e.key === 'Slash';
+            const isInputActive = document.activeElement?.tagName === 'INPUT' || 
+                                document.activeElement?.tagName === 'TEXTAREA';
+            
+            if (isSlashKey && !isInputActive) {
+                e.preventDefault();
+                focusInput();
+            }
+        };
+
         shortcutManager.register({
             command: 'FOCUS_CHAT',
             key: SHORTCUTS.FOCUS_CHAT,
             description: SHORTCUT_DESCRIPTIONS.FOCUS_CHAT,
             handler: focusInput,
             condition: () => {
-                // 只在不是输入状态时触发
-                return (
-                    document.activeElement?.tagName !== 'INPUT' && 
-                    document.activeElement?.tagName !== 'TEXTAREA'
-                );
+                return document.activeElement?.tagName !== 'INPUT' && 
+                       document.activeElement?.tagName !== 'TEXTAREA';
             }
         });
 
-        // 额外添加键盘事件监听器来处理 "/" 键
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const isSlashKey = e.key === '/' || e.key === 'Slash';
-            if (isSlashKey && 
-                document.activeElement?.tagName !== 'INPUT' && 
-                document.activeElement?.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-                focusInput();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keydown', handleSlashKey);
 
         return () => {
             shortcutManager.unregister('FOCUS_CHAT');
-            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keydown', handleSlashKey);
         };
     }, [shortcutManager, focusInput]);
+
+    const showCounter = message.length > maxLength * THRESHOLD_RATIO;
 
     return (
         <div className="max-w-3xl mx-auto px-4">
@@ -294,13 +210,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <div className="group relative flex w-full flex-col">
                     <div className="flex w-full items-end gap-1.5 rounded-[26px] p-2 
                                   bg-[#f4f4f4] dark:bg-[#2a2a2a] 
-                                  transition-colors duration-200
-                                  transform-gpu">
+                                  transition-colors duration-200">
                         <div className="flex min-w-0 flex-1 flex-col pl-4">
                             <textarea
                                 ref={textareaRef}
                                 value={message}
                                 onChange={handleMessageChange}
+                                onPaste={handlePaste}
                                 onKeyDown={handleKeyDown}
                                 placeholder={t(placeholder)}
                                 rows={1}
@@ -311,13 +227,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                          focus:outline-none
                                          scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600
                                          scrollbar-track-transparent
-                                         transition-none
-                                         overflow-y-auto
-                                         focus:transform-none"
+                                         transition-none"
                                 style={{
                                     minHeight: `${MIN_HEIGHT}px`,
                                     maxHeight: `${maxHeight}px`,
-                                    height: 'auto'
                                 }}
                             />
                         </div>
@@ -334,9 +247,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     </div>
                     
                     {showCounter && (
-                        <div
-                            className="absolute -bottom-6 right-2 text-xs text-gray-500"
-                        >
+                        <div className="absolute -bottom-6 right-2 text-xs text-gray-500">
                             {message.length}/{maxLength}
                         </div>
                     )}

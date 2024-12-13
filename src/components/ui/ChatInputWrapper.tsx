@@ -6,12 +6,14 @@ import React, { useCallback, useState } from 'react';
 import ChatInput from './chat_input';
 import { useMessageContext, useConversationContext } from '@/app/[上下文]/contexts';
 import { useModel } from '@/components/ui/model_selector';
+import useTranslation from '@/hooks/i18n/useTranslation';
 
 interface ChatInputWrapperProps {
     onFirstMessage?: () => void;
 }
 
 const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) => {
+    const { t } = useTranslation();
     const { selectedModel } = useModel();
     const { messages, sendMessage, retryMessage } = useMessageContext();
     const { conversationId } = useConversationContext();
@@ -54,7 +56,7 @@ const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) =
         return (
             <div className="px-4 py-2">
                 <div className="mb-3 text-center text-xs text-gray-500 dark:text-gray-400">
-                    生成回复时出错
+                    {t('生成回复时出错')}
                 </div>
                 <div className="flex items-center">
                     <button
@@ -86,14 +88,14 @@ const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) =
                                 fill="currentColor"
                             />
                         </svg>
-                        {isRetrying ? '重试中...' : '重新生成'}
+                        {isRetrying ? t('重试中...') : t('重新生成')}
                     </button>
                 </div>
             </div>
         );
     }
 
-    return <ChatInput onSend={handleSend} />;
+    return <ChatInput onSend={handleSend} placeholder={t("给 Blur 发送消息")} />;
 };
 
 export default ChatInputWrapper;
