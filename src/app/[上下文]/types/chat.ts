@@ -2,7 +2,12 @@ import { Message, MessageStatus } from '@/types/stream';
 
 export interface MessageState {
     messages: Message[];
-    sendMessage: (message: string, model: string, conversationId?: string) => void;
+    sendMessage: (options: {
+        message: string;
+        model: string;
+        conversationId?: string;
+        files?: File[];
+    }) => void;
     addMessage: (message: Message) => void;
     updateMessage: (messageId: string, updates: Partial<Message & { sendStatus?: MessageStatus }>) => void;
     clearMessages: () => void;

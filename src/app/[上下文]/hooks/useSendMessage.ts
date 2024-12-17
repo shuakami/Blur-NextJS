@@ -1,10 +1,11 @@
 import { useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { sendMessageAPI, stopStreamAPI } from '../api/chatAPI';
-import { Message } from '@/types/stream';
+import { FileInfo, Message } from '@/types/stream';
 import dialogProcessor from '../core/DialogProcessor';
 import { Dispatch } from 'react';
 import { Action } from '../core/chatReducer';
+import { ImageData } from '@/types/stream';
 import { 
     MessageWithStatus, 
     RetryableMessage,
@@ -32,6 +33,13 @@ interface UseSendMessageProps {
     userId?: string;
     userImageUrl?: string;
     messagesRef: React.MutableRefObject<Message[]>;
+}
+
+interface SendMessageOptions {
+    message: string;
+    model: string;
+    files?: File[];
+    conversationId?: string;
 }
 
 const useSendMessage = ({
@@ -62,8 +70,9 @@ const useSendMessage = ({
     // 消息对初始化
     const initializeMessagePair = useCallback((
         message: string,
-        existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus }
-    ): MessagePair => {
+        existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus },
+        files?: File[]
+    ) => {
         if (existingPair?.userMessage && existingPair?.botMessage) {
             const userMessage = { 
                 ...existingPair.userMessage, 
@@ -92,7 +101,10 @@ const useSendMessage = ({
         }
 
         const userMessage = createMessageWithStatus(
-            dialogProcessor.createUserMessage(message, userImageUrl),
+            {
+                ...dialogProcessor.createUserMessage(message, userImageUrl),
+                files
+            },
             'pending'
         );
         const botMessage = createMessageWithStatus(
@@ -157,20 +169,62 @@ const useSendMessage = ({
         dispatch({ type: 'SET_LOADING', payload: false });
     }, [dispatch, t, updateMessageStates]);
 
+    // 添加工具函数
+    const convertFileToBase64 = async (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result as string;
+                // 移除 data:image/jpeg;base64, 前缀
+                resolve(base64.split(',')[1]);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const processImageData = async (file: File | FileInfo): Promise<ImageData> => {
+        if ('base64_data' in file) {
+            // 已经是 base64 格式
+            return {
+                base64_data: file.base64_data || '',
+                image_type: file.type.split('/')[1] as 'jpeg' | 'jpg' | 'png'
+            };
+        } else if ('url' in file) {
+            // 如果是 URL，需要先获取文件再转换
+            const response = await fetch(file.url || '');
+            const blob = await response.blob();
+            const base64 = await convertFileToBase64(new File([blob], 'image', { type: file.type }));
+            return {
+                base64_data: base64,
+                image_type: file.type.split('/')[1] as 'jpeg' | 'jpg' | 'png'
+            };
+        } else {
+            // 浏览器 File 对象
+            const base64 = await convertFileToBase64(file as File);
+            return {
+                base64_data: base64,
+                image_type: file.type.split('/')[1] as 'jpeg' | 'jpg' | 'png'
+            };
+        }
+    };
+
     // [CORE] 发送消息逻辑
     const sendMessageCore = useCallback(async (
         message: string,
         model: string,
         inputConversationId?: string,
-        existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus }
+        existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus },
+        files?: File[]
     ) => {
+        console.log('sendMessageCore 接收到的文件:', files);
         if (!userId) {
             addMessage(dialogProcessor.createErrorMessage(t('无法发送消息，用户未登录或未授权。')));
             return;
         }
 
         const activeConversationId = inputConversationId || state.conversationId;
-        const messagePair = initializeMessagePair(message, existingPair);
+        const messagePair = initializeMessagePair(message, existingPair, files);
         
         handleStreamState(messagePair.botMessage.message_id || null);
         dispatch({ type: 'SET_LOADING', payload: true });
@@ -184,12 +238,23 @@ const useSendMessage = ({
                 throw new Error(t('无法获取 JWT，用户未授权'));
             }
 
+            const images = await Promise.all(
+                (files || [])
+                    .filter(file => 
+                        ('type' in file && file.type.startsWith('image/')) || 
+                        ('url' in file) || 
+                        ('base64_data' in file)
+                    )
+                    .map(processImageData)
+            );
+
             await sendMessageAPI({
                 userInput: message,
                 userId,
                 token,
                 conversationId: activeConversationId,
                 model: model,
+                images: images.length > 0 ? images : undefined,
                 onInitialResponse: (initialResponse) => {
                     const conversationId = initialResponse.conversation_id;
                     if (!state.conversationId) {
@@ -318,7 +383,8 @@ const useSendMessage = ({
                 { 
                     userMessage: userMessage as MessageWithStatus,
                     botMessage: botMessage as MessageWithStatus 
-                }
+                },
+                userMessage.files as File[]
             );
         } catch (error) {
             console.error('重试失败:', error);
@@ -385,8 +451,9 @@ const useSendMessage = ({
     }, [state.conversationId, userId, handleStreamState, updateMessageStates]);
 
     // 公开接口
-    const sendMessage = useCallback((message: string, model: string) => {
-        return sendMessageCore(message, model);
+    const sendMessage = useCallback(({ message, model, files, conversationId }: SendMessageOptions) => {
+        console.log('sendMessage 接收到的参数:', { message, model, files, conversationId });
+        return sendMessageCore(message, model, conversationId, undefined, files);
     }, [sendMessageCore]);
 
     return { 

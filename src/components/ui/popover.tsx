@@ -31,37 +31,21 @@ const PopoverContent = React.forwardRef<
           "z-50 origin-top-right",
           "bg-white dark:bg-gray-900",
           "focus:outline-none",
-          
-          // 移动端样式
-          isMobile ? cn(
-            "fixed inset-x-0 bottom-0",
-            "w-full",
-            "rounded-t-2xl",
-            "border-t border-gray-200 dark:border-gray-800",
-            "max-h-[70vh]",
-            "overflow-hidden"
-          ) : cn(
-            // 桌面端样式
-            "rounded-xl",
-            "border border-gray-200 dark:border-gray-800",
-            "py-1 px-1.5",
-            "shadow-[0_5px_30px_-12px_rgba(0,0,0,0.18)] dark:shadow-[0_5px_30px_-12px_rgba(0,0,0,0.45)]",
-          ),
-
+          // 桌面端样式
+          "rounded-xl",
+          "border border-gray-200 dark:border-gray-800",
+          "py-1 px-1.5",
+          "shadow-[0_5px_30px_-12px_rgba(0,0,0,0.18)] dark:shadow-[0_5px_30px_-12px_rgba(0,0,0,0.45)]",
           // 动画
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          isMobile ? cn(
-            "data-[state=closed]:slide-out-to-bottom",
-            "data-[state=open]:slide-in-from-bottom",
-          ) : cn(
-            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-            "data-[side=bottom]:slide-in-from-top-2",
-            "data-[side=left]:slide-in-from-right-2",
-            "data-[side=right]:slide-in-from-left-2",
-            "data-[side=top]:slide-in-from-bottom-2",
-          ),
-          
+          "sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95",
+          "sm:data-[side=bottom]:slide-in-from-top-2",
+          "sm:data-[side=left]:slide-in-from-right-2", 
+          "sm:data-[side=right]:slide-in-from-left-2",
+          "sm:data-[side=top]:slide-in-from-bottom-2",
+          "max-sm:data-[state=closed]:slide-out-to-bottom",
+          "max-sm:data-[state=open]:slide-in-from-bottom",
           className
         )}
         {...props}
@@ -81,10 +65,7 @@ const PopoverContent = React.forwardRef<
             </PopoverPrimitive.Close>
           </div>
         )}
-        <div className={cn(
-          isMobile && "px-2 py-2",
-          "space-y-0.5"
-        )}>
+        <div className={cn("space-y-0.5")}>
           {props.children}
         </div>
       </PopoverPrimitive.Content>

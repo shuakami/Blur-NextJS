@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useCallback, useState } from 'react';
-import ChatInput from './chat_input';
+import ChatInput from '../chat/chat_input';
 import { useMessageContext, useConversationContext } from '@/app/[上下文]/contexts';
 import { useModel } from '@/components/ui/model_selector';
 import useTranslation from '@/hooks/i18n/useTranslation';
@@ -23,11 +23,19 @@ const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) =
     const lastMessage = messages[messages.length - 1];
     const isLastMessageFailed = lastMessage?.sendStatus === 'failed' && !isRetrying;
 
-    const handleSend = useCallback((message: string) => {
+    const handleSend = useCallback((message: string, files?: File[]) => {
         console.log('发送的消息:', message);
+        console.log('发送的文件:', files);
         const modelCode = selectedModel.code || 'claude';
         console.log('使用的模型代码:', modelCode);
-        sendMessage(message, modelCode, conversationId || undefined);
+
+        sendMessage({
+            message,
+            model: modelCode,
+            conversationId: conversationId || undefined,
+            files
+        });
+
         if (onFirstMessage) {
             onFirstMessage();
         }
@@ -95,7 +103,10 @@ const ChatInputWrapper: React.FC<ChatInputWrapperProps> = ({ onFirstMessage }) =
         );
     }
 
-    return <ChatInput onSend={handleSend} placeholder={t("给 Blur 发送消息")} />;
+    return <ChatInput 
+        onSend={handleSend} 
+        placeholder={t("给 Blur 发送消息")} 
+    />;
 };
 
 export default ChatInputWrapper;

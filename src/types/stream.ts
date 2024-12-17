@@ -10,6 +10,7 @@ interface BaseMessage {
     children_ids: string[];
     version: number;
     modified_count: number;
+    files: File[] | FileInfo[];
 }
 
 // API消息接口
@@ -84,6 +85,12 @@ export interface SendMessageParams {
     parent_message_id?: string;
     user_id: string;
     model?: string;
+    images?: ImageData[];
+}
+
+export interface ImageData {
+    base64_data: string;
+    image_type: 'jpeg' | 'jpg' | 'png';
 }
 
 export interface SendMessageResponse {
@@ -98,6 +105,20 @@ export interface SendMessageResponse {
 }
 
 export type MessageStatus = 'pending' | 'sent' | 'failed' | 'retrying';
+
+export interface FileInfo {
+    name?: string;
+    type: string;
+    size?: number;
+    base64_data?: string;
+    url?: string;
+    // OSS 相关字段
+    bucket?: string;
+    file_type?: string;
+    key?: string;
+    md5?: string;
+    timestamp?: number;
+}
 
 export interface Message {
     id?: string;
@@ -142,6 +163,9 @@ export interface Message {
         code: number;
         message: string;
     };
+
+    // 修改文件字段类型
+    files?: (File | FileInfo)[];  // 支持浏览器 File 对象和我们自己的 FileInfo 接口
 
     // 添加消息发送状态相关字段
     sendStatus?: MessageStatus;

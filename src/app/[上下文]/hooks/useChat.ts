@@ -13,7 +13,12 @@ import useSendMessage from '@/app/[上下文]/hooks/useSendMessage';
 interface ChatReturn {
     // Message State
     messages: Message[];
-    sendMessage: (message: string, model: string, conversationId?: string) => void;
+    sendMessage: (options: {
+        message: string;
+        model: string;
+        conversationId?: string;
+        files?: File[];
+    }) => void;
     addMessage: (message: Message) => void;
     updateMessage: (messageId: string, updates: Partial<Message & { sendStatus?: MessageStatus }>) => void;
     clearMessages: () => void;

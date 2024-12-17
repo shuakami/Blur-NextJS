@@ -36,7 +36,7 @@ interface SharedChatLayoutProps {
 const Overlay = React.memo(({ onClose }: { onClose: () => void }) => (
     <div 
         className="fixed inset-0 bg-black/40 cursor-pointer
-        transition-opacity duration-300 ease-in-out"
+        transition-all duration-300 ease-in-out"
         onClick={onClose}
     />
 ));

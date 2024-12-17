@@ -47,6 +47,11 @@ export const sendMessage = async (
             model: params.model,
         };
 
+        // 添加图片数据
+        if (params.images && params.images.length > 0) {
+            requestBody.images = params.images;
+        }
+
         // 只有在有真实的 conversation_id 时才添加
         if (params.conversation_id && params.conversation_id !== params.model) {
             requestBody.conversation_id = params.conversation_id;

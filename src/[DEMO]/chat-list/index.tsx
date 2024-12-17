@@ -474,6 +474,39 @@ const streamingMessages: Message[] = [
     type: "user",
     content: "请介绍一下 React 框架",
     timestamp: Date.now(),
+    files: [
+      {
+        name: "example.png",
+        type: "image/png",
+        size: 1024,
+        url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
+      },
+      {
+        name: "example.png",
+        type: "image/png",
+        size: 1024,
+        url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
+      },
+      {
+        name: "example.png",
+        type: "image/png",
+        size: 1024,
+        url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
+      },
+      {
+        name: "example.png",
+        type: "image/png",
+        size: 1024,
+        url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
+      },
+      {
+        name: "example.png",
+        type: "image/png",
+        size: 1024,
+        url: "http://localhost:3000/_next/image?url=https%3A%2F%2Foss.cdn.sdjz.wiki%2Fusers%2Fuser_2mFFQeAcORNsVJF186DOVnYAmz4%2Fconversations%2Ffcd63d7b-6d32-4e36-aeda-18eb4ec66c9c%2Ffiles%2F1734402586_0.jpeg&w=1024&q=75",
+      },
+    ],
+    
     status: "active",
   },
   {

@@ -31,13 +31,15 @@ export class DialogProcessor {
     }
 
     // 创建用户消息
-    createUserMessage(content: string, userImageUrl?: string): Message {
+    createUserMessage(content: string, avatarUrl?: string, files?: File[]): Message {
         let message: Partial<Message> = {
             message_id: uuidv4(),
             type: 'user',
             content,
-            avatarUrl: userImageUrl || 'https://github.com/shuakami.png',
-            timestamp: Math.floor(Date.now() / 1000),
+            avatarUrl: avatarUrl || '/avatars/user.png',
+            timestamp: Date.now(),
+            files,
+            status: 'active'
         };
 
         this.plugins.forEach(plugin => {

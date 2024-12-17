@@ -20,12 +20,12 @@ interface CodeBlockProps {
 }
 
 const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = false, language }) => {
-
     const [copied, setCopied] = useState(false);
     const [highlightedCode, setHighlightedCode] = useState(code);
     const [detectedLanguage, setDetectedLanguage] = useState('plaintext');
     const [isLoading, setIsLoading] = useState(false);
     const codeRef = useRef<HTMLElement>(null);
+    const highlightCache = useRef(new Map());
     
     // 预加载常用语言
     useEffect(() => {
@@ -35,7 +35,7 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
     // 内联代码的判断逻辑
     const isInlineCode = useCallback((content: unknown) => {
         const contentStr = String(content);
-        return !contentStr.includes('\n') && contentStr.length <= 100;
+        return contentStr.indexOf('\n') === -1 && contentStr.length <= 100;
     }, []);
     
     // 自动检测语言
@@ -48,6 +48,21 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
             // 处理别名
             return LANGUAGE_ALIASES[declaredLang] || declaredLang;
         }
+
+        // 快速检测常见语言特征
+        if (contentStr.startsWith('import ') || contentStr.includes('export ') || contentStr.includes('interface ')) {
+            return 'typescript';
+        }
+        if (contentStr.startsWith('def ') || contentStr.includes('import ') && contentStr.includes('from ')) {
+            return 'python';
+        }
+        if (contentStr.startsWith('<?php')) {
+            return 'php';
+        }
+        if (contentStr.startsWith('<template>') || contentStr.includes('export default {')) {
+            return 'vue';
+        }
+
         const detectionLanguages = [
             'javascript', 'typescript', 'python', 'java', 
             'cpp', 'c', 'css', 'html', 'xml', 'json',
@@ -63,6 +78,14 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
     // 高亮函数
     const highlightCode = useCallback(
         throttle(async (rawCode: string) => {
+            // 检查缓存
+            const cacheKey = `${rawCode}-${language}`;
+            if (highlightCache.current.has(cacheKey)) {
+                setHighlightedCode(highlightCache.current.get(cacheKey));
+                setDetectedLanguage(language || 'plaintext');
+                return;
+            }
+
             if (!isInlineCode(rawCode) && rawCode.trim().length > 0) {
                 setIsLoading(true);
                 try {
@@ -76,7 +99,9 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
                         language: normalizedLang,
                         ignoreIllegals: true
                     }).value;
+                    
                     setHighlightedCode(highlighted);
+                    highlightCache.current.set(cacheKey, highlighted);
                 } catch (error) {
                     console.error('Highlight failed:', error);
                     setHighlightedCode(rawCode);
@@ -87,7 +112,7 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
                 setHighlightedCode(rawCode);
             }
         }, 200),
-        [detectLanguage, isInlineCode]
+        [detectLanguage, isInlineCode, language]
     );
 
     useEffect(() => {
@@ -108,12 +133,15 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
     }, []);
 
     if (forceRenderBlock) {
-        return <pre className="text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words">
-            <code 
-                className={`language-${language || 'javascript'} hljs`} 
-                dangerouslySetInnerHTML={{ __html: highlightedCode }} 
-            />
-        </pre>;
+        const additionalClass = highlightedCode.indexOf('\n') !== -1 ? '-mt-6' : '';
+        return (
+            <pre className={`text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words ${additionalClass}`}>
+                <code 
+                    className={`language-${language || 'javascript'} hljs`} 
+                    dangerouslySetInnerHTML={{ __html: highlightedCode }} 
+                />
+            </pre>
+        );
     }
 
     if (isInlineCode(code)) {

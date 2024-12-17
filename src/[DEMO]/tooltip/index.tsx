@@ -325,6 +325,7 @@ export default function TooltipShowcase() {
                 <div className="flex gap-3">
                   <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                     <img 
+                      title="头像"
                       src="https://github.com/shuakami.png" 
                       className="w-full h-full object-cover"
                     />

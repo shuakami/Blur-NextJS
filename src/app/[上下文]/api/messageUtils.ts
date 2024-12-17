@@ -37,7 +37,8 @@ export const formatMessages = (
             content: msg.content,              // 消息内容
             timestamp: msg.timestamp,          // 消息时间戳
             status: msg.status,                // 消息状态
-            
+            files: msg.files,
+
             // 消息树结构
             parent_id: msg.parent_id,          // 父消息ID
             children_ids: msg.children_ids,     // 子消息ID数组

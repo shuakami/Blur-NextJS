@@ -106,15 +106,13 @@ export const Image: React.FC<ImageProps> = ({
             <div 
                 className={cn(
                     'relative w-full overflow-hidden my-4 [--img-hover:0] hover:[--img-hover:1]',
-                    'isolation-auto',
+                    'isolation-auto aspect-ratio-container',
+                    'markdown-image-container',
                     isLoading ? 'animate-pulse bg-muted dark:bg-muted/20' : 'bg-transparent',
                     !isLoading && 'cursor-zoom-in',
                     className
                 )} 
-                style={{
-                    maxWidth: '100%',
-                    aspectRatio: aspectRatio ? `${aspectRatio}` : 'auto',
-                }}
+                data-ratio={!!aspectRatio}
                 onClick={() => !isLoading && setIsOpen(true)}
             >
                 <NextImage

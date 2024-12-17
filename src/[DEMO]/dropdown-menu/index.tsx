@@ -319,6 +319,7 @@ function ShareMenuExample() {
             <input
               type="text"
               readOnly
+              placeholder="请输入分享链接"
               value="https://ai.example.com/share/xyz"
               className="flex-1 text-xs bg-transparent border-none outline-none"
             />
@@ -509,6 +510,7 @@ function AISettingsExample() {
           </div>
           <input
             type="range"
+            placeholder="请输入分享链接"
             min="0"
             max="1"
             step="0.1"
@@ -580,6 +582,7 @@ function AISettingsExample() {
           <div className="flex items-center justify-between w-full">
             <span className="text-gray-700 dark:text-gray-200">界面语言</span>
             <select
+              title="请选择界面语言"
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
               className="text-sm bg-transparent border-none outline-none text-gray-600 dark:text-gray-300"

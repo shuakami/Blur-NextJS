@@ -177,7 +177,6 @@ img, iframe {
   decoding: async;
 }
 img {
-  image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 }
 
@@ -584,12 +583,28 @@ html, body {
 .glitch-text {
   animation: glitch 4s infinite;
 }
-
 *:focus {
   outline: none !important;
 }
-
-/* 或者更具体地针对命令面板 */
 [cmdk-root] *:focus {
   outline: none !important;
+}
+
+
+/* File-Upload.tsx | 里面用到的CSS 隐藏滚动条之类的 */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+/* file-upload.tsx | 上传文件的主题颜色 */
+.theme-color {
+  color: var(--theme-color);
+}
+
+.theme-color[data-theme-color] {
+  color: attr(data-theme-color);
 }

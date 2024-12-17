@@ -106,7 +106,7 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({onClose, onUpdateConversati
     );
 
     const userInfo = useMemo(() => ({
-        avatarUrl: user?.imageUrl || 'https://github.com/shuakami.png',
+        avatarUrl: user?.imageUrl || '',
         name: user?.fullName || t('未命名用户'),
         status: 'Test#AL1_0001',
     }), [user?.imageUrl, user?.fullName, t]);

@@ -29,7 +29,7 @@ export default function UnauthenticatedSidebar({onClose}: UnauthenticatedSidebar
     };
 
     return (
-        <div className="flex flex-col h-screen w-[220px] bg-[#F9F9F9]/65 dark:bg-[#171717] text-black dark:text-white">
+        <div className="flex flex-col h-screen w-[220px] bg-white dark:bg-[#171717] text-black dark:text-white">
             <ScrollArea className="flex-grow">
                 <div className="flex space-x-3 mt-[12px] w-44 justify-center items-center mx-4">
                     <Button

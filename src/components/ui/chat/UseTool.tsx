@@ -133,86 +133,84 @@ const UseTool: React.FC<UseToolProps> = ({
   };
 
   return (
-    <>
-      <div className="my-4 rounded-xl border border-gray-200 dark:border-gray-800">
-        {/* 头部 */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-4 py-3 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30">
-              {type === "code" ? (
-                <Code2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              ) : (
-                <Terminal className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              )}
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <span className="font-medium">
-                {getDisplayName()} #{id}
-              </span>
-            </div>
+    <div className={cn(
+      "my-4 rounded-xl border border-gray-200 dark:border-gray-800",
+      "transition-all duration-300 ease-in-out",
+      "hover:border-gray-300 dark:hover:border-gray-700",
+      "grid grid-rows-[auto_0fr]",
+      isExpanded && "grid-rows-[auto_1fr]"
+    )}>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={cn(
+          "w-full px-4 py-3 flex items-center justify-between",
+          "bg-gray-50/50 dark:bg-gray-900/50",
+          "transition-colors duration-300",
+          "hover:bg-gray-100/70 dark:hover:bg-gray-800/70",
+          isExpanded ? "rounded-t-xl" : "rounded-xl"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30 transition-transform duration-200 hover:scale-105">
+            {type === "code" ? (
+              <Code2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            ) : (
+              <Terminal className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            )}
           </div>
-
-          <div className="flex items-center gap-3">
-            {renderStatus()}
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 transition-transform",
-                isExpanded ? "rotate-0" : "-rotate-90"
-              )}
-            />
-          </div>
-        </button>
-
-        {/* 内容区域 */}
-        <div
-          className={cn(
-            "overflow-hidden transition-all duration-200",
-            isExpanded ? "h-full" : "max-h-0"
-          )}
-        >
-          {(content || response) && (
-            <div className="border-t border-gray-100 dark:border-gray-800">
-              {content && (
-                <div className="px-4 py-2">
-                  <div className="-mt-6">
-                    <CodeBlock
-                      code={content}
-                      language={type === "code" ? "python" : "text"}
-                      forceRenderBlock={true}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {status === "response" && response && renderOutput()}
-            </div>
-          )}
+          <span className="text-sm font-medium">
+            {getDisplayName()} #{id}
+          </span>
         </div>
+
+        <div className="flex items-center gap-3">
+          {renderStatus()}
+          <ChevronDown className={cn(
+            "h-4 w-4 transition-transform duration-300",
+            isExpanded && "rotate-180"
+          )} />
+        </div>
+      </button>
+
+      <div className={cn(
+        "overflow-hidden transition-all duration-300",
+        "opacity-0 scale-y-95",
+        isExpanded && "opacity-100 scale-y-100"
+      )}>
+        {(content || response) && (
+          <div className="border-t border-gray-100 dark:border-gray-800">
+            {content && (
+              <div className="px-4 py-2">
+                <CodeBlock
+                  code={content}
+                  language={type === "code" ? "python" : "text"}
+                  forceRenderBlock={true}
+                />
+              </div>
+            )}
+            {status === "response" && response && renderOutput()}
+          </div>
+        )}
       </div>
 
-      {/* 图片展示区域 */}
+      {/* 图片区域 */}
       {imageFiles.length > 0 && (
-        <div className="mt-4 space-y-2">
-          {imageFiles.map((file, index) => (
+        <div className="mt-4 grid gap-2">
+          {imageFiles.map(file => (
             <div 
               key={file.url}
-              className="rounded-lg overflow-hidden"
-              onClick={e => e.stopPropagation()}
-              onMouseEnter={e => e.stopPropagation()}
+              className="rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02]"
             >
               <Image
                 src={processImageUrl(file.url)}
                 alt={file.filename}
-                className="w-full h-full"
+                className="w-full h-full object-cover"
               />
             </div>
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
