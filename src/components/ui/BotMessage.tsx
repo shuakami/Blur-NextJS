@@ -85,24 +85,22 @@ interface ContentItem {
 const CONTENT_SPLIT_REGEX = /(\[USE_TOOL[^\]]*\]|\[USE_TOOL\/\]|<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s;
 const USE_TOOL_REGEX = /\[USE_TOOL type="(code|text)" id="([^"]+)"\]/;
 
-// 创建一个专门的错误处理函数
+// 错误处理工具函数
 const handleError = (error: Error, context: string) => {
   if (process.env.NODE_ENV === 'development') {
-    // 只在开发环境下输出错误
-    console.error(`Error in ${context}:`, error);
+    const errorMessage = `Error in ${context}: ${error.message}`;
+    if (window.__DEV_ERROR_HANDLER__) {
+      window.__DEV_ERROR_HANDLER__(errorMessage, error);
+    }
   }
-  // 可以添加错误上报逻辑
-  // reportError(error);
 };
 
-// 内容处理
+// 内容处理 Hook
 const useContentProcessor = (content: string) => {
-  // 缓存 split 结果
   const parts = useMemo(() => {
     return content.split(CONTENT_SPLIT_REGEX);
   }, [content]);
 
-  // 缓存处理结果
   return useMemo(() => {
     const items: ContentItem[] = [];
     const toolQueue: ToolState[] = [];
@@ -197,14 +195,14 @@ const useContentProcessor = (content: string) => {
   }, [parts]);
 };
 
-// 根据工具类型和状态决定骨架屏样式
+// 工具骨架屏选择函数
 const getToolSkeleton = (tool: ToolState) => {
   if (tool.id === '8') return UseToolSkeletons.weather;
   if (tool.status === 'calling') return UseToolSkeletons.calling;
-  return UseToolSkeletons.collapsed; // 所有其他状态都显示折叠状态
+  return UseToolSkeletons.collapsed;
 };
 
-// 渲染内容
+// MessageContent 组件
 const MessageContent = memo(({ 
   item, 
   index,
@@ -216,6 +214,15 @@ const MessageContent = memo(({
   isStreaming: boolean;
   isLatestBotMessage: boolean;
 }) => {
+
+  const toolFallback = useMemo(() => {
+    if (item.type === "group" && item.group) {
+      const Skeleton = getToolSkeleton(item.group.useTool);
+      return <Skeleton />;
+    }
+    return null;
+  }, [item]);
+
   const processAgentData = (content: string) => {
     try {
       const agentInfo = JSON.parse(
@@ -265,13 +272,8 @@ const MessageContent = memo(({
   if (item.type === "group" && item.group) {
     const tool = item.group.useTool;
     
-    const fallback = useMemo(() => {
-      const Skeleton = getToolSkeleton(tool);
-      return <Skeleton />;
-    }, [tool.id, tool.status]);
-
     return (
-      <Suspense key={index} fallback={fallback}>
+      <Suspense key={index} fallback={toolFallback}>
         <ErrorBoundary
           FallbackComponent={(props) => (
             <ErrorFallback 
@@ -401,4 +403,12 @@ const BotMessage = memo(({
 });
 
 BotMessage.displayName = "BotMessage";
+
+// 类型声明
+declare global {
+  interface Window {
+    __DEV_ERROR_HANDLER__?: (message: string, error: Error) => void;
+  }
+}
+
 export default BotMessage;
