@@ -1,3 +1,4 @@
+import { Skeleton } from '../../skeleton';
 import './skeleton.css';
 
 export const CodeBlockSkeleton = () => (
@@ -57,3 +58,52 @@ export const ImageSkeleton = () => (
     </div>
   </div>
 );
+
+
+
+export const UseToolSkeletons = {
+    // 天气工具专用骨架屏 - 只显示当前天气
+    weather: () => (
+      <div className="space-y-4 p-4">
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+    </div>
+    ),
+    
+    // 通用工具骨架屏 - 折叠状态（默认）
+    collapsed: () => (
+      <div className="my-4 rounded-xl border border-gray-200 dark:border-gray-800">
+        <div className="px-4 py-3 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-4" />
+          </div>
+        </div>
+      </div>
+    ),
+    
+    // 调用状态骨架屏
+    calling: () => (
+      <div className="my-4 rounded-xl border border-gray-200 dark:border-gray-800">
+        <div className="px-4 py-3 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+            <Skeleton className="h-4 w-4" />
+          </div>
+        </div>
+      </div>
+    )
+  } as const;
+  

@@ -1,29 +1,25 @@
 "use client";
 
-import React, {useState, useEffect, useRef, memo, useCallback, useMemo} from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import {
-    ChevronRight,
-    ChevronDown,
-    MoreHorizontal,
-    Check,
-    X,
-    PencilLine,
-    MessageCircleX,
+    ChevronRight, ChevronDown, MoreHorizontal,
+    Check, X, PencilLine, MessageCircleX,
 } from 'lucide-react';
-import {SidebarItem} from './types';
+import { SidebarItem } from './types';
 import CustomButton from './CustomButton';
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
-import {useUser} from '@clerk/nextjs';
-import {deleteConversation, updateConversationTitle} from "@/app/[对话管理]/api";
-import {toast} from '../../../hooks/ui/use-toast';
+import { useUser } from '@clerk/nextjs';
+import { deleteConversation, updateConversationTitle } from "@/app/[对话管理]/api";
+import { toast } from '../../../hooks/ui/use-toast';
 import ConfirmModal from "@/components/ui/tofu/confirm-modal";
-import {useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useConversations } from '../../../app/[对话管理]/ConversationsContext';
 import Link from 'next/link';
 import { useShortcutManager } from '@/providers/ShortcutProvider'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts'
 import { Route } from 'next';
 
+// 常量定义
 const TRANSITION_CLASSES = {
     enter: 'transition-[height] duration-200 ease-out',
     enterFrom: 'h-0',
@@ -33,15 +29,16 @@ const TRANSITION_CLASSES = {
     leaveTo: 'h-0'
 };
 
+const ANIMATION_INTERVAL = 60;
+
 interface SidebarItemComponentProps {
     item: SidebarItem;
     level: number;
     selectedItem: string | null;
     onSelect: (label: string) => void;
-    onUpdateConversations: () => void; // 刷新侧边栏数据
+    onUpdateConversations: () => void;
 }
 
-// 使用 memo 优化组件
 const SidebarItemComponent = memo<SidebarItemComponentProps>(({
     item,
     level,
@@ -49,77 +46,46 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
     onSelect,
     onUpdateConversations
 }) => {
-    const {user} = useUser(); // 获取用户 ID
-    const router = useRouter(); // 用于导航
-    const [isOpen, setIsOpen] = useState<boolean>(true);
-    const [menuOpen, setMenuOpen] = useState<boolean>(false); // 控制菜单是否打开
-    const [isEditing, setIsEditing] = useState<boolean>(false); // 是否处于编辑标题状态
-    const [newTitle, setNewTitle] = useState<string>(item.label); // 存储新的标题
-    const [hover, setHover] = useState<boolean>(false); // 控制hover状态
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // 控制模态框的打开状态
+    const { user } = useUser();
+    const router = useRouter();
     const { removeConversation, updateConversationTitle: updateTitle } = useConversations();
-    const shortcutManager = useShortcutManager()
-    const [displayedTitle, setDisplayedTitle] = useState(item.label);
-    const previousTitleRef = useRef(item.label);
+    const shortcutManager = useShortcutManager();
 
-    const toggleOpen = useCallback(() => setIsOpen(!isOpen), [isOpen]);
+    // Refs
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const previousTitleRef = useRef(item.label);
+    const isRoutingRef = useRef(false);
+    const animationFrameRef = useRef<number>();
+    const intervalRef = useRef<NodeJS.Timeout>();
+
+    // 状态管理
+    const [uiState, setUiState] = useState({
+        isOpen: true,
+        menuOpen: false,
+        isEditing: false,
+        isModalOpen: false,
+        hover: false,
+        displayedTitle: item.label,
+        newTitle: item.label
+    });
+
+    // 计算属性
     const isSelected = selectedItem === item.id;
 
-    const buttonRef = useRef<HTMLButtonElement>(null);
+    // 状态更新函数
+    const updateState = useCallback((updates: Partial<typeof uiState>) => {
+        setUiState(prev => ({ ...prev, ...updates }));
+    }, []);
 
-    // 处理菜单关闭
-    const handleCloseMenu = useCallback(() => setMenuOpen(false), []);
-
-    // 自动聚焦
-    useEffect(() => {
-        if (isEditing && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [isEditing]);
-
-    const handleConfirmDelete = useCallback(async () => {
-        if (!item.id) return;
-        
-        // 关闭模态框
-        setIsModalOpen(false);
-        try {
-            // 删除指定的对话
-            await deleteConversation(item.id, user?.id || '');
-            
-            // 如果当前对话被选中，重定向到首页
-            if (isSelected) {
-                router.push('/?new=true' as Route);
-            }
-            // 从会话列表中移除该对话
-            removeConversation(item.id);
-            
-            // 显示成功提示
-            toast({
-                title: '操作成功',
-                description: '对话已删除',
-                variant: "success"
-            });
-        } catch (e) {
-            // 更新会话列表
-            onUpdateConversations();
-            // 显示失败提示
-            toast({
-                title: '操作失败',
-                description: '对话删除失败',
-                variant: "destructive"
-            });
-        }
-    }, [item.id, user?.id, isSelected, router, removeConversation, onUpdateConversations]);
-
+    // 菜单项定义
     const menuItems = useMemo(() => [
         {
             id: 'update-title',
             text: '更改对话标题',
             icon: PencilLine,
             onClick: () => {
-                setIsEditing(true);
-                setMenuOpen(false);
+                updateState({ isEditing: true, menuOpen: false });
             },
         },
         {
@@ -128,16 +94,42 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
             icon: MessageCircleX,
             isDanger: true,
             onClick: () => {
-                setIsModalOpen(true);
-                setMenuOpen(false);
+                updateState({ isModalOpen: true, menuOpen: false });
             },
         },
-    ], []);
+    ], [updateState]);
 
-    // 提交新标题的处理函数
+    // 处理删除确认
+    const handleConfirmDelete = useCallback(async () => {
+        if (!item.id) return;
+        
+        updateState({ isModalOpen: false });
+        try {
+            await deleteConversation(item.id, user?.id || '');
+            
+            if (isSelected) {
+                router.push('/?new=true' as Route);
+            }
+            removeConversation(item.id);
+            
+            toast({
+                title: '操作成功',
+                description: '对话已删除',
+                variant: "success"
+            });
+        } catch (e) {
+            onUpdateConversations();
+            toast({
+                title: '操作失败',
+                description: '对话删除失败',
+                variant: "destructive"
+            });
+        }
+    }, [item.id, user?.id, isSelected, router, removeConversation, onUpdateConversations, updateState]);
+
+    // 处理标题更新
     const handleSubmitNewTitle = useCallback(async () => {
-        const trimmedTitle = newTitle.trim();
-        // 检查标题和对话ID是否有效
+        const trimmedTitle = uiState.newTitle.trim();
         if (!trimmedTitle || !item.id) {
             toast({
                 title: '操作失败',
@@ -148,12 +140,9 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
         }
 
         try {
-            // 更新本地状态中的标题
             updateTitle(item.id, trimmedTitle);
-            // 更新服务器上的对话标题
             await updateConversationTitle(item.id, trimmedTitle, user?.id || '');
-            // 结束编辑模式
-            setIsEditing(false);
+            updateState({ isEditing: false });
             
             toast({
                 title: '操作成功',
@@ -168,9 +157,98 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                 variant: "destructive"
             });
         }
-    }, [newTitle, item.id, updateTitle, user?.id, onUpdateConversations]);
+    }, [uiState.newTitle, item.id, updateTitle, user?.id, onUpdateConversations, updateState]);
 
-    // 优化子项渲染
+    // 处理选择
+    const handleSelect = useCallback((e: React.MouseEvent) => {
+        if (item.children) {
+            e.preventDefault();
+            updateState({ isOpen: !uiState.isOpen });
+            return;
+        }
+
+        if (!item.id || item.id === selectedItem || isRoutingRef.current) {
+            return;
+        }
+
+        e.preventDefault();
+        isRoutingRef.current = true;
+        onSelect(item.id);
+
+        animationFrameRef.current = requestAnimationFrame(() => {
+            router.push(`/chat/${item.id}` as Route, { scroll: false });
+            isRoutingRef.current = false;
+        });
+    }, [item.id, item.children, selectedItem, uiState.isOpen, onSelect, router, updateState]);
+
+    // 清理函数
+    const cleanup = useCallback(() => {
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+        }
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+    }, []);
+
+    // 自动聚焦
+    useEffect(() => {
+        if (uiState.isEditing && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [uiState.isEditing]);
+
+    // 注册快捷键
+    useEffect(() => {
+        if (isSelected && item.id) {
+            shortcutManager.register({
+                command: 'DELETE_CHAT',
+                key: SHORTCUTS.DELETE_CHAT,
+                description: SHORTCUT_DESCRIPTIONS.DELETE_CHAT,
+                handler: () => updateState({ isModalOpen: true }),
+                condition: () => document.activeElement?.tagName !== 'INPUT'
+            });
+
+            return () => {
+                shortcutManager.unregister('DELETE_CHAT');
+            };
+        }
+    }, [isSelected, item.id, shortcutManager, updateState]);
+
+    // 处理标题动画
+    useEffect(() => {
+        if (uiState.isEditing) {
+            updateState({ 
+                displayedTitle: item.label,
+                newTitle: item.label 
+            });
+            previousTitleRef.current = item.label;
+            return;
+        }
+
+        if (item.label !== previousTitleRef.current && !isRoutingRef.current) {
+            let index = 0;
+            const targetTitle = item.label;
+            
+            cleanup();
+            
+            intervalRef.current = setInterval(() => {
+                updateState({
+                    displayedTitle: targetTitle.substring(0, index)
+                });
+                index++;
+                
+                if (index > targetTitle.length) {
+                    cleanup();
+                    previousTitleRef.current = targetTitle;
+                }
+            }, ANIMATION_INTERVAL);
+        }
+
+        return cleanup;
+    }, [item.label, uiState.isEditing, cleanup, updateState]);
+
+    // 渲染子项
     const renderChildren = useCallback(() => (
         item.children?.map((child) => (
             <div key={child.id}>
@@ -194,134 +272,86 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
         ))
     ), [item.children, level, selectedItem, onSelect, onUpdateConversations]);
 
-    // 注册快捷键
-    useEffect(() => {
-        if (isSelected && item.id) {  // 只在当前对话被选中时注册快捷键
-            shortcutManager.register({
-                command: 'DELETE_CHAT',
-                key: SHORTCUTS.DELETE_CHAT,
-                description: SHORTCUT_DESCRIPTIONS.DELETE_CHAT,
-                handler: () => setIsModalOpen(true),  // 打开删除确认框
-                condition: () => document.activeElement?.tagName !== 'INPUT'  // 不在输入状态时生效
-            })
-
-            return () => {
-                shortcutManager.unregister('DELETE_CHAT')
-            }
-        }
-    }, [isSelected, item.id, shortcutManager])
-
-    // 处理标题更新的动画
-    useEffect(() => {
-        // 如果是从编辑模式退出，直接更新标题，不需要动画
-        if (isEditing) {
-            setDisplayedTitle(item.label);
-            previousTitleRef.current = item.label;
-            return;
-        }
-        
-        // 如果是系统更新标题，用打字机效果
-        if (item.label !== previousTitleRef.current) {
-            let index = 0;
-            const targetTitle = item.label;
-            const interval = setInterval(() => {
-                setDisplayedTitle(targetTitle.substring(0, index));
-                index++;
-                
-                if (index > targetTitle.length) {
-                    clearInterval(interval);
-                    previousTitleRef.current = targetTitle;
-                }
-            }, 60);
-
-            return () => clearInterval(interval);
-        }
-    }, [item.label, isEditing]);
-
-    // 当 item.label 更新时，同步更新 newTitle
-    useEffect(() => {
-        setNewTitle(item.label);
-    }, [item.label]);
-
     return (
         <div className="relative">
             <ConfirmModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={uiState.isModalOpen}
+                onClose={() => updateState({ isModalOpen: false })}
                 onConfirm={handleConfirmDelete}
                 title="删除对话"
                 message={`您确定要删除 "${item.label}" 吗?`}
             />
             
-            {/* 编辑模式或显示模式 */}
             <div className="flex items-center">
-                {isEditing ? (
+                {uiState.isEditing ? (
                     <div className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}>
                         <input
                             ref={inputRef}
                             type="text"
-                            value={newTitle}
-                            onChange={(e) => setNewTitle(e.target.value)}
+                            value={uiState.newTitle}
+                            onChange={(e) => updateState({ newTitle: e.target.value })}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleSubmitNewTitle();
-                                if (e.key === 'Escape') setIsEditing(false);
+                                if (e.key === 'Escape') updateState({ isEditing: false });
                             }}
+                            placeholder="请输入对话标题"
                             className="flex-grow bg-transparent focus:outline-none text-black dark:text-white max-w-[120px]"
                         />
-                        <Check size={18}
-                               className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
-                               onClick={handleSubmitNewTitle}/>
-                        <X size={18}
-                           className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
-                           onClick={() => setIsEditing(false)}/>
+                        <Check
+                            size={18}
+                            className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
+                            onClick={handleSubmitNewTitle}
+                        />
+                        <X
+                            size={18}
+                            className="cursor-pointer text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white"
+                            onClick={() => updateState({ isEditing: false })}
+                        />
                     </div>
                 ) : (
                     <Link 
                         href={{ pathname: `/chat/${item.id}` }}
                         prefetch={false}
-                        scroll={true}
+                        scroll={false}
                         replace={true}
                         onClick={(e) => {
                             if ((e.target as HTMLElement).closest('.more-options-button')) {
                                 e.preventDefault();
+                                return;
                             }
+                            handleSelect(e);
                         }}
                     >
                         <button
                             ref={buttonRef}
-                            onClick={(e) => {
-                                if (item.children) {
-                                    e.preventDefault();
-                                    toggleOpen();
-                                } else {
-                                    onSelect(item.id ?? '');
-                                }
-                            }}
-                            onMouseEnter={() => setHover(true)}
-                            onMouseLeave={() => setHover(false)}
+                            onMouseEnter={() => updateState({ hover: true })}
+                            onMouseLeave={() => updateState({ hover: false })}
                             className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
                                 level > 0 ? 'pl-4' : ''
                             } text-black dark:text-white ${
                                 isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
                             }`}
                         >
-                            {item.icon && <span className="text-black dark:text-white">{item.icon}</span>}
+                            {item.icon && (
+                                <span className="text-black dark:text-white">
+                                    {item.icon}
+                                </span>
+                            )}
                             {item.children && (
                                 <span className="text-black dark:text-white">
-                                    {isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
+                                    {uiState.isOpen ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}
                                 </span>
                             )}
                             <span className="text-sm flex-grow truncate">
-                                {displayedTitle}
+                                {uiState.displayedTitle}
                             </span>
-
-                            {(isSelected || hover) && (
+                            {(isSelected || uiState.hover) && (
                                 <span
                                     className="ml-auto more-options-button"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        setMenuOpen(!menuOpen);
+                                        updateState({ menuOpen: !uiState.menuOpen });
                                     }}
                                 >
                                     <MoreHorizontal size={16} className="text-black dark:text-white"/>
@@ -332,25 +362,23 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                 )}
             </div>
 
-            {/* 下拉菜单 */}
-            {menuOpen && (
+            {uiState.menuOpen && (
                 <DropDownMenu 
-                    isOpen={menuOpen} 
-                    onClose={handleCloseMenu} 
-                    menuItems={menuItems} 
+                    isOpen={uiState.menuOpen}
+                    onClose={() => updateState({ menuOpen: false })}
+                    menuItems={menuItems}
                     placement={'right'}
                     referenceElement={buttonRef.current}
                 />
             )}
 
-            {/* 子项渲染 */}
             {item.children && (
                 <div
                     className={`ml-1 overflow-hidden ${TRANSITION_CLASSES.enter} ${
-                        isOpen ? TRANSITION_CLASSES.enterTo : TRANSITION_CLASSES.enterFrom
+                        uiState.isOpen ? TRANSITION_CLASSES.enterTo : TRANSITION_CLASSES.enterFrom
                     }`}
                 >
-                    {isOpen && renderChildren()}
+                    {uiState.isOpen && renderChildren()}
                 </div>
             )}
         </div>

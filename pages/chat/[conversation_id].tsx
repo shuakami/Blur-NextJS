@@ -11,6 +11,7 @@ import { SharedChatLayout } from '@/components/layouts/SharedChatLayout';
 import NoConversationFound from '@/components/chat/NoConversationFound';
 import { ErrorBoundary } from 'react-error-boundary';
 import ChatList from '@/app/[消息显示]/chat_list';
+import ErrorFallback from '@/components/ui/error-fallback';
 
 // 类型定义
 interface ChatPageProps {
@@ -48,7 +49,15 @@ const ChatPageContent = React.memo(function ChatPageContent({
         <div className="flex-1 overflow-auto w-full pt-12 scroll-container">
             <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
                 <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-[49.5rem] xl:max-w-[49.5rem] max-w-3xl">
-                    <ErrorBoundary FallbackComponent={ChatErrorFallback}>
+                    <ErrorBoundary 
+                        FallbackComponent={(props) => (
+                            <ErrorFallback 
+                                {...props}
+                                title="聊天加载失败"
+                                className="min-h-[120px]"
+                            />
+                        )}
+                    >
                         <ChatList />
                     </ErrorBoundary>
                 </div>
@@ -102,33 +111,18 @@ export default function ChatPage() {
     const normalizedId = Array.isArray(conversation_id) ? conversation_id[0] : conversation_id;
 
     return (
-        <ErrorBoundary FallbackComponent={PageErrorFallback}>
+        <ErrorBoundary 
+            FallbackComponent={(props) => (
+                <ErrorFallback 
+                    {...props}
+                    title="页面加载失败"
+                    className="min-h-screen"
+                />
+            )}
+        >
             <ChatProvider initialConversationId={normalizedId}>
                 <ChatPageContent conversation_id={normalizedId} />
             </ChatProvider>
         </ErrorBoundary>
-    );
-}
-
-// 错误边界组件
-function ChatErrorFallback({ error }: { error: Error }) {
-    return (
-        <div className="flex items-center justify-center min-h-[120px] w-full">
-            <div className="text-center space-y-2">
-                <p className="text-gray-800 dark:text-gray-200">聊天加载失败</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{error.message}</p>
-            </div>
-        </div>
-    );
-}
-
-function PageErrorFallback({ error }: { error: Error }) {
-    return (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center space-y-3 px-4">
-                <h1 className="text-xl font-medium text-gray-800 dark:text-gray-200">页面加载失败</h1>
-                <p className="text-gray-500 dark:text-gray-400 max-w-[320px]">{error.message}</p>
-            </div>
-        </div>
     );
 }

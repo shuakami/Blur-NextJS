@@ -1,29 +1,42 @@
-// src/components/chat/ChatSidebar.tsx
 "use client";
 
-import React, {useState, useEffect, useMemo, Suspense, useRef, memo, useCallback} from 'react';
-import {useRouter, usePathname} from 'next/navigation';
-import {Button} from "@/components/ui/button";
-import {ScrollArea} from "@/components/ui/scroll-area";
-import {SidebarItemType, SidebarItem} from './chat_sidebar/types';
+import React, { useState, useEffect, useMemo, useRef, memo, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SidebarItemType, SidebarItem } from './chat_sidebar/types';
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
-import {MessageCirclePlus, SidebarCloseIcon, Stars} from "lucide-react";
+import { MessageCirclePlus, SidebarCloseIcon, Stars } from "lucide-react";
 import useTranslation from '../../hooks/i18n/useTranslation';
 import dayjs from 'dayjs';
-import {cn} from '../../lib/utils/utils';
+import { cn } from '../../lib/utils/utils';
 import dynamic from 'next/dynamic';
 import { useShortcutManager } from '@/providers/ShortcutProvider';
 import { SHORTCUT_DESCRIPTIONS, SHORTCUTS } from '@/constants/shortcuts';
 import { useConversationContext } from '@/app/[上下文]/contexts';
+import { Route } from 'next';
 
+// 动态导入组件
 const UserInfo = dynamic(() => import('./chat_sidebar/UserInfo'), {
-  ssr: false,
-  loading: () => <div className="h-16 bg-background/50" />
+    ssr: false,
+    loading: () => <div className="h-16 bg-background/50" />
 });
+
 const LoadingDots = dynamic(() => import('@/components/ui/loading-dots').then(mod => mod.default), {
-  ssr: false,
-  loading: () => null
+    ssr: false,
+    loading: () => null
 });
+
+// 常量定义
+const ANIMATION_CLASSES = {
+    container: "transition-all duration-300 ease-out",
+    item: "animate-slideInDown",
+    fadeIn: "animate-fadeIn",
+    stagger: "animate-stagger"
+};
+
+const SCROLL_THRESHOLD = 0.5;
+const ANIMATION_DELAY = 0.1;
 
 // 类型定义
 interface ChatSidebarProps {
@@ -41,25 +54,26 @@ interface ChatSidebarProps {
 }
 
 // 日期标签计算
+const dateCache = new Map<number, string>();
 const getDateLabel = (date: number): string => {
+    const cached = dateCache.get(date);
+    if (cached) return cached;
+
     const now = dayjs();
     const itemDate = dayjs(date);
     
-    if (itemDate.isSame(now, 'day')) return '今天';
-    if (itemDate.isSame(now.subtract(1, 'day'), 'day')) return '昨天';
-    if (itemDate.isSame(now.subtract(2, 'day'), 'day')) return '前天';
-    if (itemDate.isAfter(now.startOf('week'))) return '这个星期';
-    if (itemDate.isAfter(now.startOf('month'))) return '这个月';
-    if (itemDate.isAfter(now.subtract(3, 'month'))) return '最近3个月';
-    if (itemDate.isAfter(now.startOf('year'))) return '今年';
-    return itemDate.format('YYYY 年');
-};
-
-const ANIMATION_CLASSES = {
-    container: "transition-all duration-300 ease-out",
-    item: "animate-slideInDown",
-    fadeIn: "animate-fadeIn",
-    stagger: "animate-stagger"
+    let label = '';
+    if (itemDate.isSame(now, 'day')) label = '今天';
+    else if (itemDate.isSame(now.subtract(1, 'day'), 'day')) label = '昨天';
+    else if (itemDate.isSame(now.subtract(2, 'day'), 'day')) label = '前天';
+    else if (itemDate.isAfter(now.startOf('week'))) label = '这个星期';
+    else if (itemDate.isAfter(now.startOf('month'))) label = '这个月';
+    else if (itemDate.isAfter(now.subtract(3, 'month'))) label = '最近3个月';
+    else if (itemDate.isAfter(now.startOf('year'))) label = '今年';
+    else label = itemDate.format('YYYY 年');
+    
+    dateCache.set(date, label);
+    return label;
 };
 
 const ChatSidebar = memo<ChatSidebarProps>(({
@@ -71,72 +85,21 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     hasMore, 
     loading
 }) => {
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const router = useRouter();
     const pathname = usePathname();
-    const [selectedItem, setSelectedItem] = useState<string | null>(null);
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const [loadingRef, setLoadingRef] = useState<HTMLDivElement | null>(null);
-    const shortcutManager = useShortcutManager()
     const { newConversationId } = useConversationContext();
+    const shortcutManager = useShortcutManager();
 
-    // 滚动监听
-    useEffect(() => {
-        if (!loadingRef || !hasMore || loading) return;
+    // Refs
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const loadingRef = useRef<HTMLDivElement | null>(null);
+    const observerRef = useRef<IntersectionObserver | null>(null);
+    const isRoutingRef = useRef(false);
 
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    onLoadMore();
-                }
-            },
-            { threshold: 0.5 }
-        );
-
-        observer.observe(loadingRef);
-        return () => observer.disconnect();
-    }, [loadingRef, hasMore, loading, onLoadMore]);
-    
-    // 根据路径更新选中状态
-    useEffect(() => {
-        // 如果有新对话，直接设置为选中
-        if (newConversationId) {
-            setSelectedItem(newConversationId);
-            return;
-        }
-
-        // 普通的路径检测逻辑
-        if (pathname) {
-            const conversationId = pathname.split('/').pop() || null;
-            if (conversationId && conversationId !== selectedItem) {
-                setSelectedItem(conversationId);
-                return;
-            }
-        }
-        
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/chat/')) {
-            const conversationId = currentPath.split('/').pop() || null;
-            if (conversationId && conversationId !== selectedItem) {
-                setSelectedItem(conversationId);
-            }
-        }
-    }, [pathname, selectedItem, newConversationId]);
-
-    // 选择对话
-    const handleSelectItem = useCallback((id: string, href?: string) => {
-        if (id !== selectedItem) {
-            setSelectedItem(id);
-        }
-        if (href) {
-            router.push(href as any);
-        }
-    }, [router, selectedItem]);
-    
-    // 新建对话
-    const handleNewChat = useCallback(() => {
-        router.push('/?new=true' as any);
-    }, [router]);
+    // 状态
+    const [selectedItem, setSelectedItem] = useState<string | null>(null);
+    const [flattenedItems, setFlattenedItems] = useState<SidebarItem[]>([]);
 
     // 分组逻辑
     const groupedItems = useMemo(() => {
@@ -150,50 +113,155 @@ const ChatSidebar = memo<ChatSidebarProps>(({
             }
         });
 
-        return Array.from(map.entries()).map(([label, children]) => ({
-                label,
-                children,
-            }));
-        }, [items]);
+        const result = Array.from(map.entries()).map(([label, children]) => ({
+            label,
+            children,
+        }));
 
-        // 对话列表
-        const renderGroupItems = useMemo(() => (
-            groupedItems.map((group, index) => (
-                <div 
-                    key={group.label} 
-                    className={ANIMATION_CLASSES.container}
-                    style={{ 
-                        '--animation-delay': `${index * 0.1}s`
-                    } as React.CSSProperties}
-                >
-                    <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2 animate-fadeIn">
-                        {group.label}
-                    </div>
-                    <div>
-                        {group.children.map((item) => (
-                            <SidebarItemComponent
-                                key={item.id}
-                                item={item}
-                                level={0}
-                                selectedItem={selectedItem}
-                                onSelect={() => handleSelectItem(item.id ?? '', item.href)}
-                                onUpdateConversations={onUpdateConversations || (() => {})}
-                            />
-                        ))}
-                    </div>
+        // 更新扁平化列表
+        setFlattenedItems(result.flatMap(group => group.children));
+        
+        return result;
+    }, [items]);
+
+    // 滚动监听
+    useEffect(() => {
+        if (!loadingRef.current || !hasMore || loading) return;
+
+        observerRef.current?.disconnect();
+        observerRef.current = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    requestAnimationFrame(onLoadMore);
+                }
+            },
+            { threshold: SCROLL_THRESHOLD }
+        );
+
+        observerRef.current.observe(loadingRef.current);
+        return () => observerRef.current?.disconnect();
+    }, [hasMore, loading, onLoadMore]);
+
+    // 路径监听
+    useEffect(() => {
+        if (isRoutingRef.current) return;
+
+        if (newConversationId && newConversationId !== selectedItem) {
+            setSelectedItem(newConversationId);
+            return;
+        }
+
+        if (pathname) {
+            const conversationId = pathname.split('/').pop();
+            if (conversationId && conversationId !== selectedItem) {
+                setSelectedItem(conversationId);
+            }
+        }
+    }, [pathname, selectedItem, newConversationId]);
+
+    // 对话切换
+    const handleSelectItem = useCallback((id: string) => {
+        if (id === selectedItem || isRoutingRef.current) return;
+        
+        isRoutingRef.current = true;
+        setSelectedItem(id);
+        
+        requestAnimationFrame(() => {
+            router.push(`/chat/${id}` as Route, { scroll: false });
+            isRoutingRef.current = false;
+        });
+    }, [router, selectedItem]);
+
+    // 新建对话
+    const handleNewChat = useCallback(() => {
+        router.push('/?new=true' as Route);
+    }, [router]);
+
+    // 对话导航
+    const getCurrentIndex = useCallback(() => (
+        flattenedItems.findIndex(item => item.id === selectedItem)
+    ), [flattenedItems, selectedItem]);
+
+    const gotoPrevChat = useCallback(() => {
+        const currentIndex = getCurrentIndex();
+        if (currentIndex > 0) {
+            const prevItem = flattenedItems[currentIndex - 1];
+            handleSelectItem(prevItem.id ?? '');
+        }
+    }, [getCurrentIndex, flattenedItems, handleSelectItem]);
+
+    const gotoNextChat = useCallback(() => {
+        const currentIndex = getCurrentIndex();
+        if (currentIndex < flattenedItems.length - 1) {
+            const nextItem = flattenedItems[currentIndex + 1];
+            handleSelectItem(nextItem.id ?? '');
+        }
+    }, [getCurrentIndex, flattenedItems, handleSelectItem]);
+
+    // 快捷键注册
+    useEffect(() => {
+        const condition = () => document.activeElement?.tagName !== 'INPUT';
+        
+        shortcutManager.register({
+            command: 'PREV_CHAT',
+            key: SHORTCUTS.PREV_CHAT,
+            description: SHORTCUT_DESCRIPTIONS.PREV_CHAT,
+            handler: gotoPrevChat,
+            condition
+        });
+
+        shortcutManager.register({
+            command: 'NEXT_CHAT',
+            key: SHORTCUTS.NEXT_CHAT,
+            description: SHORTCUT_DESCRIPTIONS.NEXT_CHAT,
+            handler: gotoNextChat,
+            condition
+        });
+
+        return () => {
+            shortcutManager.unregister('PREV_CHAT');
+            shortcutManager.unregister('NEXT_CHAT');
+        };
+    }, [shortcutManager, gotoPrevChat, gotoNextChat]);
+
+    // 渲染列表项
+    const renderGroupItems = useMemo(() => (
+        groupedItems.map((group, index) => (
+            <div 
+                key={group.label} 
+                className={ANIMATION_CLASSES.container}
+                style={{ 
+                    '--animation-delay': `${index * ANIMATION_DELAY}s`
+                } as React.CSSProperties}
+            >
+                <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2 animate-fadeIn">
+                    {group.label}
                 </div>
-            ))
-        ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations]);
+                <div>
+                    {group.children.map((item) => (
+                        <SidebarItemComponent
+                            key={item.id}
+                            item={item}
+                            level={0}
+                            selectedItem={selectedItem}
+                            onSelect={handleSelectItem}
+                            onUpdateConversations={onUpdateConversations || (() => {})}
+                        />
+                    ))}
+                </div>
+            </div>
+        ))
+    ), [groupedItems, selectedItem, handleSelectItem, onUpdateConversations]);
 
+    // 渲染内容
     const renderContent = useCallback(() => {
-        // 有数据时显示列表
         if (items.length > 0) {
             return (
                 <div className="space-y-2">
                     {renderGroupItems}
                     {(loading || hasMore) && (
                         <div 
-                            ref={setLoadingRef} 
+                            ref={loadingRef} 
                             className="mt-4 mb-6 flex justify-center"
                         >
                             {loading ? (
@@ -209,7 +277,6 @@ const ChatSidebar = memo<ChatSidebarProps>(({
             );
         }
 
-        // 加载中或无数据
         return (
             <div className="flex flex-col items-center justify-center h-[200px]">
                 {loading ? (
@@ -229,56 +296,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                 )}
             </div>
         );
-    }, [items.length, loading, hasMore, renderGroupItems, loadingRef, t]);
-
-    // 获取当前对话在列表中的索引
-    const getCurrentIndex = useCallback(() => {
-        const allConversations = groupedItems.flatMap(group => group.children)
-        return allConversations.findIndex(item => item.id === selectedItem)
-    }, [groupedItems, selectedItem])
-    // 切换到上一个对话
-    const gotoPrevChat = useCallback(() => {
-        const allConversations = groupedItems.flatMap(group => group.children)
-        const currentIndex = getCurrentIndex()
-        
-        if (currentIndex > 0) {
-            const prevItem = allConversations[currentIndex - 1]
-            handleSelectItem(prevItem.id ?? '', `/chat/${prevItem.id}`)
-        }
-    }, [groupedItems, getCurrentIndex, handleSelectItem])
-    // 切换到下一个对话
-    const gotoNextChat = useCallback(() => {
-        const allConversations = groupedItems.flatMap(group => group.children)
-        const currentIndex = getCurrentIndex()
-        
-        if (currentIndex < allConversations.length - 1) {
-            const nextItem = allConversations[currentIndex + 1]
-            handleSelectItem(nextItem.id ?? '', `/chat/${nextItem.id}`)
-        }
-    }, [groupedItems, getCurrentIndex, handleSelectItem])
-    // 注册快捷键
-    useEffect(() => {
-        shortcutManager.register({
-            command: 'PREV_CHAT',
-            key: SHORTCUTS.PREV_CHAT,
-            description: SHORTCUT_DESCRIPTIONS.PREV_CHAT,
-            handler: gotoPrevChat,
-            condition: () => document.activeElement?.tagName !== 'INPUT'
-        })
-
-        shortcutManager.register({
-            command: 'NEXT_CHAT',
-            key: SHORTCUTS.NEXT_CHAT,
-            description: SHORTCUT_DESCRIPTIONS.NEXT_CHAT,
-            handler: gotoNextChat,
-            condition: () => document.activeElement?.tagName !== 'INPUT'
-        })
-
-        return () => {
-            shortcutManager.unregister('PREV_CHAT')
-            shortcutManager.unregister('NEXT_CHAT')
-        }
-    }, [shortcutManager, gotoPrevChat, gotoNextChat])
+    }, [items.length, loading, hasMore, renderGroupItems, t]);
 
     return (
         <div className={cn(

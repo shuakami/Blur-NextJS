@@ -7,6 +7,7 @@ import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
 import { cn } from '../../lib/utils/utils';
 import { Agent } from "./LLM/agent";
 import AnimatedShinyText from "./animated-shiny-text";
+import { UseToolSkeletons } from "./markdown/skeleton/skeleton";
 
 // 懒加载组件
 const ThoughtStream = lazy(() =>
@@ -27,6 +28,18 @@ const UseTool = lazy(() =>
 
 const ErrorMessage = lazy(() =>
   import("./chat-list/ErrorMessage").then((mod) => ({ default: mod.default }))
+);
+
+const ErrorBoundary = lazy(() => 
+  import('react-error-boundary').then(mod => ({
+    default: mod.ErrorBoundary
+  }))
+);
+
+const ErrorFallback = lazy(() => 
+  import('@/components/ui/error-fallback').then(mod => ({
+    default: mod.default
+  }))
 );
 
 // 类型定义
@@ -169,6 +182,13 @@ const useContentProcessor = (content: string) => {
   }, [parts]);
 };
 
+// 根据工具类型和状态决定骨架屏样式
+const getToolSkeleton = (tool: ToolState) => {
+  if (tool.id === '8') return UseToolSkeletons.weather;
+  if (tool.status === 'calling') return UseToolSkeletons.calling;
+  return UseToolSkeletons.collapsed; // 所有其他状态都显示折叠状态
+};
+
 // 渲染内容
 const MessageContent = memo(({ 
   item, 
@@ -192,19 +212,41 @@ const MessageContent = memo(({
   }
   
   if (item.type === "group" && item.group) {
+    const tool = item.group.useTool;
+    
+    const fallback = useMemo(() => {
+      const Skeleton = getToolSkeleton(tool);
+      return <Skeleton />;
+    }, [tool.id, tool.status]);
+
     return (
-      <Suspense key={index} fallback={null}>
-        <UseTool
-          id={item.group.useTool.id}
-          type={item.group.useTool.type}
-          content={item.group.useTool.content}
-          status={item.group.useTool.status}
-          isStreaming={isStreaming && isLatestBotMessage}
-          calling={item.group.useTool.calling}
-          response={item.group.useTool.response}
-        />
-      </Suspense>
-    );
+        <Suspense key={index} fallback={fallback}>
+          <ErrorBoundary
+            FallbackComponent={(props) => (
+              <ErrorFallback 
+                {...props}
+                title={`工具加载失败(ID: ${tool.id || 'N/A'})`}
+                message={props.error?.message}
+                showStack={process.env.NODE_ENV === 'development'}
+                retryText="重新加载"
+              />
+            )}
+            onReset={() => {
+              window.location.reload(); // 刷新页面
+            }}
+          >
+            <UseTool
+              id={tool.id}
+              type={tool.type}
+              content={tool.content}
+              status={tool.status}
+              isStreaming={isStreaming && isLatestBotMessage}
+              calling={tool.calling}
+              response={tool.response}
+            />
+          </ErrorBoundary>
+        </Suspense>
+      );
   }
   
   if (item.type === "other" && item.content) {

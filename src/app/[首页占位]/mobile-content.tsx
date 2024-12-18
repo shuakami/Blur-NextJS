@@ -7,6 +7,7 @@ import { MessageSquare, Code, PenTool, Image } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ErrorBoundary } from 'react-error-boundary';
 import CText from '../copyright/ctext';
+import ErrorFallback from '@/components/ui/error-fallback';
 
 // 动态导入
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), {
@@ -105,16 +106,6 @@ const FeatureCard: React.FC<{ feature: FeatureCard }> = ({ feature }) => (
   </motion.button>
 );
 
-// 错误回退
-const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
-  <div className="text-center p-4">
-    <p>出现错误: {error.message}</p>
-    <button onClick={resetErrorBoundary} className="mt-2 text-blue-500">
-      重试
-    </button>
-  </div>
-);
-
 // 主组件
 export default function MobileContent({ onFirstMessage, className }: MobileContentProps) {
   const { greeting, subGreeting } = useGreeting();
@@ -146,7 +137,16 @@ export default function MobileContent({ onFirstMessage, className }: MobileConte
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 pb-1">
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary 
+          FallbackComponent={(props) => (
+            <ErrorFallback 
+              {...props}
+              title="输入框加载失败"
+              retryText="重新加载"
+              className="mx-4"
+            />
+          )}
+        >
           <ChatInputWrapper onFirstMessage={onFirstMessage} />
         </ErrorBoundary>
         <div className="mt-1"/>

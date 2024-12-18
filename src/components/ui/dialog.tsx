@@ -4,6 +4,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import { cn } from '../../lib/utils/utils'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 /** 
  * 对话框组件，作为对话框的根组件。
@@ -95,6 +96,9 @@ const DialogContent = React.forwardRef<
             )}
             {...props}
         >
+            <VisuallyHidden asChild>
+                <DialogPrimitive.Title>对话框</DialogPrimitive.Title>
+            </VisuallyHidden>
             {children}
             {showClose && (
                 <DialogPrimitive.Close 

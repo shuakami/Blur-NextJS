@@ -5,6 +5,7 @@ import { Code, PenTool, FileText, Lightbulb, Briefcase, MoreHorizontal } from 'l
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { ErrorBoundary } from 'react-error-boundary';
+import ErrorFallback from '@/components/ui/error-fallback';
 
 // 动态导入聊天输入框组件
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), {
@@ -87,15 +88,6 @@ const useTitleAnimation = (targetText: string, randomChars: string) => {
   return { title, isDone };
 };
 
-// 错误回退组件
-const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
-  <div className="text-center p-4">
-    <p>出现错误: {error.message}</p>
-    <button onClick={resetErrorBoundary} className="mt-2 text-blue-500">
-      重试
-    </button>
-  </div>
-);
 
 // 分类按钮组件
 const CategoryButton = React.memo<{ category: Category; index: number }>(
@@ -142,7 +134,15 @@ export default function HomepageContent({ onFirstMessage, className }: HomepageC
       <div className="relative w-full px-4">
         <div className="w-full">
           <div className="mx-auto max-w-3xl">
-            <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <ErrorBoundary
+              FallbackComponent={(props) => (
+                <ErrorFallback 
+                  {...props}
+                  title="输入框加载失败"
+                  retryText="重新加载"
+                />
+              )}
+            >
               <ChatInputWrapper onFirstMessage={onFirstMessage}/>
             </ErrorBoundary>
           </div>

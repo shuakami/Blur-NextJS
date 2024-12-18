@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense } from "react";
 import { cn } from '../../../lib/utils/utils';
 import { Loader2, Terminal, ChevronDown, Code2 } from "lucide-react";
 import CodeBlock from "../markdown/code";
 import { Image } from "../markdown/image";
+import { Skeleton } from "../skeleton";
 
 type ToolType = "code" | "text";
 type ToolStatus = "input" | "calling" | "response";
@@ -13,7 +14,7 @@ interface PluginCallingProps {
   plugin_name: string;
 }
 
-interface UseToolProps {
+export interface UseToolProps {
   id: string;
   type: ToolType;
   content?: string;
@@ -36,25 +37,52 @@ interface UseToolProps {
   };
 }
 
-const UseTool: React.FC<UseToolProps> = ({
-  id,
-  type,
-  content,
-  status,
-  isStreaming,
-  calling,
-  response,
-}) => {
+const Tool8Component = React.lazy(() => import('./tools/Tool8Component'));
+
+// 特殊的，需要单独界面定制的工具
+const TOOL_COMPONENTS: Record<string, React.FC<UseToolProps>> = {
+  '8': (props) => {
+    const [useCustomUI, setUseCustomUI] = useState(true);
+
+    if (!useCustomUI) {
+      return <UseTool {...props} id="Original / 8" />;
+    }
+
+    return (
+      <Suspense fallback={
+        <div className="space-y-4 p-4 min-h-80">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </div>
+      }>
+        <Tool8Component 
+          {...props} 
+          onError={() => setUseCustomUI(false)}
+        />
+      </Suspense>
+    );
+  }
+};
+
+const UseTool: React.FC<UseToolProps> = (props) => {
+  // 如果有特定工具的组件,则使用该组件
+  const SpecificToolComponent = TOOL_COMPONENTS[props.id];
+  if (SpecificToolComponent) {
+    return <SpecificToolComponent {...props} />;
+  }
+
+  // 原有的通用组件逻辑
   const [isExpanded, setIsExpanded] = useState(false);
 
   // 处理图片文件
   const imageFiles = useMemo(() => {
-    if (!response?.data?.files) return [];
+    if (!props.response?.data?.files) return [];
     
-    return response.data.files.filter(file => 
+    return props.response.data.files.filter(file => 
       file.type === 'image' && file.url
     );
-  }, [response]);
+  }, [props.response]);
 
   // 处理图片 URL
   const processImageUrl = (url: string) => {
@@ -65,20 +93,20 @@ const UseTool: React.FC<UseToolProps> = ({
 
   // 获取显示名称
   const getDisplayName = () => {
-    if (calling?.plugin_name) {
-      return calling.plugin_name;
+    if (props.calling?.plugin_name) {
+      return props.calling.plugin_name;
     }
 
-    if (status === "response" && response?.plugin_name) {
-      return response.plugin_name;
+    if (props.status === "response" && props.response?.plugin_name) {
+      return props.response.plugin_name;
     }
 
-    return type === "code" ? "代码执行" : "文本处理";
+    return props.type === "code" ? "代码执行" : "文本处理";
   };
 
   // 渲染状态徽章
   const renderStatus = () => {
-    switch (status) {
+    switch (props.status) {
       case "input":
         return (
           <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -109,7 +137,7 @@ const UseTool: React.FC<UseToolProps> = ({
 
   // 渲染输出结果
   const renderOutput = () => {
-    if (status === "response" && response) {
+    if (props.status === "response" && props.response) {
       return (
         <div className="bg-gray-100/70 dark:bg-gray-900 rounded-md p-4 space-y-3 h-full">
           <div className="text-xs font-medium text-gray-400">
@@ -118,9 +146,9 @@ const UseTool: React.FC<UseToolProps> = ({
           <div className="max-h-[300px] overflow-y-auto">
             <CodeBlock
               code={
-                typeof response.data === "string"
-                  ? response.data
-                  : JSON.stringify(response.data, null, 2)
+                typeof props.response.data === "string"
+                  ? props.response.data
+                  : JSON.stringify(props.response.data, null, 2)
               }
               language="json"
               forceRenderBlock={true}
@@ -152,14 +180,14 @@ const UseTool: React.FC<UseToolProps> = ({
       >
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30 transition-transform duration-200 hover:scale-105">
-            {type === "code" ? (
+            {props.type === "code" ? (
               <Code2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             ) : (
               <Terminal className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             )}
           </div>
           <span className="text-sm font-medium">
-            {getDisplayName()} #{id}
+            {getDisplayName()} #{props.id}
           </span>
         </div>
 
@@ -177,18 +205,18 @@ const UseTool: React.FC<UseToolProps> = ({
         "opacity-0 scale-y-95",
         isExpanded && "opacity-100 scale-y-100"
       )}>
-        {(content || response) && (
+        {(props.content || props.response) && (
           <div className="border-t border-gray-100 dark:border-gray-800">
-            {content && (
+            {props.content && (
               <div className="px-4 py-2">
                 <CodeBlock
-                  code={content}
-                  language={type === "code" ? "python" : "text"}
+                  code={props.content}
+                  language={props.type === "code" ? "python" : "text"}
                   forceRenderBlock={true}
                 />
               </div>
             )}
-            {status === "response" && response && renderOutput()}
+            {props.status === "response" && props.response && renderOutput()}
           </div>
         )}
       </div>

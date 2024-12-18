@@ -530,6 +530,14 @@ const thoughtMessages: Message[] = [
     status: "active",
   },
   {
+    "id": "stream-msg-003",
+    "message_id": "c567897c-76ff-45c3-967f-1a54fa2c6ad9", 
+    "type": "bot",
+    "content": "我理解您想查看南宁的分钟级降水情况。让我们使用天气API来获取这些信息。\n\n[USE_TOOL type=\"text\" id=\"8\"]\n{\n  \"type\": \"minutely\",\n  \"location\": \"南宁\",\n  \"params\": {\n    \"date\": \"2024-11-24\"\n  }\n}\n[USE_TOOL/]\n<plugin-data>{\"status\":\"response\",\"plugin_id\":8,\"plugin_name\":\"天气\",\"plugin_response\":{\"plugin_id\":8,\"plugin_name\":\"天气\",\"data\":{\"data\":{\"summary\":\"未来两小时降水量较大\",\"fxLink\":\"https://www.qweather.com\",\"code\":\"200\",\"refer\":{\"license\":[\"CC BY-SA 4.0\"],\"sources\":[\"QWeather\"]},\"updateTime\":\"2024-12-18T16:25+08:00\",\"minutely\":[{\"precip\":\"0.2\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T16:25+08:00\"},{\"precip\":\"0.8\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T16:30+08:00\"},{\"precip\":\"5.2\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T16:35+08:00\"},{\"precip\":\"12.5\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T16:40+08:00\"},{\"precip\":\"15.8\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T16:45+08:00\"},{\"precip\":\"8.3\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T16:50+08:00\"},{\"precip\":\"16.2\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T16:55+08:00\"},{\"precip\":\"22.5\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:00+08:00\"},{\"precip\":\"18.7\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:05+08:00\"},{\"precip\":\"5.4\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:10+08:00\"},{\"precip\":\"2.1\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:15+08:00\"},{\"precip\":\"8.6\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:20+08:00\"},{\"precip\":\"12.3\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:25+08:00\"},{\"precip\":\"4.5\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:30+08:00\"},{\"precip\":\"1.2\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:35+08:00\"},{\"precip\":\"0.5\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:40+08:00\"},{\"precip\":\"0.2\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:45+08:00\"},{\"precip\":\"0.0\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:50+08:00\"},{\"precip\":\"0.1\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T17:55+08:00\"},{\"precip\":\"0.0\",\"type\":\"rain\",\"fxTime\":\"2024-12-18T18:00+08:00\"}]},\"message\":\"查询成功\",\"status\":\"success\"},\"status\":\"success\"}}</plugin-data>\n\n根据天气API的查询结果，南宁在未来两小时内降水量较大。您还有其他问题吗？",
+    "timestamp": 1703494433000,
+    "status": "active"
+ },
+  {
     id: "10",
     message_id: "10",
     type: "bot",
@@ -543,6 +551,7 @@ const thoughtMessages: Message[] = [
     }
   }
 ]
+
 
 // 思考过程（加载中）
 const thoughtMessagesLoading: Message[] = [
