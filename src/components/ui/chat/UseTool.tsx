@@ -39,43 +39,39 @@ export interface UseToolProps {
 
 const Tool8Component = React.lazy(() => import('./tools/Tool8Component'));
 
-// 特殊的，需要单独界面定制的工具
-const TOOL_COMPONENTS: Record<string, React.FC<UseToolProps>> = {
-  '8': (props) => {
-    const [useCustomUI, setUseCustomUI] = useState(true);
+// 天气工具UI / (ID_8)
+const Tool8Wrapper: React.FC<UseToolProps> = (props) => {
+  const [useCustomUI, setUseCustomUI] = useState(true);
 
-    if (!useCustomUI) {
-      return <UseTool {...props} id="Original / 8" />;
-    }
-
-    return (
-      <Suspense fallback={
-        <div className="space-y-4 p-4 min-h-80">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-        </div>
-      }>
-        <Tool8Component 
-          {...props} 
-          onError={() => setUseCustomUI(false)}
-        />
-      </Suspense>
-    );
+  if (!useCustomUI) {
+    return <UseTool {...props} id="Original / 8" />;
   }
+
+  return (
+    <Suspense fallback={
+      <div className="space-y-4 p-4 min-h-80">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+      </div>
+    }>
+      <Tool8Component 
+        {...props} 
+        onError={() => setUseCustomUI(false)}
+      />
+    </Suspense>
+  );
 };
 
-const UseTool: React.FC<UseToolProps> = (props) => {
-  // 如果有特定工具的组件,则使用该组件
-  const SpecificToolComponent = TOOL_COMPONENTS[props.id];
-  if (SpecificToolComponent) {
-    return <SpecificToolComponent {...props} />;
-  }
+// 特殊的，需要单独界面定制的工具
+const TOOL_COMPONENTS: Record<string, React.FC<UseToolProps>> = {
+  '8': Tool8Wrapper
+};
 
-  // 原有的通用组件逻辑
+// 基础工具组件
+const BaseUseTool: React.FC<UseToolProps> = (props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 处理图片文件
   const imageFiles = useMemo(() => {
     if (!props.response?.data?.files) return [];
     
@@ -84,11 +80,10 @@ const UseTool: React.FC<UseToolProps> = (props) => {
     );
   }, [props.response]);
 
-  // 处理图片 URL
   const processImageUrl = (url: string) => {
     return url
-      .replace(/\[.*\]\((.*)\)/, '$1') // 提取markdown链接中的URL
-      .replace('sandbox:/', '/');  // 替换sandbox路径
+      .replace(/\[.*\]\((.*)\)/, '$1')
+      .replace('sandbox:/', '/');
   };
 
   // 获取显示名称
@@ -104,7 +99,7 @@ const UseTool: React.FC<UseToolProps> = (props) => {
     return props.type === "code" ? "代码执行" : "文本处理";
   };
 
-  // 渲染状态徽章
+  // 渲染状态标签
   const renderStatus = () => {
     switch (props.status) {
       case "input":
@@ -240,6 +235,15 @@ const UseTool: React.FC<UseToolProps> = (props) => {
       )}
     </div>
   );
+};
+
+// 主组件
+const UseTool: React.FC<UseToolProps> = (props) => {
+  const SpecificToolComponent = TOOL_COMPONENTS[props.id];
+  if (SpecificToolComponent) {
+    return <SpecificToolComponent {...props} />;
+  }
+  return <BaseUseTool {...props} />;
 };
 
 export default UseTool;

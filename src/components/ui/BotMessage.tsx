@@ -85,6 +85,16 @@ interface ContentItem {
 const CONTENT_SPLIT_REGEX = /(\[USE_TOOL[^\]]*\]|\[USE_TOOL\/\]|<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s;
 const USE_TOOL_REGEX = /\[USE_TOOL type="(code|text)" id="([^"]+)"\]/;
 
+// 创建一个专门的错误处理函数
+const handleError = (error: Error, context: string) => {
+  if (process.env.NODE_ENV === 'development') {
+    // 只在开发环境下输出错误
+    console.error(`Error in ${context}:`, error);
+  }
+  // 可以添加错误上报逻辑
+  // reportError(error);
+};
+
 // 内容处理
 const useContentProcessor = (content: string) => {
   // 缓存 split 结果
@@ -97,6 +107,53 @@ const useContentProcessor = (content: string) => {
     const items: ContentItem[] = [];
     const toolQueue: ToolState[] = [];
     let isCollectingTool = false;
+
+    const processPluginData = (part: string): ContentItem => {
+      try {
+        const pluginDataRaw = part.replace("<plugin-data>", "").replace("</plugin-data>", "").trim();
+        const pluginDataParsed = JSON.parse(pluginDataRaw);
+        const { status, content: pluginContent, plugin_id, plugin_name, plugin_response } = pluginDataParsed;
+        
+        const pluginData = {
+          status,
+          content: pluginContent,
+          data: plugin_response?.data,
+          plugin_id: String(plugin_id),
+          plugin_name
+        };
+
+        if (toolQueue.length > 0) {
+          const tool = toolQueue[0];
+          if (pluginData.status === "calling") {
+            tool.status = "calling";
+            tool.calling = {
+              content: pluginData.content || "",
+              plugin_id: pluginData.plugin_id || "",
+              plugin_name: pluginData.plugin_name || ""
+            };
+          } else if (pluginData.status === "response") {
+            tool.status = "response";
+            tool.response = {
+              data: pluginData.data,
+              plugin_name: pluginData.plugin_name || ""
+            };
+            toolQueue.shift();
+          }
+          return { type: "other" };
+        }
+        
+        return {
+          type: "text",
+          content: part
+        };
+      } catch (e) {
+        handleError(e as Error, 'Plugin data processing');
+        return {
+          type: "text",
+          content: part
+        };
+      }
+    };
 
     parts.forEach(part => {
       if (part.startsWith("[USE_TOOL") && !part.includes("[USE_TOOL/]")) {
@@ -122,49 +179,7 @@ const useContentProcessor = (content: string) => {
         const currentTool = toolQueue[toolQueue.length - 1];
         currentTool.content = (currentTool.content || '') + part;
       } else if (part.startsWith("<plugin-data>")) {
-        try {
-          const pluginDataRaw = part.replace("<plugin-data>", "").replace("</plugin-data>", "").trim();
-          const pluginDataParsed = JSON.parse(pluginDataRaw);
-          const { status, content: pluginContent, plugin_id, plugin_name, plugin_response } = pluginDataParsed;
-          
-          const pluginData = {
-            status,
-            content: pluginContent,
-            data: plugin_response?.data,
-            plugin_id: String(plugin_id),
-            plugin_name
-          };
-
-          if (toolQueue.length > 0) {
-            const tool = toolQueue[0];
-            if (pluginData.status === "calling") {
-              tool.status = "calling";
-              tool.calling = {
-                content: pluginData.content || "",
-                plugin_id: pluginData.plugin_id || "",
-                plugin_name: pluginData.plugin_name || ""
-              };
-            } else if (pluginData.status === "response") {
-              tool.status = "response";
-              tool.response = {
-                data: pluginData.data,
-                plugin_name: pluginData.plugin_name || ""
-              };
-              toolQueue.shift();
-            }
-          } else {
-            items.push({
-              type: "text",
-              content: part
-            });
-          }
-        } catch (e) {
-          console.error("插件数据解析失败:", e);
-          items.push({
-            type: "text",
-            content: part
-          });
-        }
+        items.push(processPluginData(part));
       } else if (part.startsWith("<agent-data>") || part.startsWith("<thinking>")) {
         items.push({
           type: "other",
@@ -201,6 +216,42 @@ const MessageContent = memo(({
   isStreaming: boolean;
   isLatestBotMessage: boolean;
 }) => {
+  const processAgentData = (content: string) => {
+    try {
+      const agentInfo = JSON.parse(
+        content.replace("<agent-data>", "").replace("</agent-data>", "")
+      );
+      return (
+        <Suspense key={index} fallback={null}>
+          <Agent data={agentInfo} />
+        </Suspense>
+      );
+    } catch (e) {
+      handleError(e as Error, 'Agent data processing');
+      return null;
+    }
+  };
+
+  const processThinkingData = (content: string) => {
+    try {
+      const thoughtContent = content
+        .replace("<thinking>", "")
+        .replace("</thinking>", "");
+      return (
+        <Suspense key={index} fallback={null}>
+          <ThoughtStream
+            duration={0}
+            content={thoughtContent}
+            isAnimating={isLatestBotMessage && isStreaming}
+          />
+        </Suspense>
+      );
+    } catch (e) {
+      handleError(e as Error, 'Thinking data processing');
+      return null;
+    }
+  };
+
   if (item.type === "text") {
     return (
       <MarkdownRenderer
@@ -220,70 +271,42 @@ const MessageContent = memo(({
     }, [tool.id, tool.status]);
 
     return (
-        <Suspense key={index} fallback={fallback}>
-          <ErrorBoundary
-            FallbackComponent={(props) => (
-              <ErrorFallback 
-                {...props}
-                title={`工具加载失败(ID: ${tool.id || 'N/A'})`}
-                message={props.error?.message}
-                showStack={process.env.NODE_ENV === 'development'}
-                retryText="重新加载"
-              />
-            )}
-            onReset={() => {
-              window.location.reload(); // 刷新页面
-            }}
-          >
-            <UseTool
-              id={tool.id}
-              type={tool.type}
-              content={tool.content}
-              status={tool.status}
-              isStreaming={isStreaming && isLatestBotMessage}
-              calling={tool.calling}
-              response={tool.response}
+      <Suspense key={index} fallback={fallback}>
+        <ErrorBoundary
+          FallbackComponent={(props) => (
+            <ErrorFallback 
+              {...props}
+              title={`工具加载失败(ID: ${tool.id || 'N/A'})`}
+              message={props.error?.message}
+              showStack={process.env.NODE_ENV === 'development'}
+              retryText="重新加载"
             />
-          </ErrorBoundary>
-        </Suspense>
-      );
+          )}
+          onReset={() => {
+            window.location.reload();
+          }}
+        >
+          <UseTool
+            id={tool.id}
+            type={tool.type}
+            content={tool.content}
+            status={tool.status}
+            isStreaming={isStreaming && isLatestBotMessage}
+            calling={tool.calling}
+            response={tool.response}
+          />
+        </ErrorBoundary>
+      </Suspense>
+    );
   }
   
   if (item.type === "other" && item.content) {
     if (item.content.startsWith("<agent-data>")) {
-      try {
-        const agentInfo = JSON.parse(
-          item.content.replace("<agent-data>", "").replace("</agent-data>", "")
-        );
-        return (
-          <Suspense key={index} fallback={null}>
-            <Agent data={agentInfo} />
-          </Suspense>
-        );
-      } catch (e) {
-        console.error("Agent 数据解析失败:", e);
-        return null;
-      }
+      return processAgentData(item.content);
     }
     
     if (item.content.startsWith("<thinking>")) {
-      try {
-        const thoughtContent = item.content
-          .replace("<thinking>", "")
-          .replace("</thinking>", "");
-        return (
-          <Suspense key={index} fallback={null}>
-            <ThoughtStream
-              duration={0}
-              content={thoughtContent}
-              isAnimating={isLatestBotMessage && isStreaming}
-            />
-          </Suspense>
-        );
-      } catch (e) {
-        console.error("Thinking 数据解析失败:", e);
-        return null;
-      }
+      return processThinkingData(item.content);
     }
   }
   
