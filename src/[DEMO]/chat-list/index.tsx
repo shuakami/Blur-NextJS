@@ -463,7 +463,17 @@ Params: {
 根据查询结果，北京今天天气晴朗，气温25°C，湿度45%。`,
     timestamp: Date.now() + 1000,
     status: "active",
-  }
+  },
+    {
+      id: "7",
+      message_id: "7",
+      type: "bot",
+      content: `## Memory Note\n- Type: Observation\n- Content: 用户是一位宠物主人,关心宠物的健康。
+## Memory Note\n- Type: Observation\n- Content: 用户对Python和数据处理感兴趣,希望循序渐进地学习。
+## Memory Note\n- Type: Observation\n- Content: 用户对金融领域的机器学习应用感兴趣。`,
+      timestamp: Date.now() + 1000,
+      status: "active",
+    },
 ]
 
 // 流式响应示例

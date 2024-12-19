@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Volume2, Copy, ThumbsUp, ThumbsDown, RotateCcw, Pause } from 'lucide-react';
 import { Spinner } from './spinner';
-import { useToast } from '../../hooks/ui/use-toast';
-import { cn } from '../../lib/utils/utils';
+import { useToast } from '@/hooks/ui/use-toast';
+import { cn } from '@/lib/utils/utils';
 import { useConversationContext } from '@/app/[上下文]/ChatContext';
+import { MemoryBar } from './memory_bar';
+
+interface MemoryAction {
+  type: 'add' | 'delete' | 'update';
+  content: string;
+  all?: boolean;
+}
 
 interface MessageToolbarProps {
   content: string;
   messageId?: string;
   isLatestMessage: boolean;
   isStreaming: boolean;
+  memoryActions?: MemoryAction[];
   onRegenerate?: () => void;
 }
 
@@ -18,6 +26,7 @@ export function MessageToolbar({
   messageId,
   isLatestMessage,
   isStreaming,
+  memoryActions = [],
   onRegenerate
 }: MessageToolbarProps) {
   
@@ -276,6 +285,14 @@ export function MessageToolbar({
         >
           <RotateCcw className="h-4 w-4" />
         </button>
+
+        {/* 分隔线和Memory Bar */}
+        {memoryActions && memoryActions.length > 0 && (
+          <>
+            <div className="mx-1.5 h-4 w-px bg-neutral-200 dark:bg-neutral-800" />
+            <MemoryBar actions={memoryActions} />
+          </>
+        )}
       </div>
     </div>
   );

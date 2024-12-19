@@ -51,7 +51,6 @@ export const getWeatherDescription = (day: any, isToday = false): string => {
         }
       }
     } catch (error) {
-      console.error('Weather description error:', error);
       return text || '暂无天气描述';
     }
     
@@ -67,15 +66,18 @@ export const getWeatherDescription = (day: any, isToday = false): string => {
       }
     }
 
-    if (!weatherType) return text;
+    if (!weatherType || !(weatherType in WEATHER_DESCRIPTIONS)) {
+      return text;
+    }
 
-    const descriptions = WEATHER_DESCRIPTIONS[weatherType];
-    return descriptions[Math.floor(Math.random() * descriptions.length)];
+    return WEATHER_DESCRIPTIONS[weatherType];
   } catch (error) {
-    console.error('Weather description error:', error);
     return text || '暂无天气描述';
   }
 };
+
+// 添加错误处理函数
+
 
 // 获取友好的日期显示
 export const getFriendlyDate = (date: string, index: number): string => {

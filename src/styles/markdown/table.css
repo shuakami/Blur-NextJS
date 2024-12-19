@@ -5,40 +5,71 @@
     --table-border: var(--border-light);
     --table-border-strong: var(--border-medium);
     
-    /* 表格特有变量 */
-    --table-header-bg: rgba(0, 0, 0, 0.02);
-    --table-row-hover: rgba(0, 0, 0, 0.015);
-    --table-vertical-border: rgba(0, 0, 0, 0.06);
+    /* 尺寸变量 */
     --table-cell-padding-y: 0.65rem;
     --table-cell-padding-x: 1rem;
     --table-header-font: 0.95rem;
     --table-body-font: 0.925rem;
+    --table-border-radius: 0.5rem;
+    --table-resize-handle-width: 2px;
+
+    /* 颜色 */
+    --table-header-bg: #f0f0f0;
+    --table-row-hover: rgba(0, 0, 0, 0.015);
+    --table-vertical-border: rgba(0, 0, 0, 0.06);
+    --table-resize-handle-width: 4px;
+    --table-resize-handle-color: rgba(59, 130, 246, 0.5);
+    --table-resize-handle-hover: rgba(59, 130, 246, 0.7);
 }
 
 .dark {
-    --table-header-bg: rgba(255, 255, 255, 0.03);
+    --table-header-bg: #282828;
     --table-row-hover: rgba(255, 255, 255, 0.02);
     --table-border: rgba(255, 255, 255, 0.08);
     --table-border-strong: rgba(255, 255, 255, 0.12);
     --table-vertical-border: rgba(255, 255, 255, 0.06);
+    --table-resize-handle-color: rgba(96, 165, 250, 0.4);
+    --table-resize-handle-hover: rgba(96, 165, 250, 0.6);
+}
+
+/* 基础容器 */
+.table-container {
+    position: relative;
+    width: 100%;
+    margin: var(--spacing-md) 0;
+    transition: none;
+    will-change: transform;
+}
+
+.table-scroll-container {
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+    border-radius: var(--table-border-radius);
+    transition: none;
+}
+
+/* 表格扩展状态 */
+.table-container.expanded .table-scroll-container {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
+    min-width: 100%;
 }
 
 /* 表格基础样式 */
 .markdown-table {
     width: 100%;
-    margin: var(--spacing-md) 0;
     border-collapse: separate;
     border-spacing: 0;
     font-size: var(--table-body-font);
     line-height: 1.5;
     border: 1px solid var(--table-border-strong);
-    border-radius: 0.5rem;
+    border-radius: var(--table-border-radius);
     overflow: hidden;
     background: transparent;
-}
-
-.dark .markdown-table {
-    background: rgba(0, 0, 0, 0.2);
+    transition: none;
 }
 
 /* 表头样式 */
@@ -71,72 +102,66 @@
     border-right: none;
 }
 
-/* 行悬停效果 */
+/* 行交互效果 */
 .markdown-table tr:hover td {
     background-color: var(--table-row-hover);
 }
 
-/* 最后一行去掉底部边框 */
 .markdown-table tr:last-child .table-cell {
     border-bottom: none;
 }
 
-/* 响应式设计 */
+/* 调整手柄相关 */
+.resize-handle-container {
+    z-index: 20;
+    transform-origin: center;
+}
+
+.resize-handle {
+    position: relative;
+}
+
+.resize-handle::after {
+    background-color: var(--table-handle-color);
+}
+
+.resize-handle:hover::after {
+    background-color: var(--table-handle-hover);
+}
+
+.resize-handle:active::after {
+    background-color: var(--table-handle-active);
+}
+
+/* 拖动状态 */
+.table-container.resizing {
+    user-select: none;
+}
+
+.table-container.resizing .table-scroll-container {
+    pointer-events: none;
+}
+
+.table-container.resizing .resize-handle::after {
+    background-color: var(--table-handle-active) !important;
+}
+
+/* 响应式适配 */
 @media (max-width: 768px) {
-    .markdown-table {
-        font-size: var(--table-body-font);
+    .table-container {
         margin: var(--spacing-sm) 0;
-    }
-    
-    .table-header,
-    .table-cell {
-        padding: calc(var(--table-cell-padding-y) * 0.8) calc(var(--table-cell-padding-x) * 0.8);
-    }
-    
-    .table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
 }
 
 /* 打印样式优化 */
 @media print {
-    .markdown-table {
-        border-color: #000;
-        font-size: 10pt;
+    .table-scroll-container {
+        overflow: visible;
+        transform: none;
+        margin-left: 0;
     }
     
-    .table-header {
-        background-color: #f5f5f5;
-        color: #000;
-        border-bottom-color: #000;
-    }
-    
-    .table-cell {
-        color: #000;
-        border-bottom-color: #ccc;
-    }
-    
-    tr {
-        break-inside: avoid;
-    }
-}
-
-/* 高对比度模式 */
-@media (prefers-contrast: high) {
-    :root {
-        --table-header-bg: #f0f0f0;
-        --table-border: #000;
-        --table-border-strong: #000;
-    }
-    
-    .markdown-table {
-        border-width: 2px;
-    }
-    
-    .table-header,
-    .table-cell {
-        border-width: 1px;
+    .resize-handle-container {
+        display: none;
     }
 }

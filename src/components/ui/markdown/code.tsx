@@ -133,7 +133,9 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
     }, []);
 
     if (forceRenderBlock) {
-        const additionalClass = highlightedCode.indexOf('\n') !== -1 ? '-mt-6' : '';
+        const needsMargin = !code.trim().startsWith('{');
+        const additionalClass = (language === 'python') && needsMargin && code.split('\n').length >= 2 ? '-mt-6' : '';
+        
         return (
             <pre className={`text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words ${additionalClass}`}>
                 <code 

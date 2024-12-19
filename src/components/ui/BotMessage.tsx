@@ -55,9 +55,12 @@ interface BotMessageProps {
   };
 }
 
+// 工具类型
+type ToolType = "code" | "text" | "tool";
+
 interface ToolState {
   id: string;
-  type: "code" | "text";
+  type: ToolType;
   content?: string;
   status: "input" | "calling" | "response";
   calling?: {
@@ -69,12 +72,22 @@ interface ToolState {
     data: any;
     plugin_name: string;
   };
+  params?: Record<string, any>; // 添加工具参数支持
 }
 
 interface GroupedTool {
   useTool: ToolState;
 }
 
+// 添加记忆工具类型
+interface MemoryAction {
+  type: "add" | "delete" | "update";
+  content: string;
+  raw: string;
+  all?: boolean;
+}
+
+// 更新 ContentItem 类型
 interface ContentItem {
   type: "text" | "group" | "other";
   content?: string;
@@ -83,7 +96,10 @@ interface ContentItem {
 
 // 正则表达式（提取内容）
 const CONTENT_SPLIT_REGEX = /(\[USE_TOOL[^\]]*\]|\[USE_TOOL\/\]|<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s;
-const USE_TOOL_REGEX = /\[USE_TOOL type="(code|text)" id="([^"]+)"\]/;
+const USE_TOOL_REGEX = /\[USE_TOOL type="(code|text|tool)" id="([^"]+)"\]/;
+
+// 记忆工具正则
+const MEMORY_ACTION_REGEX = /\[MEMORY type="(add|delete|update)"(?:\s+all)?\]([\s\S]*?)\[MEMORY\/\]/g;
 
 // 错误处理工具函数
 const handleError = (error: Error, context: string) => {
@@ -95,8 +111,45 @@ const handleError = (error: Error, context: string) => {
   }
 };
 
+// 处理记忆操作
+const useMemoryProcessor = (content: string) => {
+  return useMemo(() => {
+    const actions: MemoryAction[] = [];
+    let processedContent = content;
+    
+    // 使用正则替换，同时收集记忆操作
+    processedContent = processedContent.replace(MEMORY_ACTION_REGEX, (match, type, content) => {
+      const trimmedContent = content.trim();
+      const isAll = match.includes(' all');
+      
+      if (trimmedContent) {
+        // 处理多行内容
+        const formattedContent = trimmedContent
+          .split('\n')
+          .map((line: string) => line.trim())
+          .filter((line: string) => line.length > 0)
+          .join('\n');
+
+        actions.push({
+          type: type as MemoryAction["type"],
+          content: formattedContent,
+          raw: match,
+          all: isAll
+        });
+      }
+      return ""; // 移除原文本
+    });
+
+    return {
+      processedContent,
+      memoryActions: actions
+    };
+  }, [content]);
+};
+
 // 内容处理 Hook
 const useContentProcessor = (content: string) => {
+  // 缓存分割结果
   const parts = useMemo(() => {
     return content.split(CONTENT_SPLIT_REGEX);
   }, [content]);
@@ -140,16 +193,10 @@ const useContentProcessor = (content: string) => {
           return { type: "other" };
         }
         
-        return {
-          type: "text",
-          content: part
-        };
+        return { type: "text", content: part };
       } catch (e) {
         handleError(e as Error, 'Plugin data processing');
-        return {
-          type: "text",
-          content: part
-        };
+        return { type: "text", content: part };
       }
     };
 
@@ -160,7 +207,7 @@ const useContentProcessor = (content: string) => {
           const [, type, id] = match;
           const tool: ToolState = {
             id,
-            type: type as "code" | "text",
+            type: type as ToolType,
             content: '',
             status: "input"
           };
@@ -207,12 +254,14 @@ const MessageContent = memo(({
   item, 
   index,
   isStreaming,
-  isLatestBotMessage 
+  isLatestBotMessage,
+  messageId
 }: {
   item: ContentItem;
   index: number;
   isStreaming: boolean;
   isLatestBotMessage: boolean;
+  messageId?: string;
 }) => {
 
   const toolFallback = useMemo(() => {
@@ -290,6 +339,7 @@ const MessageContent = memo(({
         >
           <UseTool
             id={tool.id}
+            message_id={messageId || ''}
             type={tool.type}
             content={tool.content}
             status={tool.status}
@@ -328,7 +378,11 @@ const BotMessage = memo(({
 }: BotMessageProps) => {
   const { isStreaming } = useChatStateContext();
   
-  const contentItems = useContentProcessor(content);
+  // 预处理记忆操作
+  const { processedContent, memoryActions } = useMemoryProcessor(content);
+  
+  // 处理工具/插件等内容
+  const contentItems = useContentProcessor(processedContent);
 
   return (
     <div className="group relative flex w-full items-start">
@@ -368,6 +422,7 @@ const BotMessage = memo(({
                   index={index}
                   isStreaming={isStreaming}
                   isLatestBotMessage={isLatestBotMessage}
+                  messageId={messageId}
                 />
               ))}
               {error && (
@@ -385,12 +440,13 @@ const BotMessage = memo(({
           "transition-opacity duration-200 -ml-1 flex items-center",
           isLatestBotMessage && isStreaming && "hidden"
         )}>
-          <Suspense fallback={null}>
+          <Suspense fallback={<div className="animate-pulse h-4 bg-gray-200 rounded w-1/4" />}>
             <MessageToolbar
-              content={content}
+              content={processedContent}
               messageId={messageId}
               isLatestMessage={isLatestBotMessage}
               isStreaming={isStreaming}
+              memoryActions={memoryActions}
               onRegenerate={() => {
                 // 处理重新生成
               }}

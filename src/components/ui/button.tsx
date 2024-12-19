@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/tooltip"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-gray-150 dark:disabled:bg-gray-800 disabled:text-gray-600 dark:disabled:text-gray-400 disabled:border disabled:border-input",
+  "inline-flex items-center otline-none justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-gray-150 dark:disabled:bg-gray-800 disabled:text-gray-600 dark:disabled:text-gray-400 disabled:border disabled:border-input",
   {
     variants: {
       variant: {
@@ -57,7 +57,7 @@ export interface ButtonProps
   loading?: boolean
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
-  tooltip?: string
+  tooltip?: string | React.ReactNode
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -85,7 +85,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               {button}
             </TooltipTrigger>
             <TooltipContent>
-              <p>{tooltip}</p>
+             {typeof tooltip === "string" ? <p>{tooltip}</p> : tooltip}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

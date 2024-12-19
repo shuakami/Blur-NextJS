@@ -8,19 +8,23 @@ import DropDownMenuPlus from "@/components/ui/tofu/dropdown-menu-plus";
 import { useShortcutManager } from "@/providers/ShortcutProvider";
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from "@/constants/shortcuts";
 
-// 定义 Model 类型
-type Model = {
+// 类型定义
+type ModelCode = 'claude' | 'gemini';
+
+interface Model {
+    id: string;           // 唯一标识符
     name: string;
     version: string;
     description: string;
-    code?: string;
+    code: ModelCode;
     icon: React.ComponentType;
     isDisabled?: boolean;
-};
+}
 
-// 定义模型数组
-const models: Model[] = [
+// 常量定义
+const MODELS: readonly Model[] = [
     {
+        id: 'blur-lite',
         name: "Blur",
         version: "Lite",
         code: "claude",
@@ -28,6 +32,7 @@ const models: Model[] = [
         icon: Orbit,
     },
     {
+        id: 'blur-flex',
         name: "Blur",
         version: "Flex",
         code: "gemini",
@@ -36,6 +41,7 @@ const models: Model[] = [
         isDisabled: true,
     },
     {
+        id: 'blur-search',
         name: "Blur Search",
         version: "",
         code: "claude",
@@ -44,170 +50,190 @@ const models: Model[] = [
         isDisabled: true,
     },
     {
+        id: 'blur-intellect',
         name: "Blur",
         version: "Intellect",
         code: "gemini",
         description: "精于推理，善于思考，帮你解决复杂问题。",
         icon: Brain,
     },
-];
+] as const;
 
-const ModelContext = createContext<{
+// 持久化配置
+const STORAGE_KEY = 'selectedModelId';
+const DEFAULT_MODEL = MODELS[0];
+
+// Context 类型定义
+interface ModelContextType {
     selectedModel: Model;
     setSelectedModel: (model: Model) => void;
-} | undefined>(undefined);
+    isLoading: boolean;
+}
 
-export const ModelProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
-    const isInitialMount = useRef(true);
+const ModelContext = createContext<ModelContextType | undefined>(undefined);
 
-    const updateModelInUrlAndCookie = (model: Model) => {
-        if (typeof window !== "undefined") {
-            const newModal = `${model.name}-${model.version}`;
-            
-            // 更新 Cookie
-            const currentCookie = Cookies.get('selectedModel');
-            if (currentCookie !== newModal) {
-                Cookies.set('selectedModel', newModal);
-            }
-            console.log(newModal);
-
-            // 更新 URL，但不触发重新渲染
+// 持久化工具函数
+const persistModel = (modelId: string) => {
+    try {
+        // 更新 Cookie
+        Cookies.set(STORAGE_KEY, modelId, { expires: 365 });
+        
+        // 更新 URL
+        if (typeof window !== 'undefined') {
             const url = new URL(window.location.href);
-            const currentModal = url.searchParams.get('modal');
-            if (currentModal !== newModal) {
-                url.searchParams.set('modal', newModal);
-                window.history.replaceState({}, '', url.toString());
-            }
+            url.searchParams.set('model', modelId);
+            window.history.replaceState({}, '', url.toString());
         }
-    };
+    } catch (error) {
+        console.error('Failed to persist model selection:', error);
+    }
+};
 
-    // 初始化时获取模型
+// 获取持久化的模型
+const getPersistedModel = (): Model => {
+    try {
+        if (typeof window === 'undefined') return DEFAULT_MODEL;
+
+        // 优先从 URL 获取
+        const urlParams = new URLSearchParams(window.location.search);
+        const modelFromUrl = urlParams.get('model');
+        if (modelFromUrl) {
+            const model = MODELS.find(m => m.id === modelFromUrl);
+            if (model && !model.isDisabled) return model;
+        }
+
+        // 其次从 Cookie 获取
+        const modelFromCookie = Cookies.get(STORAGE_KEY);
+        if (modelFromCookie) {
+            const model = MODELS.find(m => m.id === modelFromCookie);
+            if (model && !model.isDisabled) return model;
+        }
+
+        return DEFAULT_MODEL;
+    } catch (error) {
+        console.error('Failed to get persisted model:', error);
+        return DEFAULT_MODEL;
+    }
+};
+
+// Provider 组件
+export const ModelProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [selectedModel, setSelectedModel] = useState<Model>(DEFAULT_MODEL);
+    const [isLoading, setIsLoading] = useState(true);
+    const isInitialized = useRef(false);
+
+    // 初始化
     useEffect(() => {
-        if (!isInitialMount.current) return;
+        if (isInitialized.current) return;
         
         const initializeModel = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const modalFromUrl = urlParams.get("modal");
-            const cookieModel = Cookies.get("selectedModel");
-
-            let modelToSet = models[0];
-            const findModel = (name: string, version: string) => 
-                models.find(model => model.name === name && model.version === version);
-
-            if (modalFromUrl) {
-                const [name, version] = modalFromUrl.split("-");
-                modelToSet = findModel(name, version) || modelToSet;
-            } else if (cookieModel) {
-                const [name, version] = cookieModel.split("-");
-                modelToSet = findModel(name, version) || modelToSet;
-            }
-
-            setSelectedModel(modelToSet);
-            // 仅在初始化时更新 URL 和 Cookie
-            if (modelToSet !== models[0]) {
-                updateModelInUrlAndCookie(modelToSet);
-            }
+            const model = getPersistedModel();
+            setSelectedModel(model);
+            setIsLoading(false);
+            isInitialized.current = true;
         };
 
         initializeModel();
-        isInitialMount.current = false;
     }, []);
 
     // 处理模型变更
-    const handleModelChange = (model: Model) => {
+    const handleModelChange = useCallback((model: Model) => {
+        if (model.isDisabled) return;
         setSelectedModel(model);
-        updateModelInUrlAndCookie(model);
+        persistModel(model.id);
+    }, []);
+
+    const contextValue = {
+        selectedModel,
+        setSelectedModel: handleModelChange,
+        isLoading
     };
 
     return (
-        <ModelContext.Provider value={{ selectedModel, setSelectedModel: handleModelChange }}>
+        <ModelContext.Provider value={contextValue}>
             {children}
         </ModelContext.Provider>
     );
 };
 
-// Hook - 用于全局获取当前的模型
+// Hook
 export const useModel = () => {
     const context = useContext(ModelContext);
     if (!context) {
-        throw new Error('useModel 必须在 ModelProvider 中使用');
+        throw new Error('useModel must be used within ModelProvider');
     }
     return context;
 };
 
-// ModelSelector 组件：用于选择模型并显示
+// Selector 组件
 const ModelSelector: FC = () => {
-    const { selectedModel, setSelectedModel } = useModel();
+    const { selectedModel, setSelectedModel, isLoading } = useModel();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const shortcutManager = useShortcutManager();
 
-    const menuItems = models.map((model) => ({
-        id: `${model.name}-${model.version}`,
-        text: `${model.name} ${model.version}`,
+    // 菜单项
+    const menuItems = MODELS.map((model) => ({
+        id: model.id,
+        text: `${model.name} ${model.version}`.trim(),
         description: model.description,
         icon: model.icon,
         isDisabled: model.isDisabled,
         onClick: () => {
-            setSelectedModel(model);
-            setIsMenuOpen(false);
+            if (!model.isDisabled) {
+                setSelectedModel(model);
+                setIsMenuOpen(false);
+            }
         },
     }));
 
-    // 切换模型选择器的显示状态
+    // 快捷键处理
     const toggleModelSelector = useCallback(() => {
-        setIsMenuOpen(prev => !prev);
-    }, []);
+        if (!isLoading) {
+            setIsMenuOpen(prev => !prev);
+        }
+    }, [isLoading]);
 
-    // 注册快捷键
     useEffect(() => {
         shortcutManager.register({
             command: 'TOGGLE_MODEL',
             key: SHORTCUTS.TOGGLE_MODEL,
             description: SHORTCUT_DESCRIPTIONS.TOGGLE_MODEL,
             handler: toggleModelSelector,
-            condition: () => document.activeElement?.tagName !== 'INPUT'  // 不在输入状态时生效
+            condition: () => !isLoading && document.activeElement?.tagName !== 'INPUT'
         });
 
-        return () => {
-            shortcutManager.unregister('TOGGLE_MODEL');
-        };
-    }, [shortcutManager, toggleModelSelector]);
+        return () => shortcutManager.unregister('TOGGLE_MODEL');
+    }, [shortcutManager, toggleModelSelector, isLoading]);
 
-    // 添加键盘导航支持
+    // 键盘导航
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
-        if (!isMenuOpen) return;
+        if (!isMenuOpen || isLoading) return;
+
+        const enabledModels = MODELS.filter(m => !m.isDisabled);
+        const currentIndex = enabledModels.findIndex(m => m.id === selectedModel.id);
 
         switch(e.key) {
             case 'ArrowUp':
                 e.preventDefault();
-                // 选择上一个模型
-                const currentIndex = models.findIndex(m => m === selectedModel);
                 if (currentIndex > 0) {
-                    setSelectedModel(models[currentIndex - 1]);
+                    setSelectedModel(enabledModels[currentIndex - 1]);
                 }
                 break;
             case 'ArrowDown':
                 e.preventDefault();
-                // 选择下一个模型
-                const nextIndex = models.findIndex(m => m === selectedModel);
-                if (nextIndex < models.length - 1) {
-                    setSelectedModel(models[nextIndex + 1]);
+                if (currentIndex < enabledModels.length - 1) {
+                    setSelectedModel(enabledModels[currentIndex + 1]);
                 }
                 break;
             case 'Enter':
-                e.preventDefault();
-                setIsMenuOpen(false);
-                break;
             case 'Escape':
                 e.preventDefault();
                 setIsMenuOpen(false);
                 break;
         }
-    }, [isMenuOpen, selectedModel, setSelectedModel]);
+    }, [isMenuOpen, selectedModel, setSelectedModel, isLoading]);
 
-    // 添加键盘事件监听
     useEffect(() => {
         if (isMenuOpen) {
             window.addEventListener('keydown', handleKeyDown);
@@ -215,19 +241,28 @@ const ModelSelector: FC = () => {
         }
     }, [isMenuOpen, handleKeyDown]);
 
+    if (isLoading) {
+        return (
+            <div className="animate-pulse">
+                <div className="h-8 w-32 bg-secondary rounded" />
+            </div>
+        );
+    }
+
     return (
         <div>
-            {/* 触发下拉菜单的按钮 */}
             <Button
                 ref={buttonRef}
                 variant="ghost"
                 tooltip="切换模型"
                 className="flex items-center gap-1 rounded-lg text-lg font-semibold hover:bg-secondary"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                onClick={toggleModelSelector}
             >
                 <span className="text-secondary-foreground">
-                    {selectedModel.name}{" "}
-                    <span className="text-muted-foreground">{selectedModel.version}</span>
+                    {selectedModel.name}
+                    {selectedModel.version && (
+                        <span className="text-muted-foreground"> {selectedModel.version}</span>
+                    )}
                 </span>
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
@@ -242,6 +277,5 @@ const ModelSelector: FC = () => {
         </div>
     );
 };
-
 
 export default ModelSelector;
