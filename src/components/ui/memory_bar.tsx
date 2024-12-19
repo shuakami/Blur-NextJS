@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Brain, PencilLine, Trash2, RefreshCw, Settings2, ChevronDown } from 'lucide-react';
+import { Brain, ChevronDown, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import {
   Popover,
@@ -25,29 +25,22 @@ interface MemoryBarProps {
 // 清理 markdown
 const cleanMarkdown = (text: string) => {
     return text
-      // 清理代码块
       .replace(/```[\s\S]*?```/g, '')
-      // 清理行内代码
       .replace(/`([^`]+)`/g, '$1')
-      // 清理粗体
       .replace(/\*\*([^*]+)\*\*/g, '$1')
-      // 清理斜体
       .replace(/\*([^*]+)\*/g, '$1')
       .replace(/_([^_]+)_/g, '$1')
-      // 清理链接
       .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
-      // 清理标题标记
       .replace(/^#{1,6}\s+/gm, '')
-      // 清理多余的空行
       .replace(/\n{3,}/g, '\n\n')
       .trim();
-  };
+};
 
 export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
-  if (!actions || actions.length === 0) return null;
-
-  // 展开状态管理
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
+
+  // 如果没有 actions返回 null
+  if (!actions || actions.length === 0) return null;
 
   // 获取操作类型统计
   const actionCounts = actions.reduce((acc, action) => {
@@ -55,16 +48,15 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
     return acc;
   }, {} as Record<string, number>);
 
-  // 生成摘要文本
-  const getSummaryText = useCallback(() => {
+  const getSummaryText = () => {
     const parts = [];
     if (actionCounts.add) parts.push(`添加了 ${actionCounts.add} 条`);
     if (actionCounts.delete) parts.push(`删除了 ${actionCounts.delete} 条`);
     if (actionCounts.update) parts.push(`更新了 ${actionCounts.update} 条`);
     return parts.join('、');
-  }, [actionCounts]);
+  };
 
-  const getActionLabel = useCallback((type: MemoryAction['type']) => {
+  const getActionLabel = (type: MemoryAction['type']) => {
     switch (type) {
       case 'add':
         return '添加记忆';
@@ -73,9 +65,9 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
       case 'update':
         return '更新记忆';
     }
-  }, []);
+  };
 
-  const getActionStyle = useCallback((type: MemoryAction['type'], isAll?: boolean) => {
+  const getActionStyle = (type: MemoryAction['type'], isAll?: boolean) => {
     const baseStyle = cn(
       "flex flex-col gap-1 px-2.5 py-2 rounded-md transition-colors duration-150",
       isAll && "bg-neutral-50/80 dark:bg-neutral-800/50"
@@ -98,17 +90,17 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
           "text-sky-600 dark:text-sky-400"
         );
     }
-  }, []);
+  };
 
-  const handleExpandToggle = useCallback((index: number, e: React.MouseEvent) => {
+  const handleExpandToggle = (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedItems(prev => ({
       ...prev,
       [index]: !prev[index]
     }));
-  }, []);
+  };
 
-  const formatContent = useCallback((content: string, isExpanded: boolean, index: number) => {
+  const formatContent = (content: string, isExpanded: boolean, index: number) => {
     const cleanedContent = cleanMarkdown(content);
     const lines = cleanedContent.split('\n').filter(line => line.trim());
     const shouldShowExpand = cleanedContent.length > 100 || lines.length > 1;
@@ -144,7 +136,7 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
         )}
       </div>
     );
-  }, [handleExpandToggle]);
+  };
 
   return (
     <Popover>
