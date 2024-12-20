@@ -48,14 +48,11 @@ export default function ChatPage() {
         <div className="w-full h-screen flex overflow-hidden">
             {/* 侧边栏 */}
             <motion.div
-                className="fixed top-0 left-0 h-full z-30"
+                className="fixed top-0 left-0 h-full z-30 bg-gray-50 dark:bg-[#171717]"
                 style={{width: SIDEBAR_WIDTH}}
                 initial={false}  // 禁用初始动画
                 animate={{
-                    x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH,
-                    boxShadow: isSidebarOpen 
-                        ? "2px 0 8px rgba(0,0,0,0.1)" 
-                        : "none"
+                    x: isSidebarOpen ? 0 : -SIDEBAR_WIDTH
                 }}
                 transition={transitionConfig}
             >

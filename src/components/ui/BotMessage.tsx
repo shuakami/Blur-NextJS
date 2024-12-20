@@ -4,7 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
 import { useChatStateContext } from "@/app/[上下文]/ChatContext";
 import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
-import { cn } from '../../lib/utils/utils';
+import { cn } from '@/lib/utils/utils';
 import { Agent } from "./LLM/agent";
 import AnimatedShinyText from "./animated-shiny-text";
 import { UseToolSkeletons } from "./markdown/skeleton/skeleton";
@@ -81,9 +81,11 @@ interface GroupedTool {
 
 // 添加记忆工具类型
 interface MemoryAction {
-  type: "add" | "delete" | "update";
+  type: "add" | "delete" | "query";
   content: string;
   raw: string;
+  tags?: string[];
+  select?: string;
   all?: boolean;
 }
 
@@ -93,13 +95,12 @@ interface ContentItem {
   content?: string;
   group?: GroupedTool;
 }
-
 // 正则表达式（提取内容）
-const CONTENT_SPLIT_REGEX = /(\[USE_TOOL[^\]]*\]|\[USE_TOOL\/\]|<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s;
+const CONTENT_SPLIT_REGEX = /(\[USE_TOOL[^\]]*\]|\[\/USE_TOOL\]|<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s;
 const USE_TOOL_REGEX = /\[USE_TOOL type="(code|text|tool)" id="([^"]+)"\]/;
 
 // 记忆工具正则
-const MEMORY_ACTION_REGEX = /\[MEMORY type="(add|delete|update)"(?:\s+all)?\]([\s\S]*?)\[MEMORY\/\]/g;
+const MEMORY_ACTION_REGEX = /\[MEMORY(?:\s+(?:action="([^"]+)")?\s*(?:select="([^"]+)")?\s*(?:tags="([^"]+)")?)?\]([\s\S]*?)\[\/MEMORY\]/g;
 
 // 错误处理工具函数
 const handleError = (error: Error, context: string) => {
@@ -117,24 +118,17 @@ const useMemoryProcessor = (content: string) => {
     const actions: MemoryAction[] = [];
     let processedContent = content;
     
-    // 使用正则替换，同时收集记忆操作
-    processedContent = processedContent.replace(MEMORY_ACTION_REGEX, (match, type, content) => {
-      const trimmedContent = content.trim();
-      const isAll = match.includes(' all');
+    processedContent = processedContent.replace(MEMORY_ACTION_REGEX, (match, action, select, tags, content) => {
+      const trimmedContent = content?.trim();
       
-      if (trimmedContent) {
-        // 处理多行内容
-        const formattedContent = trimmedContent
-          .split('\n')
-          .map((line: string) => line.trim())
-          .filter((line: string) => line.length > 0)
-          .join('\n');
-
+      if (trimmedContent || action === 'delete') {
         actions.push({
-          type: type as MemoryAction["type"],
-          content: formattedContent,
+          type: (action as MemoryAction["type"]) || "add",
+          content: trimmedContent || '',
           raw: match,
-          all: isAll
+          select,
+          tags: tags?.split(',').map((t: string) => t.trim()),
+          all: select === '*'
         });
       }
       return ""; // 移除原文本
@@ -201,7 +195,7 @@ const useContentProcessor = (content: string) => {
     };
 
     parts.forEach(part => {
-      if (part.startsWith("[USE_TOOL") && !part.includes("[USE_TOOL/]")) {
+      if (part.startsWith("[USE_TOOL") && !part.includes("[/USE_TOOL]")) {
         const match = part.match(USE_TOOL_REGEX);
         if (match) {
           const [, type, id] = match;
@@ -218,7 +212,7 @@ const useContentProcessor = (content: string) => {
           });
           isCollectingTool = true;
         }
-      } else if (part === "[USE_TOOL/]") {
+      } else if (part === "[/USE_TOOL]") {
         isCollectingTool = false;
       } else if (isCollectingTool && toolQueue.length > 0) {
         const currentTool = toolQueue[toolQueue.length - 1];

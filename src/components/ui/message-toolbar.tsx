@@ -7,8 +7,10 @@ import { useConversationContext } from '@/app/[上下文]/ChatContext';
 import { MemoryBar } from './memory_bar';
 
 interface MemoryAction {
-  type: 'add' | 'delete' | 'update';
+  type: 'add' | 'delete' | 'query';
   content: string;
+  tags?: string[];
+  select?: string;
   all?: boolean;
 }
 

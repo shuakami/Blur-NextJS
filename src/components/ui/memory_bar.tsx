@@ -12,8 +12,10 @@ import {
 import { Button } from './button';
 
 interface MemoryAction {
-  type: 'add' | 'delete' | 'update';
+  type: 'add' | 'delete' | 'query';
   content: string;
+  tags?: string[];
+  select?: string;
   all?: boolean;
 }
 
@@ -52,7 +54,7 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
     const parts = [];
     if (actionCounts.add) parts.push(`添加了 ${actionCounts.add} 条`);
     if (actionCounts.delete) parts.push(`删除了 ${actionCounts.delete} 条`);
-    if (actionCounts.update) parts.push(`更新了 ${actionCounts.update} 条`);
+    if (actionCounts.query) parts.push(`查询了 ${actionCounts.query} 条`);
     return parts.join('、');
   };
 
@@ -62,8 +64,8 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
         return '添加记忆';
       case 'delete':
         return '删除记忆';
-      case 'update':
-        return '更新记忆';
+      case 'query':
+        return '查询记忆';
     }
   };
 
@@ -84,7 +86,7 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
           "hover:bg-rose-50 dark:hover:bg-rose-950/30",
           "text-rose-600 dark:text-rose-400"
         );
-      case 'update':
+      case 'query':
         return cn(baseStyle, 
           "hover:bg-sky-50 dark:hover:bg-sky-950/30",
           "text-sky-600 dark:text-sky-400"
@@ -100,14 +102,34 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
     }));
   };
 
-  const formatContent = (content: string, isExpanded: boolean, index: number) => {
-    const cleanedContent = cleanMarkdown(content);
+  const formatContent = (action: MemoryAction, isExpanded: boolean, index: number) => {
+    const cleanedContent = cleanMarkdown(action.content);
     const lines = cleanedContent.split('\n').filter(line => line.trim());
     const shouldShowExpand = cleanedContent.length > 100 || lines.length > 1;
     const displayContent = isExpanded ? cleanedContent : cleanedContent.slice(0, 100);
 
     return (
       <div className="space-y-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          {action.tags && action.tags.length > 0 && (
+            <div className="flex gap-1 flex-wrap">
+              {action.tags.map((tag, i) => (
+                <span key={i} className="px-1.5 py-0.5 text-[10px] rounded-full 
+                                      bg-neutral-100 dark:bg-neutral-800 
+                                      text-neutral-500 dark:text-neutral-400">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          {action.select && (
+            <span className="px-1.5 py-0.5 text-[10px] rounded-full 
+                           bg-neutral-100 dark:bg-neutral-800 
+                           text-neutral-500 dark:text-neutral-400">
+              {action.select === '*' ? '全局' : `选择: ${action.select}`}
+            </span>
+          )}
+        </div>
         <div className={cn(
           "text-xs text-neutral-600 dark:text-neutral-400 break-all",
           !isExpanded && shouldShowExpand && "line-clamp-2"
@@ -186,7 +208,7 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
                     )}
                   </span>
                 </div>
-                {formatContent(action.content, !!expandedItems[index], index)}
+                {formatContent(action, !!expandedItems[index], index)}
               </div>
             ))}
           </div>
