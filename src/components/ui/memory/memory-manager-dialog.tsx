@@ -42,27 +42,34 @@ export function MemoryManagerDialog({ open, onOpenChange }: MemoryManagerDialogP
 
     const [activeType, setActiveType] = useState<'all' | 'long_term' | 'short_term'>('all');
 
-    // 临时数据
-    const memories: Memory[] = [
+    // 将临时数据移到 useMemo 中，并明确指定类型
+    const memories = useMemo<Memory[]>(() => {
+        return [
+            // 可以添加一些测试数据
+            {
+                id: '1',
+                content: '这是一条测试记忆',
+                timestamp: Date.now(),
+                type: 'long_term',
+                tags: ['测试']
+            }
+        ];
+    }, []);
 
-    ];
+    const handleDelete = useCallback((id: string) => {
+        // TODO: 实现删除逻辑
+        console.log('删除记忆:', id);
+    }, []);
 
-    const handleDelete = (id: string) => {
-        // 删除记忆的逻辑
-    };
-
-    // 使用 useMemo 缓存过滤后的记忆
-    const filteredMemories = useMemo(() => 
-        memories.filter(m => activeType === 'all' || m.type === activeType)
-    , [memories, activeType]);
+    const filteredMemories = useMemo(() => {
+        return memories.filter(m => activeType === 'all' || m.type === activeType);
+    }, [memories, activeType]);
 
     // 分页加载记忆
     const paginatedMemories = useMemo(() => {
         const start = (state.page - 1) * state.pageSize;
         return filteredMemories.slice(start, start + state.pageSize);
     }, [filteredMemories, state.page, state.pageSize]);
-
-
 
     // 优化滚动加载
     const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -222,6 +229,7 @@ const MemoryItem = memo(({ memory, onDelete }: {
                 <Button
                     variant="ghost"
                     size="icon"
+                    onClick={onDelete}
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-gray-50 dark:bg-neutral-800 transition-all duration-200 text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 h-6 w-6"
                 >
                     <Trash2 className="h-3 w-3" />
@@ -229,4 +237,6 @@ const MemoryItem = memo(({ memory, onDelete }: {
             </div>
         </div>
     );
-}); 
+});
+
+MemoryItem.displayName = 'MemoryItem'; 

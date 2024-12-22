@@ -28,7 +28,6 @@ interface MemoryAction {
 
 interface MemoryBarProps {
   actions?: MemoryAction[];
-  onManageMemory?: () => void;
 }
 
 // 清理 markdown
@@ -45,14 +44,10 @@ const cleanMarkdown = (text: string) => {
       .trim();
 };
 
-export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
+export function MemoryBar({ actions = [] }: MemoryBarProps) {
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [open, setOpen] = useState(false);
 
-  // 如没有 actions返回 null
-  if (!actions || actions.length === 0) return null;
-
-  // 使用 useCallback 优化事件处理
   const handleExpandToggle = useCallback((index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedItems(prev => ({
@@ -61,7 +56,6 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
     }));
   }, []);
 
-  // 使用 useMemo 缓存统计结果
   const actionCounts = useMemo(() => 
     actions.reduce((acc, action) => {
       acc[action.type] = (acc[action.type] || 0) + 1;
@@ -69,73 +63,7 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
     }, {} as Record<string, number>)
   , [actions]);
 
-  const getSummaryText = () => {
-    const parts = [];
-    if (actionCounts.add) parts.push(`添加了${actionCounts.add}条记忆`);
-    if (actionCounts.delete) {
-      // 检查是否存在全局删除
-      const hasGlobalDelete = actions.some(a => a.type === 'delete' && a.select === '*');
-      parts.push(hasGlobalDelete ? '清空了所有记忆' : `删除了${actionCounts.delete}条记忆`);
-    }
-    if (actionCounts.query) parts.push(`查询了${actionCounts.query}条记忆`);
-    return parts.join('、');
-  };
-
-  const getActionLabel = (type: MemoryAction['type'], isAll?: boolean) => {
-    switch (type) {
-      case 'add':
-        return '添加记忆';
-      case 'delete':
-        return isAll ? '清空了所有记忆' : '删除记忆';
-      case 'query':
-        return '查询记忆';
-    }
-  };
-
-  const getActionStyle = (type: MemoryAction['type'], isAll?: boolean) => {
-    const baseStyle = cn(
-      "flex flex-col gap-1 px-2.5 py-2 rounded-md transition-colors duration-150",
-      isAll && "bg-neutral-50/80 dark:bg-neutral-800/50"
-    );
-    
-    switch (type) {
-      case 'add':
-        return cn(baseStyle, 
-          "hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
-          "text-emerald-600 dark:text-emerald-400"
-        );
-      case 'delete':
-        return cn(baseStyle, 
-          "hover:bg-rose-50 dark:hover:bg-rose-950/30",
-          "text-rose-600 dark:text-rose-400"
-        );
-      case 'query':
-        return cn(baseStyle, 
-          "hover:bg-sky-50 dark:hover:bg-sky-950/30",
-          "text-sky-600 dark:text-sky-400"
-        );
-    }
-  };
-
-  // 优化渲染性能
-  const renderActionItem = useCallback((action: MemoryAction, index: number) => {
-    const isExpanded = !!expandedItems[index];
-    return (
-      <div
-        key={index}
-        className={getActionStyle(action.type, action.all)}
-      >
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium flex items-center gap-1.5">
-            {getActionLabel(action.type, action.select === '*')}
-          </span>
-        </div>
-        {formatContent(action, !!expandedItems[index], index)}
-      </div>
-    );
-  }, [expandedItems, getActionStyle]);
-
-  const formatContent = (action: MemoryAction, isExpanded: boolean, index: number) => {
+  const formatContent = useCallback((action: MemoryAction, isExpanded: boolean, index: number) => {
     const cleanedContent = cleanMarkdown(action.content);
     const lines = cleanedContent.split('\n').filter(line => line.trim());
     const shouldShowExpand = cleanedContent.length > 100 || lines.length > 1;
@@ -203,6 +131,75 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
         )}
       </div>
     );
+  }, [handleExpandToggle]);
+
+  // 渲染 action 项
+  const renderActionItem = useCallback((action: MemoryAction, index: number) => {
+    const isExpanded = !!expandedItems[index];
+    return (
+      <div
+        key={index}
+        className={getActionStyle(action.type, action.all)}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium flex items-center gap-1.5">
+            {getActionLabel(action.type, action.select === '*')}
+          </span>
+        </div>
+        {formatContent(action, isExpanded, index)}
+      </div>
+    );
+  }, [expandedItems, formatContent]);
+
+  // 如没有 actions返回 null
+  if (!actions || actions.length === 0) return null;
+
+  const getSummaryText = () => {
+    const parts = [];
+    if (actionCounts.add) parts.push(`添加了${actionCounts.add}条记忆`);
+    if (actionCounts.delete) {
+      // 检查是否存在全局删除
+      const hasGlobalDelete = actions.some(a => a.type === 'delete' && a.select === '*');
+      parts.push(hasGlobalDelete ? '清空了所有记忆' : `删除了${actionCounts.delete}条记忆`);
+    }
+    if (actionCounts.query) parts.push(`查询了${actionCounts.query}条记忆`);
+    return parts.join('、');
+  };
+
+  const getActionLabel = (type: MemoryAction['type'], isAll?: boolean) => {
+    switch (type) {
+      case 'add':
+        return '添加记忆';
+      case 'delete':
+        return isAll ? '清空了所有记忆' : '删除记忆';
+      case 'query':
+        return '查询记忆';
+    }
+  };
+
+  const getActionStyle = (type: MemoryAction['type'], isAll?: boolean) => {
+    const baseStyle = cn(
+      "flex flex-col gap-1 px-2.5 py-2 rounded-md transition-colors duration-150",
+      isAll && "bg-neutral-50/80 dark:bg-neutral-800/50"
+    );
+    
+    switch (type) {
+      case 'add':
+        return cn(baseStyle, 
+          "hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
+          "text-emerald-600 dark:text-emerald-400"
+        );
+      case 'delete':
+        return cn(baseStyle, 
+          "hover:bg-rose-50 dark:hover:bg-rose-950/30",
+          "text-rose-600 dark:text-rose-400"
+        );
+      case 'query':
+        return cn(baseStyle, 
+          "hover:bg-sky-50 dark:hover:bg-sky-950/30",
+          "text-sky-600 dark:text-sky-400"
+        );
+    }
   };
 
   return (
