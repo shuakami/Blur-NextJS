@@ -133,11 +133,8 @@ const CodeBlock: React.FC<CodeBlockProps> = memo(({ code, forceRenderBlock = fal
     }, []);
 
     if (forceRenderBlock) {
-        const needsMargin = !code.trim().startsWith('{');
-        const additionalClass = (language === 'python') && needsMargin && code.split('\n').length >= 2 ? '-mt-6' : '';
-        
         return (
-            <pre className={`text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words ${additionalClass}`}>
+            <pre className="text-xs leading-relaxed font-mono text-muted-foreground whitespace-pre-wrap break-words">
                 <code 
                     className={`language-${language || 'javascript'} hljs`} 
                     dangerouslySetInnerHTML={{ __html: highlightedCode }} 

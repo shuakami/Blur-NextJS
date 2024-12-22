@@ -284,7 +284,9 @@ const useSendMessage = ({
                     }
                 },
                 onChunk: (chunk) => {
-                    dispatch({ type: 'SET_LOADING', payload: false });
+                    if (chunk.content && chunk.content.trim()) {
+                        dispatch({ type: 'SET_LOADING', payload: false });
+                    }
 
                     if ((chunk.status === 'error' && chunk.error) || (chunk.code && chunk.code >= 400)) {
                         console.error('检测到错误的 chunk:', chunk);

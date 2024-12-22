@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useChatStateContext } from '@/app/[上下文]/ChatContext';
-import { usePathname } from 'next/navigation';
 import { cn } from '../../lib/utils/utils';
 
 interface ScrollDownButtonProps {
@@ -13,65 +12,98 @@ const SCROLL_THRESHOLD = 100;
 const BOTTOM_OFFSET = 50;
 const SCROLL_CONTAINER = '.flex-1.overflow-auto.w-full.pt-12';
 
-const easeInOutQuad = (t: number): number => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
-const ScrollDownButton: React.FC<ScrollDownButtonProps> = memo(({ 
-    className, 
-    isSidebarOpen, 
-    sidebarWidth 
-}) => {
-    const { isStreaming } = useChatStateContext();
+// 抽离成独立的 hook 来管理滚动状态
+const useScrollVisibility = () => {
     const [show, setShow] = useState(false);
-    const lastCheckTime = useRef(0);
-    const [isMobile, setIsMobile] = useState(false);
+    const showRef = useRef(show);
     
     const checkShouldShow = useCallback((container: Element) => {
-        const now = Date.now();
-        if (now - lastCheckTime.current < 50) return; // 50ms 节流
-        lastCheckTime.current = now;
-
         const { scrollTop, scrollHeight, clientHeight } = container;
         const hasScrollSpace = scrollHeight > clientHeight + SCROLL_THRESHOLD;
         const isNotAtBottom = scrollTop < scrollHeight - clientHeight - BOTTOM_OFFSET;
         
-        setShow(hasScrollSpace && isNotAtBottom);
+        const shouldShow = hasScrollSpace && isNotAtBottom;
+        if (shouldShow !== showRef.current) {
+            showRef.current = shouldShow;
+            setShow(shouldShow);
+        }
     }, []);
 
     useEffect(() => {
         const scrollContainer = document.querySelector(SCROLL_CONTAINER);
         if (!scrollContainer) return;
 
-        const handleScroll = () => {
+        const resizeObserver = new ResizeObserver(() => {
             requestAnimationFrame(() => checkShouldShow(scrollContainer));
+        });
+
+        let scrollTimeout: number;
+        const handleScroll = () => {
+            if (scrollTimeout) return;
+            scrollTimeout = window.setTimeout(() => {
+                checkShouldShow(scrollContainer);
+                scrollTimeout = 0;
+            }, 100);
         };
 
         scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+        resizeObserver.observe(scrollContainer);
         checkShouldShow(scrollContainer);
 
         return () => {
             scrollContainer.removeEventListener('scroll', handleScroll);
+            resizeObserver.disconnect();
+            if (scrollTimeout) clearTimeout(scrollTimeout);
         };
     }, [checkShouldShow]);
 
+    return show;
+};
+
+// 抽离成独立的 hook 来管理移动端状态
+const useMobileState = () => {
+    const [isMobile, setIsMobile] = useState(false);
+
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768);
+            const isMobileView = window.innerWidth < 768;
+            if (isMobileView !== isMobile) {
+                setIsMobile(isMobileView);
+            }
         };
         
+        const resizeObserver = new ResizeObserver(checkMobile);
+        resizeObserver.observe(document.body);
         checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+
+        return () => resizeObserver.disconnect();
+    }, [isMobile]);
+
+    return isMobile;
+};
+
+const ScrollDownButton = memo<ScrollDownButtonProps>(({ 
+    className, 
+    isSidebarOpen, 
+    sidebarWidth 
+}) => {
+    const show = useScrollVisibility();
+    const isMobile = useMobileState();
 
     const handleClick = useCallback(() => {
         const scrollContainer = document.querySelector(SCROLL_CONTAINER);
         if (!scrollContainer) return;
         
-        const messagesEnd = scrollContainer.querySelector('div[class="h-1"]');
-        if (messagesEnd) {
-            messagesEnd.scrollIntoView({ behavior: 'smooth' });
-        }
+        scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: 'smooth'
+        });
     }, []);
+
+    const buttonStyle = React.useMemo(() => ({
+        left: !isMobile && isSidebarOpen ? `calc(50% + ${sidebarWidth / 2}px)` : '50%',
+        transform: 'translateX(-50%)',
+    }), [isMobile, isSidebarOpen, sidebarWidth]);
 
     return (
         <button 
@@ -90,10 +122,7 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = memo(({
                 show && 'opacity-100 pointer-events-auto',
                 className,
             )}
-            style={{
-                left: !isMobile && isSidebarOpen ? `calc(50% + ${sidebarWidth / 2}px)` : '50%',
-                transform: 'translateX(-50%)',
-            }}
+            style={buttonStyle}
             aria-label="滚动到底部"
         >
             <svg 

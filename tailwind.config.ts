@@ -616,6 +616,7 @@ const config: Config = {
             'fadeIn': 'fadeIn 0.3s ease-out forwards',
             'stagger': 'fadeIn 0.5s ease-out forwards var(--animation-delay, 0s)',
             'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+            
 
             'spinner-1': 'spinner 1.2s linear infinite -1.2s',
             'spinner-2': 'spinner 1.2s linear infinite -1.1s',
@@ -700,7 +701,7 @@ const config: Config = {
             'spinner': {
               '0%': { opacity: '1' },
               '100%': { opacity: '0.15' }
-            }
+            },
           },
           transitionDuration: {
             '400': '400ms',
@@ -709,6 +710,7 @@ const config: Config = {
           },
           transitionTimingFunction: {
             'custom': 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+            'spring': 'cubic-bezier(0.4, 0, 0.2, 1)',
           },
         }
   },

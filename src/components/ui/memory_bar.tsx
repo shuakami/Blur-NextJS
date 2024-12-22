@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Brain, ChevronDown, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
 import {
@@ -10,6 +10,13 @@ import {
   PopoverFooter
 } from './popover';
 import { Button } from './button';
+import dynamic from 'next/dynamic';
+import { Spinner } from './spinner';
+
+const MemoryManagerDialog = dynamic(() => import('./memory/memory-manager-dialog').then(mod => mod.MemoryManagerDialog), {
+    loading: () => <Spinner />,
+    ssr: false
+  });
 
 interface MemoryAction {
   type: 'add' | 'delete' | 'query';
@@ -40,30 +47,46 @@ const cleanMarkdown = (text: string) => {
 
 export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
+  const [open, setOpen] = useState(false);
 
-  // 如果没有 actions返回 null
+  // 如没有 actions返回 null
   if (!actions || actions.length === 0) return null;
 
-  // 获取操作类型统计
-  const actionCounts = actions.reduce((acc, action) => {
-    acc[action.type] = (acc[action.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  // 使用 useCallback 优化事件处理
+  const handleExpandToggle = useCallback((index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedItems(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  }, []);
+
+  // 使用 useMemo 缓存统计结果
+  const actionCounts = useMemo(() => 
+    actions.reduce((acc, action) => {
+      acc[action.type] = (acc[action.type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>)
+  , [actions]);
 
   const getSummaryText = () => {
     const parts = [];
-    if (actionCounts.add) parts.push(`添加了 ${actionCounts.add} 条`);
-    if (actionCounts.delete) parts.push(`删除了 ${actionCounts.delete} 条`);
-    if (actionCounts.query) parts.push(`查询了 ${actionCounts.query} 条`);
+    if (actionCounts.add) parts.push(`添加了${actionCounts.add}条记忆`);
+    if (actionCounts.delete) {
+      // 检查是否存在全局删除
+      const hasGlobalDelete = actions.some(a => a.type === 'delete' && a.select === '*');
+      parts.push(hasGlobalDelete ? '清空了所有记忆' : `删除了${actionCounts.delete}条记忆`);
+    }
+    if (actionCounts.query) parts.push(`查询了${actionCounts.query}条记忆`);
     return parts.join('、');
   };
 
-  const getActionLabel = (type: MemoryAction['type']) => {
+  const getActionLabel = (type: MemoryAction['type'], isAll?: boolean) => {
     switch (type) {
       case 'add':
         return '添加记忆';
       case 'delete':
-        return '删除记忆';
+        return isAll ? '清空了所有记忆' : '删除记忆';
       case 'query':
         return '查询记忆';
     }
@@ -94,13 +117,23 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
     }
   };
 
-  const handleExpandToggle = (index: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedItems(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
-  };
+  // 优化渲染性能
+  const renderActionItem = useCallback((action: MemoryAction, index: number) => {
+    const isExpanded = !!expandedItems[index];
+    return (
+      <div
+        key={index}
+        className={getActionStyle(action.type, action.all)}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium flex items-center gap-1.5">
+            {getActionLabel(action.type, action.select === '*')}
+          </span>
+        </div>
+        {formatContent(action, !!expandedItems[index], index)}
+      </div>
+    );
+  }, [expandedItems, getActionStyle]);
 
   const formatContent = (action: MemoryAction, isExpanded: boolean, index: number) => {
     const cleanedContent = cleanMarkdown(action.content);
@@ -108,35 +141,47 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
     const shouldShowExpand = cleanedContent.length > 100 || lines.length > 1;
     const displayContent = isExpanded ? cleanedContent : cleanedContent.slice(0, 100);
 
+    const hasTags = action.tags && action.tags.length > 0;
+    const hasSelect = action.select && action.select !== '*';
+    const showTags = (hasTags || hasSelect);
+
     return (
       <div className="space-y-1">
-        <div className="flex items-center gap-2 flex-wrap">
-          {action.tags && action.tags.length > 0 && (
+        <div className="flex flex-col gap-1">
+          {/* 标签区域 */}
+          {showTags && (
             <div className="flex gap-1 flex-wrap">
-              {action.tags.map((tag, i) => (
-                <span key={i} className="px-1.5 py-0.5 text-[10px] rounded-full 
-                                      bg-neutral-100 dark:bg-neutral-800 
-                                      text-neutral-500 dark:text-neutral-400">
+              {hasTags && action.tags?.map((tag, i) => (
+                <span key={i} 
+                  className="inline-flex items-center px-1 h-4 text-[10px] rounded-md
+                           bg-neutral-50 dark:bg-neutral-800/50
+                           text-neutral-500 dark:text-neutral-400
+                           border border-neutral-100 dark:border-neutral-700/50">
                   {tag}
                 </span>
               ))}
+              {hasSelect && (
+                <span className="inline-flex items-center px-1 h-4 text-[10px] rounded-md
+                             bg-neutral-50 dark:bg-neutral-800/50
+                             text-neutral-500 dark:text-neutral-400
+                             border border-neutral-100 dark:border-neutral-700/50">
+                  {action.select}
+                </span>
+              )}
             </div>
           )}
-          {action.select && (
-            <span className="px-1.5 py-0.5 text-[10px] rounded-full 
-                           bg-neutral-100 dark:bg-neutral-800 
-                           text-neutral-500 dark:text-neutral-400">
-              {action.select === '*' ? '全局' : `选择: ${action.select}`}
-            </span>
-          )}
+
+          {/* 内容区域 */}
+          <div className={cn(
+            "text-xs text-neutral-600 dark:text-neutral-400 break-all",
+            !isExpanded && shouldShowExpand && "line-clamp-2"
+          )}>
+            {displayContent}
+            {!isExpanded && shouldShowExpand && "..."}
+          </div>
         </div>
-        <div className={cn(
-          "text-xs text-neutral-600 dark:text-neutral-400 break-all",
-          !isExpanded && shouldShowExpand && "line-clamp-2"
-        )}>
-          {displayContent}
-          {!isExpanded && shouldShowExpand && "..."}
-        </div>
+
+        {/* 展开/收起按钮 */}
         {shouldShowExpand && (
           <button
             type="button"
@@ -191,33 +236,14 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
           <div className="space-y-1 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-thin 
                         scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-800
                         scrollbar-track-transparent">
-            {actions.map((action, index) => (
-              <div
-                key={index}
-                className={getActionStyle(action.type, action.all)}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-medium flex items-center gap-1.5">
-                    {getActionLabel(action.type)}
-                    {action.all && (
-                      <span className="px-1.5 py-0.5 text-[10px] rounded-full 
-                                     bg-neutral-100 dark:bg-neutral-800 
-                                     text-neutral-500 dark:text-neutral-400">
-                        全局
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {formatContent(action, !!expandedItems[index], index)}
-              </div>
-            ))}
+            {actions.map((action, index) => renderActionItem(action, index))}
           </div>
         </PopoverBody>
         <PopoverDivider />
         <PopoverFooter className="p-1">
           <button
             type="button"
-            onClick={onManageMemory}
+            onClick={() => setOpen(true)}
             className={cn(
               "w-full flex items-center gap-2 px-2 py-1.5 rounded-md",
               "text-xs font-medium text-neutral-600 dark:text-neutral-400",
@@ -232,6 +258,10 @@ export function MemoryBar({ actions = [], onManageMemory }: MemoryBarProps) {
           </button>
         </PopoverFooter>
       </PopoverContent>
+      <MemoryManagerDialog 
+        open={open} 
+        onOpenChange={setOpen} 
+      />
     </Popover>
   );
 }

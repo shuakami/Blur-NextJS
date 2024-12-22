@@ -72,14 +72,14 @@ interface ToolState {
     data: any;
     plugin_name: string;
   };
-  params?: Record<string, any>; // 添加工具参数支持
+  params?: Record<string, any>;
 }
 
 interface GroupedTool {
   useTool: ToolState;
 }
 
-// 添加记忆工具类型
+// 记忆工具类型
 interface MemoryAction {
   type: "add" | "delete" | "query";
   content: string;
@@ -97,7 +97,7 @@ interface ContentItem {
 }
 // 正则表达式（提取内容）
 const CONTENT_SPLIT_REGEX = /(\[USE_TOOL[^\]]*\]|\[\/USE_TOOL\]|<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s;
-const USE_TOOL_REGEX = /\[USE_TOOL type="(code|text|tool)" id="([^"]+)"\]/;
+const USE_TOOL_REGEX = /\[USE_TOOL[^\]]*?type="([^"]+)"[^\]]*?id="([^"]+)"[^\]]*?\]|\[USE_TOOL[^\]]*?id="([^"]+)"[^\]]*?type="([^"]+)"[^\]]*?\]/;
 
 // 记忆工具正则
 const MEMORY_ACTION_REGEX = /\[MEMORY(?:\s+(?:action="([^"]+)")?\s*(?:select="([^"]+)")?\s*(?:tags="([^"]+)")?)?\]([\s\S]*?)\[\/MEMORY\]/g;
@@ -198,7 +198,8 @@ const useContentProcessor = (content: string) => {
       if (part.startsWith("[USE_TOOL") && !part.includes("[/USE_TOOL]")) {
         const match = part.match(USE_TOOL_REGEX);
         if (match) {
-          const [, type, id] = match;
+          const type = match[1] || match[3];
+          const id = match[2] || match[4];
           const tool: ToolState = {
             id,
             type: type as ToolType,

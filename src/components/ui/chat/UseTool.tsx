@@ -6,6 +6,7 @@ import { Image as MarkdownImage } from "../markdown/image";
 import { Skeleton } from "../skeleton";
 import { Button } from "../button";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 type ToolType = "code" | "text" | "tool";
 type ToolStatus = "input" | "calling" | "response";
@@ -90,9 +91,17 @@ const TOOL_COMPONENTS: Record<string, React.FC<UseToolProps>> = {
   '8': Tool8Wrapper
 };
 
-// 基础工具组件
+// 基础工具组件 
 const BaseUseTool: React.FC<UseToolProps> = (props) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // 清理工具内函数
+  const cleanContent = (content: string) => {
+    return content
+      ?.replace(/\[USE.*?\]\n*/, '') // 清理[USE...]后的换行
+      .replace(/```/g, '') // 清理```标记
+      .replace(/\n+/g, ' '); // 将连续换行替换为单个空格
+  };
 
   const imageFiles = useMemo(() => {
     if (!props.response?.data?.files) return [];
@@ -242,10 +251,7 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
   return (
     <div className={cn(
       "my-4 rounded-xl border border-gray-200 dark:border-gray-800",
-      "transition-all duration-300 ease-in-out",
-      "hover:border-gray-300 dark:hover:border-gray-700",
-      "grid grid-rows-[auto_0fr]",
-      isExpanded && "grid-rows-[auto_1fr]"
+      "hover:border-gray-300 dark:hover:border-gray-700"
     )}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -258,9 +264,13 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
         )}
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30 transition-transform duration-200 hover:scale-105">
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30"
+          >
             <ToolIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          </div>
+          </motion.div>
           <span className="text-sm font-medium">
             {getDisplayName()}
           </span>
@@ -268,51 +278,96 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
 
         <div className="flex items-center gap-3">
           {renderStatus()}
-          <ChevronDown className={cn(
-            "h-4 w-4 transition-transform duration-300",
-            isExpanded && "rotate-180"
-          )} />
+          <motion.div
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          >
+            <ChevronDown className="h-4 w-4" />
+          </motion.div>
         </div>
       </button>
 
-      <div className={cn(
-        "overflow-hidden transition-all duration-300",
-        "opacity-0 scale-y-95",
-        isExpanded && "opacity-100 scale-y-100"
-      )}>
-        {(props.content || props.response) && (
-          <div className="border-t border-gray-100 dark:border-gray-800">
-            {props.content && (
-              <div className="px-4 py-2">
-                <CodeBlock
-                  code={props.content}
-                  language={props.type === "code" ? "python" : "text"}
-                  forceRenderBlock={true}
-                />
+      <AnimatePresence mode="wait">
+        {isExpanded && (
+          <motion.div
+            key="content"
+            initial={{ height: 0 }}
+            animate={{ height: "auto" }}
+            exit={{ height: 0 }}
+            transition={{ 
+              duration: 0.2,
+              ease: [0.4, 0, 0.2, 1] 
+            }}
+            className="overflow-hidden"
+          >
+            {(props.content || props.response) && (
+              <div className="border-t border-gray-100 dark:border-gray-800">
+                {props.content && (
+                  <div className="px-4 py-2">
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <CodeBlock
+                        code={cleanContent(props.content)}
+                        language={props.type === "code" ? "python" : "javascript"}
+                        forceRenderBlock={true}
+                      />
+                    </motion.div>
+                  </div>
+                )}
+                {props.status === "response" && props.response && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    {renderOutput()}
+                  </motion.div>
+                )}
               </div>
             )}
-            {props.status === "response" && props.response && renderOutput()}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
 
       {/* 图片区域 */}
-      {imageFiles.length > 0 && (
-        <div className="mt-4 grid gap-2">
-          {imageFiles.map(file => (
-            <div 
-              key={file.url}
-              className="rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02]"
-            >
-              <MarkdownImage
-                src={processImageUrl(file.url)}
-                alt={file.filename}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {imageFiles.length > 0 && (
+          <motion.div 
+            key="images"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-4 grid gap-2"
+          >
+            {imageFiles.map((file, index) => (
+              <motion.div 
+                key={file.url}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ 
+                  delay: index * 0.05,
+                  duration: 0.2
+                }}
+                whileHover={{ 
+                  scale: 1.02,
+                  transition: { type: "spring", stiffness: 400 }
+                }}
+                className="rounded-xl overflow-hidden"
+              >
+                <MarkdownImage
+                  src={processImageUrl(file.url)}
+                  alt={file.filename}
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

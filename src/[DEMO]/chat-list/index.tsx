@@ -817,6 +817,28 @@ export default function ChatListShowcase() {
     
     const content = `React 是一个用于构建用户界面的 JavaScript 库。以下是它的主要特点：
 
+
+  [USE_TOOL type="text" id="1"]
+  {
+    "type": "minutely",
+    "location": "南宁",
+    "params": {
+      "date": "2024-11-24"
+    }
+  }
+  [USE_TOOL/]
+
+  [MEMORY]
+  {
+    "type": "minutely",
+    "location": "南宁",
+    "params": {
+      "date": "2024-11-24"
+    }
+  }
+  [MEMORY/]
+  
+
 ## 核心特性
 
 1. **组件化开发**

@@ -150,7 +150,7 @@ export const TableHeader: React.FC<React.ThHTMLAttributes<HTMLTableHeaderCellEle
 }) => (
   <th 
     className={cn(
-      "table-header select-none",
+      "table-header",
       className
     )} 
     {...props} 

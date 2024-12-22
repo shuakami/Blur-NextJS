@@ -8,6 +8,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import type { Components } from 'react-markdown';
 import remarkCodePreserver from "@/components/ui/markdown/plugins/code";
+import { remarkToolMarkers } from './plugins/remark-tool-markers';
 
 // 基础文本组件
 import { Paragraph, Strong, Emphasis } from './text';
@@ -53,7 +54,7 @@ const InlineMathBlock = dynamic(() => import("@/components/ui/markdown/InlineMat
 type DetailsType = React.FC<React.PropsWithChildren<React.HTMLAttributes<HTMLDetailsElement>>>;
 type SummaryType = React.FC<React.PropsWithChildren<React.HTMLAttributes<HTMLElement>>>;
 
-// 修改动态导入的类型断言
+// 动态导入
 const Details = dynamic(() => 
   import("./details").then(mod => mod.Details as DetailsType), {
     loading: () => null
@@ -147,6 +148,7 @@ export const MarkdownRenderer: React.FC<{
     remarkCodePreserver,
     remarkLinkUrls,    
     remarkImageUrls,
+    remarkToolMarkers,
   ], []);
 
   const rehypePlugins = useMemo(() => [

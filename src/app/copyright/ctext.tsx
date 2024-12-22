@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useState, memo, useCallback } from 'react';
 import Link from 'next/link';
-import useTranslation from '../../hooks/i18n/useTranslation';
+import useTranslation from '@/hooks/i18n/useTranslation';
 import { useThemeContext } from "@/theme/ThemeContext";
+import { Route } from 'next';
 
 // 版本号显示组件
 const VersionDisplay = memo(({ version, showBlueDot, theme, onClick }: {
@@ -11,49 +12,91 @@ const VersionDisplay = memo(({ version, showBlueDot, theme, onClick }: {
   showBlueDot: boolean;
   theme: any;
   onClick: (e: React.MouseEvent) => void;
-}) => (
-  <Link 
-    href={{
-      pathname: `/update/${version}`
-    }}
-    target="_blank"
-    onClick={onClick}
-    className="relative text-black/50 dark:text-[#b2b2b2]/80 hover:text-black/80 dark:hover:text-[#b2b2b2]/60"
-  >
-    {version}
-    {showBlueDot && (
-      <span 
-        className={`absolute w-1 h-1 ${theme.bg(500)} rounded-full select-none`}
-        aria-hidden="true"
-      />
-    )}
-  </Link>
-));
+}) => {
+  const linkStyle = React.useMemo(() => 
+    "relative text-black/50 dark:text-[#b2b2b2]/80 hover:text-black/80 dark:hover:text-[#b2b2b2]/60"
+  , []);
+
+  const dotStyle = React.useMemo(() => 
+    `absolute w-1 h-1 ${theme.bg(500)} rounded-full select-none`
+  , [theme]);
+
+  return (
+    <Link 
+      href={`/update/${version}` as Route}
+      target="_blank"
+      onClick={onClick}
+      className={linkStyle}
+    >
+      {version}
+      {showBlueDot && (
+        <span 
+          className={dotStyle}
+          aria-hidden="true"
+        />
+      )}
+    </Link>
+  );
+});
 
 VersionDisplay.displayName = 'VersionDisplay';
 
-// 主组件
-const CText = () => {
-  const { theme } = useThemeContext();
+// 使用 Context 来管理版本状态
+const VersionContext = React.createContext<{
+  version: string;
+  showBlueDot: boolean;
+  setShowBlueDot: (show: boolean) => void;
+}>({
+  version: '0.0.0',
+  showBlueDot: false,
+  setShowBlueDot: () => {},
+});
+
+// 版本状态 Provider
+const VersionProvider: React.FC<{ children: React.ReactNode }> = memo(({ children }) => {
   const version = process.env.NEXT_PUBLIC_VERSION || '0.0.0';
-  const { t } = useTranslation();
-  
-  const [showBlueDot, setShowBlueDot] = useState(false);
-
-  // 检查本地存储的版本
-  useEffect(() => {
+  const [showBlueDot, setShowBlueDot] = useState(() => {
+    if (typeof window === 'undefined') return false;
     const lastVersion = localStorage.getItem('last_version');
-    setShowBlueDot(lastVersion !== version);
-  }, [version]);
+    return lastVersion !== version;
+  });
 
-  // 处理版本点击
-  const handleVersionClick = (e: React.MouseEvent) => {
-    localStorage.setItem('last_version', version);
-    setShowBlueDot(false);
-  };
+  const value = React.useMemo(() => ({
+    version,
+    showBlueDot,
+    setShowBlueDot
+  }), [version, showBlueDot]);
 
   return (
-    <div className="text-center text-[0.7rem] sm:text-xs text-black/60 dark:text-[#b2b2b2]/90">
+    <VersionContext.Provider value={value}>
+      {children}
+    </VersionContext.Provider>
+  );
+});
+
+VersionProvider.displayName = 'VersionProvider';
+
+// 主组件
+const CText = memo(() => {
+  const { theme } = useThemeContext();
+  const { t } = useTranslation();
+  const { version, showBlueDot, setShowBlueDot } = React.useContext(VersionContext);
+  
+  const handleVersionClick = useCallback((e: React.MouseEvent) => {
+    localStorage.setItem('last_version', version);
+    setShowBlueDot(false);
+  }, [version, setShowBlueDot]);
+
+  const containerStyle = React.useMemo(() => 
+    "text-center text-[0.7rem] sm:text-xs text-black/60 dark:text-[#b2b2b2]/90"
+  , []);
+
+  const warningStyle = React.useMemo(() => 
+    "text-black/50 dark:text-[#b2b2b2]/80"
+  , []);
+
+  return (
+    <div className={containerStyle}>
       <VersionDisplay 
         version={version}
         showBlueDot={showBlueDot}
@@ -61,11 +104,20 @@ const CText = () => {
         onClick={handleVersionClick}
       />
       <span className="mx-1">-</span>
-      <span className="text-black/50 dark:text-[#b2b2b2]/80">
+      <span className={warningStyle}>
         {t('Blur 也可能会犯错哦。请注意检查消息是否正确。')}
       </span>
     </div>
   );
-};
+});
 
-export default memo(CText);
+CText.displayName = 'CText';
+
+// 导出带 Provider 的组件
+export default memo(function CTextWithProvider() {
+  return (
+    <VersionProvider>
+      <CText />
+    </VersionProvider>
+  );
+});

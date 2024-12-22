@@ -608,3 +608,23 @@ html, body {
 .theme-color[data-theme-color] {
   color: attr(data-theme-color);
 }
+
+
+.tool-marker {
+  display: none !important;
+  user-select: none;
+  pointer-events: none;
+}
+
+.tool-marker-partial {
+  visibility: hidden !important;
+  user-select: none;
+  pointer-events: none;
+  /* 完全不占用空间 */
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+}
