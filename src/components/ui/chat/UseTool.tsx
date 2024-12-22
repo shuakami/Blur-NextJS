@@ -69,9 +69,9 @@ const Tool8Wrapper: React.FC<UseToolProps> = (props) => {
     const [useCustomUI, setUseCustomUI] = useState(true);
     if (!useCustomUI) {
         return <UseTool {...props} id="Original / 8" />;
-      }
+    }
     
-      return (
+    return (
         <Suspense fallback={
           <div className="space-y-4 p-4 min-h-80">
             <Skeleton className="h-24 w-full" />
@@ -84,8 +84,9 @@ const Tool8Wrapper: React.FC<UseToolProps> = (props) => {
             onError={() => setUseCustomUI(false)}
           />
         </Suspense>
-      );
-    };
+    );
+};
+
 // 特殊的，需要单独界面定制的工具
 const TOOL_COMPONENTS: Record<string, React.FC<UseToolProps>> = {
   '8': Tool8Wrapper
@@ -374,10 +375,19 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
 
 // 主组件
 const UseTool: React.FC<UseToolProps> = (props) => {
+  console.log('[UseTool] Incoming props:', {
+    id: props.id,
+    type: props.type,
+    status: props.status
+  });
+
   const SpecificToolComponent = TOOL_COMPONENTS[props.id];
   if (SpecificToolComponent) {
+    console.log('[UseTool] Using specific component for tool:', props.id);
     return <SpecificToolComponent {...props} />;
   }
+  
+  console.log('[UseTool] Using base component');
   return <BaseUseTool {...props} />;
 };
 

@@ -97,7 +97,7 @@ interface ContentItem {
 }
 // 正则表达式（提取内容）
 const CONTENT_SPLIT_REGEX = /(\[USE_TOOL[^\]]*\]|\[\/USE_TOOL\]|<plugin-data>.*?<\/plugin-data>|<agent-data>.*?<\/agent-data>|<thinking>.*?<\/thinking>)/s;
-const USE_TOOL_REGEX = /\[USE_TOOL[^\]]*?type="([^"]+)"[^\]]*?id="([^"]+)"[^\]]*?\]|\[USE_TOOL[^\]]*?id="([^"]+)"[^\]]*?type="([^"]+)"[^\]]*?\]/;
+const USE_TOOL_REGEX = /\[USE_TOOL[^\]]*?(?:id="([^"]+)"[^\]]*?type="([^"]+)"|type="([^"]+)"[^\]]*?id="([^"]+)")[^\]]*?\]/;
 
 // 记忆工具正则
 const MEMORY_ACTION_REGEX = /\[MEMORY(?:\s+(?:action="([^"]+)")?\s*(?:select="([^"]+)")?\s*(?:tags="([^"]+)")?)?\]([\s\S]*?)\[\/MEMORY\]/g;
@@ -198,8 +198,11 @@ const useContentProcessor = (content: string) => {
       if (part.startsWith("[USE_TOOL") && !part.includes("[/USE_TOOL]")) {
         const match = part.match(USE_TOOL_REGEX);
         if (match) {
-          const type = match[1] || match[3];
-          const id = match[2] || match[4];
+          const id = match[1] || match[4];
+          const type = match[2] || match[3];
+          
+          console.log('[useContentProcessor] Found tool:', { id, type });
+          
           const tool: ToolState = {
             id,
             type: type as ToolType,
