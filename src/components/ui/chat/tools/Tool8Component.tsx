@@ -39,7 +39,7 @@ const Tool8Component: React.FC<UseToolProps> = ({
   // 不是response状态时，显示骨架屏
   if (status !== 'response') {
     return (
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 p4">
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
@@ -50,7 +50,7 @@ const Tool8Component: React.FC<UseToolProps> = ({
   // 数据未就绪时继续渲染
   if (!data || !type) {
     return (
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 py-4 px-1">
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
@@ -60,7 +60,7 @@ const Tool8Component: React.FC<UseToolProps> = ({
 
   return (
     // 抛出错误
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 py-4 px-1">
       {type === 'weather' && data.now && (
         <WeatherCard data={data.now} />
       )}

@@ -73,7 +73,7 @@ const Tool8Wrapper: React.FC<UseToolProps> = (props) => {
     
     return (
         <Suspense fallback={
-          <div className="space-y-4 p-4 min-h-80">
+          <div className="space-y-4 py-4 px-1 min-h-80">
             <Skeleton className="h-24 w-full" />
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />

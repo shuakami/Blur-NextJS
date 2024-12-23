@@ -64,7 +64,7 @@ export const ImageSkeleton = () => (
 export const UseToolSkeletons = {
     // 天气工具专用骨架屏 - 只显示当前天气
     weather: () => (
-      <div className="space-y-4 p-4">
+      <div className="space-y-4 py-4 px-1">
       <Skeleton className="h-24 w-full" />
       <Skeleton className="h-16 w-full" />
       <Skeleton className="h-16 w-full" />

@@ -8,11 +8,11 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Camera, Loader2} from 'lucide-react'
-import {toast} from '../../../hooks/ui/use-toast'
+import {toast} from '@/hooks/ui/use-toast'
 import Cropper from 'react-easy-crop'
-import getCroppedImg, {Area} from '../../../lib/utils/cropImage'
+import getCroppedImg, {Area} from '@/lib/utils/cropImage'
 import {motion} from 'framer-motion'
-import useTranslation from '../../../hooks/i18n/useTranslation'
+import useTranslation from '@/hooks/i18n/useTranslation'
 
 export default function UpdateAvatar() {
     const {t} = useTranslation();
@@ -27,19 +27,25 @@ export default function UpdateAvatar() {
     const [crop, setCrop] = useState<{ x: number; y: number }>({x: 0, y: 0})
     const [zoom, setZoom] = useState<number>(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
-    const fileInputRef = useRef<HTMLInputElement>(null)
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result as string)
-                setCropping(true) // 打开裁剪界面
+    const handleAvatarClick = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            const target = e.target as HTMLInputElement;
+            const file = target.files?.[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewUrl(reader.result as string);
+                    setCropping(true);
+                };
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file)
-        }
-    }
+        };
+        input.click();
+    };
 
     const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels)
@@ -109,7 +115,12 @@ export default function UpdateAvatar() {
             <div className="mx-auto max-w-2xl">
                 <div className="mb-10 mt-4 text-center">
                     <Avatar className="w-24 h-24 mx-auto mb-4">
-                        <AvatarImage src={avatarUrl || '/default-avatar.png'} alt={t("用户头像")}/>
+                        <AvatarImage 
+                            onClick={handleAvatarClick} 
+                            className="cursor-pointer hover:opacity-80" 
+                            src={avatarUrl || '/default-avatar.png'} 
+                            alt={t("用户头像")}
+                        />
                         <AvatarFallback>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
                     </Avatar>
                     <h2 className="text-lg font-medium text-black dark:text-white mb-2">
@@ -122,69 +133,93 @@ export default function UpdateAvatar() {
                                 {t("更新个人信息")}
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-[600px] w-[450px] dark:bg-gray-black/90">
-                            <DialogHeader>
-                                <DialogTitle className="dark:text-white">{t("更新个人信息")}</DialogTitle>
+                        <DialogContent className="max-w-[600px] w-[450px] p-0 gap-0 overflow-hidden bg-white dark:bg-neutral-900 shadow-xl">
+                            <DialogHeader className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
+                                <DialogTitle className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                                    {t("更新个人信息")}
+                                </DialogTitle>
                             </DialogHeader>
 
                             <motion.div
-                                className="py-6 space-y-4"
+                                className="relative"
                                 layout
-                                transition={{duration: 0.2, ease: "easeInOut"}}  // 设置过渡效果
+                                transition={{duration: 0.2, ease: "easeInOut"}}
                             >
                                 {cropping ? (
-                                    <div className="relative w-full h-auto rounded">
-                                        <div className="max-w-[290px] h-[260px]">
-                                            <Cropper
-                                                image={previewUrl || ''}
-                                                crop={crop}
-                                                zoom={zoom}
-                                                aspect={1}
-                                                zoomSpeed={0.04}
-                                                onCropChange={setCrop}
-                                                onZoomChange={setZoom}
-                                                onCropComplete={onCropComplete}
-                                                cropShape="round"
-                                                showGrid={false}
-                                            />
-                                        </div>
-                                        <div
-                                            className="absolute bottom-4 left-0 right-0 flex justify-center space-x-4 mt-6">
-                                            <Button onClick={() => setCropping(false)}
-                                                    variant="outline">{t("取消")}</Button>
-                                            <Button onClick={showCroppedImage}>{t("裁剪")}</Button>
+                                    // 裁剪界面
+                                    <div className="p-6">
+                                        <div className="relative w-full rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 
+                                                      border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+                                            <div className="h-[300px]">
+                                                <Cropper
+                                                    image={previewUrl || ''}
+                                                    crop={crop}
+                                                    zoom={zoom}
+                                                    aspect={1}
+                                                    zoomSpeed={0.04}
+                                                    onCropChange={setCrop}
+                                                    onZoomChange={setZoom}
+                                                    onCropComplete={onCropComplete}
+                                                    cropShape="round"
+                                                    showGrid={false}
+                                                />
+                                            </div>
+                                            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3">
+                                                <Button 
+                                                    onClick={() => setCropping(false)}
+                                                    variant="outline"
+                                                    className="bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm"
+                                                >
+                                                    {t("取消")}
+                                                </Button>
+                                                <Button 
+                                                    onClick={showCroppedImage}
+                                                    className="bg-blue-500/90 hover:bg-blue-600/90 backdrop-blur-sm"
+                                                >
+                                                    {t("裁剪")}
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <>
+                                    // 编辑界面
+                                    <div className="px-6 py-4 space-y-6">
                                         <div className="flex flex-col items-center">
                                             <div className="relative group">
-                                                <Avatar
-                                                    className="w-24 h-24 mb-2 cursor-pointer transition-opacity duration-200 group-hover:opacity-75">
-                                                    <AvatarImage src={previewUrl || avatarUrl} alt={t("头像预览")}/>
-                                                    <AvatarFallback>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
-                                                </Avatar>
-                                                <div
-                                                    className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                                    onClick={() => fileInputRef.current?.click()}
-                                                >
-                                                    <Camera className="h-8 w-8 text-white"/>
+                                                <div className="relative w-24 h-24">
+                                                    <Avatar className="w-full h-full ring-4 ring-white dark:ring-neutral-900">
+                                                        <AvatarImage 
+                                                            src={previewUrl || avatarUrl} 
+                                                            alt={t("头像预览")}
+                                                            className="object-cover cursor-pointer group-hover:opacity-80 group-hover:blur-sm transition-all duration-200"
+                                                        />
+                                                        <AvatarFallback>
+                                                            {firstName?.[0]}{lastName?.[0]}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <button
+                                                        onClick={handleAvatarClick}
+                                                        className="absolute inset-0 flex items-center justify-center 
+                                                                         rounded-full bg-white/0 opacity-0 group-hover:opacity-100 
+                                                                         transition-all duration-200"
+                                                    >
+                                                        <div className="flex flex-col items-center gap-1">
+                                                            <Camera className="h-6 w-6 text-neutral-700 dark:text-white" />
+                                                            <span className="text-xs text-neutral-700 dark:text-white">
+                                                                {t("更换头像")}
+                                                            </span>
+                                                        </div>
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <Input
-                                                ref={fileInputRef}
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleFileChange}
-                                                className="hidden"
-                                            />
                                         </div>
-                                        <div>
-                                            <Label htmlFor="firstName"
-                                                   className="text-sm font-medium dark:text-gray-300">
-                                                {t("名字 (First Name)")}
-                                            </Label>
-                                            <div className="flex mt-1">
+
+                                        <div className="space-y-4">
+                                            <div>
+                                                <Label htmlFor="firstName" className="block text-sm font-medium mb-1.5 
+                                                                                    text-neutral-700 dark:text-neutral-300">
+                                                    {t("名字 (First Name)")}
+                                                </Label>
                                                 <Input
                                                     id="firstName"
                                                     value={firstName}
@@ -192,13 +227,11 @@ export default function UpdateAvatar() {
                                                     className="w-full"
                                                 />
                                             </div>
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="lastName"
-                                                   className="text-sm font-medium dark:text-gray-300">
-                                                {t("姓氏 (Last Name)")}
-                                            </Label>
-                                            <div className="flex mt-1">
+                                            <div>
+                                                <Label htmlFor="lastName" className="block text-sm font-medium mb-1.5 
+                                                                                   text-neutral-700 dark:text-neutral-300">
+                                                    {t("姓氏 (Last Name)")}
+                                                </Label>
                                                 <Input
                                                     id="lastName"
                                                     value={lastName}
@@ -207,23 +240,31 @@ export default function UpdateAvatar() {
                                                 />
                                             </div>
                                         </div>
-                                    </>
+                                    </div>
                                 )}
                             </motion.div>
 
-                            <DialogFooter>
-                                <Button variant="outline" onClick={() => setIsOpen(false)}
-                                        disabled={loading}>{t("取消")}</Button>
-                                <Button onClick={handleConfirm} disabled={loading || cropping}>
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="animate-spin h-4 w-4 mr-2"/>
-                                            {t("正在更新...")}
-                                        </>
-                                    ) : (
-                                        t('确认更改')
-                                    )}
-                                </Button>
+                            <DialogFooter className="px-6 py-4 bg-neutral-50 dark:bg-neutral-800/50 
+                                                   border-t border-neutral-200 dark:border-neutral-800">
+                                <div className="flex justify-end gap-3 w-full">
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={() => setIsOpen(false)}
+                                        disabled={loading}
+                                        className="bg-white dark:bg-transparent"
+                                    >
+                                        {t("取消")}
+                                    </Button>
+                                    <Button 
+                                        onClick={handleConfirm} 
+                                        disabled={cropping}
+                                        loading={loading}
+                                        className="min-w-[100px] bg-blue-500 hover:bg-blue-600 
+                                                 text-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-neutral-100"
+                                    >
+                                        {t('确认更改')}
+                                    </Button>
+                                </div>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>

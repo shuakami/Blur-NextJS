@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from '../../lib/utils/utils'
+import { cn } from '@/lib/utils/utils'
 import { Spinner } from "./spinner"
 import {
   Tooltip,
@@ -70,7 +70,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={loading || props.disabled}
         {...props}
       >
-        {loading && <Spinner className="mr-2 h-4 w-4" />}
+        {loading && <Spinner className="mr-2 h-3 w-3" />}
         {!loading && leftIcon && <span className="mr-3">{leftIcon}</span>}
         {children}
         {!loading && rightIcon && <span className="ml-3">{rightIcon}</span>}
