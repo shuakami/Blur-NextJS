@@ -8,7 +8,7 @@ import { ColorScheme, getThemeVariables} from './mermaid-themes';
 import { exportDiagram } from './mermaid-export';
 import { useChatStateContext } from "@/app/[上下文]/ChatContext";
 import { MenuItem, MenuItems, MenuSeparator } from '@/components/ui/dropdown-menu';
-import { cn } from '../../../lib/utils/utils';
+import { cn } from '@/lib/utils/utils';
 
 interface MermaidRendererProps {
     chart: string;

@@ -2,7 +2,7 @@ import { Skeleton } from '../../skeleton';
 import './skeleton.css';
 
 export const CodeBlockSkeleton = () => (
-  <div className="my-4 rounded-lg border border-gray-200 dark:border-gray-900 overflow-hidden skeleton-fade-in">
+  <div className="my-4 rounded-lg border border-gray-200 dark:border-gray-900 overflow-hidden skeleton-base-transition">
     <div className="bg-gray-50 dark:bg-gray-950 px-4 py-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-900">
       <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-20 rounded"></div>
       <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-16 rounded"></div>
@@ -17,7 +17,7 @@ export const CodeBlockSkeleton = () => (
 
 
 export const BlockMathSkeleton = () => (
-  <div className="my-4 flex justify-center skeleton-fade-in">
+  <div className="my-4 flex justify-center skeleton-base-transition">
     <div className="animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg p-4 w-4/5">
       <div className="flex space-x-2 items-center justify-center">
         <div className="bg-gray-200 dark:bg-gray-600 h-6 w-12 rounded"></div>
@@ -29,7 +29,7 @@ export const BlockMathSkeleton = () => (
 );
 
 export const InlineMathSkeleton = () => (
-  <span className="inline-flex items-center mx-1 skeleton-fade-in">
+  <span className="inline-flex items-center mx-1 skeleton-base-transition">
     <span className="animate-pulse bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
       <span className="inline-block bg-gray-200 dark:bg-gray-600 h-4 w-8 rounded"></span>
     </span>
@@ -37,7 +37,7 @@ export const InlineMathSkeleton = () => (
 );
 
 export const ImageSkeleton = () => (
-  <div className="my-4 w-full skeleton-fade-in h-full">
+  <div className="my-4 w-full h-full skeleton-base-transition">
     <div className="relative w-full overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/50 dark:via-gray-700/50 to-transparent skeleton-shine"></div>
       <div className="flex items-center justify-center w-full h-80 bg-gray-50 dark:bg-gray-900/50">
         <svg 
@@ -62,48 +62,67 @@ export const ImageSkeleton = () => (
 
 
 export const UseToolSkeletons = {
-    // 天气工具专用骨架屏 - 只显示当前天气
+    // 天气工具专用骨架屏
     weather: () => (
-      <div className="space-y-4 py-4 px-1">
-      <Skeleton className="h-24 w-full" />
-      <Skeleton className="h-16 w-full" />
-      <Skeleton className="h-16 w-full" />
-    </div>
-    ),
-    
-    // 通用工具骨架屏 - 折叠状态（默认）
-    collapsed: () => (
-      <div className="my-4 rounded-xl border border-gray-200 dark:border-gray-800">
-        <div className="px-4 py-3 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-8 w-8 rounded-lg" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-4" />
-          </div>
-        </div>
-      </div>
-    ),
-    
-    // 调用状态骨架屏
-    calling: () => (
-      <div className="my-4 rounded-xl border border-gray-200 dark:border-gray-800">
-        <div className="px-4 py-3 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-8 w-8 rounded-lg" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-4 w-4 rounded-full" />
-              <Skeleton className="h-4 w-16" />
+        <div className="space-y-4 py-4 skeleton-base-transition">
+          {/* 主要天气卡片 */}
+          <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 p-4 relative overflow-hidden">
+            {/* 添加渐变动画效果 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/30 dark:via-gray-700/30 to-transparent skeleton-shine"></div>
+            
+            <div className="flex items-start justify-between relative">
+              {/* 左侧信息区 */}
+              <div className="space-y-4">
+                {/* 温度和天气状况 */}
+                <div className="space-y-2">
+                  <Skeleton className="h-10 w-48 bg-gradient-to-r bg-gray-100/80 dark:bg-gray-800/80 rounded-lg" />
+                  <div className="flex gap-6">
+                    <Skeleton className="h-8 w-24 bg-gradient-to-r bg-gray-100/80 dark:bg-gray-800/80 rounded-lg" />
+                    <Skeleton className="h-8 w-24 bg-gradient-to-r bg-gray-100/80 dark:bg-gray-800/80 rounded-lg" />
+                  </div>
+                </div>
+              </div>
+              {/* 右侧天气图标 */}
+              <Skeleton className="h-12 w-12 rounded-xl bg-gradient-to-br bg-gray-100/80 dark:bg-gray-800/80" />
             </div>
-            <Skeleton className="h-4 w-4" />
           </div>
         </div>
-      </div>
-    )
+      ),
+    
+// 通用工具骨架屏 - 折叠状态（默认）
+collapsed: () => (
+    <div className="my-2">
+      <button className="relative inline-flex items-center py-1.5 rounded-md">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Skeleton className="h-4 w-4 rounded" />
+            <div className="absolute -right-1 -bottom-1">
+              <Skeleton className="h-1.5 w-1.5 rounded-full" />
+            </div>
+          </div>
+          <Skeleton className="h-4 w-16 rounded" />
+          <Skeleton className="h-4 w-3.5 ml-auto rounded" />
+        </div>
+      </button>
+    </div>
+),
+
+// 调用状态骨架屏
+calling: () => (
+    <div className="my-2">
+      <button className="relative inline-flex items-center py-1.5 rounded-md">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Skeleton className="h-4 w-4 rounded" />
+            <div className="absolute -right-1 -bottom-1">
+              <Skeleton className="h-1.5 w-1.5 rounded-full" />
+            </div>
+          </div>
+          <Skeleton className="h-4 w-16 rounded" />
+          <Skeleton className="h-4 w-3.5 ml-auto rounded" />
+        </div>
+      </button>
+    </div>
+)
   } as const;
   

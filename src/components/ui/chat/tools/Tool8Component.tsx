@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
-import { Skeleton } from "../../skeleton";
-import { UseToolProps, WeatherResponse } from './types';
+import React, { useEffect, useMemo } from 'react';
+import { Skeleton } from "@/components/ui/skeleton";
+import { UseToolProps, WeatherResponse, WeatherDataType } from './types';
 import {
   WeatherCard,
   AirQualityCard,
@@ -9,82 +9,113 @@ import {
   MinutelyCard
 } from './components/weather/index';
 
-const Tool8Component: React.FC<UseToolProps> = ({
+const Tool8Component: React.FC<UseToolProps> = React.memo(({
   status,
   response,
   onError
 }) => {
 
-
   // 缓存数据解析结果
   const { data, type } = useMemo(() => {
     const weatherResponse = response as WeatherResponse;
-    const data = weatherResponse?.data?.data;
-    const type = data?.now?.vis ? 'weather' : 
-                 data?.now?.aqi ? 'air' : 
-                 data?.daily ? 'forecast' : 
-                 data?.warning ? 'warning' :
-                 data?.minutely ? 'minutely' : null;
-    return { data, type };
+
+    // 提取数据路径
+    const extractedData: any | null =
+      weatherResponse?.data?.data ||
+      weatherResponse?.data?.response?.result ||
+      null;
+
+    // 类型检测
+    let detectedType: WeatherDataType | null = null;
+
+    if (extractedData && typeof extractedData === 'object') {
+      if ('now' in extractedData && 'vis' in extractedData.now!) {
+        detectedType = 'weather';
+      } else if ('now' in extractedData && 'aqi' in extractedData.now!) {
+        detectedType = 'air';
+      } else if (Array.isArray(extractedData.daily)) {
+        detectedType = 'forecast';
+      } else if ('warning' in extractedData && extractedData.warning!.length > 0) {
+        detectedType = 'warning';
+      } else if ('minutely' in extractedData && extractedData.minutely!.length > 0) {
+        detectedType = 'minutely';
+      } else {
+        // 尝试从其他字段推断类型
+        if ('summary' in extractedData && typeof extractedData.summary === 'string') {
+          detectedType = 'forecast';
+        }
+      }
+    }
+
+    return { data: extractedData, type: detectedType };
   }, [response]);
 
   // 只在响应完成但数据无效时回退
   useEffect(() => {
     if (status === 'response' && (!data || !type)) {
-      console.error('Invalid weather data:', { type, data });
+      console.error('[Tool8Component] Invalid weather data:', { type, data });
       onError?.();
     }
   }, [status, data, type, onError]);
 
-  // 不是response状态时，显示骨架屏
-  if (status !== 'response') {
-    return (
-      <div className="space-y-4 p4">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-16 w-full" />
-      </div>
-    );
-  }
+  // 显示骨架屏
+  const showSkeleton = useMemo(() => status !== 'response' || !data || !type, [status, data, type]);
 
-  // 数据未就绪时继续渲染
-  if (!data || !type) {
-    return (
-      <div className="space-y-4 py-4 px-1">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-16 w-full" />
-      </div>
-    );
-  }
+  // 渲染相应的卡片组件
+  const renderCard = useMemo(() => {
+    if (!data || !type) return null;
+
+    switch (type) {
+      case 'weather':
+        return data.now ? <WeatherCard data={data.now} /> : null;
+      case 'air':
+        return data.now ? <AirQualityCard data={data.now} /> : null;
+      case 'forecast':
+        return Array.isArray(data.daily) ? <ForecastCard data={data.daily} /> : null;
+      case 'warning':
+        return data.warning && data.warning.length > 0 ? <WarningCard data={data.warning[0]} /> : null;
+      case 'minutely':
+        return data.minutely && data.minutely.length > 0 ? <MinutelyCard 
+                                                          data={data.minutely} 
+                                                          summary={data.summary || ''} 
+                                                        /> : null;
+      default:
+        return null;
+    }
+  }, [type, data]);
 
   return (
-    // 抛出错误
     <div className="space-y-4 py-4 px-1">
-      {type === 'weather' && data.now && (
-        <WeatherCard data={data.now} />
-      )}
+      {showSkeleton ? (
+        <div className="space-y-4 p-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+        </div>
+      ) : (
+        <>
+          {renderCard}
 
-      {type === 'air' && data.now && (
-        <AirQualityCard data={data.now} />
-      )}
-
-      {type === 'forecast' && data.daily && (
-        <ForecastCard data={data.daily} />
-      )}
-
-      {type === 'warning' && data.warning && (
-        <WarningCard data={data.warning} />
-      )}
-
-      {type === 'minutely' && data.minutely && (
-        <MinutelyCard 
-          data={data.minutely}
-          summary={data.summary}
-        />
+          {!['weather', 'air', 'forecast', 'warning', 'minutely'].includes(type || '') && (
+            <>
+              {type && (
+                <div className="text-red-500">
+                  无法识别的天气数据类型：<strong>{type}</strong>
+                </div>
+              )}
+              {!type && (
+                <div className="text-yellow-500">
+                  未处理的数据类型或结构。请检查数据源。
+                </div>
+              )}
+            </>
+          )}
+        </>
       )}
     </div>
   );
-};
+});
+
+Tool8Component.displayName = 'Tool8Component';
 
 export default Tool8Component;

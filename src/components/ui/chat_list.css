@@ -54,3 +54,32 @@
     contain: content;
     content-visibility: auto;
   }
+
+/* MessageItem 载入动画 */
+@keyframes message-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.message-item-enter {
+  animation: message-slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.message-optimize {
+  contain: content;
+  content-visibility: auto;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

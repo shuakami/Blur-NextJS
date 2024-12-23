@@ -46,7 +46,7 @@ const ChatPageContent = React.memo(function ChatPageContent({
 
     // 主要内容
     const MainContent = useCallback(() => (
-        <div className="flex-1 overflow-auto w-full pt-12 scroll-container">
+        <div className="flex-1 overflow-auto w-full h-full pt-12 scroll-container">
             <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
                 <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-3xl lg:max-w-[49.5rem] xl:max-w-[49.5rem] max-w-3xl">
                     <ErrorBoundary 
