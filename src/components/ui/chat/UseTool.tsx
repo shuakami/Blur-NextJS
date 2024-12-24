@@ -1,13 +1,43 @@
-import React, { useState, useMemo, Suspense } from "react";
+import React, { useState, useMemo, useCallback, Suspense } from "react";
 import { cn } from '@/lib/utils/utils';
-import { Loader2, Terminal, ChevronDown, Code2, Search, Calculator, Image, Globe, Cloud, AlertCircle } from "lucide-react";
+import { Terminal, ChevronDown, Code2, Search, Calculator, Image, Globe, Cloud, AlertCircle } from "lucide-react";
 import CodeBlock from "../markdown/code";
 import { Image as MarkdownImage } from "../markdown/image";
 import { Skeleton } from "../skeleton";
 import { Button } from "../button";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "next-themes";
+import '@/components/ui/ThoughtStream.css';
+
+// 常量定义
+const ANIMATION_CONFIG = {
+  duration: 0.2,
+  ease: [0.4, 0, 0.2, 1]
+} as const;
+
+const IMAGE_ANIMATION_CONFIG = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: ANIMATION_CONFIG.duration }
+} as const;
+
+const EXPAND_ANIMATION_CONFIG = {
+  initial: { height: 0 },
+  animate: { height: "auto" },
+  exit: { height: 0 },
+  transition: { 
+    duration: ANIMATION_CONFIG.duration,
+    ease: ANIMATION_CONFIG.ease
+  }
+} as const;
+
+const MAX_HEIGHT = 300;
+const STATUS_COLORS = {
+  response: "bg-green-500",
+  calling: "bg-amber-400",
+  input: "bg-blue-400"
+} as const;
 
 type ToolType = "code" | "text" | "tool";
 type ToolStatus = "input" | "calling" | "response";
@@ -96,31 +126,49 @@ const TOOL_COMPONENTS: Record<string, React.FC<UseToolProps>> = {
 const BaseUseTool: React.FC<UseToolProps> = (props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 清理工具内函数
-  const cleanContent = (content: string) => {
-    return content
-      ?.replace(/\[USE.*?\]\n*/, '') // 清理[USE...]后的换行
-      .replace(/```/g, '') // 清理```标记
-      .replace(/\n+/g, ' '); // 将连续换行替换为单个空格
-  };
+  // 优化状态更新
+  const toggleExpanded = useCallback(() => {
+    setIsExpanded(prev => !prev);
+  }, []);
 
+  // 优化内容清理函数
+  const cleanContent = useMemo(() => {
+    if (!props.content) return "";
+    
+    try {
+      const jsonContent = JSON.parse(props.content);
+      if (jsonContent.code) {
+        return jsonContent.code
+          .replace(/\[USE.*?\]\n*/, '')
+          .replace(/```/g, '')
+          .trim();
+      }
+      return JSON.stringify(jsonContent, null, 2);
+    } catch {
+      return props.content
+        ?.replace(/\[USE.*?\]\n*/, '')
+        .replace(/```/g, '')
+        .replace(/\n+/g, ' ')
+        .trim();
+    }
+  }, [props.content]);
+
+  // 优化图片处理
   const imageFiles = useMemo(() => {
     if (!props.response?.data?.files) return [];
-    
     return props.response.data.files.filter(file => 
       file.type === 'image' && file.url
     );
   }, [props.response]);
 
-  const processImageUrl = (url: string) => {
+  const processImageUrl = useCallback((url: string) => {
     return url
       .replace(/\[.*\]\((.*)\)/, '$1')
       .replace('sandbox:/', '/');
-  };
+  }, []);
 
-  // 获取显示名称
-  const getDisplayName = () => {
-    // 优先使用插件返回的名称
+  // 优化显示名称获取
+  const displayName = useMemo(() => {
     if (props.calling?.plugin_name) {
       return props.calling.plugin_name;
     }
@@ -129,48 +177,30 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
       return props.response.plugin_name;
     }
 
-    // 其次使用映射表中的名称
     const mappedName = TOOL_NAMES[props.id];
     if (mappedName) {
       return mappedName;
     }
 
-    // 最后使用默认名
     return props.type === "code" ? "代码执行" : "工具调用";
-  };
+  }, [props.calling?.plugin_name, props.status, props.response?.plugin_name, props.id, props.type]);
 
-  // 获取工具图标
-  const ToolIcon = (props.id && TOOL_ICONS[props.id]) ? TOOL_ICONS[props.id] : (props.type === "code" ? Code2 : Terminal);
+  // 优化工具图标获取
+  const ToolIcon = useMemo(() => 
+    (props.id && TOOL_ICONS[props.id]) ? TOOL_ICONS[props.id] : (props.type === "code" ? Code2 : Terminal),
+    [props.id, props.type]
+  );
 
-  // 判断是否为错误状态
   const isError = props.status === "input" && !props.isStreaming;
 
-
-
-  // 渲染输出结果
-  const renderOutput = () => {
-    if (props.status === "response" && props.response) {
-      return (
-        <div className="bg-gray-100/70 -mt-1 dark:bg-gray-900 rounded-md p-4 space-y-3 h-full">
-          <div className="text-xs font-medium text-gray-400">
-            输出结果
-          </div>
-          <div className="max-h-[300px] overflow-y-auto">
-            <CodeBlock
-              code={
-                typeof props.response.data === "string"
-                  ? props.response.data
-                  : JSON.stringify(props.response.data, null, 2)
-              }
-              language="json"
-              forceRenderBlock={true}
-            />
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
+  // 优化输出结果渲染
+  const outputContent = useMemo(() => {
+    if (props.status !== "response" || !props.response) return null;
+    
+    return typeof props.response.data === "string"
+      ? props.response.data
+      : JSON.stringify(props.response.data, null, 2);
+  }, [props.status, props.response]);
 
   // 渲染错误状态UI
   const renderErrorState = () => {
@@ -224,20 +254,16 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
   return (
     <div className="my-2">
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={toggleExpanded}
         className="relative [--hover:0] hover:[--hover:1] inline-flex items-center py-1.5 rounded-md"
       >
         <div className="flex items-center gap-3">
           <div className="relative">
             <ToolIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
             <div className="absolute -right-1 -bottom-1">
-              {props.status === "response" ? (
-                <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-              ) : props.status === "calling" ? (
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-              ) : props.status === "input" ? (
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-              ) : null}
+              {props.status && (
+                <div className={cn("h-1.5 w-1.5 rounded-full", STATUS_COLORS[props.status])} />
+              )}
             </div>
           </div>
 
@@ -249,23 +275,21 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
               "brightness-[calc(100%-var(--hover)*15%)]",
               props.status === "calling" && "shine-effect",
             )}
-            animate={
-              props.status === "input" ? {
-                opacity: 1,
-                transition: { duration: 0 }
-              } : undefined
-            }
+            animate={props.status === "input" ? {
+              opacity: 1,
+              transition: { duration: 0 }
+            } : undefined}
           >
             {props.status === "input" ? (
               <motion.div className="flex">
-                {getDisplayName().split('').map((char, index) => (
+                {displayName.split('').map((char, index) => (
                   <motion.span
                     key={index}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{
-                      duration: 0.05,  // 每个字符的显示时间
-                      delay: index * 0.05,  // 错开每个字符的显示时间
+                      duration: 0.05,
+                      delay: index * 0.05,
                       ease: "easeOut"
                     }}
                   >
@@ -274,7 +298,7 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
                 ))}
               </motion.div>
             ) : (
-              getDisplayName()
+              displayName
             )}
           </motion.span>
 
@@ -293,35 +317,38 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
         {isExpanded && (
           <motion.div
             key="content"
-            initial={{ height: 0 }}
-            animate={{ height: "auto" }}
-            exit={{ height: 0 }}
-            transition={{ 
-              duration: 0.2,
-              ease: [0.4, 0, 0.2, 1] 
-            }}
+            {...EXPAND_ANIMATION_CONFIG}
             className="overflow-hidden"
           >
             <div className="mt-1 rounded-md overflow-hidden">
-              {/* 参数部分 */}
               {props.content && (
                 <div className="px-2 py-3 bg-gray-50/70 dark:bg-gray-900/50">
                   <CodeBlock
-                    code={cleanContent(props.content)}
+                    code={cleanContent}
                     language={props.type === "code" ? "python" : "javascript"}
                     forceRenderBlock={true}
                   />
                 </div>
               )}
               
-              {/* 输出结果部分 */}
-              {props.status === "response" && props.response && (
+              {outputContent && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  {renderOutput()}
+                  <div className="bg-gray-100/70 -mt-1 dark:bg-gray-900 rounded-md p-4 space-y-3 h-full">
+                    <div className="text-xs font-medium text-gray-400">
+                      输出结果
+                    </div>
+                    <div className={`max-h-[${MAX_HEIGHT}px] overflow-y-auto`}>
+                      <CodeBlock
+                        code={outputContent}
+                        language={outputContent.startsWith("{") || outputContent.startsWith("[") ? "json" : "plaintext"}
+                        forceRenderBlock={true}
+                      />
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </div>
@@ -329,15 +356,11 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
         )}
       </AnimatePresence>
 
-      {/* 图片区域 */}
       <AnimatePresence mode="wait">
         {imageFiles.length > 0 && (
           <motion.div 
             key="images"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            {...IMAGE_ANIMATION_CONFIG}
             className="mt-4 grid gap-2"
           >
             {imageFiles.map((file, index) => (
@@ -351,7 +374,12 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
                 }}
                 whileHover={{ 
                   scale: 1.02,
-                  transition: { type: "spring", stiffness: 400 }
+                  transition: { 
+                    type: "spring", 
+                    stiffness: 400,
+                    willChange: "transform",
+                    useHardwareAcceleration: true
+                  }
                 }}
                 className="rounded-xl overflow-hidden"
               >
@@ -359,6 +387,7 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
                   src={processImageUrl(file.url)}
                   alt={file.filename}
                   className="w-full h-full object-cover"
+                  priority={false}
                 />
               </motion.div>
             ))}
@@ -369,20 +398,13 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
   );
 };
 
-// 主组件
+// 主组件优化
 const UseTool: React.FC<UseToolProps> = (props) => {
-  console.log('[UseTool] Incoming props:', {
-    id: props.id,
-    type: props.type,
-    status: props.status
-  });
-
+  // 移除开发日志
   const SpecificToolComponent = TOOL_COMPONENTS[props.id];
   if (SpecificToolComponent) {
-    console.log('[UseTool] Using specific component for tool:', props.id);
     return <SpecificToolComponent {...props} />;
   }
-  
   
   return <BaseUseTool {...props} />;
 };

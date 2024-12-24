@@ -1,6 +1,6 @@
 // ChatList.tsx
 
-import React, { memo, useCallback, useRef, Suspense } from "react";
+import React, { memo, useCallback, useRef } from "react";
 import { Message } from "@/types/stream";
 import { useChatStateContext } from "@/app/[上下文]/ChatContext";
 import BotMessage from "./BotMessage";
@@ -9,9 +9,9 @@ import './chat_list.css';
 import { useRouter } from 'next/router';
 
 // 节流函数
-const throttle = (func: Function, limit: number) => {
+const throttle = <T extends (...args: any[]) => void>(func: T, limit: number) => {
     let inThrottle: boolean;
-    return function (this: any, ...args: any[]) {
+    return function (this: any, ...args: Parameters<T>) {
         if (!inThrottle) {
             func.apply(this, args);
             inThrottle = true;
@@ -92,7 +92,7 @@ export const ChatList = memo(({
 }) => {
     const [editingId, setEditingId] = React.useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const { isStreaming } = useChatStateContext();
+    const { isStreaming: _isStreaming } = useChatStateContext();
     const router = useRouter();
 
     // 在页面加载/路由变化时，自动滚动到最底部

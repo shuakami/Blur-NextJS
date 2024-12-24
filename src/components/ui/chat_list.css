@@ -25,7 +25,6 @@
   
   .scroll-container {
     will-change: transform;
-    -webkit-overflow-scrolling: touch;
     transform: translateZ(0);
   }
   
