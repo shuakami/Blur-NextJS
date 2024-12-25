@@ -20,6 +20,7 @@ import type { Metadata, NextComponentType, NextPageContext } from 'next';
 import { ShortcutProvider } from '@/providers/ShortcutProvider';
 import { LayoutProvider } from "@/components/layouts/LayoutContext";
 import CustomThemeProvider from '@/theme/CustomThemeProvider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // 懒加载非关键组件
 const Analytics = lazy(() => import('@vercel/analytics/react').then(mod => ({ default: mod.Analytics })));
@@ -125,6 +126,17 @@ NonCriticalUI.displayName = 'NonCriticalUI';
 function MyApp({ Component, pageProps }: AppProps) {
     const router = useRouter();
     const [isRouterReady, setIsRouterReady] = useState(false);
+    
+    // 添加 QueryClient
+    const [queryClient] = useState(() => new QueryClient({
+        defaultOptions: {
+            queries: {
+                staleTime: 1000 * 60 * 5, // 5 minutes
+                retry: 1,
+                refetchOnWindowFocus: false,
+            },
+        },
+    }));
 
     useEffect(() => {
         startTransition(() => {
@@ -151,38 +163,40 @@ function MyApp({ Component, pageProps }: AppProps) {
 
 
     const providedContent = useMemo(() => (
-        <ClerkProvider {...pageProps}>
-            <CustomThemeProvider>
-                <LXHThemeProvider>
-                    <ApiClientProvider>
-                        <LanguageProvider>
-                            <LayoutProvider>
-                                <ModelProvider>
-                                    <ConversationsProvider>
-                                        <TooltipProvider>
-                                            <GlobalErrorHandler />
-                                            {isRouterReady && (
-                                                <>
-                                                    <ShortcutProvider>
-                                                        <NonCriticalUI />
-                                                        <MainContent 
-                                                            Component={Component} 
-                                                            pageProps={pageProps} 
-                                                            router={router}
-                                                        />
-                                                    </ShortcutProvider>
-                                                </>
-                                            )}
-                                        </TooltipProvider>
-                                    </ConversationsProvider>
-                                </ModelProvider>
-                            </LayoutProvider>
-                        </LanguageProvider>
-                    </ApiClientProvider>
-                </LXHThemeProvider>
-            </CustomThemeProvider>
-        </ClerkProvider>
-    ), [Component, pageProps, router, isRouterReady]);
+        <QueryClientProvider client={queryClient}>
+            <ClerkProvider {...pageProps}>
+                <CustomThemeProvider>
+                    <LXHThemeProvider>
+                        <ApiClientProvider>
+                            <LanguageProvider>
+                                <LayoutProvider>
+                                    <ModelProvider>
+                                        <ConversationsProvider>
+                                            <TooltipProvider>
+                                                <GlobalErrorHandler />
+                                                {isRouterReady && (
+                                                    <>
+                                                        <ShortcutProvider>
+                                                            <NonCriticalUI />
+                                                            <MainContent 
+                                                                Component={Component} 
+                                                                pageProps={pageProps} 
+                                                                router={router}
+                                                            />
+                                                        </ShortcutProvider>
+                                                    </>
+                                                )}
+                                            </TooltipProvider>
+                                        </ConversationsProvider>
+                                    </ModelProvider>
+                                </LayoutProvider>
+                            </LanguageProvider>
+                        </ApiClientProvider>
+                    </LXHThemeProvider>
+                </CustomThemeProvider>
+            </ClerkProvider>
+        </QueryClientProvider>
+    ), [Component, pageProps, router, isRouterReady, queryClient]);
 
     return providedContent;
 }

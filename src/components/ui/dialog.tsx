@@ -44,7 +44,7 @@ const DialogOverlay = React.forwardRef<
         className={cn(
             "fixed inset-0 z-50",
             // 如果提供了overlayBgColor就使用它,否则使用默认值
-            overlayBgColor || "bg-black/30 dark:bg-black/40",
+            overlayBgColor || "bg-white/80 dark:bg-black/40",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             className

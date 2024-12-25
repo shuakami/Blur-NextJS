@@ -282,6 +282,7 @@ export default function RegisterForm({ onBack }: RegisterFormProps) {
             <div className="flex justify-center gap-2">
                 {[0, 1, 2, 3, 4, 5].map((index) => (
                     <input
+                        title={t("请输入验证码")}
                         key={index}
                         ref={(el) => {
                             inputRefs.current[index] = el;

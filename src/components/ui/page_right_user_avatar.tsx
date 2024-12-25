@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DropDownMenu from "@/components/ui/tofu/dropdown-menu";
 import dynamic from 'next/dynamic';
-import { LogOut, SettingsIcon, UserRound, Keyboard } from "lucide-react";
+import { LogOut, SettingsIcon, UserRound, Keyboard, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // 动态导入
@@ -22,12 +22,17 @@ const ShortcutsModal = dynamic(() => import("@/components/ui/shortcuts-modal"), 
   loading: () => null,
   ssr: false
 });
+const MemoryManagerDialog = dynamic(() => import("@/components/ui/memory/memory-manager-dialog").then(mod => mod.MemoryManagerDialog), {
+  loading: () => null,
+  ssr: false
+});
 
 // 菜单项配置
 const createMenuItems = (handlers: {
   openSettings: () => void,
   openAccountSettings: () => void,
   openShortcuts: () => void,
+  openMemoryManager: () => void,
   signOut: () => void,
   closeMenu: () => void
 }) => [
@@ -59,6 +64,15 @@ const createMenuItems = (handlers: {
     },
   },
   {
+    id: "memory",
+    text: "记忆管理",
+    icon: Brain,
+    onClick: () => {
+      handlers.closeMenu();
+      handlers.openMemoryManager();
+    },
+  },
+  {
     id: "logout",
     text: "退出登录",
     icon: LogOut,
@@ -82,12 +96,14 @@ const UserAvatar = memo(() => {
   const [accountOpen, setAccountOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [memoryManagerOpen, setMemoryManagerOpen] = useState(false);
 
   // URL 参数处理
   useEffect(() => {
     setSettingsOpen(searchParams?.get("settings") === "open");
     setAccountOpen(searchParams?.get("account") === "open");
     setShortcutsOpen(searchParams?.get("shortcuts") === "open");
+    setMemoryManagerOpen(searchParams?.get("memory") === "open");
   }, [searchParams]);
 
   // URL 更新处理器
@@ -137,6 +153,16 @@ const UserAvatar = memo(() => {
     closeShortcuts: useCallback(() => {
       setShortcutsOpen(false);
       updateURL({ shortcuts: null });
+    }, [updateURL]),
+
+    openMemoryManager: useCallback(() => {
+      setMemoryManagerOpen(true);
+      updateURL({ memory: "open" });
+    }, [updateURL]),
+
+    closeMemoryManager: useCallback(() => {
+      setMemoryManagerOpen(false);
+      updateURL({ memory: null });
     }, [updateURL])
   };
 
@@ -145,6 +171,7 @@ const UserAvatar = memo(() => {
     openSettings: modalHandlers.openSettings,
     openAccountSettings: modalHandlers.openAccountSettings,
     openShortcuts: modalHandlers.openShortcuts,
+    openMemoryManager: modalHandlers.openMemoryManager,
     signOut,
     closeMenu: () => setMenuOpen(false)
   });
@@ -224,6 +251,13 @@ const UserAvatar = memo(() => {
         <ShortcutsModal 
           isOpen={shortcutsOpen} 
           onClose={modalHandlers.closeShortcuts}
+        />
+      )}
+
+      {memoryManagerOpen && (
+        <MemoryManagerDialog 
+          open={memoryManagerOpen} 
+          onOpenChange={modalHandlers.closeMemoryManager}
         />
       )}
     </>

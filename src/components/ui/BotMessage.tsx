@@ -118,21 +118,40 @@ const useMemoryProcessor = (content: string) => {
     const actions: MemoryAction[] = [];
     let processedContent = content;
     
+    console.log('开始处理记忆命令:', content);
+    
     processedContent = processedContent.replace(MEMORY_ACTION_REGEX, (match, action, select, tags, content) => {
+      console.log('匹配到记忆命令:', {
+        match,
+        action,
+        select,
+        tags,
+        content
+      });
+      
       const trimmedContent = content?.trim();
       
-      if (trimmedContent || action === 'delete') {
-        actions.push({
+      // 处理select="*"或select="all"的情况
+      const isSelectAll = select === '*' || select === 'all';
+      
+      if (trimmedContent || action === 'delete' || isSelectAll) {
+        const memoryAction: MemoryAction = {
           type: (action as MemoryAction["type"]) || "add",
           content: trimmedContent || '',
           raw: match,
           select,
           tags: tags?.split(',').map((t: string) => t.trim()),
-          all: select === '*'
-        });
+          all: isSelectAll
+        };
+        
+        console.log('创建记忆动作:', memoryAction);
+        actions.push(memoryAction);
       }
+      
       return ""; // 移除原文本
     });
+    
+    console.log('处理完成, 记忆动作列表:', actions);
 
     return {
       processedContent,

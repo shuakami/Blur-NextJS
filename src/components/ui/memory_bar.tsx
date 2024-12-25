@@ -11,19 +11,18 @@ import {
 } from './popover';
 import { Button } from './button';
 import dynamic from 'next/dynamic';
-import { Spinner } from './spinner';
 
 const MemoryManagerDialog = dynamic(() => import('./memory/memory-manager-dialog').then(mod => mod.MemoryManagerDialog), {
-    loading: () => <Spinner />,
     ssr: false
   });
 
 interface MemoryAction {
-  type: 'add' | 'delete' | 'query';
+  type: 'add' | 'delete' | 'query' | 'update';
   content: string;
+  all?: boolean;
   tags?: string[];
   select?: string;
-  all?: boolean;
+  newContent?: string;  // 用于update操作
 }
 
 interface MemoryBarProps {
@@ -48,6 +47,15 @@ export function MemoryBar({ actions = [] }: MemoryBarProps) {
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [open, setOpen] = useState(false);
 
+  // 统计各类型动作数量
+  const actionCounts = useMemo(() => {
+    return actions.reduce((acc, action) => {
+      acc[action.type] = (acc[action.type] || 0) + 1;
+      return acc;
+    }, {} as Record<MemoryAction['type'], number>);
+  }, [actions]);
+
+  // 处理展开/收起
   const handleExpandToggle = useCallback((index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedItems(prev => ({
@@ -56,12 +64,48 @@ export function MemoryBar({ actions = [] }: MemoryBarProps) {
     }));
   }, []);
 
-  const actionCounts = useMemo(() => 
-    actions.reduce((acc, action) => {
-      acc[action.type] = (acc[action.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>)
-  , [actions]);
+  const getActionLabel = (type: MemoryAction['type'], isGlobal?: boolean) => {
+    switch (type) {
+      case 'add':
+        return '添加记忆';
+      case 'delete':
+        return isGlobal ? '清空所有记忆' : '删除记忆';
+      case 'query':
+        return isGlobal ? '查询所有记忆' : '查询记忆';
+      case 'update':
+        return '更新记忆';
+    }
+  };
+
+  const getActionStyle = (type: MemoryAction['type'], isGlobal?: boolean) => {
+    const baseStyle = cn(
+      "flex flex-col gap-1 px-2.5 py-2 rounded-md transition-colors duration-150",
+      isGlobal && "bg-neutral-50/80 dark:bg-neutral-800/50"
+    );
+    
+    switch (type) {
+      case 'add':
+        return cn(baseStyle, 
+          "hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
+          "text-emerald-600 dark:text-emerald-400"
+        );
+      case 'delete':
+        return cn(baseStyle, 
+          "hover:bg-rose-50 dark:hover:bg-rose-950/30",
+          "text-rose-600 dark:text-rose-400"
+        );
+      case 'query':
+        return cn(baseStyle, 
+          "hover:bg-sky-50 dark:hover:bg-sky-950/30",
+          "text-sky-600 dark:text-sky-400"
+        );
+      case 'update':
+        return cn(baseStyle, 
+          "hover:bg-amber-50 dark:hover:bg-amber-950/30",
+          "text-amber-600 dark:text-amber-400"
+        );
+    }
+  };
 
   const formatContent = useCallback((action: MemoryAction, isExpanded: boolean, index: number) => {
     const cleanedContent = cleanMarkdown(action.content);
@@ -70,8 +114,10 @@ export function MemoryBar({ actions = [] }: MemoryBarProps) {
     const displayContent = isExpanded ? cleanedContent : cleanedContent.slice(0, 100);
 
     const hasTags = action.tags && action.tags.length > 0;
-    const hasSelect = action.select && action.select !== '*';
-    const showTags = (hasTags || hasSelect);
+    const hasSelect = action.select && (action.select !== '*' && action.select !== 'all');
+    const showTags = hasTags || hasSelect;
+    const hasNewContent = action.type === 'update' && action.newContent;
+    const isGlobalAction = action.select === '*' || action.select === 'all';
 
     return (
       <div className="space-y-1">
@@ -100,13 +146,34 @@ export function MemoryBar({ actions = [] }: MemoryBarProps) {
           )}
 
           {/* 内容区域 */}
-          <div className={cn(
-            "text-xs text-neutral-600 dark:text-neutral-400 break-all",
-            !isExpanded && shouldShowExpand && "line-clamp-2"
-          )}>
-            {displayContent}
-            {!isExpanded && shouldShowExpand && "..."}
-          </div>
+          {(!isGlobalAction || action.content) && (
+            <div className={cn(
+              "text-xs text-neutral-600 dark:text-neutral-400 break-all",
+              !isExpanded && shouldShowExpand && "line-clamp-2"
+            )}>
+              {displayContent}
+              {!isExpanded && shouldShowExpand && "..."}
+            </div>
+          )}
+
+          {/* 全局操作的说明 */}
+          {isGlobalAction && action.type === 'query' && (
+            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+              已返回所有记忆
+            </div>
+          )}
+
+          {/* 更新操作的新内容 */}
+          {hasNewContent && (
+            <div className="mt-1 pl-2 border-l-2 border-amber-500/30 dark:border-amber-500/20">
+              <div className={cn(
+                "text-xs text-neutral-600 dark:text-neutral-400 break-all",
+                !isExpanded && "line-clamp-2"
+              )}>
+                {action.newContent}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 展开/收起按钮 */}
@@ -136,20 +203,22 @@ export function MemoryBar({ actions = [] }: MemoryBarProps) {
   // 渲染 action 项
   const renderActionItem = useCallback((action: MemoryAction, index: number) => {
     const isExpanded = !!expandedItems[index];
+    const isGlobalAction = action.select === '*' || action.select === 'all';
+    
     return (
       <div
         key={index}
-        className={getActionStyle(action.type, action.all)}
+        className={getActionStyle(action.type, isGlobalAction)}
       >
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs font-medium flex items-center gap-1.5">
-            {getActionLabel(action.type, action.select === '*')}
+            {getActionLabel(action.type, isGlobalAction)}
           </span>
         </div>
         {formatContent(action, isExpanded, index)}
       </div>
     );
-  }, [expandedItems, formatContent]);
+  }, [expandedItems, formatContent, getActionStyle, getActionLabel]);
 
   // 如没有 actions返回 null
   if (!actions || actions.length === 0) return null;
@@ -159,47 +228,16 @@ export function MemoryBar({ actions = [] }: MemoryBarProps) {
     if (actionCounts.add) parts.push(`添加了${actionCounts.add}条记忆`);
     if (actionCounts.delete) {
       // 检查是否存在全局删除
-      const hasGlobalDelete = actions.some(a => a.type === 'delete' && a.select === '*');
+      const hasGlobalDelete = actions.some(a => a.type === 'delete' && (a.select === '*' || a.select === 'all'));
       parts.push(hasGlobalDelete ? '清空了所有记忆' : `删除了${actionCounts.delete}条记忆`);
     }
-    if (actionCounts.query) parts.push(`查询了${actionCounts.query}条记忆`);
+    if (actionCounts.query) {
+      // 检查是否存在全局查询
+      const hasGlobalQuery = actions.some(a => a.type === 'query' && (a.select === '*' || a.select === 'all'));
+      parts.push(hasGlobalQuery ? '查询了记忆列表' : `查询了${actionCounts.query}条记忆`);
+    }
+    if (actionCounts.update) parts.push(`更新了${actionCounts.update}条记忆`);
     return parts.join('、');
-  };
-
-  const getActionLabel = (type: MemoryAction['type'], isAll?: boolean) => {
-    switch (type) {
-      case 'add':
-        return '添加记忆';
-      case 'delete':
-        return isAll ? '清空了所有记忆' : '删除记忆';
-      case 'query':
-        return '查询记忆';
-    }
-  };
-
-  const getActionStyle = (type: MemoryAction['type'], isAll?: boolean) => {
-    const baseStyle = cn(
-      "flex flex-col gap-1 px-2.5 py-2 rounded-md transition-colors duration-150",
-      isAll && "bg-neutral-50/80 dark:bg-neutral-800/50"
-    );
-    
-    switch (type) {
-      case 'add':
-        return cn(baseStyle, 
-          "hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
-          "text-emerald-600 dark:text-emerald-400"
-        );
-      case 'delete':
-        return cn(baseStyle, 
-          "hover:bg-rose-50 dark:hover:bg-rose-950/30",
-          "text-rose-600 dark:text-rose-400"
-        );
-      case 'query':
-        return cn(baseStyle, 
-          "hover:bg-sky-50 dark:hover:bg-sky-950/30",
-          "text-sky-600 dark:text-sky-400"
-        );
-    }
   };
 
   return (

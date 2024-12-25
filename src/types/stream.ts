@@ -242,7 +242,12 @@ export interface MoreContent {
     index: number;
     timestamp: number;
     content: string;
-    related_call_instance_id: string;
+    display_order: number | null;
+    related_to: {
+        type: 'memory_query' | string;
+        id: string;
+    } | null;
+    related_call_instance_id: string | null;
 }
 
 // 状态的消息类型

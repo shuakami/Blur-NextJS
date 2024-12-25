@@ -2,7 +2,7 @@ import { APIMessage, Message } from '@/types/stream';
 import dialogProcessor from '../core/DialogProcessor';
 
 interface RelatedTo {
-    type: string;
+    type: 'memory_query' | string;
     id: string;
 }
 
@@ -98,13 +98,18 @@ const HistoryHandler = {
             });
         });
 
-        // 3. 添加未关联的more_content
+        // 3. 添加未关联的more_content和记忆查询结果
         const unrelatedContent = moreContent
-            .filter((m: MoreContent) => !m.related_to)
+            .filter((m: MoreContent) => !m.related_to || m.related_to.type === 'memory_query')
             .sort((a: MoreContent, b: MoreContent) => (a.display_order || 0) - (b.display_order || 0));
         
         unrelatedContent.forEach((content: MoreContent) => {
-            newContent += `\n${content.content}`;
+            if (content.related_to?.type === 'memory_query') {
+                // 记忆查询结果直接添加到内容中
+                newContent += `\n\n${content.content}`;
+            } else {
+                newContent += `\n${content.content}`;
+            }
         });
 
         // 4. 构建返回消息

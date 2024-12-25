@@ -144,49 +144,6 @@ export default function ToastShowcase() {
         </Button>
       ),
     ]),
-
-    createCategory("custom", "定制组件", "一些经过定制的通知组件", [
-      createVariant("Minecraft Style", "mc", "Minecraft 风格的提示",
-        <Button
-          variant="outline"
-          onClick={() => {
-            toast({
-              variant: "mc",
-              title: "成就达成！",
-              description: "解锁新的成就：编写第一个 Toast 组件",
-              acceptButton: {
-                label: "好的",
-                onClick: () => console.log("点击了确认"),
-              },
-            })
-          }}
-        >
-         Minecraft定制版本
-        </Button>
-      ),
-      createVariant("Cyberpunk", "cyberpunk", "Cyberpunk 风格提示",
-        <Button
-          variant="outline"
-          onClick={() => {
-            toast({
-              variant: "cyberpunk",
-              title: "通知",
-              description: "检测到未经授权的神经入侵尝试",
-              acceptButton: {
-                label: "启动防御",
-                onClick: () => console.log("启动防御系统"),
-              },
-              quitButton: {
-                label: "忽略",
-                onClick: () => console.log("忽略警告"),
-              },
-            })
-          }}
-        >
-          显示赛博朋克提示
-        </Button>
-      ),
-    ]),
   ]
 
   return <Showcase title="Toast 提示" categories={categories} />

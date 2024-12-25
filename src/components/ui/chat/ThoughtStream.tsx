@@ -67,6 +67,22 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
         }
     };
 
+    // 标题动画变体
+    const titleVariants = {
+        enter: {
+            y: 20,
+            opacity: 0
+        },
+        center: {
+            y: 0,
+            opacity: 1
+        },
+        exit: {
+            y: -20,
+            opacity: 0
+        }
+    };
+
     return (
         <div className="min-h-[32px]">
             <button 
@@ -74,12 +90,23 @@ export const ThoughtStream: React.FC<ThoughtStreamProps> = ({
                 className="w-full group flex items-center gap-2 text-gray-650 dark:text-gray-300 hover:dark:text-gray-750 hover:text-gray-800 h-8 relative"
             >
                 <div className="flex items-center gap-1 overflow-hidden">
-                    <span 
-                        className={cn("relative", isAnimating && "shine-effect")} 
-                        data-theme={theme}
-                    >
-                        {isAnimating ? currentTitle : `${thoughtCount} thoughts generated`}
-                    </span>
+                    <AnimatePresence mode="wait">
+                        <motion.span
+                            key={currentTitle}
+                            variants={titleVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{
+                                y: { type: "spring", stiffness: 300, damping: 30 },
+                                opacity: { duration: 0.2 }
+                            }}
+                            className={cn("relative", isAnimating && "shine-effect")} 
+                            data-theme={theme}
+                        >
+                            {isAnimating ? currentTitle : `${thoughtCount} thoughts generated`}
+                        </motion.span>
+                    </AnimatePresence>
                     <motion.span
                         animate={{ rotate: isExpanded ? 180 : 0 }}
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}

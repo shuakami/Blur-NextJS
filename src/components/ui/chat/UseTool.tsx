@@ -135,20 +135,37 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
   const cleanContent = useMemo(() => {
     if (!props.content) return "";
     
+    const content = props.content.trim();
+    
+    // 预处理：移除可能的前缀标记
+    const preprocessed = content
+      .replace(/^\[USE.*?\][\n\s]*/i, '')
+      .replace(/^```[\w]*[\n\s]*/g, '')
+      .replace(/[\n\s]*```$/g, '');
+    
     try {
-      const jsonContent = JSON.parse(props.content);
+      // 尝试解析 JSON
+      const jsonContent = JSON.parse(preprocessed);
+      
+      // 如果是代码内容
       if (jsonContent.code) {
         return jsonContent.code
-          .replace(/\[USE.*?\]\n*/, '')
-          .replace(/```/g, '')
-          .trim();
+          .replace(/^\s*[\n\r]/g, '') // 移除开头空行
+          .replace(/[\n\r]\s*$/g, '') // 移除结尾空行
+          .replace(/\n{3,}/g, '\n\n'); // 将多个连续空行减少为两个
       }
+      
+      // 如果是普通 JSON 对象，美化输出
       return JSON.stringify(jsonContent, null, 2);
     } catch {
-      return props.content
-        ?.replace(/\[USE.*?\]\n*/, '')
-        .replace(/```/g, '')
-        .replace(/\n+/g, ' ')
+      // JSON 解析失败，作为普通文本处理
+      return preprocessed
+        .replace(/^\s*[\n\r]/g, '')
+        .replace(/[\n\r]\s*$/g, '')
+        .split(/\n/)
+        .map(line => line.trimEnd())
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
         .trim();
     }
   }, [props.content]);
@@ -272,7 +289,8 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
               "text-sm truncate",
               "text-gray-600 dark:text-gray-300",
               "transition-colors duration-200",
-              "brightness-[calc(100%-var(--hover)*15%)]",
+              "hover:text-gray-900 dark:hover:text-gray-100",
+              "brightness-[calc(100%-var(--hover)*25%)]",
               props.status === "calling" && "shine-effect",
             )}
             animate={props.status === "input" ? {
@@ -322,12 +340,14 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
           >
             <div className="mt-1 rounded-md overflow-hidden">
               {props.content && (
-                <div className="px-2 py-3 bg-gray-50/70 dark:bg-gray-900/50">
-                  <CodeBlock
-                    code={cleanContent}
-                    language={props.type === "code" ? "python" : "javascript"}
-                    forceRenderBlock={true}
-                  />
+                <div className="p-4 bg-gray-50/70 dark:bg-gray-900/50">
+                  <div className="whitespace-pre overflow-x-auto">
+                    <CodeBlock
+                      code={cleanContent}
+                      language={props.type === "code" ? "python" : "javascript"}
+                      forceRenderBlock={true}
+                    />
+                  </div>
                 </div>
               )}
               
@@ -337,16 +357,23 @@ const BaseUseTool: React.FC<UseToolProps> = (props) => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <div className="bg-gray-100/70 -mt-1 dark:bg-gray-900 rounded-md p-4 space-y-3 h-full">
+                  <div className="bg-gray-100/70 dark:bg-gray-900 rounded-md p-4 space-y-3 h-full">
                     <div className="text-xs font-medium text-gray-400">
                       输出结果
                     </div>
                     <div className={`max-h-[${MAX_HEIGHT}px] overflow-y-auto`}>
-                      <CodeBlock
-                        code={outputContent}
-                        language={outputContent.startsWith("{") || outputContent.startsWith("[") ? "json" : "plaintext"}
-                        forceRenderBlock={true}
-                      />
+                      <div className="whitespace-pre overflow-x-auto">
+                        <CodeBlock
+                          code={typeof outputContent === 'string' ? outputContent.trim() : outputContent}
+                          language={
+                            (typeof outputContent === 'string' && 
+                             (outputContent.trim().startsWith('{') || outputContent.trim().startsWith('['))) 
+                            ? "json" 
+                            : "plaintext"
+                          }
+                          forceRenderBlock={true}
+                        />
+                      </div>
                     </div>
                   </div>
                 </motion.div>

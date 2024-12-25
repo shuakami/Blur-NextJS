@@ -67,7 +67,8 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
         isModalOpen: false,
         hover: false,
         displayedTitle: item.label,
-        newTitle: item.label
+        newTitle: item.label,
+        isDeleting: false
     });
 
     // 计算属性
@@ -103,7 +104,7 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
     const handleConfirmDelete = useCallback(async () => {
         if (!item.id) return;
         
-        updateState({ isModalOpen: false });
+        updateState({ isDeleting: true });
         try {
             await deleteConversation(item.id, user?.id || '');
             
@@ -124,6 +125,8 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                 description: '对话删除失败',
                 variant: "destructive"
             });
+        } finally {
+            updateState({ isModalOpen: false, isDeleting: false });
         }
     }, [item.id, user?.id, isSelected, router, removeConversation, onUpdateConversations, updateState]);
 
@@ -280,6 +283,9 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                 onConfirm={handleConfirmDelete}
                 title="删除对话"
                 message={`您确定要删除 "${item.label}" 吗?`}
+                type="danger"
+                confirmText="删除"
+                isLoading={uiState.isDeleting}
             />
             
             <div className="flex items-center">
