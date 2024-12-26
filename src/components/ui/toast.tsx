@@ -40,16 +40,20 @@ const STYLES = {
       "border border-gray-100 dark:border-gray-900"
     ),
     destructive: cn(
-      "bg-rose-600 text-white",
+      "bg-rose-600 text-white font-semibold",
+      "border border-rose-600"
     ),
     success: cn(
-      "bg-green-500 text-white",
+      "bg-green-500 text-white font-semibold",
+      "border border-green-500"
     ),
     info: cn(
-      "bg-blue-500 text-white",
+      "bg-blue-500 text-white font-semibold",
+      "border border-blue-500"
     ),
     warning: cn(
-      "bg-yellow-400 text-black",
+      "bg-yellow-400 text-gray-900 font-semibold",
+      "border border-yellow-400"
     ),
   },
 } as const
@@ -256,9 +260,9 @@ const ToastClose = React.memo(React.forwardRef<
     className={cn(
       "absolute right-4 top-4",
       "rounded-md p-1",
-      "text-gray-400 opacity-0 transition-opacity",
+      "opacity-0 transition-opacity",
       "group-hover:opacity-100",
-      "hover:text-gray-900 dark:hover:text-gray-100",
+      "text-gray-900 dark:text-gray-100",
       className
     )}
     toast-close=""
@@ -277,7 +281,7 @@ const ToastTitle = React.memo(React.forwardRef<
     ref={ref}
     className={cn(
       "text-sm font-medium leading-none tracking-tight",
-      "text-gray-900 dark:text-gray-100",
+      "text-inherit",
       className
     )}
     {...props}

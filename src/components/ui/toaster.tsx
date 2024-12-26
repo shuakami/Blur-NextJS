@@ -4,7 +4,7 @@
 
 import dynamic from 'next/dynamic'
 import { useToast } from '@/hooks/ui/use-toast'
-import { ToastProvider, ToastViewport, Toast } from "@/components/ui/toast"
+import { ToastProvider, ToastViewport, Toast, ToastClose } from "@/components/ui/toast"
 import React, { useCallback, memo, useMemo } from 'react'
 import { cn } from '@/lib/utils/utils'
 
@@ -21,38 +21,26 @@ interface ToastContentProps {
   hasBoth: boolean
 }
 
-const ToastContent: React.FC<ToastContentProps> = memo(({ title, description, hasBoth }) => {
+const ToastContent: React.FC<ToastContentProps> = memo(({ title, description }) => {
   return (
     <div className={cn(
       "flex",
-      hasBoth ? "flex-col gap-1.5 min-h-[48px]" : "items-center h-10"
+      (title && description) ? "flex-col gap-1.5 min-h-[48px]" : (title || description) ? "items-center" : ""
     )}>
       {title && (
-        <ToastTitle className={cn(
-          "text-sm",
-          !description && cn(
-            "flex items-center font-medium tracking-tight",
-            "bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-700",
-            "dark:from-neutral-100 dark:via-neutral-200 dark:to-neutral-300",
-            "bg-clip-text text-transparent"
-          )
-        )}>
-          {!description && (
-            <span className="flex items-center mr-2 text-neutral-500 dark:text-neutral-400">
-              <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-500" />
-            </span>
-          )}
+        <ToastTitle className="text-sm">
           {title}
         </ToastTitle>
       )}
       {description && (
-        <ToastDescription className="text-sm text-neutral-500 dark:text-neutral-400">
+        <ToastDescription className="text-sm">
           {description}
         </ToastDescription>
       )}
     </div>
   )
 })
+
 
 ToastContent.displayName = 'ToastContent'
 
@@ -98,7 +86,7 @@ const ToastItem: React.FC<ToastItemProps> = memo(({
       isRemoving={isRemoving}
       className={cn(
         "group relative flex flex-col",
-        !description && !acceptButton && !quitButton ? "h-10 py-0" : "min-h-[48px]",
+        !description && !acceptButton && !quitButton ? "py-6" : "min-h-[48px]",
         props.className,
         "transform transition-transform duration-300 will-change-transform"
       )}
@@ -111,6 +99,10 @@ const ToastItem: React.FC<ToastItemProps> = memo(({
         label: quitButton.label
       } : undefined}
     >
+      <ToastClose 
+        className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={() => dismiss(id)}
+      />
       <ToastContent 
         title={title}
         description={description as string | undefined}

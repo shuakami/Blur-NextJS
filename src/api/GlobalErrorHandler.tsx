@@ -22,29 +22,25 @@ const GlobalErrorHandler: React.FC = () => {
                 case ErrorCode.NetworkError:
                     toast({
                         variant: "destructive",
-                        title: t("网络错误"),
-                        description: t("请检查您的网络连接。"),
+                        title: t("网络错误，请检查您的网络连接。")
                     });
                     break;
                 case ErrorCode.NotFound:
                     toast({
                         variant: "destructive",
-                        title: t("未找到"),
-                        description: t("请求的资源未找到。"),
+                        title: t("404 Not Found"),
                     });
                     break;
                 case ErrorCode.Unauthorized:
                     toast({
                         variant: "destructive",
-                        title: t("未授权"),
-                        description: t("您没有权限访问此资源。"),
+                        title: t("您似乎没有登录，无法访问此资源。"),
                     });
                     break;
                 case ErrorCode.Forbidden:
                     toast({
                         variant: "destructive",
-                        title: t("禁止访问"),
-                        description: t("您没有权限访问此资源。"),
+                        title: t("您没有权限访问此资源。")
                     });
                     break;
                 case ErrorCode.BadRequest:

@@ -144,6 +144,22 @@ export default function ToastShowcase() {
         </Button>
       ),
     ]),
+
+    createCategory("custom", "单条标题", "单条标题的提示", [
+      createVariant("Single Title", "single-title", "单条标题的提示",
+        <Button
+          variant="outline"
+          onClick={() => {
+            toast({
+              title: "单条标题的提示",
+            })
+          }}
+        >
+          显示单条标题的提示
+        </Button>
+      ),
+    ]),
+
   ]
 
   return <Showcase title="Toast 提示" categories={categories} />
