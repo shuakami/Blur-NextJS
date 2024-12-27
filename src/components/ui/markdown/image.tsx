@@ -5,6 +5,7 @@ import { ImageOff, ZoomIn } from 'lucide-react';
 import { useImageZoom } from '@/hooks/ui/useImageZoom';
 import { useImageNavigation } from '@/hooks/features/useImageNavigation';
 import dynamic from 'next/dynamic';
+import { ImageSkeleton } from './skeleton/skeleton';
 
 interface ImageProps {
     src?: string;
@@ -69,8 +70,11 @@ export const Image: React.FC<ImageProps> = ({
         
         img.onload = () => {
             if (!mounted) return;
-            setAspectRatio(img.width / img.height);
-            setIsLoading(false);
+            // 使用requestAnimationFrame确保在下一帧更新，与NextImage的onLoad同步
+            requestAnimationFrame(() => {
+                if (!mounted) return;
+                setAspectRatio(img.width / img.height);
+            });
         };
         
         img.onerror = () => {
@@ -108,13 +112,22 @@ export const Image: React.FC<ImageProps> = ({
                     'relative w-full overflow-hidden my-4 [--img-hover:0] hover:[--img-hover:1]',
                     'isolation-auto aspect-ratio-container',
                     'markdown-image-container',
-                    isLoading ? 'animate-pulse bg-muted dark:bg-muted/20' : 'bg-transparent',
-                    !isLoading && 'cursor-zoom-in',
+                    'aspect-[16/9]',
                     className
                 )} 
+                style={{
+                    aspectRatio: aspectRatio || '16/9',
+                    transition: 'aspect-ratio 0.2s ease-out' // 添加平滑过渡
+                }}
                 data-ratio={!!aspectRatio}
                 onClick={() => !isLoading && setIsOpen(true)}
             >
+                {isLoading && (
+                    <div className="absolute inset-0 z-10">
+                        <ImageSkeleton />
+                    </div>
+                )}
+                
                 <NextImage
                     ref={imageRef}
                     src={src}
@@ -123,7 +136,7 @@ export const Image: React.FC<ImageProps> = ({
                     height={0}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                     className={cn(
-                        'w-full h-full object-contain rounded-xl',
+                        'w-full h-full object-cover rounded-xl', // 改用object-cover
                         'transition-all duration-200',
                         isLoading ? 'opacity-0 scale-[0.98]' : 'opacity-100 scale-100',
                         '[filter:brightness(calc(1-0.1*var(--img-hover)))]',
@@ -132,7 +145,10 @@ export const Image: React.FC<ImageProps> = ({
                     priority={priority}
                     quality={75}
                     loading={priority ? 'eager' : 'lazy'}
-                    onLoad={() => {
+                    onLoad={(e) => {
+                        // 确保在设置aspectRatio后再更新loading状态
+                        const img = e.target as HTMLImageElement;
+                        setAspectRatio(img.naturalWidth / img.naturalHeight);
                         requestAnimationFrame(() => {
                             setIsLoading(false);
                         });

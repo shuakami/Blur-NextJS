@@ -1,7 +1,7 @@
 import { sendMessage as sendMessageAPIBase } from '@/app/[消息发送]/send_message';
 import { stopStream as stopStreamAPIBase } from '@/app/[对话管理]/stop_stream';
 import { fetchHistory as fetchHistoryBase } from "@/app/[拉取历史]/fetch_history";
-import { SendMessageResponse, StreamChunk, FinalInfo, APIMessage, ImageData } from '@/types/stream';
+import { SendMessageResponse, StreamChunk, FinalInfo, APIMessage } from '@/types/stream';
 
 // 错误类
 export class APIError extends Error {
@@ -23,7 +23,7 @@ export interface SendMessageParams {
     token: string;
     conversationId?: string | null;
     model?: string;
-    images?: ImageData[];  // 新增图片数组
+    files?: { file_id: string; filename: string; file_type: string }[];  // 统一使用 files
     onInitialResponse: (response: SendMessageResponse) => void;
     onChunk: (chunk: StreamChunk) => void;
     onFinalInfo: (info: FinalInfo) => void;
@@ -50,13 +50,14 @@ export const sendMessageAPI = async ({
     token,
     conversationId,
     model,
-    images,  // 新增参数
+    files,
     onInitialResponse,
     onChunk,
     onFinalInfo,
     onError,
     signal
 }: SendMessageParams): Promise<void> => {
+    console.log('ChatAPI 接收到的参数:', { userInput, userId, conversationId, model, files });
     try {
         await sendMessageAPIBase(
             {
@@ -64,10 +65,7 @@ export const sendMessageAPI = async ({
                 user_id: userId,
                 conversation_id: conversationId || undefined,
                 model,
-                images: images?.map(img => ({
-                    base64_data: img.base64_data.replace(/^data:image\/[a-z]+;base64,/, ''),
-                    image_type: img.image_type
-                }))
+                files  // 直接传递 files
             },
             token,
             onInitialResponse,

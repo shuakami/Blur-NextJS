@@ -153,6 +153,8 @@ const ToastButtons = React.memo(function ToastButtons({
   })  
 ToastButtons.displayName = 'ToastButtons'
 
+const ToastContext = React.createContext<{ variant: VariantProps<typeof toastVariants>["variant"] }>({ variant: "default" })
+
 // Toast 主组件
 const Toast = React.memo(React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
@@ -164,7 +166,7 @@ const Toast = React.memo(React.forwardRef<
     }
 >(({
   className, 
-  variant, 
+  variant = "default", 
   acceptButton, 
   quitButton, 
   children, 
@@ -215,19 +217,21 @@ const Toast = React.memo(React.forwardRef<
   }, [position, height, isHovered, isRemoving])
 
   return (
-    <ToastPrimitives.Root
-      ref={ref}
-      className={cn(toastVariants({ variant }), className)}
-      style={style}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      {...props}
-    >
-      <div ref={toastRef} className="flex flex-col transform-gpu will-change-[transform,opacity]">
-        {children}
-        <ToastButtons acceptButton={acceptButton} quitButton={quitButton} />
-      </div>
-    </ToastPrimitives.Root>
+    <ToastContext.Provider value={{ variant }}>
+      <ToastPrimitives.Root
+        ref={ref}
+        className={cn(toastVariants({ variant }), className)}
+        style={style}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        {...props}
+      >
+        <div ref={toastRef} className="flex flex-col transform-gpu will-change-[transform,opacity]">
+          {children}
+          <ToastButtons acceptButton={acceptButton} quitButton={quitButton} />
+        </div>
+      </ToastPrimitives.Root>
+    </ToastContext.Provider>
   )  
 }))
 Toast.displayName = ToastPrimitives.Root.displayName
@@ -254,23 +258,35 @@ ToastAction.displayName = ToastPrimitives.Action.displayName
 const ToastClose = React.memo(React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Close>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Close
-    ref={ref}
-    className={cn(
-      "absolute right-4 top-4",
-      "rounded-md p-1",
-      "opacity-0 transition-opacity",
-      "group-hover:opacity-100",
-      "text-gray-900 dark:text-gray-100",
-      className
-    )}
-    toast-close=""
-    {...props}
-  >
-    <X className="h-4 w-4" />
-  </ToastPrimitives.Close>
-)))
+>(({ className, ...props }, ref) => {
+  const { variant = "default" } = React.useContext(ToastContext)
+  
+  const closeColors = {
+    default: "text-gray-900 dark:text-gray-100",
+    warning: "text-gray-900",
+    destructive: "text-white",
+    success: "text-white", 
+    info: "text-white"
+  }
+
+  return (
+    <ToastPrimitives.Close
+      ref={ref}
+      className={cn(
+        "absolute right-4 top-4",
+        "rounded-md p-1",
+        "opacity-0 transition-opacity",
+        "group-hover:opacity-100",
+        closeColors[variant as keyof typeof closeColors],
+        className
+      )}
+      toast-close=""
+      {...props}
+    >
+      <X className="h-4 w-4" />
+    </ToastPrimitives.Close>
+  )
+}))
 ToastClose.displayName = ToastPrimitives.Close.displayName
 
 const ToastTitle = React.memo(React.forwardRef<

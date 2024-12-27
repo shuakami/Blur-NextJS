@@ -1,6 +1,6 @@
 // src/app/[上下文]/DialogProcessor.ts
 
-import { Message } from '@/types/stream';
+import { Message, FileInfo } from '@/types/stream';
 import { v4 as uuidv4 } from 'uuid';
 
 // 定义插件接口
@@ -31,7 +31,7 @@ export class DialogProcessor {
     }
 
     // 创建用户消息
-    createUserMessage(content: string, avatarUrl?: string, files?: File[]): Message {
+    createUserMessage(content: string, avatarUrl?: string, files?: (File | FileInfo)[]): Message {
         let message: Partial<Message> = {
             message_id: uuidv4(),
             type: 'user',

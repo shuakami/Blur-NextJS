@@ -3,8 +3,15 @@
  * @module components/chat/chat-input
  */
 
-import React from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { memo } from 'react';
+import { X, ChevronLeft, ChevronRight, Send, Upload, Bot } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils/utils';
 
 // SendButton 组件
 export const SendButton = React.memo(({ 
@@ -103,27 +110,33 @@ export const ScrollArrowButton = React.memo(({
 ));
 
 // RemoveButton 组件
-export const RemoveButton = React.memo(({ 
+export const RemoveButton = memo(({ 
   onClick, 
-  disabled 
+  disabled,
+  className
 }: { 
   onClick: () => void;
   disabled?: boolean;
+  className?: string;
 }) => (
   <button
     onClick={onClick}
-    className={`
-      absolute -right-2 -top-1 p-0.5 rounded-full
+    className={cn(`
+      absolute -right-0.5 -top-1 p-0.5 rounded-full
       bg-gray-900 dark:bg-gray-200
       text-gray-400 dark:text-gray-800
-      transition-all duration-200
-      opacity-0 group-hover:opacity-100
+      transition-opacity duration-200
       ${disabled ? 'pointer-events-none' : ''}
-    `}
+    `, className)}
     type="button"
     disabled={disabled}
+    aria-label="移除文件"
   >
-    <X size={12} />
+    <X 
+      size={12}
+      className="will-change-transform"
+      style={{ transform: 'translateZ(0)' }}
+    />
   </button>
 ));
 
@@ -146,11 +159,38 @@ export const FileProgressIndicator = React.memo(({
   </>
 ));
 
+// RobotButton 组件
+export const RobotButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            disabled
+            aria-label="AI助手（即将上线）"
+            className="flex items-center justify-center h-8 w-8
+                     transition-all duration-300
+                     focus-visible:outline-none text-gray-450 dark:text-gray-800"
+            onClick={onClick}
+          >
+            <Bot size={24} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>即将上线</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
 // 为所有组件添加displayName
 SendButton.displayName = 'SendButton';
 UploadButton.displayName = 'UploadButton';
 ScrollArrowButton.displayName = 'ScrollArrowButton';
 RemoveButton.displayName = 'RemoveButton';
 FileProgressIndicator.displayName = 'FileProgressIndicator';
+RobotButton.displayName = 'RobotButton';
 
 

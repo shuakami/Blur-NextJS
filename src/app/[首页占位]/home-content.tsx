@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { Code, PenTool, FileText, Lightbulb, Briefcase, MoreHorizontal } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { MessageCircle, Home, Gift, Sparkles, Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from '@/components/ui/error-fallback';
@@ -19,174 +19,226 @@ interface HomepageContentProps {
   className?: string;
 }
 
-interface Category {
-  icon: React.ReactNode;
-  title: string;
-  color: string;
-}
-
 // 常量定义
-const CATEGORIES: Category[] = [
-  { icon: <Code size={16}/>, title: '代码', color: 'rgb(108, 113, 255)' },
-  { icon: <PenTool size={16}/>, title: '写作', color: 'rgb(203, 139, 208)' },
-  { icon: <FileText size={16}/>, title: '总结', color: 'rgb(234, 132, 68)' },
-  { icon: <Lightbulb size={16}/>, title: '构思', color: 'rgb(226, 197, 65)' },
-  { icon: <Briefcase size={16}/>, title: '建议', color: 'rgb(118, 208, 235)' },
-];
+const CATEGORIES = [
+  { icon: <MessageCircle size={20}/>, title: '祝福', color: '#FF4D4F' },
+  { icon: <Home size={20}/>, title: '团圆', color: '#FF7A45' },
+  { icon: <Gift size={20}/>, title: '福气', color: '#FAAD14' },
+  { icon: <Sparkles size={20}/>, title: '愿望', color: '#FFC53D' },
+  { icon: <Heart size={20}/>, title: '温暖', color: '#FF9C6B' },
+] as const;
 
-const TARGET_TEXT = '今天想聊点什么？';
-const RANDOM_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
-const BUTTON_BASE_CLASSES = "rounded-lg border border-token-border-light dark:border-token-border-dark hover:bg-gray-50 dark:hover:bg-gray-750 transition-all duration-200 ease-in-out";
-
-const ANIMATION = {
-  DELAY_UNIT: 50,
-  STABILITY_MAX: 3,
-  TITLE_INTERVAL: 50,
-  DONE_DELAY: 500,
+const MAIN_TEXT = '新年好';
+const EMOJI_TEXT = '！٩( \'ᴗ\' )و';
+const ANIMATION_DURATION = {
+  TITLE_START: 0,
+  TITLE_DURATION: 600,
+  EMOJI_START: 200,
+  EMOJI_DURATION: 600,
+  CHAT_START: 100,
+  CATEGORY_START: 400,
+  CATEGORY_STAGGER: 40
 } as const;
 
-// 自定义 Hook: 标题动画
-const useTitleAnimation = (targetText: string, randomChars: string) => {
-  const [title, setTitle] = useState('');
-  const [isDone, setIsDone] = useState(false);
-  
-  const randomChar = useCallback(() => 
-    randomChars[Math.floor(Math.random() * randomChars.length)],
-  [randomChars]);
+// 使用 CSS 动画代替 JS 动画
+const KEYFRAMES = `
+@keyframes mainTextReveal {
+  0% { 
+    transform: translateY(8px) scale(0.98);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  50% {
+    opacity: 0.8;
+    filter: blur(0);
+  }
+  100% { 
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
 
-  useEffect(() => {
-    let index = 0;
-    let stabilityCounter = 0;
-    
-    const interval = setInterval(() => {
-      setTitle(prev => {
-        if (prev === targetText) return prev;
-        
-        return Array.from({length: targetText.length}, (_, i) => {
-          if (i < index) return targetText[i];
-          if (i === index) return stabilityCounter < ANIMATION.STABILITY_MAX ? randomChar() : targetText[i];
-          return ' ';
-        }).join('');
-      });
+@keyframes emojiReveal {
+  0% {
+    transform: translateX(-4px) scale(0.96);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
 
-      stabilityCounter++;
-      if (stabilityCounter > ANIMATION.STABILITY_MAX) {
-        stabilityCounter = 0;
-        index++;
-      }
+@keyframes chatInputReveal {
+  0% {
+    transform: translateY(4px);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
 
-      if (index > targetText.length) {
-        clearInterval(interval);
-        setTimeout(() => setIsDone(true), ANIMATION.DONE_DELAY);
-      }
-    }, ANIMATION.TITLE_INTERVAL);
+@keyframes categoryAppear {
+  0% {
+    transform: translateY(6px) scale(0.98);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
 
-    return () => clearInterval(interval);
-  }, [targetText, randomChar]);
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
+    filter: blur(1px);
+  }
+  to { 
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+`;
 
-  return { title, isDone };
-};
-
+// 标题组件
+const Title = React.memo(function Title() {
+  return (
+    <div className="mb-6 text-center mt-4">
+      <style jsx global>{KEYFRAMES}</style>
+      <div className="inline-flex items-center gap-0.5">
+        <h1 
+          className="text-2xl font-bold text-red-500/90 dark:text-red-400/90 inline-block"
+          style={{
+            animation: `mainTextReveal ${ANIMATION_DURATION.TITLE_DURATION}ms ease-out forwards`,
+            animationDelay: `${ANIMATION_DURATION.TITLE_START}ms`,
+            opacity: 0
+          }}
+        >
+          {MAIN_TEXT}
+        </h1>
+        <span
+          className="text-2xl font-bold text-red-500/90 dark:text-red-400/90 inline-block"
+          style={{
+            animation: `emojiReveal ${ANIMATION_DURATION.EMOJI_DURATION}ms ease-out forwards`,
+            animationDelay: `${ANIMATION_DURATION.EMOJI_START}ms`,
+            opacity: 0
+          }}
+        >
+          {EMOJI_TEXT}
+        </span>
+      </div>
+    </div>
+  );
+});
 
 // 分类按钮组件
-const CategoryButton = React.memo<{ category: Category; index: number }>(
-  function CategoryButton({ category, index }) {
-    return (
-      <button
-        className={`${BUTTON_BASE_CLASSES} group relative overflow-hidden opacity-0 scale-90 animate-category-appear`}
+const CategoryButton = React.memo(function CategoryButton({ 
+  category, 
+  index 
+}: { 
+  category: typeof CATEGORIES[number];
+  index: number;
+}) {
+  return (
+    <motion.button
+      className="relative px-8 py-3 transition-all duration-300 ease-out group"
+      style={{
+        animation: 'categoryAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        animationDelay: `${ANIMATION_DURATION.CATEGORY_START + index * ANIMATION_DURATION.CATEGORY_STAGGER}ms`,
+        opacity: 0
+      }}
+      whileHover={{ 
+        scale: 1.02,
+        transition: { duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }
+      }}
+      whileTap={{ 
+        scale: 0.98,
+        transition: { duration: 0.1 }
+      }}
+    >
+      <div className="flex flex-col items-center space-y-2">
+        <span 
+          className="text-xl transform transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-110" 
+          style={{ color: category.color }}
+        >
+          {category.icon}
+        </span>
+        <span className="text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-300">
+          {category.title}
+        </span>
+      </div>
+      
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 
+                   pointer-events-none rounded-lg"
         style={{
-          animationDelay: `${index * ANIMATION.DELAY_UNIT}ms`,
-          animationFillMode: 'forwards'
+          background: `radial-gradient(circle at center, ${category.color}15 0%, transparent 70%)`
         }}
-      >
-        <div className="flex items-center p-2.5 space-x-1.5">
-          <span className="text-2xl" style={{ color: category.color }}>
-            {category.icon}
-          </span>
-          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-            {category.title}
-          </span>
-        </div>
-      </button>
-    );
-  }
-);
+      />
+    </motion.button>
+  );
+});
+
+// 分类按钮组
+const Categories = React.memo(function Categories() {
+  return (
+    <div className="mt-6">
+      <div className="max-w-2xl mx-auto">
+        <nav className="flex justify-center items-center space-x-4">
+          {CATEGORIES.map((category, index) => (
+            <CategoryButton 
+              key={category.title} 
+              category={category} 
+              index={index} 
+            />
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+});
 
 // 主组件
 export default function HomepageContent({ onFirstMessage, className }: HomepageContentProps) {
-  const { title, isDone } = useTitleAnimation(TARGET_TEXT, RANDOM_CHARS);
+  // 使用 useMemo 包装 ChatInputWrapper
+  const chatInput = useMemo(() => (
+    <div 
+      className="w-full mb-6"
+      style={{
+        animation: 'chatInputReveal 0.6s ease-out forwards',
+        animationDelay: `${ANIMATION_DURATION.CHAT_START}ms`,
+        opacity: 0
+      }}
+    >
+      <div className="mx-auto max-w-2xl">
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <ChatInputWrapper onFirstMessage={onFirstMessage}/>
+        </ErrorBoundary>
+      </div>
+    </div>
+  ), [onFirstMessage]);
 
   return (
-    <div className={`mx-auto flex h-full w-full flex-col text-base justify-center max-w-3xl ${className ?? ''}`}>
-      {/* 标题区域 */}
-      <div className="mb-8 text-center mt-0">
-        <div className={`transition-opacity duration-300 ease-out ${title ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="relative inline-flex justify-center text-center">
-            <h1 className="text-2xl font-semibold mb-4">
-              {title}
-            </h1>
-          </div>
-        </div>
-      </div>
-
-      {/* 输入框和分类区域 */}
+    <div 
+      className={`mx-auto flex h-full w-full flex-col text-base justify-center max-w-3xl ${className ?? ''}`}
+      style={{
+        animation: 'fadeIn 0.4s ease-out forwards'
+      }}
+    >
+      <Title />
       <div className="relative w-full px-4">
-        <div className="w-full">
-          <div className="mx-auto max-w-3xl">
-            <ErrorBoundary
-              FallbackComponent={(props) => (
-                <ErrorFallback 
-                  {...props}
-                  title="输入框加载失败"
-                  retryText="重新加载"
-                />
-              )}
-            >
-              <ChatInputWrapper onFirstMessage={onFirstMessage}/>
-            </ErrorBoundary>
-          </div>
-        </div>
-        
-        {/* 分类按钮区域 */}
-        {isDone && (
-          <motion.div
-            initial={{ height: 0 }}
-            animate={{ 
-              height: "auto",
-              transition: {
-                height: {
-                  duration: 0.4,
-                  ease: [0.25, 0.8, 0.25, 1]
-                }
-              }
-            }}
-            exit={{ height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="mt-6 max-w-3xl mx-auto">
-              <nav className="flex flex-wrap justify-center gap-4">
-                {CATEGORIES.map((category, index) => (
-                  <CategoryButton 
-                    key={category.title} 
-                    category={category} 
-                    index={index} 
-                  />
-                ))}
-                <button
-                  className={`${BUTTON_BASE_CLASSES} p-2 opacity-0 scale-90 animate-category-appear`}
-                  style={{
-                    animationDelay: `${CATEGORIES.length * ANIMATION.DELAY_UNIT}ms`,
-                    animationFillMode: 'forwards'
-                  }}
-                  aria-label="更多选项"
-                >
-                  <MoreHorizontal className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-                </button>
-              </nav>
-            </div>
-          </motion.div>
-        )}
+        {chatInput}
+        <Categories />
       </div>
     </div>
   );

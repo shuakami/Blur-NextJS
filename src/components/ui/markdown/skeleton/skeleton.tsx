@@ -37,9 +37,10 @@ export const InlineMathSkeleton = () => (
 );
 
 export const ImageSkeleton = () => (
-  <div className="my-4 w-full h-full skeleton-base-transition">
-    <div className="relative w-full overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/50 dark:via-gray-700/50 to-transparent skeleton-shine"></div>
-      <div className="flex items-center justify-center w-full h-80 bg-gray-50 dark:bg-gray-900/50">
+  <div className="relative w-full h-full skeleton-base-transition">
+    <div className="relative w-full pb-[56.25%] overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/50 dark:via-gray-700/50 to-transparent skeleton-shine"></div>
+      <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
         <svg 
           className="w-12 h-12 text-gray-300 dark:text-gray-600" 
           xmlns="http://www.w3.org/2000/svg" 

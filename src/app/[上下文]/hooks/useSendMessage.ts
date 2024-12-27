@@ -1,11 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { sendMessageAPI, stopStreamAPI } from '../api/chatAPI';
-import { FileInfo, Message } from '@/types/stream';
+import { FileInfo, Message, MessageFile, FileUploadInfo } from '@/types/stream';
 import dialogProcessor from '../core/DialogProcessor';
 import { Dispatch } from 'react';
 import { Action } from '../core/chatReducer';
-import { ImageData } from '@/types/stream';
 import { 
     MessageWithStatus, 
     RetryableMessage,
@@ -38,7 +37,7 @@ interface UseSendMessageProps {
 interface SendMessageOptions {
     message: string;
     model: string;
-    files?: File[];
+    files?: MessageFile[];
     conversationId?: string;
 }
 
@@ -57,6 +56,93 @@ const useSendMessage = ({
     const streamHandler = useRef<StreamMessageHandler>(new StreamMessageHandler(dispatch));
     const currentConversationIdRef = useRef<string | null>(null);
 
+    // 类型守卫函数集合
+    const typeGuards = {
+        isFile: (file: any): file is File => {
+            return file instanceof File;
+        },
+        isFileUploadInfo: (file: any): file is FileUploadInfo => {
+            if (!file || typeof file !== 'object') return false;
+            console.log('检查 FileUploadInfo:', {
+                hasFile: 'file' in file,
+                hasProgress: 'progress' in file,
+                hasIsUploading: 'isUploading' in file,
+                fileId: file.file_id,
+                fileInfo: file.file_info
+            });
+            return 'file' in file && 'progress' in file && 'isUploading' in file;
+        },
+        isFileInfo: (file: any): file is FileInfo => {
+            if (!file || typeof file !== 'object') return false;
+            console.log('检查 FileInfo:', {
+                hasFileId: 'file_id' in file,
+                hasFileType: 'file_type' in file,
+                hasName: 'name' in file,
+                noFile: !('file' in file)
+            });
+            // 放宽条件，只要有必要的字段就认为是 FileInfo
+            return 'file_id' in file && 'file_type' in file;
+        }
+    };
+
+    // 修改文件转换逻辑
+    const convertToFileInfo = useCallback((file: MessageFile): FileInfo => {
+        try {
+            console.log('转换文件:', file);
+            
+            if (typeGuards.isFileInfo(file)) {
+                console.log('文件是 FileInfo 类型');
+                return file;
+            }
+            if (typeGuards.isFileUploadInfo(file)) {
+                console.log('文件是 FileUploadInfo 类型');
+                return {
+                    file_id: file.file_id,
+                    name: file.file_info?.name || file.file.name,
+                    file_type: file.file_info?.type || file.file.type,
+                    size: file.file_info?.size || file.file.size,
+                    url: file.file_info?.url
+                };
+            }
+            if (typeGuards.isFile(file)) {
+                console.log('文件是 File 类型');
+                return {
+                    name: file.name,
+                    file_type: file.type,
+                    size: file.size,
+                    file_id: '', // 这种情况不应该发生，因为文件应该先上传
+                };
+            }
+            
+            // 如果是普通对象，尝试提取必要的信息
+            if (file && typeof file === 'object') {
+                console.log('尝试从普通对象提取文件信息');
+                const fileInfo = {
+                    file_id: (file as any).file_id || '',
+                    name: (file as any).name || (file as any).filename || '',
+                    file_type: (file as any).file_type || (file as any).type || '',
+                    size: (file as any).size || 0,
+                    url: (file as any).url
+                };
+                
+                if (fileInfo.file_id && fileInfo.file_type) {
+                    console.log('成功从普通对象提取文件信息');
+                    return fileInfo;
+                }
+            }
+            
+            console.error('无效的文件类型:', {
+                file,
+                type: typeof file,
+                keys: file ? Object.keys(file) : []
+            });
+            throw new Error(`无效的文件类型: ${file ? JSON.stringify(file) : 'undefined'}`);
+        } catch (error) {
+            console.error('文件转换失败:', error);
+            throw error;
+        }
+    }, []);
+
     // 状态更新工具
     const updateMessageStates = useCallback((updates: MessageUpdatePayload[]) => {
         updates.forEach(update => {
@@ -71,7 +157,7 @@ const useSendMessage = ({
     const initializeMessagePair = useCallback((
         message: string,
         existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus },
-        files?: File[]
+        files?: MessageFile[]
     ) => {
         if (existingPair?.userMessage && existingPair?.botMessage) {
             const userMessage = { 
@@ -102,8 +188,8 @@ const useSendMessage = ({
 
         const userMessage = createMessageWithStatus(
             {
-                ...dialogProcessor.createUserMessage(message, userImageUrl),
-                files
+                ...dialogProcessor.createUserMessage(message, userImageUrl, files?.map(convertToFileInfo)),
+                files: files?.map(convertToFileInfo)
             },
             'pending'
         );
@@ -116,7 +202,7 @@ const useSendMessage = ({
         addMessage(botMessage as Message);
 
         return { userMessage, botMessage };
-    }, [addMessage, updateMessageStates, userImageUrl]);
+    }, [addMessage, updateMessageStates, userImageUrl, convertToFileInfo]);
 
     // 流处理状态管理
     const handleStreamState = useCallback((
@@ -169,53 +255,13 @@ const useSendMessage = ({
         dispatch({ type: 'SET_LOADING', payload: false });
     }, [dispatch, t, updateMessageStates]);
 
-    // 添加工具函数
-    const convertFileToBase64 = async (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = reader.result as string;
-                // 移除 data:image/jpeg;base64, 前缀
-                resolve(base64.split(',')[1]);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    };
-
-    const processImageData = async (file: File | FileInfo): Promise<ImageData> => {
-        if ('base64_data' in file) {
-            // 已经是 base64 格式
-            return {
-                base64_data: file.base64_data || '',
-                image_type: file.type.split('/')[1] as 'jpeg' | 'jpg' | 'png'
-            };
-        } else if ('url' in file) {
-            // 如果是 URL，需要先获取文件再转换
-            const response = await fetch(file.url || '');
-            const blob = await response.blob();
-            const base64 = await convertFileToBase64(new File([blob], 'image', { type: file.type }));
-            return {
-                base64_data: base64,
-                image_type: file.type.split('/')[1] as 'jpeg' | 'jpg' | 'png'
-            };
-        } else {
-            // 浏览器 File 对象
-            const base64 = await convertFileToBase64(file as File);
-            return {
-                base64_data: base64,
-                image_type: file.type.split('/')[1] as 'jpeg' | 'jpg' | 'png'
-            };
-        }
-    };
-
     // [CORE] 发送消息逻辑
     const sendMessageCore = useCallback(async (
         message: string,
         model: string,
         inputConversationId?: string,
         existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus },
-        files?: File[]
+        files?: MessageFile[]
     ) => {
         console.log('sendMessageCore 接收到的文件:', files);
         if (!userId) {
@@ -238,15 +284,20 @@ const useSendMessage = ({
                 throw new Error(t('无法获取 JWT，用户未授权'));
             }
 
-            const images = await Promise.all(
-                (files || [])
-                    .filter(file => 
-                        ('type' in file && file.type.startsWith('image/')) || 
-                        ('url' in file) || 
-                        ('base64_data' in file)
-                    )
-                    .map(processImageData)
-            );
+            // 统一处理所有文件
+            const processedFiles = (files || [])
+                .map(file => {
+                    const fileInfo = convertToFileInfo(file);
+                    if (!fileInfo.file_id || !fileInfo.name || !fileInfo.file_type) {
+                        return null;
+                    }
+                    return {
+                        file_id: fileInfo.file_id,
+                        filename: fileInfo.name,
+                        file_type: fileInfo.file_type
+                    };
+                })
+                .filter((file): file is { file_id: string; filename: string; file_type: string } => file !== null);
 
             await sendMessageAPI({
                 userInput: message,
@@ -254,7 +305,7 @@ const useSendMessage = ({
                 token,
                 conversationId: activeConversationId,
                 model: model,
-                images: images.length > 0 ? images : undefined,
+                files: processedFiles.length > 0 ? processedFiles : undefined,
                 onInitialResponse: (initialResponse) => {
                     const conversationId = initialResponse.conversation_id;
                     if (!state.conversationId) {
@@ -265,7 +316,7 @@ const useSendMessage = ({
                         
                         console.log('设置新对话ID:', conversationId);
                         
-                        // 触发新对话事件，使用后端返回的标题
+                        // 发新对话事件，使用后端返回的标题
                         const newConversationEvent = new CustomEvent('addConversation', {
                             detail: {
                                 conversation_id: conversationId,
@@ -356,7 +407,9 @@ const useSendMessage = ({
         triggerConversationsReload,
         handleStreamState,
         handleMessageError,
-        initializeMessagePair
+        initializeMessagePair,
+        convertToFileInfo,
+        typeGuards
     ]);
 
     // 重试消息
@@ -386,7 +439,7 @@ const useSendMessage = ({
                     userMessage: userMessage as MessageWithStatus,
                     botMessage: botMessage as MessageWithStatus 
                 },
-                userMessage.files as File[]
+                userMessage.files as MessageFile[]
             );
         } catch (error) {
             console.error('重试失败:', error);
@@ -400,7 +453,7 @@ const useSendMessage = ({
         }
     }, [sendMessageCore, state.conversationId, handleMessageError, messagesRef]);
 
-    // 获取失败的消息
+    // 获取失败的���息
     const getFailedMessages = useCallback((): RetryableMessage[] => {
         return messagesRef.current.reduce((acc: RetryableMessage[], msg, index) => {
             if (msg.sendStatus === 'failed' && msg.type === 'user') {

@@ -46,6 +46,15 @@ export function useShortcuts() {
 
     // 添加对双击 Shift 的特殊处理
     const handleKeyDown = (e: KeyboardEvent) => {
+      // 如果当前焦点在输入框中，不处理双Shift快捷键
+      if (e.key === 'Shift' && (
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        document.activeElement?.tagName === 'SELECT'
+      )) {
+        return;
+      }
+
       if (e.key === 'Shift') {
         const now = Date.now()
         const timeDiff = now - shiftKeyState.current.lastPressed

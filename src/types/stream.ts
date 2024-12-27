@@ -1,7 +1,7 @@
 // src/types/stream.ts
 
-// 基础消息接口
-interface BaseMessage {
+// 基础消息属性
+interface IBaseMessageProps {
     message_id: string;
     content: string;
     timestamp: number;
@@ -10,11 +10,59 @@ interface BaseMessage {
     children_ids: string[];
     version: number;
     modified_count: number;
-    files: File[] | FileInfo[];
+    files?: (SimpleUploadedFile | File | FileInfo)[];
+}
+
+// 基础消息接口
+interface BaseMessage extends IBaseMessageProps {}
+
+// 插件相关字段
+interface IPluginFields {
+    plugin_id?: number;
+    plugin_name?: string;
+    call_index?: number;
+    plugin_response?: {
+        call_instance_id: string;
+        plugin_id: number;
+        plugin_name: string;
+        data: string;
+        timestamp: number;
+        add_context?: boolean;
+        plugin_list?: boolean;
+        display_order: number;
+        related_to: {
+            type: string;
+            id: string;
+        };
+    };
+}
+
+// 错误相关字段
+interface IErrorFields {
+    error?: {
+        code: number;
+        message: string;
+        details?: string;
+    };
+}
+
+// Agent 相关字段
+interface IAgentFields {
+    agent_id?: string;
+    agent_name?: string;
+    agent_status?: 'calling' | 'response';
+    agent_response?: {
+        call_instance_id: string;
+        agent_id: string;
+        agent_name: string;
+        data: any;
+        status: string;
+        timestamp: number;
+    };
 }
 
 // API消息接口
-export interface APIMessage extends BaseMessage {
+export interface APIMessage extends BaseMessage, IPluginFields, IErrorFields {
     role: 'system' | 'user' | 'assistant';
     plugin_responses?: PluginResponse[];
     more_content?: MoreContent[];
@@ -36,6 +84,7 @@ export interface Conversation {
     total_messages: number;
 }
 
+// StreamChunk 接口
 export interface StreamChunk {
     type: string;
     chunk_index: number;
@@ -52,7 +101,7 @@ export interface StreamChunk {
         details?: string;
     };
     agent_response?: AgentResponse;
-    
+
     // 插件相关字段
     plugin_id?: number;
     plugin_name?: string;
@@ -69,23 +118,24 @@ export interface StreamChunk {
         related_to: {
             type: string;
             id: string;
-        }
+        };
     };
 }
+
 export interface FinalInfo {
     isComplete?: boolean;
     total_tokens: number;
     generation_duration: number;
-    chat_title: string
+    chat_title: string;
 }
 
 export interface SendMessageParams {
     user_input: string;
+    user_id: string;
     conversation_id?: string;
     parent_message_id?: string;
-    user_id: string;
     model?: string;
-    images?: ImageData[];
+    files?: { file_id: string; filename: string; file_type: string }[];
 }
 
 export interface ImageData {
@@ -106,52 +156,51 @@ export interface SendMessageResponse {
 
 export type MessageStatus = 'pending' | 'sent' | 'failed' | 'retrying';
 
-export interface FileInfo {
-    name?: string;
-    type: string;
+// 简化的上传文件类型
+export interface SimpleUploadedFile {
+    file_id: string;
+    name: string;
+    file_type: string;
     size?: number;
-    base64_data?: string;
     url?: string;
-    // OSS 相关字段
-    bucket?: string;
-    file_type?: string;
-    key?: string;
-    md5?: string;
-    timestamp?: number;
 }
 
-export interface Message {
+// 文件信息接口
+export interface FileInfo extends SimpleUploadedFile {
+    created_at?: string;
+}
+
+// 文件上传信息接口
+export interface FileUploadInfo {
+    file: File;
+    file_id: string;
+    progress: number;
+    isUploading: boolean;
+    error?: string;
+    file_info?: {
+        name: string;
+        type: string;
+        size: number;
+        url?: string;
+    };
+}
+
+// 消息中的文件类型
+export type MessageFile = File | FileInfo | FileUploadInfo;
+
+// 消息接口
+export interface Message extends BaseMessage, IPluginFields, IAgentFields {
     id?: string;
-    message_id?: string;
     type: string;
     role?: 'system' | 'user' | 'assistant';
-    content: string;
     avatarUrl?: string;
-    timestamp?: number;
     isStreaming?: boolean;
-    status?: 'active' | 'inactive';
     parentId?: string;
-    childrenIds?: string[];
-    parent_message_id?: string;
     streamBuffer?: string;
-    version?: number;
-    modified_count?: number;
     isEdited?: boolean;
     edit_version?: number;
     original_message_id?: string;
     thought?: ThoughtProcess;
-    
-    // 插件相关字段
-    plugin_id?: number;
-    plugin_name?: string;
-    plugin_status?: 'calling' | 'response';
-    call_index?: number;
-    plugin_response?: {
-        plugin_id: number;
-        plugin_name: string;
-        data: any;
-        status: string;
-    };
 
     // 临时字段
     _temp_plugin_responses?: PluginResponse[];
@@ -165,24 +214,11 @@ export interface Message {
     };
 
     // 修改文件字段类型
-    files?: (File | FileInfo)[];  // 支持浏览器 File 对象和我们自己的 FileInfo 接口
+    files?: (SimpleUploadedFile | File | FileInfo)[];
 
     // 添加消息发送状态相关字段
     sendStatus?: MessageStatus;
     retryCount?: number;
-
-    // 新增 Agent 相关字段
-    agent_id?: string;
-    agent_name?: string;
-    agent_status?: 'calling' | 'response';
-    agent_response?: {
-        call_instance_id: string;
-        agent_id: string;
-        agent_name: string;
-        data: any;
-        status: string;
-        timestamp: number;
-    };
 
     // 添加模型字段
     model?: string;

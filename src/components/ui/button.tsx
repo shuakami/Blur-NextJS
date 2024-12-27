@@ -63,6 +63,16 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, rounded, asChild = false, loading, leftIcon, rightIcon, tooltip, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    
+    const spinnerColors = {
+      default: "text-white dark:text-black",
+      outline: "text-black dark:text-white",
+      ghost: "text-black dark:text-white",
+      warning: "text-black",
+      error: "text-white",
+      link: "text-primary"
+    }
+
     const button = (
       <Comp
         className={cn(buttonVariants({ variant, size, rounded, className }))}
@@ -70,7 +80,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={loading || props.disabled}
         {...props}
       >
-        {loading && <Spinner className="mr-2 h-3 w-3" />}
+        {loading && <Spinner className={cn("h-3 w-3", leftIcon ? "mr-2" : "mr-2 ml-2", spinnerColors[variant || "default"])} />}
         {!loading && leftIcon && <span className="mr-3">{leftIcon}</span>}
         {children}
         {!loading && rightIcon && <span className="ml-3">{rightIcon}</span>}

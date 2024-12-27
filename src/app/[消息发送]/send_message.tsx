@@ -8,7 +8,14 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
     : process.env.NEXT_PUBLIC_LOCAL_API_URL;
 
 export const sendMessage = async (
-    params: SendMessageParams, jwtToken: string, onInitialResponse: (response: SendMessageResponse) => void, onChunkReceived: (chunk: StreamChunk) => void, onFinalInfo?: (finalInfo: FinalInfo) => void, onError?: (error: any) => void, signal?: AbortSignal) => {
+    params: SendMessageParams, 
+    jwtToken: string, 
+    onInitialResponse: (response: SendMessageResponse) => void, 
+    onChunkReceived: (chunk: StreamChunk) => void, 
+    onFinalInfo?: (finalInfo: FinalInfo) => void, 
+    onError?: (error: any) => void, 
+    signal?: AbortSignal
+) => {
     const t = getTranslate();
 
     // 自定义的 onInitialResponse 处理函数
@@ -47,9 +54,9 @@ export const sendMessage = async (
             model: params.model,
         };
 
-        // 添加图片数据
-        if (params.images && params.images.length > 0) {
-            requestBody.images = params.images;
+        // 添加文件信息
+        if (params.files && params.files.length > 0) {
+            requestBody.files = params.files;
         }
 
         // 只有在有真实的 conversation_id 时才添加
@@ -67,7 +74,7 @@ export const sendMessage = async (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${jwtToken}`, // 使用传入的 JWT 进行身份验证
+                Authorization: `Bearer ${jwtToken}`,
             },
             body: JSON.stringify(requestBody),
         });

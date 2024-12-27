@@ -1,4 +1,4 @@
-import { Message, MessageStatus } from '@/types/stream';
+import { Message, MessageStatus, FileInfo, SimpleUploadedFile } from '@/types/stream';
 
 export interface MessageState {
     messages: Message[];
@@ -6,7 +6,7 @@ export interface MessageState {
         message: string;
         model: string;
         conversationId?: string;
-        files?: File[];
+        files?: (File | FileInfo | SimpleUploadedFile)[];
     }) => void;
     addMessage: (message: Message) => void;
     updateMessage: (messageId: string, updates: Partial<Message & { sendStatus?: MessageStatus }>) => void;

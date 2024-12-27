@@ -1,43 +1,51 @@
 // src/components/chat/chat-input/ChatInput.tsx
-import React, { useRef, useEffect, useCallback, useReducer, useState, memo } from 'react';
+import React, { useRef, useEffect, useCallback, useReducer, memo } from 'react';
 import useTranslation from '@/hooks/i18n/useTranslation';
 import { useChatStateContext } from '@/app/[上下文]/ChatContext';
 import { useShortcutManager } from '@/providers/ShortcutProvider';
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts';
+import { cn } from '@/lib/utils/utils';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { 
   CONSTANTS,
   chatInputReducer,
   useTextAreaResize,
   useFileUpload,
-  simulateFileUpload
+  FileUploadInfo
 } from './chat-input/hooks';
 import {
   SendButton,
-  UploadButton
+  UploadButton,
+  RobotButton
 } from './chat-input/components';
 import {
-    FilePreview,
-    GlobalDropZone
+  FilePreview,
+  GlobalDropZone
 } from './chat-input/file-upload';
 
-// Types
 interface ChatInputProps {
-  onSend: (message: string, files?: File[]) => void;
+  onSend: (message: string, files?: FileUploadInfo[]) => void;
   placeholder?: string; 
   maxLength?: number;
+  userId: string;
+  jwtToken: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = memo(({
   onSend,
   placeholder = '给 Blur 发送消息',
-  maxLength = CONSTANTS.DEFAULT_MAX_LENGTH
+  maxLength = CONSTANTS.DEFAULT_MAX_LENGTH,
+  userId,
+  jwtToken
 }) => {
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isStreaming, stopStreaming } = useChatStateContext();
   const shortcutManager = useShortcutManager();
-  const [uploadStatus, setUploadStatus] = useState<Record<string, { progress: number; error?: string }>>({});
+  
+  // 使用userId判断登录状态
+  const isLoggedIn = Boolean(userId && jwtToken);
 
   const [state, dispatch] = useReducer(chatInputReducer, {
     message: '',
@@ -47,22 +55,43 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
   });
 
   const updateHeight = useTextAreaResize(textareaRef);
-  const { fileInputRef, handleUploadClick } = useFileUpload();
+  const { fileInputRef, handleUploadClick, handleFiles } = useFileUpload({
+    userId,
+    jwtToken,
+    dispatch
+  });
+
+  // 检查是否可以发送消息
+  const canSend = useCallback(() => {
+    if (isStreaming || state.isSending) return false;
+    if (!state.message.trim() && state.files.length === 0) return false;
+    
+    // 检查非图片文件上传状态
+    const hasUnfinishedUploads = state.files.some(
+      file => !file.file.type.startsWith('image/') && 
+      (file.isUploading || file.error || !file.file_id)
+    );
+    
+    return !hasUnfinishedUploads;
+  }, [isStreaming, state.message, state.files, state.isSending]);
+
+  // 重置状态
+  const resetState = useCallback(() => {
+    dispatch({ type: 'SET_MESSAGE', payload: '' });
+    dispatch({ type: 'CLEAR_FILES' });
+    if (textareaRef.current) {
+      textareaRef.current.style.height = `${CONSTANTS.INITIAL_HEIGHT}px`;
+    }
+  }, []);
 
   // 处理消息输入
   const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newMessage = e.target.value;
-    if (newMessage.length <= maxLength) {
+    if (newMessage.length <= maxLength && newMessage !== state.message) {
       dispatch({ type: 'SET_MESSAGE', payload: newMessage });
       queueMicrotask(updateHeight);
     }
-  }, [maxLength, updateHeight]);
-
-  // 处理文件上传
-  const handleFileUpload = useCallback((uploadedFiles: File[]) => {
-    console.log('文件上传:', uploadedFiles);
-    dispatch({ type: 'ADD_FILES', payload: uploadedFiles });
-  }, []);
+  }, [maxLength, updateHeight, state.message]);
 
   // 处理文件删除
   const handleFileRemove = useCallback((index: number) => {
@@ -71,23 +100,19 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
 
   // 处理消息发送
   const handleSend = useCallback(async () => {
-    console.log('发送前的文件状态:', state.files);
-    if (isStreaming || (!state.message.trim() && state.files.length === 0) || state.isSending) return;
+    if (!canSend()) return;
     
     dispatch({ type: 'SET_SENDING', payload: true });
     try {
-      await onSend(state.message, state.files.length > 0 ? state.files : undefined);
-      dispatch({ type: 'SET_MESSAGE', payload: '' });
-      dispatch({ type: 'CLEAR_FILES' });
-      if (textareaRef.current) {
-        textareaRef.current.style.height = `${CONSTANTS.INITIAL_HEIGHT}px`;
-      }
+      await onSend(state.message, state.files);
+      resetState();
     } catch (error) {
       console.error('发送消息失败:', error);
     } finally {
       dispatch({ type: 'SET_SENDING', payload: false });
     }
-  }, [state.message, state.files, state.isSending, isStreaming, onSend]);
+  }, [state.message, state.files, canSend, onSend, resetState]);
+  
   // 处理键盘事件
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
@@ -96,30 +121,15 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
     }
   }, [handleSend]);
 
+  // 处理粘贴事件
   const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    // 处理文件粘贴
     const pastedFiles = Array.from(e.clipboardData.files);
     if (pastedFiles.length > 0) {
       e.preventDefault();
-      handleFileUpload(pastedFiles);
+      handleFiles(pastedFiles);
       return;
     }
-
-    // 处理文本粘贴
-    const pastedText = e.clipboardData.getData('text');
-    const currentText = e.currentTarget.value;
-    const selectionStart = e.currentTarget.selectionStart;
-    const selectionEnd = e.currentTarget.selectionEnd;
-
-    const newText = currentText.slice(0, selectionStart) + pastedText + currentText.slice(selectionEnd);
-
-    if (newText.length > maxLength) {
-      e.preventDefault();
-      const truncatedText = newText.slice(0, maxLength);
-      dispatch({ type: 'SET_MESSAGE', payload: truncatedText });
-      queueMicrotask(updateHeight);
-    }
-  }, [maxLength, updateHeight, handleFileUpload]);
+  }, [handleFiles]);
 
   // 聚焦输入框
   const focusInput = useCallback(() => {
@@ -168,37 +178,61 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
 
   return (
     <>
-      <GlobalDropZone onDrop={handleFileUpload} />
+      {isLoggedIn && <GlobalDropZone onDrop={handleFiles} />}
       <div className="relative">
-        <input 
-          ref={fileInputRef} 
-          type="file" 
-          className="hidden"
-          aria-label="文件上传"
-          title="选择要上传的文件"
-          onChange={(e) => {
-            const files = Array.from(e.target.files || []);
-            handleFileUpload(files);
-            e.target.value = ''; // 重置input
-          }}
-          multiple
-        />
-        <div className="max-w-3xl mx-auto">
-          <FilePreview 
-            files={state.files}
-            uploadStatus={uploadStatus}
-            onRemove={handleFileRemove}
+        {isLoggedIn && (
+          <input 
+            ref={fileInputRef} 
+            type="file" 
+            className="hidden"
+            aria-label="文件上传"
+            title="选择要上传的文件"
+            onChange={(e) => {
+              const files = Array.from(e.target.files || []);
+              handleFiles(files);
+              e.target.value = ''; // 重置input
+            }}
+            multiple
           />
+        )}
+        <div className="max-w-3xl mx-auto">
+          {isLoggedIn && (
+            <AnimatePresence>
+              {state.files.length > 0 && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ 
+                    duration: 0.2,
+                    ease: "easeOut"
+                  }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <FilePreview 
+                    files={state.files}
+                    onRemove={handleFileRemove}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
           <div className="px-4">
             <div className="relative flex w-full items-center">
               <div className="group relative flex w-full flex-col">
                 <div className="flex w-full items-end rounded-[26px] p-2 
                               bg-[#f4f4f4] dark:bg-[#2a2a2a] 
                               transition-colors duration-200">
-                  <div className="mb-1 ms-0.5">
-                    <UploadButton onClick={handleUploadClick} />
-                  </div>
-                  <div className="flex min-w-0 flex-1 flex-col pl-2">
+                  {isLoggedIn && (
+                    <div className="flex items-center gap-1 mb-1 ms-0.5">
+                      <UploadButton onClick={handleUploadClick} />
+                      <RobotButton onClick={() => {}} />
+                    </div>
+                  )}
+                  <div className={cn(
+                    "flex min-w-0 flex-1 flex-col",
+                    isLoggedIn ? "pl-2" : "pl-4"
+                  )}>
                     <textarea
                       ref={textareaRef}
                       value={state.message}
@@ -209,12 +243,9 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
                       rows={1}
                       className="block w-full resize-none bg-transparent py-2 
                                text-[15px] leading-6 
-                               text-gray-900 dark:text-gray-100
+                               text-black dark:text-white
                                placeholder:text-gray-500 dark:placeholder:text-gray-400
                                focus:outline-none
-                               scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600
-                               scrollbar-track-transparent
-                               transition-none
                                min-h-[${CONSTANTS.MIN_HEIGHT}px] max-h-[${CONSTANTS.MAX_HEIGHT}px]"
                     />
                   </div>

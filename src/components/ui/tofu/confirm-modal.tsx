@@ -74,7 +74,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                             variant="ghost"
                             onClick={onClose}
                             className="h-10 px-5 text-sm font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600"
-                            loading={isLoading}
+                            disabled={isLoading}
                         >
                             {cancelText}
                         </Button>
