@@ -202,6 +202,7 @@ export interface Message extends BaseMessage, IPluginFields, IAgentFields {
     edit_version?: number;
     original_message_id?: string;
     thought?: ThoughtProcess;
+    childrenIds?: string[];
 
     // 临时字段
     _temp_plugin_responses?: PluginResponse[];

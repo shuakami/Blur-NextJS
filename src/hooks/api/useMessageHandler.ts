@@ -30,6 +30,7 @@ export const useMessageHandler = (user: User | null) => {
     const formatHistoryMessages = useCallback((historyMessages: APIMessage[]): Message[] => {
         return historyMessages.map((msg: APIMessage): Message => ({
             id: msg.message_id,
+            message_id: msg.message_id,
             type: msg.role === 'assistant' ? 'bot' : 'user',
             content: msg.content,
             avatarUrl: msg.role === 'assistant' 
