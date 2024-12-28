@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import clientPromise from '../../../lib/db/mongodb';
-import { checkRateLimit } from '../../../lib/security/rate-limit';
+import clientPromise from '@/lib/db/mongodb';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 // 常量定义
 const RATE_LIMIT = 50; // 每小时最多50次反馈
@@ -10,9 +9,8 @@ const RATE_LIMIT_WINDOW = '1 h';
 export async function POST(req: NextRequest) {
     try {
         // 获取 IP 地址用于速率限制
-        const headersList = headers();
-        const ip = headersList.get('x-vercel-ip') || 
-                  headersList.get('x-forwarded-for')?.split(',')[0] || 
+        const ip = req.headers.get('x-vercel-ip') || 
+                  req.headers.get('x-forwarded-for')?.split(',')[0] || 
                   'unknown';
 
         // 速率限制检查

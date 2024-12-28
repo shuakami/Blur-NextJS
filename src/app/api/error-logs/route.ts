@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import clientPromise from '../../../lib/db/mongodb';
-import { validateErrorLog } from '../../../lib/security/validate-error-log';
-import { checkRateLimit } from '../../../lib/security/rate-limit';
-import { sanitizeErrorLog } from '../../../lib/security/sanitize-error-log';
+import clientPromise from '@/lib/db/mongodb';
+import { validateErrorLog } from '@/lib/security/validate-error-log';
+import { checkRateLimit } from '@/lib/security/rate-limit';
+import { sanitizeErrorLog } from '@/lib/security/sanitize-error-log';
 import { auth } from '@clerk/nextjs/server';
 
 // 常量定义
@@ -19,9 +18,8 @@ interface ErrorResponse {
 
 export async function POST(req: NextRequest) {
     try {
-        const headersList = headers();
-        const ip = headersList.get('x-vercel-ip') || 
-                  headersList.get('x-forwarded-for')?.split(',')[0] || 
+        const ip = req.headers.get('x-vercel-ip') || 
+                  req.headers.get('x-forwarded-for')?.split(',')[0] || 
                   'unknown';
 
         // 速率限制
