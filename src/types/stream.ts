@@ -6,10 +6,10 @@ interface IBaseMessageProps {
     content: string;
     timestamp: number;
     status: 'active' | 'inactive';
-    parent_id: string | null;
-    children_ids: string[];
-    version: number;
-    modified_count: number;
+    parent_id?: string | null;
+    children_ids?: string[];
+    version?: number;
+    modified_count?: number;
     files?: (SimpleUploadedFile | File | FileInfo)[];
 }
 

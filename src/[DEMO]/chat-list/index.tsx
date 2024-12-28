@@ -489,30 +489,40 @@ const streamingMessages: Message[] = [
         name: "example.png",
         type: "image/png",
         size: 1024,
+        file_id: "1734398773_0",
+        file_type: "image/png",
         url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
       },
       {
         name: "example.png",
         type: "image/png",
         size: 1024,
+        file_id: "1734398773_0",
+        file_type: "image/png",
         url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
       },
       {
         name: "example.png",
         type: "image/png",
         size: 1024,
+        file_id: "1734398773_0",
+        file_type: "image/png",
         url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
       },
       {
         name: "example.png",
         type: "image/png",
         size: 1024,
+        file_id: "1734398773_0",
+        file_type: "image/png",
         url: "http://oss.cdn.sdjz.wiki/users/user_2mFFQeAcORNsVJF186DOVnYAmz4/conversations/8323ec7f-c3e6-4a98-a9c4-5685bf29a420/images/1734398773_0.jpeg",
       },
       {
         name: "example.png",
         type: "image/png",
         size: 1024,
+        file_id: "1734402586_0",
+        file_type: "image/png",
         url: "http://localhost:3000/_next/image?url=https%3A%2F%2Foss.cdn.sdjz.wiki%2Fusers%2Fuser_2mFFQeAcORNsVJF186DOVnYAmz4%2Fconversations%2Ffcd63d7b-6d32-4e36-aeda-18eb4ec66c9c%2Ffiles%2F1734402586_0.jpeg&w=1024&q=75",
       },
     ],
@@ -596,6 +606,7 @@ const loadingMessages: Message[] = [
     type: "bot",
     content: "正在生成文章，请稍候...",
     timestamp: Date.now() + 1000,
+    status: "active",
   }
 ]
 
