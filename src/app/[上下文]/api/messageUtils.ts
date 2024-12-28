@@ -88,8 +88,11 @@ export const createMessage = {
      * @param options - 创建选项
      */
     user: (content: string, options: CreateMessageOptions = {}): Message => ({
+        message_id: `msg_${Date.now()}`,
         type: 'user',
         content,
+        timestamp: Math.floor(Date.now() / 1000),
+        status: 'active',
         avatarUrl: options.userImageUrl || MESSAGE_CONFIG.AVATARS.USER_DEFAULT,
     }),
 
@@ -100,8 +103,11 @@ export const createMessage = {
      * @param options - 创建选项
      */
     bot: (content: string = '', isStreaming: boolean = true, options: CreateMessageOptions = {}): Message => ({
+        message_id: `msg_${Date.now()}`,
         type: 'bot',
         content,
+        timestamp: Math.floor(Date.now() / 1000),
+        status: 'active',
         avatarUrl: options.botImageUrl || MESSAGE_CONFIG.AVATARS.BOT,
         isStreaming,
     }),
@@ -111,8 +117,11 @@ export const createMessage = {
      * @param content - 错误内容
      */
     error: (content: string): Message => ({
+        message_id: `msg_${Date.now()}`,
         type: 'error',
         content,
+        timestamp: Math.floor(Date.now() / 1000),
+        status: 'active',
         avatarUrl: '',
     })
 }; 
