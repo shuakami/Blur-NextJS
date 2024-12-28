@@ -12,22 +12,34 @@ const FILE_TYPE_CONFIG = {
         // 文档类型
         '.pdf', '.doc', '.docx', '.xls', '.xlsx',
         '.ppt', '.pptx', '.txt', '.rtf', '.odt',
-        '.ods', '.odp', '.csv', '.md'
+        '.ods', '.odp', '.csv', '.md', '.mdx',
+        '.json', '.xml', '.yaml', '.yml', '.toml',
+         '.ini', '.conf', '.cfg', '.properties', '.env',
     ],
     images: [
         // 图片类型
         '.jpg', '.jpeg', '.png', '.gif', '.bmp',
-        '.webp', '.svg', '.tiff'
+        '.webp', '.svg', '.tiff', '.ico', '.heic', '.heif'
     ],
     archives: [
         // 压缩文件
-        '.zip', '.rar', '.7z', '.tar', '.gz'
+        '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz', '.iso', '.log',
+        // 音视频类型
+        '.mp3', '.wav', '.aac', '.flac', '.mp4', '.avi', '.mkv', '.mov', '.wmv'
     ],
     code: [
         // 代码文件
         '.json', '.xml', '.yaml', '.yml',
-        '.js', '.ts', '.jsx', '.tsx',
-        '.html', '.css', '.scss', '.less'
+        '.js', '.ts', '.jsx', '.tsx', '.vue',
+        '.html', '.css', '.scss', '.less', '.sass',
+        '.py', '.java', '.c', '.cpp', '.h', '.hpp',
+        '.go', '.php', '.rb', '.swift', '.kt',
+        '.rs', '.dart', '.elixir', '.erlang', '.haskell',
+        '.ocaml', '.pascal', '.perl', '.prolog', '.scala',
+        '.sql', '.kotlin', '.groovy', '.rust', '.typescript',
+        '.kotlin', '.groovy', '.rust', '.typescript',
+        '.sql', '.kotlin', '.groovy', '.rust', '.typescript',
+        '.sql', '.kotlin', '.groovy', '.rust', '.typescript',
     ]
 } as const;
 

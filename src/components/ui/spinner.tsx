@@ -19,7 +19,7 @@ export function Spinner({ size = 20, className }: SpinnerProps) {
           key={i}
           className={cn(
             "absolute",
-            "bg-current",
+            "bg-gray-800 dark:bg-gray-600",
             "rounded-[var(--radius)]",
             {
               'animate-spinner-1': i === 0,

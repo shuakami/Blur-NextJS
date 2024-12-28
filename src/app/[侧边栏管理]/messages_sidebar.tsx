@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useEffect, useMemo, memo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo, memo, useRef } from 'react';
+import { fetchConversations } from '@/app/[侧边栏管理]/fetch_conversations';
 import ChatSidebar from '@/components/chat/chat_sidebar';
 import { useUser } from '@clerk/nextjs';
 import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
+import { useConversations } from "../[对话管理]/ConversationsContext";
 import useTranslation from '../../hooks/i18n/useTranslation';
 import type { Conversation } from './types';
-import { useSidebar } from './SidebarContext';
-import { useConversations } from '../[对话管理]/ConversationsContext';
+
+// 常量定义
+const LIMIT = 20;
 
 // 日期缓存
 const dateCache = new Map<number, string>();
@@ -57,25 +60,90 @@ const groupConversationsByDate = (conversations: Conversation[], t: (key: string
 
 interface MessagesSidebarProps {
     onClose?: () => void;
+    onUpdateConversations?: (loadConversations: () => void) => void;
 }
 
-const MessagesSidebar = memo<MessagesSidebarProps>(({onClose}) => {
+interface SidebarState {
+    loading: boolean;
+    hasMore: boolean;
+    offset: number;
+    error: Error | null;
+}
+
+const MessagesSidebar = memo<MessagesSidebarProps>(({onClose, onUpdateConversations}) => {
     const { t } = useTranslation();
     const { isSignedIn, user, isLoaded } = useUser();
-    const { 
-        conversations, 
-        loading, 
-        hasMore, 
-        loadConversations 
-    } = useSidebar();
-    const { conversations: contextConversations } = useConversations();
+    const { conversations, setConversations } = useConversations();
+    
+    // 跟踪加载状态
+    const loadingRef = useRef(false);
+    
+    const [state, setState] = useState<SidebarState>({
+        loading: true,
+        hasMore: true,
+        offset: 0,
+        error: null
+    });
+    
+    // 会话加载
+    const loadConversations = useCallback(async (isInitial = false) => {
+        if (!user?.id || (!isInitial && !state.hasMore) || loadingRef.current) return;
+        
+        loadingRef.current = true;
+        
+        if (isInitial) {
+            setState(prev => ({ ...prev, loading: true, error: null }));
+        }
+        
+        try {
+            const currentOffset = isInitial ? 0 : state.offset;
+            const result = await fetchConversations(user.id, {
+                limit: LIMIT,
+                offset: currentOffset
+            });
+            
+            setConversations(prev => {
+                if (isInitial) return result.conversations;
+                
+                // 使用 Set 优化查重
+                const existingIds = new Set(prev.map(p => p.conversation_id));
+                const newConvos = result.conversations.filter(c => 
+                    !existingIds.has(c.conversation_id)
+                );
+                
+                return [...prev, ...newConvos];
+            });
+            
+            setState(prev => ({
+                loading: false,
+                hasMore: result.hasMore,
+                offset: currentOffset + result.conversations.length,
+                error: null
+            }));
+        } catch (err) {
+            console.error('Load conversations error:', err);
+            setState(prev => ({
+                ...prev,
+                loading: false,
+                error: err as Error
+            }));
+        } finally {
+            loadingRef.current = false;
+        }
+    }, [user?.id, state.hasMore, state.offset, setConversations]);
 
     // 初始加载
     useEffect(() => {
-        if (isSignedIn && user?.id) {
+        let mounted = true;
+        
+        if (isSignedIn && user?.id && state.loading && mounted) {
             loadConversations(true);
         }
-    }, [isSignedIn, user?.id, loadConversations]);
+        
+        return () => {
+            mounted = false;
+        };
+    }, [isSignedIn, user?.id, state.loading, loadConversations]);
 
     // 优化侧边栏项目计算
     const sidebarItems = useMemo(() => 
@@ -95,6 +163,11 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({onClose}) => {
         return <UnauthenticatedSidebar onClose={onClose || (() => {})} />;
     }
     
+    // 错误处理
+    if (state.error) {
+        console.error('Sidebar error:', state.error);
+    }
+    
     return (
         <ChatSidebar 
             items={sidebarItems} 
@@ -102,8 +175,8 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({onClose}) => {
             onClose={onClose || (() => {})} 
             onUpdateConversations={() => loadConversations(true)}
             onLoadMore={() => loadConversations(false)}
-            hasMore={hasMore}
-            loading={loading}
+            hasMore={state.hasMore}
+            loading={state.loading}
         />
     );
 });

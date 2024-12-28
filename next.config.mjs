@@ -4,13 +4,12 @@ const analyzeBundles = withBundleAnalyzer({
     enabled: process.env.ANALYZE === 'true',
     openAnalyzer: true,
     analyzerMode: 'server',
-analyzerPort: 'auto',
+    analyzerPort: 'auto',
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     // 编译优化
-    swcMinify: true,
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production',
         styledComponents: true,

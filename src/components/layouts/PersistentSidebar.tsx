@@ -3,7 +3,7 @@ import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
 import { useLayout } from './LayoutContext';
 import styles from './PersistentSidebar.module.css';
 
-const PersistentSidebar = memo(() => {
+const PersistentSidebar = (() => {
     const { isSidebarOpen, toggleSidebar, isMobile } = useLayout();
 
     return (
@@ -26,7 +26,5 @@ const PersistentSidebar = memo(() => {
         </div>
     );
 });
-
-PersistentSidebar.displayName = 'PersistentSidebar';
 
 export default PersistentSidebar; 

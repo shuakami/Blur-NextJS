@@ -21,6 +21,7 @@ interface IPluginFields {
     plugin_id?: number;
     plugin_name?: string;
     call_index?: number;
+    plugin_status?: 'calling' | 'response';
     plugin_response?: {
         call_instance_id: string;
         plugin_id: number;

@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useUser } from '@clerk/nextjs';
 import useTranslation from '../../../hooks/i18n/useTranslation';
-import { Message, MessageStatus } from '@/types/stream';
+import { Message, MessageStatus, FileInfo, SimpleUploadedFile } from '@/types/stream';
 import '@/app/[上下文]/plugins';
 
 import { chatReducer, initialState } from '@/app/[上下文]/core/chatReducer';
@@ -17,7 +17,7 @@ interface ChatReturn {
         message: string;
         model: string;
         conversationId?: string;
-        files?: File[];
+        files?: (File | FileInfo | SimpleUploadedFile)[];
     }) => void;
     addMessage: (message: Message) => void;
     updateMessage: (messageId: string, updates: Partial<Message & { sendStatus?: MessageStatus }>) => void;

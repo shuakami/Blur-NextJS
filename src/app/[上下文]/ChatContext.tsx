@@ -3,6 +3,7 @@ import useChat from './hooks/useChat';
 import { MessageProvider } from './contexts/MessageContext';
 import { ConversationProvider } from './contexts/ConversationContext';
 import { ChatStateProvider } from './contexts/ChatStateContext';
+import { MessageState } from './types/chat';
 
 const MemoizedMessageProvider = React.memo(MessageProvider);
 const MemoizedConversationProvider = React.memo(ConversationProvider);
@@ -14,7 +15,7 @@ export const ChatProvider: React.FC<{
 }> = ({ children, initialConversationId }) => {
     const chat = useChat(initialConversationId);
 
-    const memoizedMessageMethods = useMemo(() => ({
+    const memoizedMessageMethods = useMemo<Omit<MessageState, 'messages'>>(() => ({
         addMessage: chat.addMessage,
         updateMessage: chat.updateMessage,
         clearMessages: chat.clearMessages,
@@ -30,11 +31,11 @@ export const ChatProvider: React.FC<{
         chat.retryMessage
     ]);
 
-    const messageState = useMemo(() => ({
+    const messageState = useMemo<Pick<MessageState, 'messages'>>(() => ({
         messages: chat.messages
     }), [chat.messages]);
 
-    const messageValue = useMemo(() => ({
+    const messageValue = useMemo<MessageState>(() => ({
         ...messageState,
         ...memoizedMessageMethods
     }), [messageState, memoizedMessageMethods]);

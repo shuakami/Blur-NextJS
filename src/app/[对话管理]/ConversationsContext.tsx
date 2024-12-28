@@ -19,12 +19,18 @@ interface ConversationsContextType {
 const ConversationsContext = createContext<ConversationsContextType | undefined>(undefined);
 
 export const ConversationsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [processedIds] = useState(() => new Set<string>());
+    const processedIds = React.useRef(new Set<string>());
     const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [recentConversations, setRecentConversations] = useState<Conversation[]>([]);
+
+    const recentConversations = useMemo(() => {
+        return [...conversations]
+            .sort((a, b) => b.timestamp - a.timestamp)
+            .slice(0, 5);
+    }, [conversations]);
 
     const removeConversation = useCallback((conversationId: string) => {
         setConversations(prev => prev.filter(conv => conv.conversation_id !== conversationId));
+        processedIds.current.delete(conversationId);
     }, []);
 
     const updateConversationTitle = useCallback((conversationId: string, newTitle: string) => {
@@ -35,53 +41,32 @@ export const ConversationsProvider: React.FC<{ children: ReactNode }> = ({ child
         ));
     }, []);
 
-    const updateRecentConversations = useCallback(() => {
-        setRecentConversations(conversations
-            .sort((a, b) => b.timestamp - a.timestamp)
-            .slice(0, 5));
-    }, [conversations]);
-
     const handleAddConversation = useCallback((event: CustomEvent<Conversation>) => {
         const newConversation = event.detail;
-
+        
         setConversations(prev => {
-            if (processedIds.has(newConversation.conversation_id)) {
-                console.log('跳过重复的对话:', newConversation.conversation_id);
+            if (processedIds.current.has(newConversation.conversation_id)) {
                 return prev;
             }
-
-            processedIds.add(newConversation.conversation_id);
-            console.log('添加新对话:', newConversation.conversation_id);
-
+            processedIds.current.add(newConversation.conversation_id);
             return [newConversation, ...prev];
         });
+    }, []);
 
-        updateRecentConversations();
-    }, [processedIds, updateRecentConversations]);
+    const handleUpdateTitle = useCallback((event: CustomEvent<{conversation_id: string, chat_title: string}>) => {
+        const { conversation_id, chat_title } = event.detail;
+        updateConversationTitle(conversation_id, chat_title);
+    }, [updateConversationTitle]);
 
     React.useEffect(() => {
         window.addEventListener('addConversation', handleAddConversation as EventListener);
+        window.addEventListener('updateConversationTitle', handleUpdateTitle as EventListener);
+        
         return () => {
             window.removeEventListener('addConversation', handleAddConversation as EventListener);
-        };
-    }, [handleAddConversation]);
-
-    React.useEffect(() => {
-        updateRecentConversations();
-    }, [conversations, updateRecentConversations]);
-
-    React.useEffect(() => {
-        const handleUpdateTitle = (event: CustomEvent<{conversation_id: string, chat_title: string}>) => {
-            console.log('收到更新标题事件:', event.detail);
-            const { conversation_id, chat_title } = event.detail;
-            updateConversationTitle(conversation_id, chat_title);
-        };
-
-        window.addEventListener('updateConversationTitle', handleUpdateTitle as EventListener);
-        return () => {
             window.removeEventListener('updateConversationTitle', handleUpdateTitle as EventListener);
         };
-    }, [updateConversationTitle]);
+    }, [handleAddConversation, handleUpdateTitle]);
 
     const value = useMemo(() => ({
         conversations,

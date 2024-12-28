@@ -30,7 +30,7 @@ const STYLES = {
       "w-full md:max-w-[420px]",
       "bottom-0 right-0",
       "[--hover:0] hover:[--hover:1]",
-      "transition-[--hover] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+      "transition-[--hover] duration-500 ease-[cubic-bezier(0.34\,1.56\,0.64\,1)]"
     )
   },
   variants: {
@@ -65,13 +65,13 @@ const toastVariants = cva(
     "p-5 rounded-xl backdrop-blur-sm overflow-hidden",
     "transform-gpu will-change-[transform,opacity]",
     "motion-safe:transition-all      motion-safe:duration-500",
-    "motion-safe:ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+    "motion-safe:ease-[cubic-bezier(0.34\,1.56\,0.64\,1)]",
     
     // Animations
     "data-[state=open]:animate-in data-[state=open]:fade-in-0",
     "data-[state=open]:slide-in-from-bottom-full",
     "data-[state=open]:duration-500",
-    "data-[state=open]:ease-[cubic-bezier(0.22,1,0.36,1)]",
+    "data-[state\=open]:ease-[cubic-bezier(0.22\,1\,0.36\,1)]",
     "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
     "data-[state=closed]:slide-out-to-bottom-4",
     "data-[state=closed]:duration-300 data-[state=closed]:ease-in",

@@ -11,6 +11,7 @@ import { useLayout } from '@/components/layouts/LayoutContext';
 import { Route } from 'next';
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
 import styles from './SharedChatLayout.module.css';
+import PersistentSidebar from './PersistentSidebar';
 
 
 // 动态导入非关键组件
@@ -119,7 +120,7 @@ export function SharedChatLayout({
             >
                 {/* 侧边栏占位 */}
                 <div className={`${styles['sidebar-placeholder']} flex-shrink-0 transition-[width] duration-300 ease-in-out`} />
-                
+                <PersistentSidebar />
                 {/* 主内容区 */}
                 <div className="flex-1 flex flex-col h-full w-full min-w-0 overflow-hidden">
                     {/* 头部工具栏 */}

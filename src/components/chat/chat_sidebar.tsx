@@ -10,33 +10,15 @@ import { MessageCirclePlus, SidebarCloseIcon, Stars } from "lucide-react";
 import useTranslation from '../../hooks/i18n/useTranslation';
 import dayjs from 'dayjs';
 import { cn } from '../../lib/utils/utils';
-import dynamic from 'next/dynamic';
 import { useShortcutManager } from '@/providers/ShortcutProvider';
 import { SHORTCUT_DESCRIPTIONS, SHORTCUTS } from '@/constants/shortcuts';
 import { useConversationContext } from '@/app/[上下文]/contexts';
 import { Route } from 'next';
-
-// 动态导入组件
-const UserInfo = dynamic(() => import('./chat_sidebar/UserInfo'), {
-    ssr: false,
-    loading: () => <div className="h-16 bg-background/50" />
-});
-
-const LoadingDots = dynamic(() => import('@/components/ui/loading-dots').then(mod => mod.default), {
-    ssr: false,
-    loading: () => null
-});
+import LoadingDots from '@/components/ui/loading-dots';
+import UserInfo from './chat_sidebar/UserInfo';
 
 // 常量定义
-const ANIMATION_CLASSES = {
-    container: "transition-all duration-300 ease-out",
-    item: "animate-slideInDown",
-    fadeIn: "animate-fadeIn",
-    stagger: "animate-stagger"
-};
-
 const SCROLL_THRESHOLD = 0.5;
-const ANIMATION_DELAY = 0.1;
 
 // 类型定义
 interface ChatSidebarProps {
@@ -100,6 +82,20 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     // 状态
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const [flattenedItems, setFlattenedItems] = useState<SidebarItem[]>([]);
+    const [showLoading, setShowLoading] = useState(false);
+
+    // 延迟显示loading状态
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (loading) {
+            timer = setTimeout(() => {
+                setShowLoading(true);
+            }, 300);
+        } else {
+            setShowLoading(false);
+        }
+        return () => clearTimeout(timer);
+    }, [loading]);
 
     // 分组逻辑
     const groupedItems = useMemo(() => {
@@ -226,15 +222,9 @@ const ChatSidebar = memo<ChatSidebarProps>(({
 
     // 渲染列表项
     const renderGroupItems = useMemo(() => (
-        groupedItems.map((group, index) => (
-            <div 
-                key={group.label} 
-                className={ANIMATION_CLASSES.container}
-                style={{ 
-                    '--animation-delay': `${index * ANIMATION_DELAY}s`
-                } as React.CSSProperties}
-            >
-                <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2 animate-fadeIn">
+        groupedItems.map((group) => (
+            <div key={group.label}>
+                <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
                     {group.label}
                 </div>
                 <div>
@@ -257,12 +247,16 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     const renderContent = useCallback(() => {
         if (items.length > 0) {
             return (
-                <div className="space-y-2">
+                <div>
                     {renderGroupItems}
-                    {(loading || hasMore) && (
+                    {(hasMore || loading) && (
                         <div 
                             ref={loadingRef} 
-                            className="mt-4 mb-6 flex justify-center"
+                            className={cn(
+                                "mt-4 mb-6 flex justify-center",
+                                "transition-opacity duration-300",
+                                showLoading ? "opacity-100" : "opacity-0"
+                            )}
                         >
                             {loading ? (
                                 <LoadingDots size="md" />
@@ -278,7 +272,11 @@ const ChatSidebar = memo<ChatSidebarProps>(({
         }
 
         return (
-            <div className="flex flex-col items-center justify-center h-[200px]">
+            <div className={cn(
+                "flex flex-col items-center justify-center h-[200px]",
+                "transition-opacity duration-300",
+                showLoading ? "opacity-100" : "opacity-0"
+            )}>
                 {loading ? (
                     <LoadingDots size="sm" />
                 ) : (
@@ -296,7 +294,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                 )}
             </div>
         );
-    }, [items.length, loading, hasMore, renderGroupItems, t]);
+    }, [items.length, loading, hasMore, renderGroupItems, t, showLoading]);
 
     return (
         <div className={cn(
@@ -324,8 +322,8 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                     </Button>
                 </div>
 
-                {/* 对话列表区域 */}
-                <div className="py-4 mt-2 relative">
+                {/* 对��列表区域 */}
+                <div className="py-4 mt-2">
                     {renderContent()}
                 </div>
             </ScrollArea>

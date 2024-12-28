@@ -263,7 +263,6 @@ const useSendMessage = ({
         existingPair?: { userMessage?: MessageWithStatus; botMessage?: MessageWithStatus },
         files?: MessageFile[]
     ) => {
-        console.log('sendMessageCore 接收到的文件:', files);
         if (!userId) {
             addMessage(dialogProcessor.createErrorMessage(t('无法发送消息，用户未登录或未授权。')));
             return;
@@ -284,20 +283,14 @@ const useSendMessage = ({
                 throw new Error(t('无法获取 JWT，用户未授权'));
             }
 
-            // 统一处理所有文件
-            const processedFiles = (files || [])
-                .map(file => {
-                    const fileInfo = convertToFileInfo(file);
-                    if (!fileInfo.file_id || !fileInfo.name || !fileInfo.file_type) {
-                        return null;
-                    }
-                    return {
-                        file_id: fileInfo.file_id,
-                        filename: fileInfo.name,
-                        file_type: fileInfo.file_type
-                    };
-                })
-                .filter((file): file is { file_id: string; filename: string; file_type: string } => file !== null);
+            const fileInfos = files?.map(file => {
+                const info = convertToFileInfo(file);
+                return {
+                    file_id: info.file_id,
+                    filename: info.name,
+                    file_type: info.file_type
+                };
+            }) || [];
 
             await sendMessageAPI({
                 userInput: message,
@@ -305,7 +298,7 @@ const useSendMessage = ({
                 token,
                 conversationId: activeConversationId,
                 model: model,
-                files: processedFiles.length > 0 ? processedFiles : undefined,
+                files: fileInfos.length > 0 ? fileInfos : undefined,
                 onInitialResponse: (initialResponse) => {
                     const conversationId = initialResponse.conversation_id;
                     if (!state.conversationId) {
@@ -316,7 +309,7 @@ const useSendMessage = ({
                         
                         console.log('设置新对话ID:', conversationId);
                         
-                        // 发新对话事件，使用后端返回的标题
+                        // 触发新对话事件
                         const newConversationEvent = new CustomEvent('addConversation', {
                             detail: {
                                 conversation_id: conversationId,
@@ -404,12 +397,10 @@ const useSendMessage = ({
         t,
         getToken,
         dispatch,
-        triggerConversationsReload,
         handleStreamState,
         handleMessageError,
         initializeMessagePair,
-        convertToFileInfo,
-        typeGuards
+        convertToFileInfo
     ]);
 
     // 重试消息
@@ -453,7 +444,7 @@ const useSendMessage = ({
         }
     }, [sendMessageCore, state.conversationId, handleMessageError, messagesRef]);
 
-    // 获取失败的���息
+    // 获取失败的消息
     const getFailedMessages = useCallback((): RetryableMessage[] => {
         return messagesRef.current.reduce((acc: RetryableMessage[], msg, index) => {
             if (msg.sendStatus === 'failed' && msg.type === 'user') {

@@ -94,7 +94,7 @@ const HistoryHandler = {
                 .sort((a: MoreContent, b: MoreContent) => (a.display_order || 0) - (b.display_order || 0));
             
             relatedContent.forEach((content: MoreContent) => {
-                newContent += `\n${content.content}`;
+                newContent += `\n\n${content.content}`;
             });
         });
 
@@ -108,7 +108,7 @@ const HistoryHandler = {
                 // 记忆查询结果直接添加到内容中
                 newContent += `\n\n${content.content}`;
             } else {
-                newContent += `\n${content.content}`;
+                newContent += `\n\n${content.content}`;
             }
         });
 
