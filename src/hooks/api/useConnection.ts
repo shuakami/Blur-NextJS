@@ -13,7 +13,7 @@ export interface ConnectionInfo extends ConnectionState {
     networkQuality: 'good' | 'fair' | 'poor';
 }
 
-export const useConnection = (): ConnectionInfo => {
+export const useConnection = (initDelay = 2000): ConnectionInfo => {
     const [state, setState] = useState<ConnectionState>({
         status: 'connecting',
         clientLatency: 0,
@@ -28,8 +28,8 @@ export const useConnection = (): ConnectionInfo => {
     // 使用定长数组存储最近5次延迟数据
     const latencyHistoryRef = useRef<number[]>([]);
     const MAX_HISTORY_LENGTH = 5;
-
     const managerRef = useRef<ConnectionManager | null>(null);
+    const timeoutRef = useRef<number>();
 
     // 简化的延迟计算方法
     const calculateAverageLatency = (newLatency: number): number => {
@@ -50,23 +50,33 @@ export const useConnection = (): ConnectionInfo => {
     };
 
     useEffect(() => {
-        if (!managerRef.current) {
-            managerRef.current = new ConnectionManager();
-            managerRef.current.on('stateChange', setState);
-            managerRef.current.start();
-        }
+        // 延迟初始化连接管理器
+        const initializeManager = () => {
+            if (!managerRef.current) {
+                managerRef.current = new ConnectionManager();
+                managerRef.current.on('stateChange', setState);
+                managerRef.current.start();
+            }
+        };
+
+        // 使用 setTimeout 延迟初始化
+        timeoutRef.current = window.setTimeout(() => {
+            initializeManager();
+        }, initDelay);
 
         return () => {
+            if (timeoutRef.current) {
+                window.clearTimeout(timeoutRef.current);
+            }
             managerRef.current?.stop();
             managerRef.current = null;
             latencyHistoryRef.current = [];
         };
-    }, []);
+    }, [initDelay]);
 
     // 计算延迟和网络质量
     const totalLatency = state.clientLatency + state.serverLatency;
     const averageLatency = useMemo(() => calculateAverageLatency(totalLatency), [totalLatency]);
-
     const networkQuality = useMemo(() => evaluateNetworkQuality(averageLatency), [averageLatency]);
 
     return {

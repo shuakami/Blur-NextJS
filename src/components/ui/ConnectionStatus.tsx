@@ -1,13 +1,15 @@
 // ConnectionStatus.tsx
 
 import { memo, useState, useRef } from 'react';
-import { useConnection } from '../../hooks/api/useConnection';
-import { cn } from '../../lib/utils/utils';
-import { useOnClickOutside } from '../../hooks/ui/useOnClickOutside';
-import useTranslation from '../../hooks/i18n/useTranslation';
+import { useConnection } from '@/hooks/api/useConnection';
+import { cn } from '@/lib/utils/utils';
+import { useOnClickOutside } from '@/hooks/ui/useOnClickOutside';
+import useTranslation from '@/hooks/i18n/useTranslation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
-const ConnectionStatus = memo(() => {
+// 原始组件重命名为 ConnectionStatusInner
+const ConnectionStatusInner = memo(() => {
     const { 
         status, 
         clientLatency,
@@ -276,6 +278,15 @@ const ConnectionStatus = memo(() => {
     );
 });
 
-ConnectionStatus.displayName = 'ConnectionStatus';
+ConnectionStatusInner.displayName = 'ConnectionStatusInner';
+
+// 创建动态导入的包装组件
+const ConnectionStatus = dynamic(
+  () => Promise.resolve(ConnectionStatusInner),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
 
 export default ConnectionStatus;

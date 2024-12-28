@@ -21,7 +21,6 @@
 
 import axios from 'axios';
 import {ApiError, ErrorCode} from "@/types/error";
-import { useAuth } from '@clerk/nextjs';
 
 const apiClient = axios.create({
     // 如果是生产环境，读取NEXT_PUBLIC_PROD_API_URL，不是就读取NEXT_PUBLIC_LOCAL_API_URL
@@ -37,10 +36,6 @@ const apiClient = axios.create({
 // 添加token刷新状态控制
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
-
-const subscribeTokenRefresh = (cb: (token: string) => void) => {
-    refreshSubscribers.push(cb);
-};
 
 const onTokenRefreshed = (token: string) => {
     refreshSubscribers.forEach(cb => cb(token));

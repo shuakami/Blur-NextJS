@@ -3,7 +3,7 @@ import { AppProps } from 'next/app';
 import NProgress from 'nprogress';
 import '@/styles/globals.css';
 import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, Suspense, lazy, startTransition, useState } from 'react';
+import React, { useEffect, useMemo, Suspense, lazy, startTransition, useState, memo } from 'react';
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
@@ -11,6 +11,7 @@ import { LXHThemeProvider } from '@/theme/ThemeContext';
 import 'nprogress/nprogress.css';
 import { ApiClientProvider } from "@/api/ApiClientProvider";
 import { ConversationsProvider } from "../src/app/[对话管理]/ConversationsContext";
+import { SidebarProvider } from "../src/app/[侧边栏管理]/SidebarContext";
 import seoDescription from "@/seo/seo_description";
 import seoKeywords from "@/seo/seo_keywords";
 import { ModelProvider } from '@/components/ui/model_selector';
@@ -21,12 +22,16 @@ import { ShortcutProvider } from '@/providers/ShortcutProvider';
 import { LayoutProvider } from "@/components/layouts/LayoutContext";
 import CustomThemeProvider from '@/theme/CustomThemeProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConversationProvider } from "../src/app/[上下文]/contexts";
+import { ConversationState } from "../src/app/[上下文]/types/chat";
+
 
 // 懒加载非关键组件
 const Analytics = lazy(() => import('@vercel/analytics/react').then(mod => ({ default: mod.Analytics })));
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/next').then(mod => ({ default: mod.SpeedInsights })));
 const Toaster = lazy(() => import('@/components/ui/toaster').then(mod => ({ default: mod.Toaster })));
 const ClientVersionCheck = lazy(() => import('@/components/ClientVersionCheck'));
+const PersistentSidebar = lazy(() => import('@/components/layouts/PersistentSidebar'));
 
 // NProgress 配置
 NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.2 });
@@ -121,7 +126,20 @@ const NonCriticalUI = React.memo(() => {
 
 NonCriticalUI.displayName = 'NonCriticalUI';
 
+// 创建一个持久化的侧边栏包装器
+const PersistentSidebarWrapper = memo(() => {
+    const [mounted, setMounted] = useState(false);
 
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
+    return <PersistentSidebar />;
+});
+
+PersistentSidebarWrapper.displayName = 'PersistentSidebarWrapper';
 
 function MyApp({ Component, pageProps }: AppProps) {
     const router = useRouter();
@@ -137,6 +155,16 @@ function MyApp({ Component, pageProps }: AppProps) {
             },
         },
     }));
+
+    // 创建会话状态
+    const [reloadCounter, setReloadCounter] = useState(0);
+    const conversationState = useMemo<ConversationState>(() => ({
+        conversationId: null,
+        newConversationId: null,
+        resetNewConversationId: () => {},
+        triggerConversationsReload: () => setReloadCounter(prev => prev + 1),
+        reloadConversationsCounter: reloadCounter
+    }), [reloadCounter]);
 
     useEffect(() => {
         startTransition(() => {
@@ -172,21 +200,26 @@ function MyApp({ Component, pageProps }: AppProps) {
                                 <LayoutProvider>
                                     <ModelProvider>
                                         <ConversationsProvider>
-                                            <TooltipProvider>
-                                                <GlobalErrorHandler />
-                                                {isRouterReady && (
-                                                    <>
+                                            <ConversationProvider value={conversationState}>
+                                                <SidebarProvider>
+                                                    <TooltipProvider>
                                                         <ShortcutProvider>
-                                                            <NonCriticalUI />
-                                                            <MainContent 
-                                                                Component={Component} 
-                                                                pageProps={pageProps} 
-                                                                router={router}
-                                                            />
+                                                            <GlobalErrorHandler />
+                                                            {isRouterReady && (
+                                                                <>
+                                                                    <NonCriticalUI />
+                                                                    <PersistentSidebarWrapper />
+                                                                    <MainContent 
+                                                                        Component={Component} 
+                                                                        pageProps={pageProps} 
+                                                                        router={router}
+                                                                    />
+                                                                </>
+                                                            )}
                                                         </ShortcutProvider>
-                                                    </>
-                                                )}
-                                            </TooltipProvider>
+                                                    </TooltipProvider>
+                                                </SidebarProvider>
+                                            </ConversationProvider>
                                         </ConversationsProvider>
                                     </ModelProvider>
                                 </LayoutProvider>
@@ -196,7 +229,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 </CustomThemeProvider>
             </ClerkProvider>
         </QueryClientProvider>
-    ), [Component, pageProps, router, isRouterReady, queryClient]);
+    ), [Component, pageProps, router, isRouterReady, queryClient, conversationState]);
 
     return providedContent;
 }

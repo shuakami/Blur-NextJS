@@ -1,0 +1,97 @@
+.root {
+  --sidebar-width: 220px;
+  --header-height: 3.5rem;
+  --transition-duration: 400ms;
+  --transition-in: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 侧边栏占位符样式 */
+.sidebar-placeholder {
+  width: 0;
+  will-change: width;
+  transition: width var(--transition-duration) var(--transition-out);
+  transform-origin: left center;
+}
+
+/* 当侧边栏打开且不是移动端时显示侧边栏 */
+.root[data-sidebar="true"]:not([data-mobile="true"]) .sidebar-placeholder {
+  width: var(--sidebar-width);
+}
+
+/* Model选择器包装器的基础样式 */
+.model-selector-wrapper {
+  will-change: transform, left;
+  transform: translateZ(0);
+  transition: 
+    transform 250ms var(--transition-out),
+    left var(--transition-duration) var(--transition-out);
+}
+
+/* 移动端时Model选择器居中 */
+.root[data-mobile="true"] .model-selector-wrapper {
+  left: 50%;
+  transform: translateX(-50%) translateZ(0);
+}
+
+/* 非移动端时Model选择器的位置 */
+.root[data-mobile="false"] .model-selector-wrapper {
+  left: 6rem;
+  transform: translateX(0) translateZ(0);
+}
+
+/* 非移动端且侧边栏打开时Model选择器的位置 */
+.root[data-mobile="false"][data-sidebar="true"] .model-selector-wrapper {
+  left: 14.5rem;
+  transition-timing-function: var(--transition-in);
+}
+
+/* 滚动容器样式 */
+.scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  transition: scrollbar-color 250ms var(--transition-out);
+}
+
+.scroll-container:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  transition-timing-function: var(--transition-in);
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  transition: background-color 250ms var(--transition-out);
+}
+
+.scroll-container:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  transition-timing-function: var(--transition-in);
+}
+
+/* 暗色模式滚动条 */
+@media (prefers-color-scheme: dark) {
+  .scroll-container {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+  
+  .scroll-container:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+  
+  .scroll-container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .scroll-container:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+} 

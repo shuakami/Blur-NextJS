@@ -3,10 +3,11 @@
 import React, { memo, useCallback, useRef } from "react";
 import { Message } from "@/types/stream";
 import { useChatStateContext } from "@/app/[上下文]/ChatContext";
+import { useRouter } from 'next/router';
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import './chat_list.css';
-import { useRouter } from 'next/router';
+
 
 // 节流函数
 const throttle = <T extends (...args: any[]) => void>(func: T, limit: number) => {

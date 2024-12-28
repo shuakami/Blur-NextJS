@@ -1,0 +1,37 @@
+.root {
+  --sidebar-width: 220px;
+  --transition-duration: 400ms;
+  --transition-in: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  will-change: transform;
+  transform: translateX(-100%) translateZ(0);
+  transition: transform var(--transition-duration) var(--transition-out);
+  transform-origin: left center;
+}
+
+.sidebar[data-open="true"] {
+  transform: translateX(0) translateZ(0);
+}
+
+/* 遮罩层动画 */
+.overlay {
+  opacity: 0;
+  visibility: hidden;
+  background: rgba(0, 0, 0, 0.4);
+  will-change: opacity;
+  transition: 
+    opacity 300ms var(--transition-out),
+    visibility 0s linear 300ms;
+}
+
+.overlay[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: 
+    opacity 250ms var(--transition-in),
+    visibility 0s linear;
+} 

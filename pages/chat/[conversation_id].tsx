@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, Suspense } from 'react';
+import React, { useCallback, Suspense, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@clerk/nextjs';
 import { ChatProvider } from "@/app/[上下文]/ChatContext";
@@ -12,6 +12,7 @@ import NoConversationFound from '@/components/chat/NoConversationFound';
 import { ErrorBoundary } from 'react-error-boundary';
 import ChatList from '@/app/[消息显示]/chat_list';
 import ErrorFallback from '@/components/ui/error-fallback';
+import { useToast } from '@/hooks/ui/use-toast';
 
 // 类型定义
 interface ChatPageProps {
@@ -38,11 +39,46 @@ const ChatPageContent = React.memo(function ChatPageContent({
     const { conversations } = useConversations();
     const { isSignedIn, isLoaded, user } = useUser();
     const { exists } = useConversationCheck(conversation_id, user?.id);
+    const { toast } = useToast();
+    const [isFavorited, setIsFavorited] = useState(false);
 
     // 获取对话标题
     const chatTitle = conversations.find(c =>
         c.conversation_id === conversation_id
     )?.chat_title || '未命名对话';
+
+    // 处理分享
+    const handleShare = useCallback(async () => {
+        if (!conversation_id) return;
+        
+        try {
+            await navigator.clipboard.writeText(
+                `${window.location.origin}/chat/${conversation_id}`
+            );
+            toast({
+                title: "链接已复制",
+                description: "对话链接已复制到剪贴板",
+                duration: 3000,
+            });
+        } catch (err) {
+            toast({
+                title: "复制失败",
+                description: "无法复制链接，请手动复制",
+                variant: "destructive",
+                duration: 3000,
+            });
+        }
+    }, [conversation_id, toast]);
+
+    // 处理收藏
+    const handleToggleFavorite = useCallback(() => {
+        setIsFavorited(prev => !prev);
+        toast({
+            title: isFavorited ? "已取消收藏" : "已添加收藏",
+            description: isFavorited ? "对话已从收藏夹中移除" : "对话已添加到收藏夹",
+            duration: 3000,
+        });
+    }, [isFavorited, toast]);
 
     // 主要内容
     const MainContent = useCallback(() => (
@@ -100,6 +136,9 @@ const ChatPageContent = React.memo(function ChatPageContent({
             showAvatar={false}
             renderMainContent={MainContent}
             renderBottomContent={BottomContent}
+            onShare={handleShare}
+            onToggleFavorite={handleToggleFavorite}
+            isFavorited={isFavorited}
         />
     );
 });

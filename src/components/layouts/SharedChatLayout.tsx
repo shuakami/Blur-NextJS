@@ -3,23 +3,25 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import ChatList from '@/app/[消息显示]/chat_list';
 import Meta from '@/components/ui/Meta';
-import MessagesSidebar from '@/app/[侧边栏管理]/messages_sidebar';
-import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
-import ConnectionStatus from '../ui/ConnectionStatus';
 import { useShortcutManager } from '@/providers/ShortcutProvider'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts';
-import { CommandDialog } from "@/components/command/command-dialog"
 import { useLayout } from '@/components/layouts/LayoutContext';
 import { Route } from 'next';
+import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
+import styles from './SharedChatLayout.module.css';
+
 
 // 动态导入非关键组件
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
-const ChatList = dynamic(() => import('@/app/[消息显示]/chat_list'), { ssr: false });
 const UserAvatar = dynamic(() => import('@/components/ui/page_right_user_avatar'), { ssr: false });
 const ModelSelector = dynamic(() => import('@/components/ui/model_selector'), { ssr: false });
 const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
 const ScrollDownButton = dynamic(() => import('@/components/ui/scroll-down-button'), { ssr: false });
+const ConnectionStatusInner = dynamic(() => import('../ui/ConnectionStatus'), { ssr: false });
+const CommandDialog = dynamic(() => import("@/components/command/command-dialog").then(mod => mod.CommandDialog), { ssr: false });
+const SharePopover = dynamic(() => import('@/components/share/SharePopover').then(mod => mod.SharePopover), { ssr: false });
 
 // 类型定义
 interface SharedChatLayoutProps {
@@ -31,6 +33,9 @@ interface SharedChatLayoutProps {
     onSidebarToggle?: (isOpen: boolean) => void;
     renderMainContent?: () => React.ReactNode;
     renderBottomContent?: () => React.ReactNode;
+    onShare?: () => void;
+    onToggleFavorite?: () => void;
+    isFavorited?: boolean;
 }
 // 遮罩层组件
 const Overlay = React.memo(({ onClose }: { onClose: () => void }) => (
@@ -50,7 +55,10 @@ export function SharedChatLayout({
     showAvatar = true, 
     onSidebarToggle,
     renderMainContent,
-    renderBottomContent
+    renderBottomContent,
+    onShare,
+    onToggleFavorite,
+    isFavorited
 }: SharedChatLayoutProps) {
     const router = useRouter();
     const { isSidebarOpen, toggleSidebar, isMobile } = useLayout();
@@ -58,7 +66,6 @@ export function SharedChatLayout({
     const [isCommandOpen, setIsCommandOpen] = React.useState(false);
 
     useEffect(() => {
-        // 通知父组件侧边栏状态变化
         onSidebarToggle?.(isSidebarOpen);
     }, [isSidebarOpen, onSidebarToggle]);
 
@@ -105,31 +112,16 @@ export function SharedChatLayout({
                 pageName={title}
                 pageDescription={description}
             />
-            <div className="w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]">
-                {/* 侧边栏 */}
-                <div className={`
-                    fixed top-0 left-0 h-full z-50 w-[220px]
-                    transform transition-transform duration-300 ease-in-out
-                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-[220px]'}
-                `}>
-                    <MessagesSidebar onClose={toggleSidebar} />
-                </div>
-
-                {/* 移动端遮罩 */}
-                {isMobile && isSidebarOpen && (
-                    <div 
-                        className="fixed inset-0 bg-black/40 cursor-pointer z-40
-                        transition-opacity duration-300 ease-in-out"
-                        onClick={toggleSidebar}
-                    />
-                )}
-
+            <div 
+                className={`${styles.root} w-full h-screen flex overflow-hidden relative bg-white dark:bg-[#212121]`}
+                data-sidebar={isSidebarOpen}
+                data-mobile={isMobile}
+            >
+                {/* 侧边栏占位 */}
+                <div className={`${styles['sidebar-placeholder']} flex-shrink-0 transition-[width] duration-300 ease-in-out`} />
+                
                 {/* 主内容区 */}
-                <div className={`
-                    flex flex-col h-full w-full overflow-hidden
-                    transition-[margin] duration-300 ease-in-out
-                    ${isSidebarOpen && !isMobile ? 'ml-[220px]' : 'ml-0'}
-                `}>
+                <div className="flex-1 flex flex-col h-full w-full min-w-0 overflow-hidden">
                     {/* 头部工具栏 */}
                     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#212121] z-30">
                         <div className="flex items-center gap-3 w-full">
@@ -137,26 +129,41 @@ export function SharedChatLayout({
                                 isSidebarOpen={isSidebarOpen} 
                                 onOpen={toggleSidebar}
                             />
-                            <div className={`
-                                flex items-center
-                                ${isMobile ? 'flex-1 justify-center' : ''}
-                                absolute
-                                ${isMobile ? 'left-1/2 -translate-x-1/2' : isSidebarOpen ? 'left-[14.5rem]' : 'left-24'}
-                            `}>
+                            <div className={`${styles['model-selector-wrapper']} flex items-center absolute`}>
                                 <ModelSelector />
                             </div>
-                            {showAvatar && (
-                                <div className="ml-auto">
-                                    <UserAvatar />
-                                </div>
-                            )}
+                            <div className="ml-auto flex items-center gap-2">
+                                {/* 分享按钮 */}
+                                {onShare && (
+                                    <SharePopover onShare={onShare} />
+                                )}
+                                {/* 收藏按钮 */}
+                                {onToggleFavorite && (
+                                    <button
+                                        onClick={onToggleFavorite}
+                                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200
+                                        text-gray-700 dark:text-gray-300"
+                                        title={isFavorited ? "取消收藏" : "收藏对话"}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill={isFavorited ? "currentColor" : "none"} 
+                                            stroke="currentColor" strokeWidth={isFavorited ? "0" : "1.5"}>
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </button>
+                                )}
+                                {showAvatar && (
+                                    <div className="transition-opacity duration-300">
+                                        <UserAvatar />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </header>
 
                     {/* 主要内容 */}
                     {renderMainContent?.() || (
                         <div className="flex-1 flex flex-col w-full pt-12">
-                            <div className="flex-1 overflow-auto scroll-container">
+                            <div className={`flex-1 overflow-auto ${styles['scroll-container']}`}>
                                 <div className="m-auto text-base py-[18px] px-3 md:px-4 lg:px-4 xl:px-5">
                                     <div className="mx-auto flex flex-1 gap-4 md:gap-5 lg:gap-6 md:max-w-[49.5rem]">
                                         <ChatList />
@@ -179,7 +186,7 @@ export function SharedChatLayout({
 
                     {/* 连接状态 */}
                     <div className="fixed md:right-4 md:bottom-4 hidden md:block">
-                        <ConnectionStatus />
+                        <ConnectionStatusInner />
                     </div>
                 </div>
 
