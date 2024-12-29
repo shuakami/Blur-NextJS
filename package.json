@@ -90,6 +90,7 @@
     "remark-mdx": "^3.0.1",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
+    "sonner": "^1.7.1",
     "strip-markdown": "^6.0.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
