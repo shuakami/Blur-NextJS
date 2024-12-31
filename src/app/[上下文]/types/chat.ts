@@ -21,6 +21,7 @@ export interface ConversationState {
     resetNewConversationId: () => void;
     triggerConversationsReload: () => void;
     reloadConversationsCounter: number;
+    isConversationPage: boolean;
 }
 
 export interface ChatState {

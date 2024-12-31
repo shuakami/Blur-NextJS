@@ -11,7 +11,7 @@ type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error'
 
 // 尺寸样式映射
 const sizeStyles: Record<AvatarSize, string> = {
-  xs: "h-6 w-6",
+  xs: "h-7 w-7",
   sm: "h-8 w-8",
   md: "h-10 w-10",
   lg: "h-12 w-12",
@@ -43,7 +43,7 @@ const Avatar = React.forwardRef<
   statusPosition = 'bottom-right',
   ...props 
 }, ref) => (
-  <div className="relative inline-block">
+  <div className="relative inline-flex items-center justify-center">
     <AvatarPrimitive.Root
       ref={ref}
       className={cn(

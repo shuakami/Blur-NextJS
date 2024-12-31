@@ -262,6 +262,7 @@ const useContentProcessor = (content: string) => {
 // 工具骨架屏选择函数
 const getToolSkeleton = (tool: ToolState) => {
   if (tool.id === '8') return UseToolSkeletons.weather;
+  if (tool.id === '9') return UseToolSkeletons.github;
   if (tool.status === 'calling') return UseToolSkeletons.calling;
   return UseToolSkeletons.collapsed;
 };

@@ -1,5 +1,5 @@
 import { useFileTheme } from '@/hooks/ui/useFileTheme';
-import { FileText, Link2 } from 'lucide-react'
+import { FileText, Link2, Mail } from 'lucide-react'
 import { LinkInfo } from './types'
 import { useState, memo } from 'react'
 import { cn } from '@/lib/utils/utils'
@@ -108,6 +108,17 @@ const InfoLayout = memo(({
 
 export const Preview = memo(({ href, info }: PreviewProps) => {
   const { getFileTypeInfo } = useFileTheme();
+
+  if (href.startsWith('mailto:')) {
+    const email = href.replace('mailto:', '');
+    return (
+      <InfoLayout 
+        icon={Mail}
+        title={email}
+        color="text-blue-500 dark:text-blue-400"
+      />
+    );
+  }
 
   if (info.type === 'image') {
     return <ImagePreview href={href} filename={info.filename} />;

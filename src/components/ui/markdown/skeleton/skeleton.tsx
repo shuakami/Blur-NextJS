@@ -1,5 +1,7 @@
 import { Skeleton } from '../../skeleton';
 import './skeleton.css';
+import { cn } from "@/lib/utils/utils";
+import { CARD_STYLES } from "../../chat/tools/components/github/constants";
 
 export const CodeBlockSkeleton = () => (
   <div className="my-4 rounded-lg border border-gray-200 dark:border-gray-900 overflow-hidden skeleton-base-transition">
@@ -60,8 +62,6 @@ export const ImageSkeleton = () => (
   </div>
 );
 
-
-
 export const UseToolSkeletons = {
     // 天气工具专用骨架屏
     weather: () => (
@@ -88,42 +88,65 @@ export const UseToolSkeletons = {
             </div>
           </div>
         </div>
-      ),
-    
-// 通用工具骨架屏 - 折叠状态（默认）
-collapsed: () => (
-    <div className="my-2">
-      <button className="relative inline-flex items-center py-1.5 rounded-md">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Skeleton className="h-4 w-4 rounded" />
-            <div className="absolute -right-1 -bottom-1">
-              <Skeleton className="h-1.5 w-1.5 rounded-full" />
-            </div>
-          </div>
-          <Skeleton className="h-4 w-16 rounded" />
-          <Skeleton className="h-4 w-3.5 ml-auto rounded" />
-        </div>
-      </button>
-    </div>
-),
+    ),
 
-// 调用状态骨架屏
-calling: () => (
-    <div className="my-2">
-      <button className="relative inline-flex items-center py-1.5 rounded-md">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Skeleton className="h-4 w-4 rounded" />
-            <div className="absolute -right-1 -bottom-1">
-              <Skeleton className="h-1.5 w-1.5 rounded-full" />
+    // GitHub工具专用骨架屏
+    github: () => (
+      <div className="space-y-4 py-4 px-1">
+        <div className={cn(CARD_STYLES.base, CARD_STYLES.ring, "space-y-4 skeleton-base-transition")}>
+          <div className="flex items-start justify-between">
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-4 rounded-full" />
+              </div>
+              <Skeleton className="h-4 w-[80%]" />
             </div>
+            <Skeleton className="h-4 w-20" />
           </div>
-          <Skeleton className="h-4 w-16 rounded" />
-          <Skeleton className="h-4 w-3.5 ml-auto rounded" />
+          <div className="flex items-center gap-6">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+          </div>
         </div>
-      </button>
-    </div>
-)
-  } as const;
+      </div>
+    ),
+    
+    // 通用工具骨架屏 - 折叠状态（默认）
+    collapsed: () => (
+        <div className="my-2">
+          <button className="relative inline-flex items-center py-1.5 rounded-md">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Skeleton className="h-4 w-4 rounded" />
+                <div className="absolute -right-1 -bottom-1">
+                  <Skeleton className="h-1.5 w-1.5 rounded-full" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-16 rounded" />
+              <Skeleton className="h-4 w-3.5 ml-auto rounded" />
+            </div>
+          </button>
+        </div>
+    ),
+
+    // 调用状态骨架屏
+    calling: () => (
+        <div className="my-2">
+          <button className="relative inline-flex items-center py-1.5 rounded-md">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Skeleton className="h-4 w-4 rounded" />
+                <div className="absolute -right-1 -bottom-1">
+                  <Skeleton className="h-1.5 w-1.5 rounded-full" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-16 rounded" />
+              <Skeleton className="h-4 w-3.5 ml-auto rounded" />
+            </div>
+          </button>
+        </div>
+    )
+} as const;
   

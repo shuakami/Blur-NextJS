@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
-import { UseToolProps, WeatherResponse, WeatherDataType } from './types';
+import { UseToolProps, WeatherResponse, WeatherDataType } from './components/weather/types';
 import {
   WeatherCard,
   AirQualityCard,

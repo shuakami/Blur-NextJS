@@ -1,10 +1,10 @@
-import { WeatherType } from './types';
+import { WeatherType } from './components/weather/types';
 import {
     WEATHER_ICONS,
     WEATHER_TYPE_MAP,
     TODAY_WEATHER_MAP,
     WEATHER_DESCRIPTIONS
-} from './constants';
+} from './components/weather/constants';
 
 // 获取天气图标
 export const getWeatherIcon = (code: string): string => {

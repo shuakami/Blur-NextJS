@@ -133,7 +133,7 @@ const ChatPageContent = React.memo(function ChatPageContent({
         <SharedChatLayout
             title={chatTitle}
             hasConversation={true}
-            showAvatar={false}
+            showAvatar={true}
             renderMainContent={MainContent}
             renderBottomContent={BottomContent}
             onShare={handleShare}

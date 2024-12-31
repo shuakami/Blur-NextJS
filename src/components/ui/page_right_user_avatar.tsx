@@ -204,16 +204,17 @@ const UserAvatar = memo(() => {
   }
 
   return (
-    <>
+    <div className="flex items-center justify-center h-full">
       <Avatar 
         ref={avatarRef} 
         onClick={() => setMenuOpen(true)}
+        size="xs"
       >
         {user?.imageUrl ? (
           <AvatarImage 
             src={user.imageUrl} 
             alt="User avatar" 
-            className="h-9 w-9 cursor-pointer hover:ring-[3px] hover:ring-gray-250 
+            className="cursor-pointer hover:ring-[3px] hover:ring-gray-250 
                      dark:hover:ring-gray-850/70 transition-all duration-200 
                      ease-in-out rounded-full"
           />
@@ -232,7 +233,6 @@ const UserAvatar = memo(() => {
         onClose={() => setMenuOpen(false)}
       />
       
-
       {settingsOpen && (
         <SettingsModal 
           isOpen={settingsOpen} 
@@ -260,7 +260,7 @@ const UserAvatar = memo(() => {
           onOpenChange={modalHandlers.closeMemoryManager}
         />
       )}
-    </>
+    </div>
   );
 });
 

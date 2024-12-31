@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { DailyWeather } from '../../types';
-import { CARD_STYLES, TEXT_STYLES } from '../../constants';
+import { DailyWeather } from './types';
+import { CARD_STYLES, TEXT_STYLES } from './constants';
 import { getWeatherIcon, getWeatherDescription, getFriendlyDate } from '../../utils';
 import { cn } from '@/lib/utils/utils';
 

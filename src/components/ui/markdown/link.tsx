@@ -13,6 +13,7 @@ interface LinkProps extends Omit<NextLinkProps<string>, 'href'> {
 export const Link: React.FC<LinkProps> = ({ href: originalHref, children, ...props }) => {
   // 处理 href
   const href = React.useMemo(() => {
+    if (originalHref.startsWith('mailto:')) return originalHref;
     if (originalHref.startsWith('http')) return originalHref.startsWith('https') ? originalHref : `https://${originalHref}`;
     
     const baseUrl = window.location.origin;

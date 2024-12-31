@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Clock, AlertCircle, Building2 } from "lucide-react";
-import { WeatherWarning } from '../../types';
-import { CARD_STYLES, TEXT_STYLES } from '../../constants';
+import { WeatherWarning } from './types';
+import { CARD_STYLES, TEXT_STYLES } from './constants';
 import { cn } from '@/lib/utils/utils';
 
 interface WarningCardProps {

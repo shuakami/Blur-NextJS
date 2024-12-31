@@ -12,7 +12,8 @@ import { Route } from 'next';
 import HomeHeaderIcon from '@/app/[首页占位]/home_header_icon';
 import styles from './SharedChatLayout.module.css';
 import PersistentSidebar from './PersistentSidebar';
-
+import { useToast } from '@/hooks/ui/use-toast';
+import { useConversationContext } from '@/app/[上下文]/ChatContext';
 
 // 动态导入非关键组件
 const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
@@ -65,6 +66,42 @@ export function SharedChatLayout({
     const { isSidebarOpen, toggleSidebar, isMobile } = useLayout();
     const shortcutManager = useShortcutManager();
     const [isCommandOpen, setIsCommandOpen] = React.useState(false);
+    const { toast } = useToast();
+    const { isConversationPage, conversationId } = useConversationContext();
+
+    // 默认的分享处理函数
+    const defaultShare = React.useCallback(async () => {
+        if (!conversationId) return;
+        
+        try {
+            await navigator.clipboard.writeText(
+                `${window.location.origin}/chat/${conversationId}`
+            );
+            toast({
+                title: "链接已复制",
+                description: "对话链接已复制到剪贴板",
+                duration: 3000,
+            });
+        } catch (err) {
+            toast({
+                title: "复制失败",
+                description: "无法复制链接，请手动复制",
+                variant: "destructive",
+                duration: 3000,
+            });
+        }
+    }, [conversationId, toast]);
+
+    // 默认的收藏处理函数
+    const [defaultIsFavorited, setDefaultIsFavorited] = React.useState(false);
+    const defaultToggleFavorite = React.useCallback(() => {
+        setDefaultIsFavorited(prev => !prev);
+        toast({
+            title: defaultIsFavorited ? "已取消收藏" : "已添加收藏",
+            description: defaultIsFavorited ? "对话已从收藏夹中移除" : "对话已添加到收藏夹",
+            duration: 3000,
+        });
+    }, [defaultIsFavorited, toast]);
 
     useEffect(() => {
         onSidebarToggle?.(isSidebarOpen);
@@ -133,28 +170,29 @@ export function SharedChatLayout({
                             <div className={`${styles['model-selector-wrapper']} flex items-center absolute`}>
                                 <ModelSelector />
                             </div>
-                            <div className="ml-auto flex items-center gap-2">
+                            <div className="ml-auto flex items-center gap-1">
                                 {/* 分享按钮 */}
-                                {onShare && (
-                                    <SharePopover onShare={onShare} />
+                                {isConversationPage && (
+                                    <SharePopover onShare={onShare || defaultShare} />
                                 )}
                                 {/* 收藏按钮 */}
-                                {onToggleFavorite && (
+                                {isConversationPage && (
                                     <button
-                                        onClick={onToggleFavorite}
+                                        onClick={onToggleFavorite || defaultToggleFavorite}
                                         className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200
                                         text-gray-700 dark:text-gray-300"
-                                        title={isFavorited ? "取消收藏" : "收藏对话"}
+                                        title={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "取消收藏" : "收藏对话"}
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill={isFavorited ? "currentColor" : "none"} 
-                                            stroke="currentColor" strokeWidth={isFavorited ? "0" : "1.5"}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" 
+                                            fill={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "currentColor" : "none"} 
+                                            stroke="currentColor" strokeWidth={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "0" : "1.5"}>
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                         </svg>
                                     </button>
                                 )}
                                 {showAvatar && (
-                                    <div className="transition-opacity duration-300">
-                                        <UserAvatar />
+                                    <div className="p-2 rounded-lg">
+                                            <UserAvatar />
                                     </div>
                                 )}
                             </div>

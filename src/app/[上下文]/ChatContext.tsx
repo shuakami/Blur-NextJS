@@ -48,7 +48,8 @@ export const ChatProvider: React.FC<{
     const conversationState = useMemo(() => ({
         conversationId: chat.conversationId,
         newConversationId: chat.newConversationId,
-        reloadConversationsCounter: chat.reloadConversationsCounter
+        reloadConversationsCounter: chat.reloadConversationsCounter,
+        isConversationPage: Boolean(chat.conversationId)
     }), [
         chat.conversationId,
         chat.newConversationId,

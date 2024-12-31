@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, Suspense } from "react";
 import { cn } from '@/lib/utils/utils';
-import { Terminal, ChevronDown, Code2, Search, Calculator, Image, Globe, Cloud, AlertCircle } from "lucide-react";
+import { Terminal, ChevronDown, Code2, Search, Calculator, Image, Globe, Cloud, AlertCircle, Github } from "lucide-react";
 import CodeBlock from "../markdown/code";
 import { Image as MarkdownImage } from "../markdown/image";
 import { Skeleton } from "../skeleton";
@@ -8,6 +8,7 @@ import { Button } from "../button";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import '@/components/ui/ThoughtStream.css';
+import { CARD_STYLES } from "./tools/components/github/constants";
 
 // 常量定义
 const ANIMATION_CONFIG = {
@@ -73,6 +74,7 @@ export interface UseToolProps {
 }
 
 const Tool8Component = React.lazy(() => import('./tools/Tool8Component'));
+const Tool9Component = React.lazy(() => import('./tools/Tool9Component'));
 
 // 工具名称映射表
 const TOOL_NAMES: Record<string, string> = {
@@ -82,6 +84,7 @@ const TOOL_NAMES: Record<string, string> = {
   '5': 'Python 解释器',
   '6': '查看网页',
   '8': '天气查询',
+  '9': 'GitHub',
 } as const;
 
 // 工具图标映射
@@ -92,6 +95,7 @@ const TOOL_ICONS: Record<string, React.ComponentType> = {
   '5': Code2,
   '6': Globe,
   '8': Cloud,
+  '9': Github,
 } as const;
 
 
@@ -118,9 +122,47 @@ const Tool8Wrapper: React.FC<UseToolProps> = (props) => {
     );
 };
 
+// GitHub工具UI / (ID_9)
+const Tool9Wrapper: React.FC<UseToolProps> = (props) => {
+    const [useCustomUI, setUseCustomUI] = useState(true);
+    if (!useCustomUI) {
+        return <UseTool {...props} id="Original / 9" />;
+    }
+    
+    return (
+        <Suspense fallback={
+            <div className="space-y-4 py-4 px-1">
+            <div className={cn(CARD_STYLES.base, CARD_STYLES.ring, "space-y-4")}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-6 w-40" />
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-[80%]" />
+                </div>
+                <Skeleton className="h-4 w-20" />
+              </div>
+              <div className="flex items-center gap-6">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            </div>
+          </div>
+        }>
+          <Tool9Component 
+            {...props} 
+            onError={() => setUseCustomUI(false)}
+          />
+        </Suspense>
+    );
+};
+
 // 特殊的，需要单独界面定制的工具
 const TOOL_COMPONENTS: Record<string, React.FC<UseToolProps>> = {
-  '8': Tool8Wrapper
+  '8': Tool8Wrapper,
+  '9': Tool9Wrapper
 };
 
 const BaseUseTool: React.FC<UseToolProps> = (props) => {

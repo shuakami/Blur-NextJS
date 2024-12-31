@@ -1,7 +1,7 @@
 import { memo } from 'react';
-import { WeatherNow } from '../../types';
+import { WeatherNow } from './types';
 import { cn } from '@/lib/utils/utils';
-import { CARD_STYLES, TEXT_STYLES } from '../../constants';
+import { CARD_STYLES, TEXT_STYLES } from './constants';
 
 interface AirQualityCardProps {
   data: WeatherNow;
