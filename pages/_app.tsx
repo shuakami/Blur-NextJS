@@ -149,7 +149,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         newConversationId: null,
         resetNewConversationId: () => {},
         triggerConversationsReload: () => setReloadCounter(prev => prev + 1),
-        reloadConversationsCounter: reloadCounter
+        reloadConversationsCounter: reloadCounter,
+        isConversationPage: false
     }), [reloadCounter]);
 
     useEffect(() => {
