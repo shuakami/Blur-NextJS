@@ -1,0 +1,88 @@
+/* 块操作菜单 - 纯CSS实现 */
+.ProseMirror > * {
+  position: relative;
+  --button-opacity: 0;
+}
+
+/* hover区域 */
+.ProseMirror > *::before {
+  content: '';
+  position: absolute;
+  left: -60px;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  background: transparent;
+}
+
+.ProseMirror > *:hover {
+  --button-opacity: 1;
+}
+
+/* 加号按钮 */
+.ProseMirror > *::after {
+  content: '';
+  position: absolute;
+  left: -44px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px; 
+  height: 22px; 
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: var(--button-opacity);
+  pointer-events: var(--button-opacity);
+  transition: opacity 0.2s, background-color 0.2s;
+  z-index: 2;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 6V0H8V6H14V8H8V14H6V8H0V6H6Z' fill='rgba(55, 53, 47, 0.35)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+/* 拖动按钮 */
+.ProseMirror > *::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: var(--button-opacity);
+  pointer-events: var(--button-opacity);
+  transition: opacity 0.2s, background-color 0.2s;
+  z-index: 2;
+  background-image: url("data:image/svg+xml,%3Csvg width='4' height='12' viewBox='0 0 4 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='rgba(55, 53, 47, 0.35)'/%3E%3Ccircle cx='2' cy='7' r='1.5' fill='rgba(55, 53, 47, 0.35)'/%3E%3Ccircle cx='2' cy='12' r='1.5' fill='rgba(55, 53, 47, 0.35)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 4px 12px;
+  cursor: grab;
+}
+
+/* hover效果 */
+.ProseMirror > *::before:hover,
+.ProseMirror > *::after:hover {
+  background-color: rgba(55, 53, 47, 0.06);
+}
+
+/* 暗色模式 */
+.dark .ProseMirror > *::after {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 6V0H8V6H14V8H8V14H6V8H0V6H6Z' fill='rgba(255, 255, 255, 0.35)'/%3E%3C/svg%3E");
+}
+
+.dark .ProseMirror > *::before {
+  background-image: url("data:image/svg+xml,%3Csvg width='4' height='12' viewBox='0 0 4 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='rgba(255, 255, 255, 0.35)'/%3E%3Ccircle cx='2' cy='7' r='1.5' fill='rgba(255, 255, 255, 0.35)'/%3E%3Ccircle cx='2' cy='12' r='1.5' fill='rgba(255, 255, 255, 0.35)'/%3E%3C/svg%3E");
+}
+
+.dark .ProseMirror > *::before:hover,
+.dark .ProseMirror > *::after:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+} 
