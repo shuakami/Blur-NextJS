@@ -5,40 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cad02b1c-7689-42b7-9a9a-47ef1969d236" name="更改" comment="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持">
-      <change afterPath="$PROJECT_DIR$/global.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pages/api/favicon.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/EditButton.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/Form.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/LLMtoAgent.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/SearchingMessage.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/TextForm.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/LLM/agent.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/markdown/CodeHeader.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/ui/markdown/MathRenderer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/content/update/Alpha_v0.0.1_926001.mdx" beforeDir="false" afterPath="$PROJECT_DIR$/content/update/Alpha_v0.0.1_926001.mdx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/_app.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/blurdemo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/blurdemo.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/chat/[conversation_id].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/chat/[conversation_id].tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/update/[version].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/update/[version].tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/lists.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/lists.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/model_selector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/model_selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/page_right_user_avatar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/page_right_user_avatar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/tofu/dropdown-menu-plus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/tofu/dropdown-menu-plus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/languages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/languages.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/react-transition-group.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/react-transition-group.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/markdown/code.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/code.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/markdown/code_prism.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/code_prism.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/markdown/headings.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/headings.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/markdown/lists.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/lists.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/markdown/text.css" beforeDir="false" afterPath="$PROJECT_DIR$/styles/markdown/text.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/book/[id].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/book/[id].tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/MenuBar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/extensions/SlashCommands.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/extensions/SlashCommands.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,9 +52,10 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
     "javascript.nodejs.core.library.configured.version": "20.18.0",
     "javascript.nodejs.core.library.typings.version": "20.17.1",
-    "last_opened_file_path": "F:/A-Project-Blur/electron-app-main/nextjs",
+    "last_opened_file_path": "F:/A-Project-Blur/electron-app-main/N2/Blur-NextJS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -93,7 +66,7 @@
     "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.语言默认设置",
     "settings.editor.splitter.proportion": "0.15554072",
-    "ts.external.directory.path": "F:\\A-Project-Blur\\electron-app-main\\nextjs\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "F:\\A-Project-Blur\\electron-app-main\\N2\\Blur-NextJS\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -149,6 +122,7 @@
       <workItem from="1729413687279" duration="6481000" />
       <workItem from="1730020066759" duration="10000" />
       <workItem from="1730278076695" duration="642000" />
+      <workItem from="1736340974958" duration="2858000" />
     </task>
     <task id="LOCAL-00035" summary="支持环境变量的API URL切换&#10;&#10;---&#10;&#10;API 客户端配置和特定API的基础URL设置现改为从环境变量中读取。在生产和非生产环境中，将分别使用`PROD_API_URL`和`LOCAL_API_URL`环境变量指定的URL。此更改将简化不同环境之间的切换，并提高配置的一致性和灵活性。&#10;&#10;此外，更新了SEO关键词列表，以更好地反映与AI相关的内容和服务。">
       <option name="closed" value="true" />

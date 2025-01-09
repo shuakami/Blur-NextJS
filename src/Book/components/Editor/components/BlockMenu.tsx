@@ -1,6 +1,6 @@
 // BlockMenu.tsx
 
-import { FC, useEffect, useRef } from 'react'
+import {FC, useEffect, useRef, useCallback, useState} from 'react'
 import { Editor } from '@tiptap/core'
 import tippy, { Instance as TippyInstance } from 'tippy.js'
 import 'tippy.js/dist/tippy.css'
@@ -58,27 +58,132 @@ const createCommandMenu = (items: CommandItem[]) => {
   return component
 }
 
+// 添加useCommandKeyboard hook
+const useCommandKeyboard = ({
+                                items,
+                                onConfirm,
+                                isOpen,
+                                onClose
+                            }: {
+    items: CommandItem[]
+    onConfirm: (index: number) => void
+    isOpen: boolean
+    onClose?: () => void
+}) => {
+    const [selectedIndex, setSelectedIndex] = useState(0)
+
+    const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        if (!isOpen || !items.length) return false
+
+        if (event.key === 'ArrowUp') {
+            event.preventDefault()
+            setSelectedIndex((prev) => (prev - 1 + items.length) % items.length)
+            return true
+        }
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault()
+            setSelectedIndex((prev) => (prev + 1) % items.length)
+            return true
+        }
+
+        if (event.key === 'Enter') {
+            event.preventDefault()
+            onConfirm(selectedIndex)
+            return true
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault()
+            onClose?.()
+            return true
+        }
+
+        return false
+    }, [items, isOpen, selectedIndex, onConfirm, onClose])
+
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [handleKeyDown])
+
+    return {
+        selectedIndex,
+        setSelectedIndex
+    }
+}
+
 const BlockMenu: FC<BlockMenuProps> = ({ editor }) => {
   const popupRef = useRef<TippyInstance | null>(null)
   const menuRef = useRef<HTMLElement | null>(null)
   const currentBlockRef = useRef<HTMLElement | null>(null)
+    const scrollPositionRef = useRef(0)
+    const [isOpen, setIsOpen] = useState(false)
+
+    // 使用hook
+    const {selectedIndex, setSelectedIndex} = useCommandKeyboard({
+        items: commands,
+        onConfirm: (index) => {
+            const commandItem = commands[index]
+            if (commandItem && currentBlockRef.current) {
+                const pos = editor.view.posAtDOM(currentBlockRef.current, 0)
+                commandItem.command({editor, range: {from: pos, to: pos}})
+                popupRef.current?.hide()
+            }
+        },
+        isOpen,
+        onClose: () => {
+            popupRef.current?.hide()
+        }
+    })
+
+    // 禁用滚动
+    const disableScroll = () => {
+        scrollPositionRef.current = window.scrollY
+        document.body.style.position = 'fixed'
+        document.body.style.top = `-${scrollPositionRef.current}px`
+        document.body.style.width = '100%'
+    }
+
+    // 启用滚动
+    const enableScroll = () => {
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        window.scrollTo(0, scrollPositionRef.current)
+    }
 
   useEffect(() => {
-    // 初始化菜单内容
+      console.log('=== 初始化Tippy实例 ===')
     menuRef.current = createCommandMenu(commands)
 
-    // 创建tippy实例
-    popupRef.current = tippy('body', {
+      popupRef.current = tippy(document.body, {
       content: menuRef.current,
       trigger: 'manual',
       interactive: true,
-      placement: 'top-start',
-      offset: [0, 0],
-      appendTo: () => document.body,
+          placement: 'bottom-start',
+          offset: [0, 10],
+          appendTo: document.body,
+          popperOptions: {
+              modifiers: [{
+                  name: 'flip',
+                  enabled: false
+              }]
+          },
+          onShow: () => {
+              disableScroll()
+          },
       onHide: () => {
+          enableScroll()
         currentBlockRef.current = null
-      },
-    })[0]
+          setIsOpen(false)
+      }
+      }) as TippyInstance
+
+      console.log('Tippy实例创建完成', {
+          placement: popupRef.current.props.placement,
+          offset: popupRef.current.props.offset
+      })
 
     // 使用事件委托处理命令点击
     if (menuRef.current) {
@@ -145,11 +250,14 @@ const BlockMenu: FC<BlockMenuProps> = ({ editor }) => {
 
     return () => {
       editorElement.removeEventListener('click', handlePlusClick)
+        enableScroll() // 清理时确保恢复滚动
       popupRef.current?.destroy()
     }
   }, [editor])
 
-  const highlightItem = (index: number) => {
+    // 修改highlightItem函数,使用selectedIndex
+    const highlightItem = useCallback((index: number) => {
+        setSelectedIndex(index)
     const buttons = menuRef.current?.querySelectorAll('button')
     if (!buttons) return
     buttons.forEach((btn) => btn.classList.remove('bg-gray-70', 'dark:bg-gray-800'))
@@ -158,53 +266,85 @@ const BlockMenu: FC<BlockMenuProps> = ({ editor }) => {
       selectedBtn.classList.add('bg-gray-70', 'dark:bg-gray-800')
       selectedBtn.scrollIntoView({ block: 'nearest' })
     }
-  }
+    }, [setSelectedIndex])
 
+    // 修改showCommandMenu,设置isOpen状态
   const showCommandMenu = (blockEl: HTMLElement) => {
+      console.log('\n=== 显示命令菜单 ===')
+      console.log('当前Tippy状态:', {
+          isShown: popupRef.current?.state.isShown,
+          currentPlacement: popupRef.current?.props.placement,
+          offset: popupRef.current?.props.offset,
+      })
+
     currentBlockRef.current = blockEl
     const pos = editor.view.posAtDOM(blockEl, 0)
     const node = editor.view.state.doc.resolve(pos).parent
     const isEmpty = node.content.size === 0
-
     const originalRect = blockEl.getBoundingClientRect()
 
-    if (!isEmpty) {
-      editor.commands.enter()
-
-      popupRef.current?.setProps({
-        getReferenceClientRect: () => ({
-          width: 0,
-          height: 0,
-          top: originalRect.top + originalRect.height,
-          bottom: originalRect.bottom + originalRect.height,
-          left: originalRect.left,
-          right: originalRect.left,
-          x: originalRect.left,
-          y: originalRect.top + originalRect.height,
-          toJSON: () => {},
-        }),
+      console.log('块元素信息:', {
+          isEmpty,
+          position: pos,
+          rect: {
+              top: originalRect.top,
+              bottom: originalRect.bottom,
+              left: originalRect.left,
+              height: originalRect.height,
+          }
       })
-    } else {
+
+      const updatePosition = (rect: DOMRect) => {
       popupRef.current?.setProps({
         getReferenceClientRect: () => ({
           width: 0,
           height: 0,
-          top: originalRect.bottom,
-          bottom: originalRect.bottom,
-          left: originalRect.left,
-          right: originalRect.left,
-          x: originalRect.left,
-          y: originalRect.bottom,
-          toJSON: () => {},
+            top: rect.bottom + window.scrollY,
+            bottom: rect.bottom + window.scrollY,
+            left: rect.left,
+            right: rect.left,
+            x: rect.left,
+            y: rect.bottom + window.scrollY,
+            toJSON: () => {
+            }
         }),
         placement: 'bottom-start',
+          offset: [0, 10]
       })
     }
 
+      if (!isEmpty) {
+          console.log('处理非空块')
+          editor.commands.enter()
+          const newBlock = blockEl.nextElementSibling as HTMLElement
+          const newRect = newBlock?.getBoundingClientRect() || originalRect
+          updatePosition(newRect)
+      } else {
+          console.log('处理空块')
+          updatePosition(originalRect)
+      }
+
     requestAnimationFrame(() => {
       popupRef.current?.show()
+        setIsOpen(true)
     })
   }
+
+    // 监听selectedIndex变化，更新UI
+    useEffect(() => {
+        if (isOpen && selectedIndex >= 0) {
+            console.log('更新UI高亮:', {selectedIndex})
+            const buttons = menuRef.current?.querySelectorAll('button')
+            if (!buttons) return
+
+            buttons.forEach((btn) => btn.classList.remove('bg-gray-70', 'dark:bg-gray-800'))
+            const selectedBtn = menuRef.current?.querySelector(`button[data-index="${selectedIndex}"]`)
+            if (selectedBtn) {
+                selectedBtn.classList.add('bg-gray-70', 'dark:bg-gray-800')
+                selectedBtn.scrollIntoView({block: 'nearest'})
+            }
+        }
+    }, [selectedIndex, isOpen])
 
   return null
 }

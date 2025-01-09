@@ -5,6 +5,7 @@ import { Editor } from '@tiptap/core'
 import Suggestion from '@tiptap/suggestion'
 import tippy, { Instance as TippyInstance } from 'tippy.js'
 import { commands, CommandItem } from '../components/commands'
+import {useCallback, useEffect, useState} from 'react'
 
 interface SuggestionProps {
   editor: Editor
@@ -14,6 +15,62 @@ interface SuggestionProps {
   event?: KeyboardEvent
 }
 
+interface UseCommandKeyboardProps {
+    items: CommandItem[]
+    onConfirm: (index: number) => void
+    isOpen: boolean
+    onClose?: () => void
+}
+
+export const useCommandKeyboard = ({
+                                       items,
+                                       onConfirm,
+                                       isOpen,
+                                       onClose
+                                   }: UseCommandKeyboardProps) => {
+    const [selectedIndex, setSelectedIndex] = useState(0)
+
+    const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        if (!isOpen || !items.length) return false
+
+        if (event.key === 'ArrowUp') {
+            event.preventDefault()
+            setSelectedIndex((prev) => (prev - 1 + items.length) % items.length)
+            return true
+        }
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault()
+            setSelectedIndex((prev) => (prev + 1) % items.length)
+            return true
+        }
+
+        if (event.key === 'Enter') {
+            event.preventDefault()
+            onConfirm(selectedIndex)
+            return true
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault()
+            onClose?.()
+            return true
+        }
+
+        return false
+    }, [items, isOpen, selectedIndex, onConfirm, onClose])
+
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [handleKeyDown])
+
+    return {
+        selectedIndex,
+        setSelectedIndex
+    }
+}
+
 export const SlashCommands = Extension.create({
   name: 'slashCommands',
 
@@ -21,13 +78,9 @@ export const SlashCommands = Extension.create({
     return {
       suggestion: {
         char: '/',
-        command: ({ editor }: { editor: any }) => {
-          editor
-            .chain()
-            .focus()
-            .splitBlock()
-            .setNode('heading', { level: 1 })
-            .run()
+          command: ({editor, range, props}: { editor: Editor; range: any; props: any }) => {
+              editor.chain().focus().splitBlock().run()
+              props.command({editor, range})
           },
         items: ({ query }: { query: string }) => {
           return commands
@@ -137,6 +190,7 @@ export const SlashCommands = Extension.create({
                 content: component,
                 showOnCreate: true,
                 interactive: true,
+                  offset: [0, 10],
                 trigger: 'manual',
                 placement: 'bottom-start',
               })[0]
