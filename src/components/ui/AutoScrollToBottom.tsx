@@ -1,4 +1,6 @@
-import React, {useLayoutEffect, useRef, useState} from "react";
+import React, { useLayoutEffect } from "react";
+import { useRouter } from 'next/router';
+import { useScrollManager } from "@/hooks/useScrollManager";
 
 interface AutoScrollToBottomProps {
     children: React.ReactNode;
@@ -6,33 +8,14 @@ interface AutoScrollToBottomProps {
 }
 
 const AutoScrollToBottom: React.FC<AutoScrollToBottomProps> = ({children, trigger}) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
-
-    // 自动滚动到底部
-    const scrollToBottom = () => {
-        if (autoScrollEnabled && containerRef.current) {
-            containerRef.current.scrollIntoView({behavior: "smooth", block: "end"});
-        }
-    };
-
-    // 监听用户滚动，取消自动滚动
-    const handleScroll = () => {
-        if (containerRef.current) {
-            const {scrollTop, scrollHeight, clientHeight} = containerRef.current;
-            // 如果滚动条没有接近底部，禁用自动滚动
-            if (scrollHeight - scrollTop > clientHeight + 50) {
-                setAutoScrollEnabled(false);
-            } else {
-                setAutoScrollEnabled(true);
-            }
-        }
-    };
+    const { containerRef, scrollToBottom, handleScroll } = useScrollManager();
+    const router = useRouter();
+    const { pathname } = router;
 
     // 使用 useLayoutEffect 代替 useEffect，以便在 DOM 更新后立即执行滚动操作
     useLayoutEffect(() => {
         scrollToBottom();
-    }, [trigger]); // 当 trigger 变化时自动滚动
+    }, [trigger, pathname, scrollToBottom]); // 当 trigger / url 变化时自动滚动
 
     return (
         <div

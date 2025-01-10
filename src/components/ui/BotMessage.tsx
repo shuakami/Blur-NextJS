@@ -283,14 +283,6 @@ const MessageContent = memo(({
   messageId?: string;
 }) => {
 
-  const toolFallback = useMemo(() => {
-    if (item.type === "group" && item.group) {
-      const Skeleton = getToolSkeleton(item.group.useTool);
-      return <Skeleton />;
-    }
-    return null;
-  }, [item]);
-
   const processAgentData = (content: string) => {
     try {
       const agentInfo = JSON.parse(
@@ -531,7 +523,7 @@ const BotMessage = memo(({
       </motion.div>
     </motion.div>
   );
-});
+})
 
 BotMessage.displayName = "BotMessage";
 
