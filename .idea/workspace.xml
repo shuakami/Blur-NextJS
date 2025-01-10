@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cad02b1c-7689-42b7-9a9a-47ef1969d236" name="更改" comment="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持">
+    <list default="true" id="cad02b1c-7689-42b7-9a9a-47ef1969d236" name="更改" comment="feat(editor/Book): 优化命令菜单和编辑器功能&#10;&#10;- 重构了命令菜单的显示逻辑和键盘控制&#10;- 新增了自定义选择扩展，实现快速全选和全选当前块的功能&#10;- 移除了冗余的菜单栏组件&#10;- 优化了编辑器的样式和布局&#10;- 修复了一些bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/book/[id].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/book/[id].tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/MenuBar.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/extensions/SlashCommands.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/extensions/SlashCommands.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,15 +117,7 @@
       <workItem from="1729413687279" duration="6481000" />
       <workItem from="1730020066759" duration="10000" />
       <workItem from="1730278076695" duration="642000" />
-      <workItem from="1736340974958" duration="2858000" />
-    </task>
-    <task id="LOCAL-00035" summary="支持环境变量的API URL切换&#10;&#10;---&#10;&#10;API 客户端配置和特定API的基础URL设置现改为从环境变量中读取。在生产和非生产环境中，将分别使用`PROD_API_URL`和`LOCAL_API_URL`环境变量指定的URL。此更改将简化不同环境之间的切换，并提高配置的一致性和灵活性。&#10;&#10;此外，更新了SEO关键词列表，以更好地反映与AI相关的内容和服务。">
-      <option name="closed" value="true" />
-      <created>1727446877021</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1727446877021</updated>
+      <workItem from="1736340974958" duration="4261000" />
     </task>
     <task id="LOCAL-00036" summary="修复一个会导致APIURL无法正常读取的问题&#10;&#10;---&#10;&#10;更改了API配置和消息发送模块中的环境变量引用，以使用NEXT_PUBLIC前缀。&#10;这确保了正确的环境变量在生产&#10;和本地开发环境中都能被读取和使用。">
       <option name="closed" value="true" />
@@ -516,7 +503,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728917131507</updated>
     </task>
-    <option name="localTasksCounter" value="84" />
+    <task id="LOCAL-00084" summary="feat(editor/Book): 优化命令菜单和编辑器功能&#10;&#10;- 重构了命令菜单的显示逻辑和键盘控制&#10;- 新增了自定义选择扩展，实现快速全选和全选当前块的功能&#10;- 移除了冗余的菜单栏组件&#10;- 优化了编辑器的样式和布局&#10;- 修复了一些bug">
+      <option name="closed" value="true" />
+      <created>1736388907942</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1736388907943</updated>
+    </task>
+    <option name="localTasksCounter" value="85" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -535,7 +530,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
-    <MESSAGE value="已找到，尝试修复（允许http://blur-api.al001.sdjz.wiki）&#10;&#10;---&#10;&#10;不知道是怎么发生的这个问题。不过api已经配置强制https。" />
     <MESSAGE value="DEBUG2:尝试找到对话历史异常问题" />
     <MESSAGE value="DEBUG3:尝试找到对话历史异常问题" />
     <MESSAGE value="(Fix)上一个提交以成功解决对话历史异常问题&#10;&#10;---&#10;&#10;本次提交为回滚" />
@@ -560,7 +554,8 @@
     <MESSAGE value="重构更新日志页面并添加新功能&#10;&#10;- 重构更新日志页面结构，添加更多内容和细节&#10;- 新增特殊按钮和导航项组件&#10;- 实现面包屑导航和阅读时间显示&#10;- 添加表目录组件和右侧目录树- 导入并使用gray-matter、lodash、react-window等新依赖&#10;- 优化页面交互和样式" />
     <MESSAGE value="修复部署失败问题" />
     <MESSAGE value="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持" />
-    <option name="LAST_COMMIT_MESSAGE" value="(Markdown) 优化更新页面布局和样式&#10;&#10;- 调整更新页面的布局结构，优化内容展示&#10;-统一标题、正文和列表的样式，提高可读性&#10;- 增加响应式设计，提升移动端体验&#10;- 添加高对比度和高分辨率屏幕的支持" />
+    <MESSAGE value="feat(editor/Book): 优化命令菜单和编辑器功能&#10;&#10;- 重构了命令菜单的显示逻辑和键盘控制&#10;- 新增了自定义选择扩展，实现快速全选和全选当前块的功能&#10;- 移除了冗余的菜单栏组件&#10;- 优化了编辑器的样式和布局&#10;- 修复了一些bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(editor/Book): 优化命令菜单和编辑器功能&#10;&#10;- 重构了命令菜单的显示逻辑和键盘控制&#10;- 新增了自定义选择扩展，实现快速全选和全选当前块的功能&#10;- 移除了冗余的菜单栏组件&#10;- 优化了编辑器的样式和布局&#10;- 修复了一些bug" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>

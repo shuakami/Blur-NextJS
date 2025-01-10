@@ -5,18 +5,20 @@
 }
 
 /* hover区域 */
-.ProseMirror > *::before {
-  content: '';
-  position: absolute;
-  left: -60px;
-  top: 0;
-  width: 60px;
-  height: 100%;
-  background: transparent;
+.ProseMirror > *::before,
+.ProseMirror > *::after {
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
 }
 
-.ProseMirror > *:hover {
-  --button-opacity: 1;
+/* 使用子选择器扩展悬停区域 */
+.ProseMirror > *:hover::before,
+.ProseMirror > *:hover::after,
+.ProseMirror > *::before:hover,
+.ProseMirror > *::after:hover {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* 加号按钮 */
@@ -32,9 +34,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: var(--button-opacity);
-  pointer-events: var(--button-opacity);
-  transition: opacity 0.2s, background-color 0.2s;
   z-index: 2;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 6V0H8V6H14V8H8V14H6V8H0V6H6Z' fill='rgba(55, 53, 47, 0.35)'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -85,4 +84,4 @@
 .dark .ProseMirror > *::before:hover,
 .dark .ProseMirror > *::after:hover {
   background-color: rgba(255, 255, 255, 0.06);
-} 
+}

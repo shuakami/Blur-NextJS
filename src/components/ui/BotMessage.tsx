@@ -1,4 +1,4 @@
-import React, { memo, lazy, Suspense, useMemo } from "react";
+import React, { memo, lazy, Suspense, useMemo, useRef, useEffect } from "react";
 import { ThoughtProcess } from "@/types/stream";
 import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils/utils';
 import { Agent } from "./LLM/agent";
 import AnimatedShinyText from "./animated-shiny-text";
 import { UseToolSkeletons } from "./markdown/skeleton/skeleton";
+import { motion, AnimatePresence } from "framer-motion";
 
 // 懒加载组件
 const ThoughtStream = lazy(() =>
@@ -326,61 +327,69 @@ const MessageContent = memo(({
     }
   };
 
-  if (item.type === "text") {
-    return (
-      <MarkdownRenderer
+  return (
+    <AnimatePresence>
+      <motion.div
         key={index}
-        content={item.content || ""}
-        isStreaming={isStreaming && isLatestBotMessage}
-      />
-    );
-  }
-  
-  if (item.type === "group" && item.group) {
-    const tool = item.group.useTool;
-    
-    return (
-      <Suspense key={index} fallback={toolFallback}>
-        <ErrorBoundary
-          FallbackComponent={(props) => (
-            <ErrorFallback 
-              {...props}
-              title={`工具加载失败(ID: ${tool.id || 'N/A'})`}
-              message={props.error?.message}
-              showStack={process.env.NODE_ENV === 'development'}
-              retryText="重新加载"
-            />
-          )}
-          onReset={() => {
-            window.location.reload();
-          }}
-        >
-          <UseTool
-            id={tool.id}
-            message_id={messageId || ''}
-            type={tool.type}
-            content={tool.content}
-            status={tool.status}
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: 'auto' }}
+        exit={{ opacity: 0, height: 0 }}
+        transition={{ duration: 0.2 }}
+        style={{ overflow: 'hidden' }}
+      >
+        {item.type === "text" && (
+          <MarkdownRenderer
+            content={item.content || ""}
             isStreaming={isStreaming && isLatestBotMessage}
-            calling={tool.calling}
-            response={tool.response}
           />
-        </ErrorBoundary>
-      </Suspense>
-    );
-  }
-  
-  if (item.type === "other" && item.content) {
-    if (item.content.startsWith("<agent-data>")) {
-      return processAgentData(item.content);
-    }
-    
-    if (item.content.startsWith("<thinking>")) {
-      return processThinkingData(item.content);
-    }
-  }
-  
-  return null;
+        )}
+        
+        {item.type === "group" && item.group && (
+          <Suspense>
+            <ErrorBoundary
+              FallbackComponent={(props) => (
+                <ErrorFallback 
+                  {...props}
+                  title={`工具加载失败(ID: ${item.group?.useTool?.id || 'N/A'})`}
+                  message={props.error?.message}
+                  showStack={process.env.NODE_ENV === 'development'}
+                  retryText="重新加载"
+                />
+              )}
+              onReset={() => {
+                window.location.reload();
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <UseTool
+                  id={item.group.useTool.id}
+                  message_id={messageId || ''}
+                  type={item.group.useTool.type}
+                  content={item.group.useTool.content}
+                  status={item.group.useTool.status}
+                  isStreaming={isStreaming && isLatestBotMessage}
+                  calling={item.group.useTool.calling}
+                  response={item.group.useTool.response}
+                />
+              </motion.div>
+            </ErrorBoundary>
+          </Suspense>
+        )}
+        
+        {item.type === "other" && item.content && (
+          item.content.startsWith("<agent-data>") ? processAgentData(item.content) :
+          item.content.startsWith("<thinking>") ? processThinkingData(item.content) :
+          null
+        )}
+      </motion.div>
+    </AnimatePresence>
+  );
 });
 
 MessageContent.displayName = 'MessageContent';
@@ -395,6 +404,7 @@ const BotMessage = memo(({
   error,
 }: BotMessageProps) => {
   const { isStreaming } = useChatStateContext();
+  const messageRef = useRef<HTMLDivElement>(null);
   
   // 预处理记忆操作
   const { processedContent, memoryActions } = useMemoryProcessor(content);
@@ -402,18 +412,42 @@ const BotMessage = memo(({
   // 处理工具/插件等内容
   const contentItems = useContentProcessor(processedContent);
 
+  useEffect(() => {
+    if (isLatestBotMessage && messageRef.current) {
+      // 等待动画完成后滚动
+      setTimeout(() => {
+        messageRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }, 400);
+    }
+  }, [isLatestBotMessage, content]);
+
   return (
-    <div className="group relative flex w-full items-start">
+    <motion.div
+      ref={messageRef}
+      className="group relative flex w-full items-start"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+    >
       <div className="flex-shrink-0 pl-3 sm:pl-0">
         <Avatar className="h-9 w-9">
           <MoonLogo className="relative p-1.5" />
         </Avatar>
       </div>
 
-      <div className={cn(
-        "flex flex-col min-w-0 flex-1 gap-1.5 ml-4 markdown",
-        "group/message"
-      )}>
+      <motion.div
+        className={cn(
+          "flex flex-col min-w-0 flex-1 gap-1.5 ml-4 markdown",
+          "group/message"
+        )}
+        layout
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+      >
         {thought && (
           <Suspense fallback={null}>
             <ThoughtStream
@@ -427,7 +461,12 @@ const BotMessage = memo(({
         <div className="markdown w-full break-words">
           {isLoading && isLatestBotMessage ? (
             <Suspense fallback={
-              <div className="animate-pulse h-4 bg-gray-200 rounded w-1/2" />
+              <motion.div
+                className="animate-pulse h-4 bg-gray-200 rounded w-1/2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2, repeat: Infinity, repeatType: "mirror" }}
+              />
             }>
               <AnimatedShinyText />
             </Suspense>
@@ -445,7 +484,12 @@ const BotMessage = memo(({
               ))}
               {error && (
                 <Suspense fallback={
-                  <div className="animate-pulse h-4 bg-gray-200 rounded w-1/4" />
+                  <motion.div
+                    className="animate-pulse h-4 bg-gray-200 rounded w-1/4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, repeat: Infinity, repeatType: "mirror" }}
+                  />
                 }>
                   <ErrorMessage error={error} />
                 </Suspense>
@@ -454,11 +498,24 @@ const BotMessage = memo(({
           )}
         </div>
 
-        <div className={cn(
-          "transition-opacity duration-200 -ml-1 flex items-center",
-          isLatestBotMessage && isStreaming && "hidden"
-        )}>
-          <Suspense fallback={<div className="animate-pulse h-4 bg-gray-200 rounded w-1/4" />}>
+        <motion.div
+          className={cn(
+            "transition-opacity duration-200 -ml-1 flex items-center",
+            isLatestBotMessage && isStreaming && "hidden"
+          )}
+          layout
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Suspense fallback={
+            <motion.div
+              className="animate-pulse h-4 bg-gray-200 rounded w-1/4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2, repeat: Infinity, repeatType: "mirror" }}
+            />
+          }>
             <MessageToolbar
               content={processedContent}
               messageId={messageId}
@@ -470,9 +527,9 @@ const BotMessage = memo(({
               }}
             />
           </Suspense>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 });
 

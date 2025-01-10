@@ -1,4 +1,4 @@
-import {FC, useEffect} from 'react';
+import {FC, useEffect, forwardRef, useImperativeHandle} from 'react';
 import {useEditor, EditorContent} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
@@ -19,12 +19,16 @@ import './editor.css';
 // 导入自定义扩展
 import CustomSelectExtension from './extensions/CustomSelectExtension';
 
+export interface EditorRef {
+    focus: () => void;
+}
+
 type EditorProps = {
     content?: string;
     onChange?: (content: string) => void;
 };
 
-const Editor: FC<EditorProps> = ({ content = '', onChange }) => {
+const Editor = forwardRef<EditorRef, EditorProps>(({ content = '', onChange }, ref) => {
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
@@ -47,7 +51,7 @@ const Editor: FC<EditorProps> = ({ content = '', onChange }) => {
             SlashCommands,
             CustomPlaceholder,
             CustomSelectExtension.configure({
-                timeThreshold: 300, // 可根据需要调整时间阈值
+                timeThreshold: 300,
             }),
         ],
         content,
@@ -76,6 +80,12 @@ const Editor: FC<EditorProps> = ({ content = '', onChange }) => {
         };
     }, [editor]);
 
+    useImperativeHandle(ref, () => ({
+        focus: () => {
+            editor?.commands.focus();
+        }
+    }));
+
     if (!editor?.isEditable) {
         return null;
     }
@@ -91,6 +101,8 @@ const Editor: FC<EditorProps> = ({ content = '', onChange }) => {
             </div>
         </div>
     );
-};
+});
+
+Editor.displayName = 'Editor';
 
 export default Editor;

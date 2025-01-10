@@ -224,7 +224,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     const renderGroupItems = useMemo(() => (
         groupedItems.map((group) => (
             <div key={group.label}>
-                <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
+                <div className="text-black/60 dark:text-white/80 text-xs mx-5 my-2 mt-6">
                     {group.label}
                 </div>
                 <div>
@@ -298,42 +298,44 @@ const ChatSidebar = memo<ChatSidebarProps>(({
 
     return (
         <div className={cn(
-            "flex flex-col h-screen w-[220px] bg-white dark:bg-gray-900 md:bg-[#F9F9F9]/95 md:dark:bg-[#171717]/95",
-            "text-black dark:text-white"
+            "flex flex-col h-screen bg-gray-50 dark:bg-gray-900",
+            "w-[260px] text-foreground"
         )}>
             <ScrollArea className="flex-grow" ref={scrollRef}>
                 {/* 按钮区域 */}
-                <div className="flex space-x-3 mt-[12px] w-44 justify-center items-center mx-4">
+                <div className="flex items-center justify-between px-4 py-3 mt-0.5">
                     <Button
                         variant="ghost"
-                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 
-                                 hover:bg-[#f0f0f0] dark:hover:bg-[#212121]"
+                        size="icon"
                         onClick={onClose}
+                        className="text-muted-foreground hover:text-foreground"
                     >
                         <SidebarCloseIcon size={20} />
                     </Button>
                     <Button
                         variant="ghost"
-                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 
-                                 hover:bg-[#f0f0f0] dark:hover:bg-[#212121]"
+                        size="icon"
                         onClick={handleNewChat}
+                        className="text-muted-foreground hover:text-foreground"
                     >
                         <MessageCirclePlus size={20} />
                     </Button>
                 </div>
 
-                {/* 对��列表区域 */}
-                <div className="py-4 mt-2">
+                {/* 对话列表区域 */}
+                <div className="py-2">
                     {renderContent()}
                 </div>
             </ScrollArea>
 
             {/* 用户信息区域 */}
-            <UserInfo 
-                avatarUrl={user.avatarUrl} 
-                name={user.name} 
-                status={user.status} 
-            />
+            <div className="border-t border-border/40 bg-gray-50 dark:bg-gray-900">
+                <UserInfo 
+                    avatarUrl={user.avatarUrl} 
+                    name={user.name} 
+                    status={user.status} 
+                />
+            </div>
         </div>
     );
 });

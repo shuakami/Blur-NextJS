@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, memo, useCallback, useMemo } from '
 import {
     ChevronRight, ChevronDown, MoreHorizontal,
     Check, X, PencilLine, MessageCircleX,
+    Book,
 } from 'lucide-react';
 import { SidebarItem } from './types';
 import CustomButton from './CustomButton';
@@ -68,7 +69,9 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
         hover: false,
         displayedTitle: item.label,
         newTitle: item.label,
-        isDeleting: false
+        isDeleting: false,
+        showBookIcon: false,
+        showBooks: false,
     });
 
     // 计算属性
@@ -276,7 +279,7 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
     ), [item.children, level, selectedItem, onSelect, onUpdateConversations]);
 
     return (
-        <div className="relative">
+        <div className="relative max-w-[255px]">
             <ConfirmModal
                 isOpen={uiState.isModalOpen}
                 onClose={() => updateState({ isModalOpen: false })}
@@ -288,9 +291,9 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                 isLoading={uiState.isDeleting}
             />
             
-            <div className="flex items-center">
+            <div className="relative w-full px-3">
                 {uiState.isEditing ? (
-                    <div className={`mx-3 text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-3 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white`}>
+                    <div className={`text-sm mt-1 flex items-center space-x-2 rounded-md py-2 px-2 bg-[#f0f0f0] dark:bg-gray-850 text-black dark:text-white w-full`}>
                         <input
                             ref={inputRef}
                             type="text"
@@ -301,7 +304,7 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                                 if (e.key === 'Escape') updateState({ isEditing: false });
                             }}
                             placeholder="请输入对话标题"
-                            className="flex-grow bg-transparent focus:outline-none text-black dark:text-white max-w-[120px]"
+                            className="flex-grow bg-transparent focus:outline-none text-black dark:text-white"
                         />
                         <Check
                             size={18}
@@ -327,12 +330,13 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
                             }
                             handleSelect(e);
                         }}
+                        className="w-full"
                     >
                         <button
                             ref={buttonRef}
-                            onMouseEnter={() => updateState({ hover: true })}
-                            onMouseLeave={() => updateState({ hover: false })}
-                            className={`mt-1 flex items-center space-x-2 rounded-md mx-3 py-2 px-3 transition-colors duration-200 w-[185px] text-left ${
+                            onMouseEnter={() => updateState({ hover: true, showBookIcon: true })}
+                            onMouseLeave={() => updateState({ hover: false, showBookIcon: false })}
+                            className={`mt-1 flex items-center space-x-2 rounded-md py-2 px-2 transition-colors duration-200 w-full text-left ${
                                 level > 0 ? 'pl-4' : ''
                             } text-black dark:text-white ${
                                 isSelected ? 'bg-[#f0f0f0] dark:bg-[#1e1e1e]' : 'hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75'
