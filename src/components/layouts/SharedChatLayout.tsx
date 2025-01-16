@@ -14,13 +14,13 @@ import styles from './SharedChatLayout.module.css';
 import PersistentSidebar from './PersistentSidebar';
 import { useToast } from '@/hooks/ui/use-toast';
 import { useConversationContext } from '@/app/[上下文]/ChatContext';
+import ScrollDownButton from '@/components/ui/scroll-down-button';
+import ChatInputWrapper from '@/components/ui/ChatInputWrapper';
 
 // 动态导入非关键组件
-const ChatInputWrapper = dynamic(() => import('@/components/ui/ChatInputWrapper'), { ssr: false });
 const UserAvatar = dynamic(() => import('@/components/ui/page_right_user_avatar'), { ssr: false });
 const ModelSelector = dynamic(() => import('@/components/ui/model_selector'), { ssr: false });
 const CText = dynamic(() => import('@/app/copyright/ctext'), { ssr: false });
-const ScrollDownButton = dynamic(() => import('@/components/ui/scroll-down-button'), { ssr: false });
 const ConnectionStatusInner = dynamic(() => import('../ui/ConnectionStatus'), { ssr: false });
 const CommandDialog = dynamic(() => import("@/components/command/command-dialog").then(mod => mod.CommandDialog), { ssr: false });
 const SharePopover = dynamic(() => import('@/components/share/SharePopover').then(mod => mod.SharePopover), { ssr: false });

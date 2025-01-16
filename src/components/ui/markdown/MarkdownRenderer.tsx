@@ -25,30 +25,13 @@ import {
   Table, TableHeader, TableCell
 } from './table';
 import { FootnoteRef, FootnoteBackref } from './footnote';
-// 骨架屏
-import {
-  CodeBlockSkeleton,
-  BlockMathSkeleton,
-  InlineMathSkeleton,
-  ImageSkeleton
-} from './skeleton/skeleton';
 import { Blockquote } from './blockquote';
 import { remarkLinkUrls } from './plugins/remark-link-urls';
 import { remarkImageUrls } from './plugins/remark-image-urls';
-
-// 动态导入组件
-const CodeBlock = dynamic(() => import("@/components/ui/markdown/code"), {
-    loading: () => <CodeBlockSkeleton />
-});
-const Image = dynamic(() => import("@/components/ui/markdown/image").then(mod => mod.Image), {
-    loading: () => <ImageSkeleton />
-});
-const MathBlock = dynamic(() => import("@/components/ui/markdown/MathBlock"), {
-  loading: () => <BlockMathSkeleton />
-});
-const InlineMathBlock = dynamic(() => import("@/components/ui/markdown/InlineMathBlock"), {
-  loading: () => <InlineMathSkeleton />
-});
+import CodeBlock from '@/components/ui/markdown/code';
+import { Image } from '@/components/ui/markdown/image';
+import MathBlock from '@/components/ui/markdown/MathBlock';
+import InlineMathBlock from '@/components/ui/markdown/InlineMathBlock';
 
 // 添加类型定义
 type DetailsType = React.FC<React.PropsWithChildren<React.HTMLAttributes<HTMLDetailsElement>>>;

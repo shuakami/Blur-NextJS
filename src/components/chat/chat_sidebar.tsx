@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo, useRef, memo, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarItemType, SidebarItem } from './chat_sidebar/types';
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
 import { MessageCirclePlus, SidebarCloseIcon, Stars } from "lucide-react";
@@ -16,6 +15,7 @@ import { useConversationContext } from '@/app/[上下文]/contexts';
 import { Route } from 'next';
 import LoadingDots from '@/components/ui/loading-dots';
 import UserInfo from './chat_sidebar/UserInfo';
+import { StreamMessageHandler } from '@/app/[上下文]/core/StreamMessageHandler';
 
 // 常量定义
 const SCROLL_THRESHOLD = 0.5;
@@ -33,6 +33,7 @@ interface ChatSidebarProps {
     onLoadMore: () => void;
     hasMore: boolean;
     loading: boolean;
+    streamHandler?: React.MutableRefObject<StreamMessageHandler>;
 }
 
 // 日期标签计算
@@ -65,7 +66,8 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     onClose, 
     onLoadMore, 
     hasMore, 
-    loading
+    loading,
+    streamHandler
 }) => {
     const { t } = useTranslation();
     const router = useRouter();
@@ -224,7 +226,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     const renderGroupItems = useMemo(() => (
         groupedItems.map((group) => (
             <div key={group.label}>
-                <div className="text-black/60 dark:text-white/80 text-xs mx-6 my-2">
+                <div className="text-black/60 dark:text-white/80 text-xs mx-5 my-2 mt-6">
                     {group.label}
                 </div>
                 <div>
@@ -236,6 +238,7 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                             selectedItem={selectedItem}
                             onSelect={handleSelectItem}
                             onUpdateConversations={onUpdateConversations || (() => {})}
+                            streamHandler={streamHandler}
                         />
                     ))}
                 </div>
@@ -298,42 +301,46 @@ const ChatSidebar = memo<ChatSidebarProps>(({
 
     return (
         <div className={cn(
-            "flex flex-col h-screen w-[220px] bg-white dark:bg-gray-900 md:bg-[#F9F9F9]/95 md:dark:bg-[#171717]/95",
-            "text-black dark:text-white"
+            "flex flex-col h-screen bg-gray-50 dark:bg-gray-945",
+            "w-[260px] text-foreground"
         )}>
-            <ScrollArea className="flex-grow" ref={scrollRef}>
-                {/* 按钮区域 */}
-                <div className="flex space-x-3 mt-[12px] w-44 justify-center items-center mx-4">
-                    <Button
-                        variant="ghost"
-                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 
-                                 hover:bg-[#f0f0f0] dark:hover:bg-[#212121]"
-                        onClick={onClose}
-                    >
-                        <SidebarCloseIcon size={20} />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        className="w-1/2 text-black dark:text-white bg-black/10 dark:bg-white/10 
-                                 hover:bg-[#f0f0f0] dark:hover:bg-[#212121]"
-                        onClick={handleNewChat}
-                    >
-                        <MessageCirclePlus size={20} />
-                    </Button>
-                </div>
+            {/* 按钮区域 */}
+            <div className="flex items-center justify-between px-4 py-3 mt-0.5">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onClose}
+                    className="text-muted-foreground hover:text-foreground"
+                >
+                    <SidebarCloseIcon size={20} />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleNewChat}
+                    className="text-muted-foreground hover:text-foreground"
+                >
+                    <MessageCirclePlus size={20} />
+                </Button>
+            </div>
 
-                {/* 对��列表区域 */}
-                <div className="py-4 mt-2">
-                    {renderContent()}
+            {/* 对话列表区域 */}
+            <div className="flex-1 min-h-0">
+                <div className="h-full overflow-y-auto sidebar-scroll">
+                    <div className="py-2">
+                        {renderContent()}
+                    </div>
                 </div>
-            </ScrollArea>
+            </div>
 
             {/* 用户信息区域 */}
-            <UserInfo 
-                avatarUrl={user.avatarUrl} 
-                name={user.name} 
-                status={user.status} 
-            />
+            <div>
+                <UserInfo 
+                    avatarUrl={user.avatarUrl} 
+                    name={user.name} 
+                    status={user.status} 
+                />
+            </div>
         </div>
     );
 });

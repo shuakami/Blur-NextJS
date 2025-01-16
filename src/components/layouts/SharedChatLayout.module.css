@@ -1,5 +1,5 @@
 .root {
-  --sidebar-width: 220px;
+  --sidebar-width: 240px;
   --header-height: 3.5rem;
   --transition-duration: 400ms;
   --transition-in: cubic-bezier(0.22, 1, 0.36, 1);
@@ -42,8 +42,7 @@
 
 /* 非移动端且侧边栏打开时Model选择器的位置 */
 .root[data-mobile="false"][data-sidebar="true"] .model-selector-wrapper {
-  left: 14.5rem;
-  transition-timing-function: var(--transition-in);
+  left: calc(var(--sidebar-width) + 2rem);
 }
 
 /* 滚动容器样式 */

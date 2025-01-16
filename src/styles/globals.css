@@ -207,6 +207,7 @@ img {
     --input: 0 0% 90%; /* 浅灰色 */
     --ring: 0 0% 70%; /* 中灰色 */
     --radius: 0.5rem;
+    --main-surface-tertiary: rgba(0, 0, 0, 0.2); /* 滚动条颜色 */
   }
 
   .dark {
@@ -229,6 +230,7 @@ img {
     --border: 0 0% 20%; /* 深灰色 */
     --input: 0 0% 32%; /* 深灰色 */
     --ring: 0 0% 80%; /* 浅灰色 */
+    --main-surface-tertiary: rgba(255, 255, 255, 0.2); /* 暗色模式滚动条颜色 */
   }
 }
 
@@ -333,52 +335,18 @@ img {
   100% { transform: rotate(360deg); }
 }
 
-/* 全局滚动条基础样式 */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(var(--scrollbar-thumb), var(--scrollbar-thumb-alpha));
-  border-radius: 999px;
-  transition: background-color 0.2s ease;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Firefox 适配 */
+/* 全局滚动条样式 */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(var(--scrollbar-thumb), var(--scrollbar-thumb-alpha)) transparent;
-}
-
-/* 自定义滚动条类 */
-.custom-scrollbar {
-  &::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(var(--scrollbar-thumb), var(--scrollbar-thumb-alpha));
-    border-radius: 999px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
+    scrollbar-color: var(--main-surface-tertiary) transparent;
 }
 
 /* 隐藏 body 滚动条 */
 html, body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 .chat-input-transparent {
@@ -583,6 +551,4 @@ html, body {
   white-space: nowrap;
   opacity: 0;
 }
-
-
 

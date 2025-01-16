@@ -1,5 +1,5 @@
 // src/components/chat/chat-input/ChatInput.tsx
-import React, { useRef, useEffect, useCallback, useReducer, memo } from 'react';
+import React, { useRef, useEffect, useCallback, useReducer, memo, useState } from 'react';
 import useTranslation from '@/hooks/i18n/useTranslation';
 import { useChatStateContext } from '@/app/[上下文]/ChatContext';
 import { useShortcutManager } from '@/providers/ShortcutProvider';
@@ -61,11 +61,18 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
     dispatch
   });
 
+  // 使用独立的 state 来跟踪字数和是否超限
+  const [charCount, setCharCount] = useState(0);
+  const [isOverLimit, setIsOverLimit] = useState(false);
+
   // 检查是否可以发送消息
   const canSend = useCallback(() => {
     if (isStreaming || state.isSending) return false;
-    if (!state.message.trim() && state.files.length === 0) return false;
+    if (!charCount && state.files.length === 0) return false;
     
+    // 检查消息长度是否超过最大限制
+    if (charCount > maxLength) return false;
+
     // 检查非图片文件上传状态
     const hasUnfinishedUploads = state.files.some(
       file => !file.file.type.startsWith('image/') && 
@@ -73,25 +80,31 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
     );
     
     return !hasUnfinishedUploads;
-  }, [isStreaming, state.message, state.files, state.isSending]);
+  }, [isStreaming, charCount, state.files, state.isSending, maxLength]);
 
   // 重置状态
   const resetState = useCallback(() => {
     dispatch({ type: 'SET_MESSAGE', payload: '' });
     dispatch({ type: 'CLEAR_FILES' });
+    setCharCount(0);
+    setIsOverLimit(false);
     if (textareaRef.current) {
       textareaRef.current.style.height = `${CONSTANTS.INITIAL_HEIGHT}px`;
     }
   }, []);
 
-  // 处理消息输入
-  const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newMessage = e.target.value;
-    if (newMessage.length <= maxLength && newMessage !== state.message) {
-      dispatch({ type: 'SET_MESSAGE', payload: newMessage });
-      queueMicrotask(updateHeight);
+  // 处理消息输入（非受控）
+  const handleMessageChange = useCallback(() => {
+    if (textareaRef.current) {
+      const newMessage = textareaRef.current.value;
+      // 使用 requestAnimationFrame 来优化性能
+      requestAnimationFrame(() => {
+        setCharCount(newMessage.length);
+        setIsOverLimit(newMessage.length > maxLength);
+        updateHeight();
+      });
     }
-  }, [maxLength, updateHeight, state.message]);
+  }, [maxLength, updateHeight]);
 
   // 处理文件删除
   const handleFileRemove = useCallback((index: number) => {
@@ -101,18 +114,24 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
   // 处理消息发送
   const handleSend = useCallback(async () => {
     if (!canSend()) return;
-    
+    if (!textareaRef.current) return;
+
+    const message = textareaRef.current.value;
+
     dispatch({ type: 'SET_SENDING', payload: true });
     try {
-      await onSend(state.message, state.files);
+      await onSend(message, state.files);
       resetState();
+      if (textareaRef.current) {
+        textareaRef.current.value = '';
+      }
     } catch (error) {
       console.error('发送消息失败:', error);
     } finally {
       dispatch({ type: 'SET_SENDING', payload: false });
     }
-  }, [state.message, state.files, canSend, onSend, resetState]);
-  
+  }, [canSend, onSend, resetState, state.files]);
+
   // 处理键盘事件
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
@@ -174,7 +193,17 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
     };
   }, [shortcutManager, focusInput]);
 
-  const showCounter = state.message.length > maxLength * CONSTANTS.THRESHOLD_RATIO;
+  const showCounter = charCount > maxLength * CONSTANTS.THRESHOLD_RATIO;
+
+  // 处理消息截断
+  const handleTruncate = useCallback(() => {
+    if (textareaRef.current) {
+      textareaRef.current.value = textareaRef.current.value.slice(0, maxLength);
+      setCharCount(maxLength);
+      setIsOverLimit(false);
+      updateHeight();
+    }
+  }, [maxLength, updateHeight]);
 
   return (
     <>
@@ -235,8 +264,8 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
                   )}>
                     <textarea
                       ref={textareaRef}
-                      value={state.message}
-                      onChange={handleMessageChange}
+                      defaultValue=""
+                      onInput={handleMessageChange}
                       onPaste={handlePaste}
                       onKeyDown={handleKeyDown}
                       placeholder={t(placeholder)}
@@ -251,7 +280,7 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
                   </div>
                   <div className="mb-1 me-1">
                     <SendButton 
-                      message={state.message}
+                      message={textareaRef.current?.value || ''}
                       isSending={state.isSending}
                       isStreaming={isStreaming ?? false}
                       onStop={stopStreaming ?? (() => {})}
@@ -261,8 +290,19 @@ const ChatInput: React.FC<ChatInputProps> = memo(({
                 </div>
                 
                 {showCounter && (
-                  <div className="absolute -bottom-6 right-2 text-xs text-gray-500">
-                    {state.message.length}/{maxLength}
+                  <div className="absolute -bottom-6 right-2 flex items-center text-xs">
+                    <span className={cn("mr-2", isOverLimit ? "text-red-500" : "text-gray-500")}>
+                      {charCount}/{maxLength}
+                    </span>
+                    {isOverLimit && (
+                      <button 
+                        onClick={handleTruncate}
+                        className="text-red-500 underline text-xs"
+                        aria-label="截断消息"
+                      >
+                        截断
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
