@@ -45,15 +45,36 @@ export function middleware(req: NextRequest) {
             }
         }
 
-        // 如果没有语言 cookie，并且已经确定了语言，则设置 cookie 并重定向
-        if (!cookieLang && lang) {
+        // 检查重定向计数以防止循环
+        const redirectCount = Number(req.cookies.get('redirect_count')?.value || '0');
+        
+        // 如果没有语言 cookie，并且重定向次数未超过限制
+        if (!cookieLang && lang && redirectCount < 2) {
             const response = NextResponse.redirect(url);
-            response.cookies.set('NEXT_LOCALE', lang, { path: '/' });
+            response.cookies.set('NEXT_LOCALE', lang, { 
+                path: '/',
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production'
+            });
+            
+            // 增加重定向计数
+            response.cookies.set('redirect_count', String(redirectCount + 1), {
+                path: '/',
+                maxAge: 60 // 1分钟后过期
+            });
+            
             return response;
         }
     }
 
-    return NextResponse.next();
+    // 正常请求时重置重定向计数
+    const response = NextResponse.next();
+    response.cookies.set('redirect_count', '0', {
+        path: '/',
+        maxAge: 60
+    });
+    
+    return response;
 }
 
 // 匹配所有不属于 /api、/_next 或 favicon.ico 的路径
