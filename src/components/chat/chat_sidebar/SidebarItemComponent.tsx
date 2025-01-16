@@ -19,6 +19,8 @@ import Link from 'next/link';
 import { useShortcutManager } from '@/providers/ShortcutProvider'
 import { SHORTCUTS, SHORTCUT_DESCRIPTIONS } from '@/constants/shortcuts'
 import { Route } from 'next';
+import { useChatStateContext } from '@/app/[上下文]/contexts/ChatStateContext';
+import { StreamMessageHandler } from '@/app/[上下文]/core/StreamMessageHandler';
 
 // 常量定义
 const TRANSITION_CLASSES = {
@@ -38,6 +40,7 @@ interface SidebarItemComponentProps {
     selectedItem: string | null;
     onSelect: (label: string) => void;
     onUpdateConversations: () => void;
+    streamHandler?: React.MutableRefObject<StreamMessageHandler>;
 }
 
 const SidebarItemComponent = memo<SidebarItemComponentProps>(({
@@ -45,10 +48,12 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
     level,
     selectedItem,
     onSelect,
-    onUpdateConversations
+    onUpdateConversations,
+    streamHandler
 }) => {
     const { user } = useUser();
     const router = useRouter();
+    const { resetChatState } = useChatStateContext();
     const { removeConversation, updateConversationTitle: updateTitle } = useConversations();
     const shortcutManager = useShortcutManager();
 
@@ -112,6 +117,9 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
             await deleteConversation(item.id, user?.id || '');
             
             if (isSelected) {
+                // 重置所有状态
+                streamHandler?.current?.resetState();
+                resetChatState();
                 router.push('/?new=true' as Route);
             }
             removeConversation(item.id);
@@ -131,7 +139,7 @@ const SidebarItemComponent = memo<SidebarItemComponentProps>(({
         } finally {
             updateState({ isModalOpen: false, isDeleting: false });
         }
-    }, [item.id, user?.id, isSelected, router, removeConversation, onUpdateConversations, updateState]);
+    }, [item.id, user?.id, isSelected, router, removeConversation, onUpdateConversations, updateState, resetChatState, streamHandler]);
 
     // 处理标题更新
     const handleSubmitNewTitle = useCallback(async () => {

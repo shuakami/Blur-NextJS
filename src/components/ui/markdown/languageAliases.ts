@@ -18,6 +18,7 @@ const LANGUAGE_ALIASES: Record<string, string> = {
     'php': 'php',
     'pl': 'perl',
     'tsx': 'tsx',
+    'jsx': 'jsx',
     
     // Shell 相关
     'sh': 'bash',

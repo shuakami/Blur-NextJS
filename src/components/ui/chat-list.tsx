@@ -1,13 +1,25 @@
 // ChatList.tsx
 
-import React, { memo, useCallback, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef } from "react";
 import { Message } from "@/types/stream";
 import { useChatStateContext } from "@/app/[上下文]/ChatContext";
+import { useRouter } from 'next/router';
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import './chat_list.css';
-import AutoScrollToBottom from "./AutoScrollToBottom";
 
+
+// 节流函数
+const throttle = <T extends (...args: any[]) => void>(func: T, limit: number) => {
+    let inThrottle: boolean;
+    return function (this: any, ...args: Parameters<T>) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+};
 
 // 消息项组件
 const MessageItem = memo(({ 
@@ -37,6 +49,7 @@ const MessageItem = memo(({
         });
     }, []);
 
+    if (!isReady) return null;
 
     return (
         <div className={`message-item message-item-enter message-optimize flex flex-col w-full ${isBot ? 'mb-6' : 'mb-6'}`}>
@@ -99,10 +112,9 @@ export const ChatList = memo(({
     }, []);
 
     return (
-        <AutoScrollToBottom trigger={messages}>
-            <div className="relative w-full">
-                <div className="h-full w-full">
-                    <div className="space-y-2">
+        <div className="relative w-full">
+            <div className="h-full w-full">
+                <div className="space-y-2">
                     {messages.map((message, index) => {
                         const spacingClass = index > 0 && messages[index - 1]?.type !== message.type 
                             ? 'mt-8' 
@@ -126,7 +138,6 @@ export const ChatList = memo(({
                 </div>
             </div>
         </div>
-        </AutoScrollToBottom>
     );
 });
 

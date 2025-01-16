@@ -20,7 +20,8 @@ export const COMMON_LANGUAGES = [
     'json',
     'bash',
     'python',
-    'batch'
+    'batch',
+    'jsx'
 ] as const;
 
 // 语言包缓存
@@ -45,6 +46,10 @@ const CUSTOM_LANGUAGES: Record<string, CustomLanguageFactory> = {
     'tsx': async () => {
         const tsxLang = await import('./tsxLanguage');
         return tsxLang.default(hljs);
+    },
+    'jsx': async () => {
+        const jsxLang = await import('./jsxLanguage');
+        return jsxLang.default(hljs);
     },
     'html': async () => {
         const htmlLang = await import('./htmlLanguage');

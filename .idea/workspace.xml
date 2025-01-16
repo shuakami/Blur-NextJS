@@ -6,21 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cad02b1c-7689-42b7-9a9a-47ef1969d236" name="更改" comment="feat(editor/Book): 优化命令菜单和编辑器功能&#10;&#10;- 重构了命令菜单的显示逻辑和键盘控制&#10;- 新增了自定义选择扩展，实现快速全选和全选当前块的功能&#10;- 移除了冗余的菜单栏组件&#10;- 优化了编辑器的样式和布局&#10;- 修复了一些bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/book/[id].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/book/[id].tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/chat/[conversation_id].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/chat/[conversation_id].tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NoLogin/nologin_chat_sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NoLogin/nologin_chat_sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/chat/chat_input.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/chat/chat_input.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/chat/chat_sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/chat/chat_sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/chat/chat_sidebar/SidebarItemComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/chat/chat_sidebar/SidebarItemComponent.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/layouts/PersistentSidebar.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layouts/PersistentSidebar.module.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/layouts/SharedChatLayout.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layouts/SharedChatLayout.module.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/AutoScrollToBottom.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/AutoScrollToBottom.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/BotMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/BotMessage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/chat/UseTool.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/chat/UseTool.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +120,7 @@
       <workItem from="1730278076695" duration="642000" />
       <workItem from="1736340974958" duration="4261000" />
       <workItem from="1736490948987" duration="598000" />
-      <workItem from="1736491712087" duration="135000" />
+      <workItem from="1736491712087" duration="1349000" />
     </task>
     <task id="LOCAL-00036" summary="修复一个会导致APIURL无法正常读取的问题&#10;&#10;---&#10;&#10;更改了API配置和消息发送模块中的环境变量引用，以使用NEXT_PUBLIC前缀。&#10;这确保了正确的环境变量在生产&#10;和本地开发环境中都能被读取和使用。">
       <option name="closed" value="true" />

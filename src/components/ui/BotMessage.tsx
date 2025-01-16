@@ -9,6 +9,7 @@ import { Agent } from "./LLM/agent";
 import AnimatedShinyText from "./animated-shiny-text";
 import { UseToolSkeletons } from "./markdown/skeleton/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import AutoScrollToBottom from "./AutoScrollToBottom";
 
 // 懒加载组件
 const ThoughtStream = lazy(() =>
@@ -260,13 +261,6 @@ const useContentProcessor = (content: string) => {
   }, [parts]);
 };
 
-// 工具骨架屏选择函数
-const getToolSkeleton = (tool: ToolState) => {
-  if (tool.id === '8') return UseToolSkeletons.weather;
-  if (tool.id === '9') return UseToolSkeletons.github;
-  if (tool.status === 'calling') return UseToolSkeletons.calling;
-  return UseToolSkeletons.collapsed;
-};
 
 // MessageContent 组件
 const MessageContent = memo(({ 
@@ -417,12 +411,12 @@ const BotMessage = memo(({
   }, [isLatestBotMessage, content]);
 
   return (
-    <motion.div
-      ref={messageRef}
-      className="group relative flex w-full items-start"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
+      <motion.div
+        ref={messageRef}
+        className="group relative flex w-full items-start"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
     >
       <div className="flex-shrink-0 pl-3 sm:pl-0">
         <Avatar className="h-9 w-9">
@@ -521,7 +515,7 @@ const BotMessage = memo(({
           </Suspense>
         </motion.div>
       </motion.div>
-    </motion.div>
+      </motion.div>
   );
 })
 

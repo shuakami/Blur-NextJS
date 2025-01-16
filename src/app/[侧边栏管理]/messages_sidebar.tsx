@@ -8,6 +8,7 @@ import UnauthenticatedSidebar from "@/components/NoLogin/nologin_chat_sidebar";
 import { useConversations } from "../[对话管理]/ConversationsContext";
 import useTranslation from '../../hooks/i18n/useTranslation';
 import type { Conversation } from './types';
+import { StreamMessageHandler } from '@/app/[上下文]/core/StreamMessageHandler';
 
 // 常量定义
 const LIMIT = 20;
@@ -61,6 +62,7 @@ const groupConversationsByDate = (conversations: Conversation[], t: (key: string
 interface MessagesSidebarProps {
     onClose?: () => void;
     onUpdateConversations?: (loadConversations: () => void) => void;
+    streamHandler?: React.MutableRefObject<StreamMessageHandler>;
 }
 
 interface SidebarState {
@@ -70,7 +72,11 @@ interface SidebarState {
     error: Error | null;
 }
 
-const MessagesSidebar = memo<MessagesSidebarProps>(({onClose, onUpdateConversations}) => {
+const MessagesSidebar = memo<MessagesSidebarProps>(({
+    onClose, 
+    onUpdateConversations,
+    streamHandler
+}) => {
     const { t } = useTranslation();
     const { isSignedIn, user, isLoaded } = useUser();
     const { conversations, setConversations } = useConversations();
@@ -177,6 +183,7 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({onClose, onUpdateConversati
             onLoadMore={() => loadConversations(false)}
             hasMore={state.hasMore}
             loading={state.loading}
+            streamHandler={streamHandler}
         />
     );
 });
