@@ -5,7 +5,7 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar"
 import { cn } from '../../lib/utils/utils'
 
 // 定义尺寸和状态类型
-type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'sm-md'
 type AvatarStatus = 'online' | 'offline' | 'busy' | 'away'
 type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error'
 
@@ -15,7 +15,8 @@ const sizeStyles: Record<AvatarSize, string> = {
   sm: "h-8 w-8",
   md: "h-10 w-10",
   lg: "h-12 w-12",
-  xl: "h-16 w-16"
+  xl: "h-16 w-16",
+  "sm-md": "h-[22px] w-[22px]"
 }
 
 // 状态样式映射
@@ -48,7 +49,7 @@ const Avatar = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex shrink-0 overflow-hidden rounded-full border border-black/10 dark:border-white/15",
-        sizeStyles[size],
+        size === 'sm-md' ? "h-[21px] w-[21px]" : sizeStyles[size],
         className
       )}
       {...props}
@@ -63,6 +64,7 @@ const Avatar = React.forwardRef<
             'h-3 w-3': size === 'md',
             'h-3.5 w-3.5': size === 'lg',
             'h-4 w-4': size === 'xl',
+            'h-[21px] w-[21px]': size === 'sm-md',
           },
           {
             'top-0 right-0': statusPosition === 'top-right',

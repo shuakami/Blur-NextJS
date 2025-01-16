@@ -207,7 +207,7 @@ img {
     --input: 0 0% 90%; /* 浅灰色 */
     --ring: 0 0% 70%; /* 中灰色 */
     --radius: 0.5rem;
-    --main-surface-tertiary: rgba(0, 0, 0, 0.2); /* 滚动条颜色 */
+    --main-surface-tertiary: rgba(0, 0, 0, 0.05); /* 滚动条颜色 */
   }
 
   .dark {

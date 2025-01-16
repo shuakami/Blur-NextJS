@@ -208,7 +208,7 @@ const UserAvatar = memo(() => {
       <Avatar 
         ref={avatarRef} 
         onClick={() => setMenuOpen(true)}
-        size="xs"
+        size="sm-md"
       >
         {user?.imageUrl ? (
           <AvatarImage 

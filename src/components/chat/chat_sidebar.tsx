@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { SidebarItemType, SidebarItem } from './chat_sidebar/types';
 import SidebarItemComponent from './chat_sidebar/SidebarItemComponent';
-import { MessageCirclePlus, SidebarCloseIcon, Stars } from "lucide-react";
+import { MessageCirclePlus, SidebarCloseIcon, Stars, BookText, ListTodo, ChevronRight, MessageCircle, Puzzle } from "lucide-react";
 import useTranslation from '../../hooks/i18n/useTranslation';
 import dayjs from 'dayjs';
 import { cn } from '../../lib/utils/utils';
@@ -16,6 +16,7 @@ import { Route } from 'next';
 import LoadingDots from '@/components/ui/loading-dots';
 import UserInfo from './chat_sidebar/UserInfo';
 import { StreamMessageHandler } from '@/app/[上下文]/core/StreamMessageHandler';
+import Link from 'next/link';
 
 // 常量定义
 const SCROLL_THRESHOLD = 0.5;
@@ -226,10 +227,10 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     const renderGroupItems = useMemo(() => (
         groupedItems.map((group) => (
             <div key={group.label}>
-                <div className="text-black/60 dark:text-white/80 text-xs mx-5 my-2 mt-6">
+                <div className="sticky top-0 z-10 flex h-8 items-center bg-gray-50/95 dark:bg-gray-945/95 backdrop-blur-sm text-black/60 dark:text-white/80 text-xs px-5 ">
                     {group.label}
                 </div>
-                <div>
+                <div className="mt-1">
                     {group.children.map((item) => (
                         <SidebarItemComponent
                             key={item.id}
@@ -300,12 +301,12 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     }, [items.length, loading, hasMore, renderGroupItems, t, showLoading]);
 
     return (
-        <div className={cn(
+        <aside className={cn(
             "flex flex-col h-screen bg-gray-50 dark:bg-gray-945",
             "w-[260px] text-foreground"
         )}>
             {/* 按钮区域 */}
-            <div className="flex items-center justify-between px-4 py-3 mt-0.5">
+            <header className="flex items-center justify-between px-3.5 py-3 mt-0.5">
                 <Button
                     variant="ghost"
                     size="icon"
@@ -322,26 +323,87 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                 >
                     <MessageCirclePlus size={20} />
                 </Button>
-            </div>
+            </header>
 
             {/* 对话列表区域 */}
-            <div className="flex-1 min-h-0">
+            <main className="flex-1 min-h-0">
                 <div className="h-full overflow-y-auto sidebar-scroll">
-                    <div className="py-2">
+                    {/* 功能导航列表 */}
+                    <nav className="px-3 pt-1" aria-label="主导航">
+                        <ul className="flex flex-col gap-1" role="list">
+                            <li>
+                                <Link href={'/?new=true' as Route} className="w-full">
+                                    <div className="flex items-center justify-between rounded-md py-2 px-2 transition-colors duration-200 w-full text-black dark:text-white hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75 group">
+                                        <div className="flex items-center">
+                                            <MessageCircle size={18} />
+                                            <span className="text-sm ml-3">聊天</span>
+                                        </div>
+                                        <ChevronRight 
+                                            size={16} 
+                                            className="opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0" 
+                                        />
+                                    </div>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={'/book' as Route} className="w-full">
+                                    <div className="flex items-center justify-between rounded-md py-2 px-2 transition-colors duration-200 w-full text-black dark:text-white hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75 group">
+                                        <div className="flex items-center">
+                                            <BookText size={18} />
+                                            <span className="text-sm ml-3">笔记</span>
+                                        </div>
+                                        <ChevronRight 
+                                            size={16} 
+                                            className="opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0" 
+                                        />
+                                    </div>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={'/task' as Route} className="w-full">
+                                    <div className="flex items-center justify-between rounded-md py-2 px-2 transition-colors duration-200 w-full text-black dark:text-white hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75 group">
+                                        <div className="flex items-center">
+                                            <ListTodo size={18} />
+                                            <span className="text-sm ml-3">任务</span>
+                                        </div>
+                                        <ChevronRight 
+                                            size={16} 
+                                            className="opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0" 
+                                        />
+                                    </div>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={'/plugin' as Route} className="w-full">
+                                    <div className="flex items-center justify-between rounded-md py-2 px-2 transition-colors duration-200 w-full text-black dark:text-white hover:bg-[#f0f0f0]/75 dark:hover:bg-[#1e1e1e]/75 group">
+                                        <div className="flex items-center">
+                                            <Puzzle size={18} />
+                                            <span className="text-sm ml-3">插件中心</span>
+                                        </div>
+                                        <ChevronRight 
+                                            size={16} 
+                                            className="opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0" 
+                                        />
+                                    </div>
+                                </Link>
+                            </li>
+                        </ul>
+                    </nav>
+                    <section className="py-2" aria-label="对话列表">
                         {renderContent()}
-                    </div>
+                    </section>
                 </div>
-            </div>
+            </main>
 
             {/* 用户信息区域 */}
-            <div>
+            <footer>
                 <UserInfo 
                     avatarUrl={user.avatarUrl} 
                     name={user.name} 
                     status={user.status} 
                 />
-            </div>
-        </div>
+            </footer>
+        </aside>
     );
 });
 
