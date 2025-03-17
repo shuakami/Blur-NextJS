@@ -35,6 +35,7 @@ export class DialogProcessor {
         let message: Partial<Message> = {
             message_id: uuidv4(),
             type: 'user',
+            role: 'user',
             content,
             avatarUrl: avatarUrl || '/avatars/user.png',
             timestamp: Date.now(),
@@ -56,6 +57,7 @@ export class DialogProcessor {
         let message: Partial<Message> = {
             message_id: uuidv4(),
             type: 'bot',
+            role: 'assistant',
             content,
             avatarUrl: 'https://api.dicebear.com/6.x/bottts/svg?seed=Felix',
             isStreaming,
@@ -76,6 +78,7 @@ export class DialogProcessor {
         let message: Partial<Message> = {
             message_id: uuidv4(),
             type: 'error',
+            role: 'system',
             content,
             avatarUrl: '',
             timestamp: Math.floor(Date.now() / 1000),

@@ -194,6 +194,11 @@ export class ConnectionManager extends EventEmitter {
                              error.status === 503 ||  // Service Unavailable
                              error.status === 502;    // Bad Gateway
 
+        // 增加连接错误判断
+        const isConnectionError = error.code === 'ERR_CONNECTION_REFUSED' ||
+                                error.message?.includes('ECONNREFUSED') ||
+                                error.message?.includes('connection refused');
+
         if (source === 'sync') {
             this.consecutiveFailures++;
             
@@ -203,7 +208,17 @@ export class ConnectionManager extends EventEmitter {
                     status: 'disconnected',
                     error: {
                         ...error,
-                        message: '网络连接已断开'
+                        message: '网络连接已断开，请检查网络后重试'
+                    },
+                    isHealthy: false
+                });
+            } else if (isConnectionError) {
+                // 连接被拒绝
+                this.updateState({
+                    status: 'server_down',
+                    error: {
+                        ...error,
+                        message: '无法连接到服务器'
                     },
                     isHealthy: false
                 });
@@ -213,7 +228,7 @@ export class ConnectionManager extends EventEmitter {
                     status: 'server_down',
                     error: {
                         ...error,
-                        message: '服务器暂时无法访问'
+                        message: '服务器暂时无法访问，请稍后重试'
                     },
                     isHealthy: false
                 });
@@ -221,7 +236,10 @@ export class ConnectionManager extends EventEmitter {
                 // 其他错误
                 this.updateState({
                     status: this.consecutiveFailures >= this.MAX_FAILURES ? 'disconnected' : 'connecting',
-                    error,
+                    error: {
+                        ...error,
+                        message: error.message || '连接出现问题，正在重试'
+                    },
                     isHealthy: false
                 });
             }
@@ -232,7 +250,16 @@ export class ConnectionManager extends EventEmitter {
                 this.heartbeatTimer = undefined;
             }
             
-            this.scheduleReconnect();
+            // 如果是连接错误，增加重连延迟
+            if (isConnectionError) {
+                const delay = Math.min(
+                    this.config.minReconnectDelay * Math.pow(2, this.reconnectAttempts),
+                    this.config.maxReconnectDelay
+                );
+                setTimeout(() => this.scheduleReconnect(), delay);
+            } else {
+                this.scheduleReconnect();
+            }
         } else if (source === 'heartbeat') {
             this.consecutiveFailures++;
             
@@ -242,6 +269,19 @@ export class ConnectionManager extends EventEmitter {
                     clearTimeout(this.heartbeatTimer);
                     this.heartbeatTimer = undefined;
                 }
+                
+                // 如果是连接错误，显示友好提示
+                if (isConnectionError) {
+                    this.updateState({
+                        status: 'server_down',
+                        error: {
+                            ...error,
+                            message: '无法连接到服务器'
+                        },
+                        isHealthy: false
+                    });
+                }
+                
                 this.connect();
             } else {
                 // 心跳偶尔失败，继续尝试

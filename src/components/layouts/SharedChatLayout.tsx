@@ -38,6 +38,8 @@ interface SharedChatLayoutProps {
     onShare?: () => void;
     onToggleFavorite?: () => void;
     isFavorited?: boolean;
+    sidebarType?: 'messages' | 'book';
+    hideDefaultHeader?: boolean;
 }
 // 遮罩层组件
 const Overlay = React.memo(({ onClose }: { onClose: () => void }) => (
@@ -60,14 +62,28 @@ export function SharedChatLayout({
     renderBottomContent,
     onShare,
     onToggleFavorite,
-    isFavorited
+    isFavorited,
+    sidebarType = 'messages',
+    hideDefaultHeader = false
 }: SharedChatLayoutProps) {
     const router = useRouter();
     const { isSidebarOpen, toggleSidebar, isMobile } = useLayout();
     const shortcutManager = useShortcutManager();
     const [isCommandOpen, setIsCommandOpen] = React.useState(false);
     const { toast } = useToast();
-    const { isConversationPage, conversationId } = useConversationContext();
+    
+    // 尝试使用 ChatContext，如果不可用则返回默认值
+    let isConversationPage = false;
+    let conversationId = null;
+    try {
+        const chatContext = useConversationContext();
+        isConversationPage = chatContext.isConversationPage;
+        conversationId = chatContext.conversationId;
+    } catch (e) {
+        // 如果 ChatContext 不可用，使用默认值
+        isConversationPage = false;
+        conversationId = null;
+    }
 
     // 默认的分享处理函数
     const defaultShare = React.useCallback(async () => {
@@ -157,47 +173,49 @@ export function SharedChatLayout({
             >
                 {/* 侧边栏占位 */}
                 <div className={`${styles['sidebar-placeholder']} flex-shrink-0 transition-[width] duration-300 ease-in-out`} />
-                <PersistentSidebar />
+                <PersistentSidebar sidebarType={sidebarType} />
                 {/* 主内容区 */}
                 <div className="flex-1 flex flex-col h-full w-full min-w-0 overflow-hidden">
                     {/* 头部工具栏 */}
-                    <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#212121] z-30">
-                        <div className="flex items-center gap-3 w-full">
-                            <HomeHeaderIcon 
-                                isSidebarOpen={isSidebarOpen} 
-                                onOpen={toggleSidebar}
-                            />
-                            <div className={`${styles['model-selector-wrapper']} flex items-center absolute`}>
-                                <ModelSelector />
+                    {!hideDefaultHeader && (
+                        <header className="fixed top-0 left-0 w-full flex justify-between items-center px-4 py-2.5 bg-white dark:bg-[#212121] z-30">
+                            <div className="flex items-center gap-3 w-full">
+                                <HomeHeaderIcon 
+                                    isSidebarOpen={isSidebarOpen} 
+                                    onOpen={toggleSidebar}
+                                />
+                                <div className={`${styles['model-selector-wrapper']} flex items-center absolute`}>
+                                    <ModelSelector />
+                                </div>
+                                <div className="ml-auto flex items-center gap-1">
+                                    {/* 分享按钮 */}
+                                    {isConversationPage && (
+                                        <SharePopover onShare={onShare || defaultShare} />
+                                    )}
+                                    {/* 收藏按钮 */}
+                                    {isConversationPage && (
+                                        <button
+                                            onClick={onToggleFavorite || defaultToggleFavorite}
+                                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200
+                                            text-gray-700 dark:text-gray-300"
+                                            title={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "取消收藏" : "收藏对话"}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-[21px] w-[21px]" viewBox="0 0 20 20" 
+                                                fill={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "currentColor" : "none"} 
+                                                stroke="currentColor" strokeWidth={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "0" : "1.5"}>
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                    {showAvatar && (
+                                        <div className="p-2 rounded-lg">
+                                                <UserAvatar />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <div className="ml-auto flex items-center gap-1">
-                                {/* 分享按钮 */}
-                                {isConversationPage && (
-                                    <SharePopover onShare={onShare || defaultShare} />
-                                )}
-                                {/* 收藏按钮 */}
-                                {isConversationPage && (
-                                    <button
-                                        onClick={onToggleFavorite || defaultToggleFavorite}
-                                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200
-                                        text-gray-700 dark:text-gray-300"
-                                        title={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "取消收藏" : "收藏对话"}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-[21px] w-[21px]" viewBox="0 0 20 20" 
-                                            fill={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "currentColor" : "none"} 
-                                            stroke="currentColor" strokeWidth={(onToggleFavorite ? isFavorited : defaultIsFavorited) ? "0" : "1.5"}>
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
-                                    </button>
-                                )}
-                                {showAvatar && (
-                                    <div className="p-2 rounded-lg">
-                                            <UserAvatar />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </header>
+                        </header>
+                    )}
 
                     {/* 主要内容 */}
                     {renderMainContent?.() || (

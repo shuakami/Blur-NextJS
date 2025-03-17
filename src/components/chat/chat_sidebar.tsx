@@ -17,6 +17,7 @@ import LoadingDots from '@/components/ui/loading-dots';
 import UserInfo from './chat_sidebar/UserInfo';
 import { StreamMessageHandler } from '@/app/[上下文]/core/StreamMessageHandler';
 import Link from 'next/link';
+import BookItemComponent from './chat_sidebar/BookItemComponent';
 
 // 常量定义
 const SCROLL_THRESHOLD = 0.5;
@@ -35,6 +36,11 @@ interface ChatSidebarProps {
     hasMore: boolean;
     loading: boolean;
     streamHandler?: React.MutableRefObject<StreamMessageHandler>;
+    mode?: 'chat' | 'book';
+    onCreateNew?: () => Promise<void>;
+    selectedItem: string | null;
+    onSelect: (id: string) => void;
+    isCreating?: boolean;
 }
 
 // 日期标签计算
@@ -68,22 +74,23 @@ const ChatSidebar = memo<ChatSidebarProps>(({
     onLoadMore, 
     hasMore, 
     loading,
-    streamHandler
+    streamHandler,
+    mode = 'chat',
+    onCreateNew,
+    selectedItem,
+    onSelect,
+    isCreating = false
 }) => {
     const { t } = useTranslation();
     const router = useRouter();
-    const pathname = usePathname();
-    const { newConversationId } = useConversationContext();
     const shortcutManager = useShortcutManager();
 
     // Refs
     const scrollRef = useRef<HTMLDivElement>(null);
     const loadingRef = useRef<HTMLDivElement | null>(null);
     const observerRef = useRef<IntersectionObserver | null>(null);
-    const isRoutingRef = useRef(false);
 
     // 状态
-    const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const [flattenedItems, setFlattenedItems] = useState<SidebarItem[]>([]);
     const [showLoading, setShowLoading] = useState(false);
 
@@ -141,40 +148,20 @@ const ChatSidebar = memo<ChatSidebarProps>(({
         return () => observerRef.current?.disconnect();
     }, [hasMore, loading, onLoadMore]);
 
-    // 路径监听
-    useEffect(() => {
-        if (isRoutingRef.current) return;
-
-        if (newConversationId && newConversationId !== selectedItem) {
-            setSelectedItem(newConversationId);
-            return;
-        }
-
-        if (pathname) {
-            const conversationId = pathname.split('/').pop();
-            if (conversationId && conversationId !== selectedItem) {
-                setSelectedItem(conversationId);
-            }
-        }
-    }, [pathname, selectedItem, newConversationId]);
-
     // 对话切换
     const handleSelectItem = useCallback((id: string) => {
-        if (id === selectedItem || isRoutingRef.current) return;
-        
-        isRoutingRef.current = true;
-        setSelectedItem(id);
-        
-        requestAnimationFrame(() => {
-            router.push(`/chat/${id}` as Route, { scroll: false });
-            isRoutingRef.current = false;
-        });
-    }, [router, selectedItem]);
+        if (id === selectedItem) return;
+        onSelect(id);
+    }, [selectedItem, onSelect]);
 
-    // 新建对话
-    const handleNewChat = useCallback(() => {
-        router.push('/?new=true' as Route);
-    }, [router]);
+    // 新建操作
+    const handleNew = useCallback(() => {
+        if (mode === 'book' && onCreateNew) {
+            onCreateNew();
+        } else {
+            router.push('/?new=true' as Route);
+        }
+    }, [router, mode, onCreateNew]);
 
     // 对话导航
     const getCurrentIndex = useCallback(() => (
@@ -231,17 +218,30 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                     {group.label}
                 </div>
                 <div className="mt-1">
-                    {group.children.map((item) => (
-                        <SidebarItemComponent
-                            key={item.id}
-                            item={item}
-                            level={0}
-                            selectedItem={selectedItem}
-                            onSelect={handleSelectItem}
-                            onUpdateConversations={onUpdateConversations || (() => {})}
-                            streamHandler={streamHandler}
-                        />
-                    ))}
+                    {mode === 'book' ? (
+                        group.children.map((item) => (
+                            <BookItemComponent
+                                key={item.id}
+                                item={item}
+                                level={0}
+                                selectedItem={selectedItem}
+                                onSelect={handleSelectItem}
+                                onUpdateBooks={onUpdateConversations || (() => {})}
+                            />
+                        ))
+                    ) : (
+                        group.children.map((item) => (
+                            <SidebarItemComponent
+                                key={item.id}
+                                item={item}
+                                level={0}
+                                selectedItem={selectedItem}
+                                onSelect={handleSelectItem}
+                                onUpdateConversations={onUpdateConversations || (() => {})}
+                                streamHandler={streamHandler}
+                            />
+                        ))
+                    )}
                 </div>
             </div>
         ))
@@ -318,10 +318,16 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleNewChat}
+                    onClick={handleNew}
                     className="text-muted-foreground hover:text-foreground"
                 >
-                    <MessageCirclePlus size={20} />
+                    {mode === 'book' ? (
+                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    ) : (
+                        <MessageCirclePlus size={20} />
+                    )}
                 </Button>
             </header>
 
@@ -390,7 +396,49 @@ const ChatSidebar = memo<ChatSidebarProps>(({
                         </ul>
                     </nav>
                     <section className="py-2" aria-label="对话列表">
-                        {renderContent()}
+                        {mode === 'book' ? (
+                            <div>
+                                {groupedItems.map((group) => (
+                                    <div key={group.label}>
+                                        <div className="sticky top-0 z-10 flex h-8 items-center bg-gray-50/95 dark:bg-gray-945/95 backdrop-blur-sm text-black/60 dark:text-white/80 text-xs px-5 ">
+                                            {group.label}
+                                        </div>
+                                        <div className="mt-1">
+                                            {group.children.map((item) => (
+                                                <BookItemComponent
+                                                    key={item.id}
+                                                    item={item}
+                                                    level={0}
+                                                    selectedItem={selectedItem}
+                                                    onSelect={handleSelectItem}
+                                                    onUpdateBooks={onUpdateConversations || (() => {})}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                                {(hasMore || loading) && (
+                                    <div 
+                                        ref={loadingRef} 
+                                        className={cn(
+                                            "mt-4 mb-6 flex justify-center",
+                                            "transition-opacity duration-300",
+                                            showLoading ? "opacity-100" : "opacity-0"
+                                        )}
+                                    >
+                                        {loading ? (
+                                            <LoadingDots size="md" />
+                                        ) : (
+                                            <div className="text-xs text-black/50 dark:text-white/50">
+                                                {t('继续浏览')}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            renderContent()
+                        )}
                     </section>
                 </div>
             </main>

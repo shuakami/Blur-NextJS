@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
+import MessagePagination from "./MessagePagination";
+import { modifyMessageAPI } from "@/app/[上下文]/api/chatAPI";
 
 // 按钮组件
 const Button = memo(({ 
@@ -42,17 +44,30 @@ const LoadingSpinner = memo(() => (
 LoadingSpinner.displayName = 'LoadingSpinner';
 
 const EditableMessage = memo(({ 
-    content, 
-    onSave, 
+    content,
+    messageId,
+    userId,
+    conversationId,
+    token,
+    onSave,
     onCancel 
 }: {
     content: string;
+    messageId: string;
+    userId: string;
+    conversationId: string;
+    token: string;
     onSave: (newContent: string) => Promise<void>;
     onCancel: () => void;
 }) => {
     const [editedContent, setEditedContent] = useState(content);
     const [isSaving, setIsSaving] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // 计算总页数
+    const linesPerPage = 10; // 每页显示10行
+    const totalPages = Math.ceil(content.split('\n').length / linesPerPage);
 
     // 自动调整文本框高度
     const adjustTextareaHeight = useCallback(() => {
@@ -83,14 +98,50 @@ const EditableMessage = memo(({
         }
         
         setIsSaving(true);
+        const controller = new AbortController();
+        
         try {
+            // 先更新本地状态
             await onSave(editedContent.trim());
-        } catch (error) {
-            console.error('保存修改失败:', error);
-        } finally {
             setIsSaving(false);
+            onCancel();
+
+            // 发送修改请求，不等待完成
+            modifyMessageAPI({
+                messageId,
+                userId,
+                conversationId,
+                newContent: editedContent.trim(),
+                token,
+                onInitialResponse: () => {},
+                onChunk: () => {},
+                onFinalInfo: () => {},
+                onError: (error) => {
+                    console.error('修改消息失败:', error);
+                },
+                signal: controller.signal
+            }).catch(error => {
+                console.error('API调用失败:', error);
+            });
+        } catch (error) {
+            console.error('保存失败:', error);
+            setIsSaving(false);
+            alert(error instanceof Error ? error.message : '保存修改失败');
         }
-    }, [editedContent, content, onSave, onCancel]);
+
+        return () => {
+            controller.abort();
+        };
+    }, [editedContent, content, messageId, userId, conversationId, token, onSave, onCancel]);
+
+    const handlePageChange = useCallback((page: number) => {
+        setCurrentPage(page);
+        const lines = content.split('\n');
+        const start = (page - 1) * linesPerPage;
+        const end = start + linesPerPage;
+        const pageContent = lines.slice(start, end).join('\n');
+        setEditedContent(pageContent);
+    }, [content, linesPerPage]);
 
     const isDisabled = isSaving || editedContent.trim() === content || !editedContent.trim();
 
@@ -125,6 +176,13 @@ const EditableMessage = memo(({
                     ) : '确定'}
                 </Button>
             </div>
+            {totalPages > 1 && (
+                <MessagePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                />
+            )}
         </div>
     );
 });

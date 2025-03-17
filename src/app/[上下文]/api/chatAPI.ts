@@ -1,6 +1,7 @@
 import { sendMessage as sendMessageAPIBase } from '@/app/[消息发送]/send_message';
 import { stopStream as stopStreamAPIBase } from '@/app/[对话管理]/stop_stream';
 import { fetchHistory as fetchHistoryBase } from "@/app/[拉取历史]/fetch_history";
+import { handleStream } from '@/app/[流式处理]/stream';
 import { SendMessageResponse, StreamChunk, FinalInfo, APIMessage } from '@/types/stream';
 
 // 错误类
@@ -41,6 +42,20 @@ export interface FetchHistoryParams {
 export interface FetchHistoryResponse {
     messages: APIMessage[];
     total_count: number;
+}
+
+// 新增修改消息的接口参数定义
+export interface ModifyMessageParams {
+    messageId: string;
+    userId: string;
+    conversationId: string;
+    newContent: string;
+    token: string;
+    onInitialResponse: (response: SendMessageResponse) => void;
+    onChunk: (chunk: StreamChunk) => void;
+    onFinalInfo: (info: FinalInfo) => void;
+    onError: (error: APIError) => void;
+    signal: AbortSignal;
 }
 
 // API 实现
@@ -123,6 +138,71 @@ export const fetchHistoryAPI = async ({
         throw new APIError(
             error.message || 'Failed to fetch history',
             'FETCH_HISTORY_ERROR',
+            error.status,
+            error
+        );
+    }
+};
+
+// 新增修改消息的API实现
+export const modifyMessageAPI = async ({
+    messageId,
+    userId,
+    conversationId,
+    newContent,
+    token,
+    onInitialResponse,
+    onChunk,
+    onFinalInfo,
+    onError,
+    signal
+}: ModifyMessageParams): Promise<void> => {
+    try {
+        const API_BASE_URL = process.env.NODE_ENV === 'production'
+            ? process.env.NEXT_PUBLIC_PROD_API_URL
+            : process.env.NEXT_PUBLIC_LOCAL_API_URL;
+
+        const response = await fetch(`${API_BASE_URL}/api/v1/message/modify`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                message_id: messageId,
+                user_id: userId,
+                conversation_id: conversationId,
+                new_content: newContent,
+            }),
+            signal,
+        });
+
+        if (response.status === 401) {
+            const error = new Error('身份验证失败');
+            onError(new APIError(error.message, 'UNAUTHORIZED', 401));
+            throw error;
+        }
+
+        if (!response.body) {
+            throw new Error('浏览器不支持流式响应。');
+        }
+
+        await handleStream(
+            response.body,
+            onInitialResponse,
+            onChunk,
+            onFinalInfo,
+            (error) => onError(new APIError(
+                error.message || 'Failed to modify message',
+                'MODIFY_MESSAGE_ERROR',
+                error.status,
+                error
+            ))
+        );
+    } catch (error: any) {
+        throw new APIError(
+            error.message || 'Failed to modify message',
+            'MODIFY_MESSAGE_ERROR',
             error.status,
             error
         );

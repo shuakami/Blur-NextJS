@@ -7,10 +7,10 @@ import {useMessageContext, useChatStateContext} from '@/app/[上下文]/ChatCont
 import {ChatList as UIChatList} from '@/components/ui/chat-list';
 
 const ChatList = memo(() => {
-    const {messages} = useMessageContext();
+    const { messages } = useMessageContext();
     const { isLoading } = useChatStateContext();
     
-    console.log(messages);
+    console.log("ChatList", messages);
     return <UIChatList messages={messages} isLoading={isLoading || false} />;
 });
 

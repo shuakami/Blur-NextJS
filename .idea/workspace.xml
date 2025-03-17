@@ -5,8 +5,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cad02b1c-7689-42b7-9a9a-47ef1969d236" name="更改" comment="feat(editor/Book): 优化命令菜单和编辑器功能&#10;&#10;- 重构了命令菜单的显示逻辑和键盘控制&#10;- 新增了自定义选择扩展，实现快速全选和全选当前块的功能&#10;- 移除了冗余的菜单栏组件&#10;- 优化了编辑器的样式和布局&#10;- 修复了一些bug">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/code.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/book/[id].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/book/[id].tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/components/BlockMenu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/components/commands.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/components/commands.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Book/components/Editor/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Book/components/Editor/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/[DEMO]/chat-list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/[DEMO]/chat-list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[上下文]/api/chatAPI.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[上下文]/api/chatAPI.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[上下文]/core/DialogProcessor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[上下文]/core/DialogProcessor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[侧边栏管理]/messages_sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[侧边栏管理]/messages_sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[拉取历史]/fetch_history.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[拉取历史]/fetch_history.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[消息显示]/chat_list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[消息显示]/chat_list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/chat/chat_sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/chat/chat_sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/layouts/PersistentSidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layouts/PersistentSidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/layouts/SharedChatLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layouts/SharedChatLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/BotMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/BotMessage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/EditableMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/EditableMessage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/UserMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/UserMessage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/chat-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/markdown/MarkdownRenderer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/sidebar/MobileSidebar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/useDebounce.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/useDebounce.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/api/ConnectionManager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/api/ConnectionManager.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/markdown/lists.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/markdown/lists.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/shortcuts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/shortcuts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tailwind.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,28 +71,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;backup/scroll-features-20240110&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;20.18.0&quot;,
-    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;20.17.1&quot;,
-    &quot;last_opened_file_path&quot;: &quot;F:/A-Project-Blur/electron-app-main/N2/Blur-NextJS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.语言默认设置&quot;,
-    &quot;settings.editor.splitter.proportion&quot;: &quot;0.15554072&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;F:\\A-Project-Blur\\electron-app-main\\N2\\Blur-NextJS\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "javascript.nodejs.core.library.configured.version": "20.18.0",
+    "javascript.nodejs.core.library.typings.version": "20.17.1",
+    "last_opened_file_path": "F:/A-Project-Blur/electron-app-main/N2/Blur-NextJS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.语言默认设置",
+    "settings.editor.splitter.proportion": "0.15554072",
+    "ts.external.directory.path": "F:\\A-Project-Blur\\electron-app-main\\N2\\Blur-NextJS\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="QodanaReportsService">
     <option name="descriptions">
       <ReportDescription localRun="true" path="C:\Users\Administrator\AppData\Local\Temp\qodana_output2\qodana.sarif.json" reportGuid="bbf56135-701b-4cf1-899c-6f08f9b05f8b" reportId="nextjs/qodana/2024-09-25" />
@@ -121,6 +148,7 @@
       <workItem from="1736340974958" duration="4261000" />
       <workItem from="1736490948987" duration="598000" />
       <workItem from="1736491712087" duration="1349000" />
+      <workItem from="1740710062568" duration="26000" />
     </task>
     <task id="LOCAL-00036" summary="修复一个会导致APIURL无法正常读取的问题&#10;&#10;---&#10;&#10;更改了API配置和消息发送模块中的环境变量引用，以使用NEXT_PUBLIC前缀。&#10;这确保了正确的环境变量在生产&#10;和本地开发环境中都能被读取和使用。">
       <option name="closed" value="true" />

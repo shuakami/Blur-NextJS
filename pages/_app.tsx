@@ -1,6 +1,5 @@
 // src/pages/_app.tsx
 import { AppProps } from 'next/app';
-import NProgress from 'nprogress';
 import '@/styles/globals.css';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, Suspense, lazy, startTransition, useState, memo } from 'react';
@@ -8,7 +7,6 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import GlobalErrorHandler from "@/api/GlobalErrorHandler";
 import { LXHThemeProvider } from '@/theme/ThemeContext';
-import 'nprogress/nprogress.css';
 import { ApiClientProvider } from "@/api/ApiClientProvider";
 import { ConversationsProvider } from "../src/app/[对话管理]/ConversationsContext";
 import seoDescription from "@/seo/seo_description";
@@ -31,9 +29,6 @@ const SpeedInsights = lazy(() => import('@vercel/speed-insights/next').then(mod 
 const Toaster = lazy(() => import('@/components/ui/toaster').then(mod => ({ default: mod.Toaster })));
 const ClientVersionCheck = lazy(() => import('@/components/ClientVersionCheck'));
 
-
-// NProgress 配置
-NProgress.configure({ showSpinner: false, speed: 400, minimum: 0.2 });
 
 const description = seoDescription;
 const keywords = seoKeywords.join(',');
@@ -157,23 +152,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         startTransition(() => {
             setIsRouterReady(true);
         });
-
-        const handleStart = () => {
-            if (!NProgress.isStarted()) {
-                NProgress.start();
-            }
-        };
-        const handleStop = () => NProgress.done();
-
-        router.events.on('routeChangeStart', handleStart);
-        router.events.on('routeChangeComplete', handleStop);
-        router.events.on('routeChangeError', handleStop);
-
-        return () => {
-            router.events.off('routeChangeStart', handleStart);
-            router.events.off('routeChangeComplete', handleStop);
-            router.events.off('routeChangeError', handleStop);
-        };
     }, [router]);
 
 

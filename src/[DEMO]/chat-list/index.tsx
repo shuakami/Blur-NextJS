@@ -828,7 +828,6 @@ export default function ChatListShowcase() {
     
     const content = `React 是一个用于构建用户界面的 JavaScript 库。以下是它的主要特点：
 
-
   [USE_TOOL type="text" id="1"]
   {
     "type": "minutely",

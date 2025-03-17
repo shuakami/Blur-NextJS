@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, memo } from 'react';
+import React, { useMemo, memo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -176,6 +176,15 @@ export const MarkdownRenderer: React.FC<{
     footnoteReference: FootnoteRef,
     footnoteBackReference: FootnoteBackref,
   }), []);
+
+  useEffect(() => {
+    console.log('[MarkdownRenderer] Render:', {
+      contentLength: content.length,
+      contentPreview: content.slice(0, 50),
+      isStreaming,
+      hasStreamingClass: document.querySelector('.result-streaming') !== null
+    });
+  });
 
   return (
     <div className={`markdown-body ${isStreaming ? 'result-streaming' : ''}`}>

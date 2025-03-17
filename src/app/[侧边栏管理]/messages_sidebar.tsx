@@ -9,6 +9,8 @@ import { useConversations } from "../[对话管理]/ConversationsContext";
 import useTranslation from '../../hooks/i18n/useTranslation';
 import type { Conversation } from './types';
 import { StreamMessageHandler } from '@/app/[上下文]/core/StreamMessageHandler';
+import { useRouteManager } from './route_manager';
+import { useConversationContext } from '@/app/[上下文]/contexts';
 
 // 常量定义
 const LIMIT = 20;
@@ -80,6 +82,14 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({
     const { t } = useTranslation();
     const { isSignedIn, user, isLoaded } = useUser();
     const { conversations, setConversations } = useConversations();
+    const { newConversationId } = useConversationContext();
+    
+    // 使用新的路由管理器
+    const {
+        currentId,
+        isRouting,
+        updateRoute
+    } = useRouteManager('chat', undefined, newConversationId);
     
     // 跟踪加载状态
     const loadingRef = useRef(false);
@@ -164,14 +174,20 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({
         status: 'Test#AL1_0001',
     }), [user?.imageUrl, user?.fullName, t]);
 
+    // 加载状态处理
+    const isPageLoading = state.loading || isRouting;
+    
+    // 错误处理优化
+    useEffect(() => {
+        if (state.error) {
+            console.error('Sidebar error:', state.error);
+            // 可以添加错误提示
+        }
+    }, [state.error]);
+
     // 处理未登录状态
     if (isLoaded && !isSignedIn) {
         return <UnauthenticatedSidebar onClose={onClose || (() => {})} />;
-    }
-    
-    // 错误处理
-    if (state.error) {
-        console.error('Sidebar error:', state.error);
     }
     
     return (
@@ -182,8 +198,11 @@ const MessagesSidebar = memo<MessagesSidebarProps>(({
             onUpdateConversations={() => loadConversations(true)}
             onLoadMore={() => loadConversations(false)}
             hasMore={state.hasMore}
-            loading={state.loading}
+            loading={isPageLoading}
             streamHandler={streamHandler}
+            mode="chat"
+            selectedItem={currentId}
+            onSelect={updateRoute}
         />
     );
 });

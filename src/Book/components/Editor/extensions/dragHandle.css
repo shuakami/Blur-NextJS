@@ -1,0 +1,55 @@
+/* 拖拽相关样式 */
+.tiptap > * {
+  transition: opacity 0.2s ease;
+  position: relative;
+  user-select: none;
+}
+
+.tiptap > *.is-dragging {
+  opacity: 0.2;
+  position: relative;
+}
+
+.tiptap > *.is-dragging::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(37, 99, 235, 0.1);
+  pointer-events: none;
+}
+
+/* 拖拽预览 */
+.drag-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.3;
+  transform: scale(1.01);
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  user-select: none;
+}
+
+/* 位置指示器 */
+.drag-indicator {
+  position: fixed;
+  height: 5px;
+  background-color: rgba(59, 130, 246, 0.4);
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+  border-radius: 1px;
+  z-index: 100;
+}
+
+/* 暗色模式 */
+.dark .drag-indicator {
+  background-color: rgba(96, 165, 250, 0.4);
+}
+
+/* 防止编辑器内容在拖动时被选中 */
+.tiptap.dragging * {
+  user-select: none !important;
+} 

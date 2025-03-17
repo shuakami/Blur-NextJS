@@ -3,7 +3,7 @@ import { ThoughtProcess } from "@/types/stream";
 import { Avatar } from "@/components/ui/avatar";
 import MoonLogo from "../../../pages/logo";
 import { useChatStateContext } from "@/app/[上下文]/ChatContext";
-import MarkdownRenderer from "@/components/ui/markdown/MarkdownRenderer";
+import { StreamingMarkdown } from './streaming/StreamingMarkdown';
 import { cn } from '@/lib/utils/utils';
 import { Agent } from "./LLM/agent";
 import AnimatedShinyText from "./animated-shiny-text";
@@ -314,7 +314,7 @@ const MessageContent = memo(({
   return (
     <div className="message-content">
       {item.type === "text" && (
-        <MarkdownRenderer
+        <StreamingMarkdown
           content={item.content || ""}
           isStreaming={isStreaming && isLatestBotMessage}
         />

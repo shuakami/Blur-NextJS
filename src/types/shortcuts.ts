@@ -7,6 +7,7 @@ export type ShortcutCommand =
   | 'TOGGLE_MODEL'
   | 'FOCUS_CHAT'
   | 'TOGGLE_COMMAND_CENTER'
+  | 'DELETE_BOOK'
 
 export interface ShortcutConfig {
   command: ShortcutCommand

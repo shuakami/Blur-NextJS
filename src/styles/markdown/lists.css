@@ -10,7 +10,7 @@
 /* 基础列表样式 */
 .list-decimal,
 .list-disc {
-    margin: var(--list-block-spacing) 0;
+    margin: calc(var(--list-block-spacing) * 0.1) 0;
     padding-left: var(--list-indent);
     list-style-position: outside;
 }
@@ -18,12 +18,18 @@
 /* 列表项基础样式 */
 .list-item {
     position: relative;
-    margin: var(--item-spacing) 0;
+    padding-bottom: var(--item-spacing);
     padding-left: var(--marker-text-gap);
     line-height: 1.625;
     color: var(--text-color);
     letter-spacing: var(--cjk-letter-spacing);
     word-spacing: var(--latin-word-spacing);
+}
+
+/* 移除最后一个列表项的底部间距 */
+.list-decimal > .list-item:last-child,
+.list-disc > .list-item:last-child {
+    padding-bottom: 0;
 }
 
 /* 有序列表 */
